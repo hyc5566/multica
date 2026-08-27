@@ -1,10 +1,10 @@
 {
-  "remove_label": "移除标签 {{name}}",
+  "remove_label": "移除標籤 {{name}}",
   "resource_picker": {
-    "empty": "暂无标签",
-    "add": "添加标签",
-    "search": "搜索标签...",
-    "no_labels": "请先在设置中创建标签",
-    "no_results": "没有匹配的标签"
+    "empty": "暫無標籤",
+    "add": "新增標籤",
+    "search": "搜尋標籤...",
+    "no_labels": "請先在設定中建立標籤",
+    "no_results": "沒有匹配的標籤"
   }
 }
