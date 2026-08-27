@@ -1,144 +1,144 @@
 {
   "page": {
-    "title": "小队",
-    "new_button": "新建小队",
-    "empty_no_squads": "还没有小队，创建一个开始吧。",
-    "empty_no_match": "没有匹配筛选条件的小队。",
+    "title": "小隊",
+    "new_button": "新建小隊",
+    "empty_no_squads": "還沒有小隊，建立一個開始吧。",
+    "empty_no_match": "沒有匹配篩選條件的小隊。",
     "table": {
-      "name": "小队",
-      "leader": "队长",
-      "members": "成员",
-      "creator": "创建者",
-      "created": "创建时间"
+      "name": "小隊",
+      "leader": "隊長",
+      "members": "成員",
+      "creator": "建立者",
+      "created": "建立時間"
     },
-    "no_matches": "没有匹配的小队",
-    "row_menu": "小队操作",
-    "archive_action": "归档"
+    "no_matches": "沒有匹配的小隊",
+    "row_menu": "小隊操作",
+    "archive_action": "歸檔"
   },
   "inspector": {
-    "details_section": "详情",
-    "archive_button": "归档"
+    "details_section": "詳情",
+    "archive_button": "歸檔"
   },
   "member_type": {
-    "agent": "智能体",
-    "member": "成员"
+    "agent": "智慧體",
+    "member": "成員"
   },
   "archive_dialog": {
-    "title": "归档这个小队？",
-    "description": "“{{name}}” 将被归档，该小队当前承接的任务会转交给小队负责人。此操作无法撤销，如需恢复路由请新建小队。",
+    "title": "歸檔這個小隊？",
+    "description": "“{{name}}” 將被歸檔，該小隊當前承接的任務會轉交給小隊負責人。此操作無法撤銷，如需恢復路由請新建小隊。",
     "cancel": "取消",
-    "confirm": "归档",
-    "archiving": "归档中…",
-    "success": "已归档小队"
+    "confirm": "歸檔",
+    "archiving": "歸檔中…",
+    "success": "已歸檔小隊"
   },
   "name_editor": {
-    "title": "重命名小队",
-    "placeholder": "小队名称",
-    "required": "名称不能为空",
+    "title": "重新命名小隊",
+    "placeholder": "小隊名稱",
+    "required": "名稱不能為空",
     "cancel": "取消",
-    "save": "保存",
-    "saved": "已保存",
-    "save_failed": "保存失败"
+    "save": "儲存",
+    "saved": "已儲存",
+    "save_failed": "儲存失敗"
   },
   "add_member_dialog": {
-    "title": "添加成员",
-    "description": "添加工作区成员或智能体到这个小队。",
-    "label_member": "成员",
+    "title": "新增成員",
+    "description": "新增工作區成員或智能體到這個小隊。",
+    "label_member": "成員",
     "label_role": "角色",
-    "label_optional": "（可选）",
+    "label_optional": "（可選）",
     "cancel": "取消",
-    "select_target": "选择成员或智能体",
-    "search_placeholder": "搜索成员或智能体...",
-    "members_section": "成员",
-    "agents_section": "智能体",
-    "role_placeholder": "例如：审查者、前端负责人",
-    "add": "添加"
+    "select_target": "選擇成員或智慧體",
+    "search_placeholder": "搜尋成員或智慧體...",
+    "members_section": "成員",
+    "agents_section": "智慧體",
+    "role_placeholder": "例如：審查者、前端負責人",
+    "add": "新增"
   },
   "role_editor": {
-    "empty": "添加角色…",
-    "placeholder": "角色（例如：审查者）"
+    "empty": "新增角色…",
+    "placeholder": "角色（例如：審查者）"
   },
   "description_dialog": {
-    "title": "编辑描述",
-    "placeholder_empty": "添加描述",
+    "title": "編輯描述",
+    "placeholder_empty": "新增描述",
     "cancel": "取消",
-    "responsibility_placeholder": "这个小队负责什么？",
-    "save": "保存"
+    "responsibility_placeholder": "這個小隊負責什麼？",
+    "save": "儲存"
   },
   "discard_changes_dialog": {
-    "title": "放弃未保存的修改？",
-    "description": "当前标签页有未保存的修改，切换标签会丢弃这些修改。",
-    "keep_editing": "继续编辑",
-    "discard_button": "放弃"
+    "title": "放棄未儲存的修改？",
+    "description": "當前標籤頁有未儲存的修改，切換標籤會丟棄這些修改。",
+    "keep_editing": "繼續編輯",
+    "discard_button": "放棄"
   },
   "members_tab": {
-    "section_title": "成员",
-    "section_count_other": "该小队有 {{count}} 名成员",
-    "add_member_button": "添加成员",
-    "create_agent_button": "创建智能体",
-    "leader_chip": "队长",
-    "view_agent_tooltip": "打开智能体详情",
-    "make_leader_tooltip": "设为小队负责人",
-    "remove_member_tooltip": "从小队移除",
+    "section_title": "成員",
+    "section_count_other": "該小隊有 {{count}} 名成員",
+    "add_member_button": "新增成員",
+    "create_agent_button": "建立智能體",
+    "leader_chip": "隊長",
+    "view_agent_tooltip": "開啟智能體詳情",
+    "make_leader_tooltip": "設為小隊負責人",
+    "remove_member_tooltip": "從小隊移除",
     "status_working": "工作中",
-    "status_idle": "空闲",
-    "status_offline": "离线",
-    "status_unstable": "不稳定",
-    "status_archived": "已归档",
+    "status_idle": "空閒",
+    "status_offline": "離線",
+    "status_unstable": "不穩定",
+    "status_archived": "已歸檔",
     "issue_status_blocked": "已阻塞",
-    "active_issue_more": "还有 {{count}} 个",
-    "last_active_label": "最近活动 {{time}}"
+    "active_issue_more": "還有 {{count}} 個",
+    "last_active_label": "最近活動 {{time}}"
   },
   "detail_tabs": {
-    "members": "成员",
+    "members": "成員",
     "instructions": "指引"
   },
   "details": {
-    "leader": "队长",
-    "members": "成员",
-    "created_by": "创建者",
-    "created": "创建时间",
-    "updated": "更新时间"
+    "leader": "隊長",
+    "members": "成員",
+    "created_by": "建立者",
+    "created": "建立時間",
+    "updated": "更新時間"
   },
   "toasts": {
-    "member_added": "已添加成员",
-    "member_add_failed": "添加成员失败",
-    "member_removed": "已移除成员",
-    "member_remove_failed": "移除成员失败",
+    "member_added": "已新增成員",
+    "member_add_failed": "新增成員失敗",
+    "member_removed": "已移除成員",
+    "member_remove_failed": "移除成員失敗",
     "role_updated": "角色已更新",
-    "role_update_failed": "更新角色失败",
-    "leader_updated": "队长已更新",
-    "leader_update_failed": "更新队长失败",
-    "archive_failed": "归档小队失败",
-    "instructions_saved": "指引已保存"
+    "role_update_failed": "更新角色失敗",
+    "leader_updated": "隊長已更新",
+    "leader_update_failed": "更新隊長失敗",
+    "archive_failed": "歸檔小隊失敗",
+    "instructions_saved": "指引已儲存"
   },
   "profile_card": {
-    "unavailable": "小队不可用",
-    "detail_link": "详情 →",
-    "archived": "已归档",
-    "member_count_other": "{{count}} 名成员",
-    "members_section": "成员",
-    "more_members_other": "还有 {{count}} 人"
+    "unavailable": "小隊不可用",
+    "detail_link": "詳情 →",
+    "archived": "已歸檔",
+    "member_count_other": "{{count}} 名成員",
+    "members_section": "成員",
+    "more_members_other": "還有 {{count}} 人"
   },
   "instructions_tab": {
-    "description": "小队指引会在队长智能体处理分配给该小队的任务时注入到它的 prompt 中。可用来给队长提供贯穿全队的指导、协作规范，或每次运行都应遵循的上下文。",
-    "unsaved_changes": "有未保存的修改",
-    "save_button": "保存",
-    "placeholder": "例如：始终先编写失败测试。提交应保持小而独立。"
+    "description": "小隊指引會在隊長智慧體處理分配給該小隊的任務時注入到它的 prompt 中。可用來給隊長提供貫穿全隊的指導、協作規範，或每次執行都應遵循的上下文。",
+    "unsaved_changes": "有未儲存的修改",
+    "save_button": "儲存",
+    "placeholder": "例如：始終先編寫失敗測試。提交應保持小而獨立。"
   },
   "scope": {
     "mine": "我的",
     "all": "全部"
   },
   "toolbar": {
-    "display": "显示",
+    "display": "顯示",
     "sort_by": "排序",
     "direction_asc": "升序",
     "direction_desc": "降序",
     "section_columns": "列",
-    "result_count_title": "当前结果 / 全部小队",
-    "filter_label": "筛选",
-    "filter_active_count_other": "{{count}} 项筛选",
-    "clear_filters": "清除筛选"
+    "result_count_title": "當前結果 / 全部小隊",
+    "filter_label": "篩選",
+    "filter_active_count_other": "{{count}} 項篩選",
+    "clear_filters": "清除篩選"
   }
 }

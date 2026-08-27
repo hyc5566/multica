@@ -8,7 +8,7 @@ export const locales: Locale[] = ["en", "zh-Hans", "ko", "ja"];
 
 export const localeLabels: Record<Locale, string> = {
   en: "EN",
-  "zh-Hans": "\u4e2d\u6587",
+  "zh-Hans": "繁體中文",
   ko: "\ud55c\uad6d\uc5b4",
   ja: "\u65e5\u672c\u8a9e",
 };
