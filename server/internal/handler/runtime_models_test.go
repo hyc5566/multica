@@ -8,6 +8,43 @@ import (
 	"time"
 )
 
+func TestModelListStoreProviderUsageRoundTrip(t *testing.T) {
+	t.Parallel()
+	store := NewInMemoryModelListStore()
+	req, err := store.Create(t.Context(), "rt-usage", "provider_usage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	claimed, err := store.PopPending(t.Context(), "rt-usage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if claimed == nil || claimed.Purpose != "provider_usage" {
+		t.Fatalf("claimed request = %+v", claimed)
+	}
+	used, remaining := 12.0, 88.0
+	usage := &ProviderUsageSnapshot{
+		Provider: "codex",
+		Status:   "available",
+		Source:   "official",
+		Windows: []ProviderUsageWindow{{
+			ID: "weekly", Label: "Weekly limit", UsedPercent: &used,
+			RemainingPercent: &remaining, Unit: "percent",
+		}},
+		ObservedAt: time.Now().UTC(),
+	}
+	if err := store.Complete(t.Context(), req.ID, nil, nil, true, usage); err != nil {
+		t.Fatal(err)
+	}
+	got, err := store.Get(t.Context(), req.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got == nil || got.ProviderUsage == nil || got.ProviderUsage.Provider != "codex" {
+		t.Fatalf("stored usage = %+v", got)
+	}
+}
+
 // TestModelListStore_RunningRequestTimesOut pins the escape hatch for
 // requests that were claimed (PopPending → Running) but whose result was
 // never reported — usually because the heartbeat response carrying the
