@@ -223,7 +223,7 @@ describe("TaskCommentCoverage", () => {
       { locale: "zh-Hans" },
     );
 
-    expect(screen.getByText("包含 3 条评论")).toBeInTheDocument();
+    expect(screen.getByText("包含 3 條評論")).toBeInTheDocument();
   });
 });
 
@@ -251,8 +251,8 @@ describe("execution log failure reasons", () => {
       { locale: "zh-Hans" },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "显示历史运行（1）" }));
-    expect(screen.getByText(/提供商配额已用尽/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "顯示歷史執行（1）" }));
+    expect(screen.getByText(/提供商配額已用盡/)).toBeInTheDocument();
     expect(
       screen.queryByText(/Provider quota exhausted/),
     ).not.toBeInTheDocument();
@@ -271,9 +271,9 @@ describe("execution log failure reasons", () => {
       { locale: "zh-Hans" },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "显示历史运行（1）" }));
+    fireEvent.click(screen.getByRole("button", { name: "顯示歷史執行（1）" }));
     expect(screen.queryByTitle(/provider returned 402/)).not.toBeInTheDocument();
-    expect(screen.getByTitle("提供商配额已用尽")).toBeInTheDocument();
+    expect(screen.getByTitle("提供商配額已用盡")).toBeInTheDocument();
   });
 });
 

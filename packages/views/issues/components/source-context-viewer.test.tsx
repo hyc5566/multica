@@ -326,15 +326,15 @@ describe("SourceContextBadge", () => {
       </I18nProvider>,
     );
 
-    expect(screen.getByRole("status")).toHaveTextContent("来源有更新");
+    expect(screen.getByRole("status")).toHaveTextContent("來源有更新");
     fireEvent.click(screen.getByRole("button", { name: "上下文快照" }));
 
-    const alert = await screen.findByText("来源在捕获后发生变化。");
+    const alert = await screen.findByText("來源在捕獲後發生變化。");
     const status = alert.closest("[data-slot='source-context-change-summary']");
     expect(alert.closest("p")).toHaveTextContent(
-      "来源在捕获后发生变化。变化项：任务标题 · 任务描述 · 讨论",
+      "來源在捕獲後發生變化。變化項：任務標題 · 任務描述 · 討論",
     );
-    expect(status).toHaveTextContent("任务附件变化：移除 1");
+    expect(status).toHaveTextContent("任務附件變化：移除 1");
   });
 
   it("keeps a single changed object in the same structured layout", async () => {
