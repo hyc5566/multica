@@ -54,7 +54,7 @@ describe("ColorPickerPanel", () => {
     renderWithI18n(<ColorPickerPanel value="#3b82f6" onChange={() => {}} />, {
       locale: "zh-Hans",
     });
-    expect(screen.getByRole("button", { name: "随机" })).toBeInTheDocument();
-    expect(screen.getByText("预设颜色")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "隨機" })).toBeInTheDocument();
+    expect(screen.getByText("預設顏色")).toBeInTheDocument();
   });
 });
