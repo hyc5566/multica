@@ -1,0 +1,30 @@
+appId: ai.multica.desktop.zh-tw.local
+productName: Multica 繁中版
+directories:
+  buildResources: build
+  output: dist-zh-tw
+files:
+  - "!**/.vscode/*"
+  - "!src/*"
+  - "!electron.vite.config.*"
+  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
+  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+  - "!dist/**"
+  - "!dist-zh-tw*/**"
+extraResources:
+  - from: ../../LICENSE
+    to: LICENSE
+  - from: ../../NOTICE
+    to: NOTICE
+protocols:
+  - name: Multica 繁中版
+    schemes:
+      - multica-zh-tw
+asarUnpack:
+  - resources/**
+mac:
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+  target:
+    - dir
+npmRebuild: false
