@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"io"
 	"math"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -37,8 +39,8 @@ type ProviderUsageWindow struct {
 	Unit               string     `json:"unit"`
 }
 
-// ProbeProviderUsage asks the installed provider CLI for its own account
-// quota. It never reads credential files directly and never returns raw CLI
+// ProbeProviderUsage reads the provider's safest supported local account-quota
+// source. It never reads credential files directly and never returns raw CLI
 // diagnostics, which can contain account or authentication details.
 func ProbeProviderUsage(ctx context.Context, provider string, cmd Command) ProviderUsage {
 	now := time.Now().UTC()
@@ -51,13 +53,7 @@ func ProbeProviderUsage(ctx context.Context, provider string, cmd Command) Provi
 	case "antigravity":
 		usage, err = probeAntigravityUsage(ctx, cmd)
 	case "claude":
-		return ProviderUsage{
-			Provider:   provider,
-			Status:     "unavailable",
-			Source:     "unavailable",
-			ObservedAt: now,
-			Message:    "Claude Code does not expose account quota through a standalone structured command; open /usage in Claude Code for the provider view.",
-		}
+		usage, err = probeClaudeUsage()
 	default:
 		return ProviderUsage{
 			Provider:   provider,
@@ -87,6 +83,102 @@ func ProbeProviderUsage(ctx context.Context, provider string, cmd Command) Provi
 		usage.ObservedAt = now
 	}
 	return usage
+}
+
+const (
+	claudeUsageSnapshotEnv = "MULTICA_CLAUDE_USAGE_SNAPSHOT"
+	claudeUsageMaxAge      = 30 * time.Minute
+)
+
+// probeClaudeUsage reads a credential-free cache populated by Claude Code's
+// statusLine input. Claude Code has no non-interactive /usage command, but its
+// documented status-line payload includes the official five-hour and seven-day
+// quota windows after the first API response in a subscriber session. A status
+// line can copy only those fields to this cache without exposing auth material.
+func probeClaudeUsage() (ProviderUsage, error) {
+	path := strings.TrimSpace(os.Getenv(claudeUsageSnapshotEnv))
+	if path == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return ProviderUsage{}, err
+		}
+		path = filepath.Join(home, ".multica", "provider-usage", "claude.json")
+	}
+	raw, err := os.ReadFile(path)
+	if errors.Is(err, os.ErrNotExist) {
+		return ProviderUsage{
+			Status:  "unavailable",
+			Source:  "unavailable",
+			Message: "No Claude Code status-line quota snapshot is available yet. Run one Claude Code turn with usage capture enabled, then refresh.",
+		}, nil
+	}
+	if err != nil {
+		return ProviderUsage{}, err
+	}
+	return parseClaudeUsage(raw, time.Now().UTC())
+}
+
+func parseClaudeUsage(raw []byte, now time.Time) (ProviderUsage, error) {
+	var snapshot struct {
+		ObservedAt time.Time `json:"observed_at"`
+		RateLimits struct {
+			FiveHour *struct {
+				UsedPercentage *float64 `json:"used_percentage"`
+				ResetsAt       *int64   `json:"resets_at"`
+			} `json:"five_hour"`
+			SevenDay *struct {
+				UsedPercentage *float64 `json:"used_percentage"`
+				ResetsAt       *int64   `json:"resets_at"`
+			} `json:"seven_day"`
+		} `json:"rate_limits"`
+	}
+	if err := json.Unmarshal(raw, &snapshot); err != nil {
+		return ProviderUsage{}, err
+	}
+	if snapshot.ObservedAt.IsZero() {
+		return ProviderUsage{}, errors.New("claude usage snapshot has no observation time")
+	}
+
+	usage := ProviderUsage{
+		Status:     "available",
+		Source:     "official",
+		ObservedAt: snapshot.ObservedAt.UTC(),
+	}
+	appendWindow := func(id, label string, duration int64, usedPercentage *float64, resetsAt *int64) {
+		if usedPercentage == nil && resetsAt == nil {
+			return
+		}
+		window := ProviderUsageWindow{
+			ID: id, Group: "Claude Code", Label: label, WindowDurationMins: &duration, Unit: "percent",
+		}
+		if usedPercentage != nil {
+			used := clampPercent(*usedPercentage)
+			remaining := clampPercent(100 - used)
+			window.UsedPercent = &used
+			window.RemainingPercent = &remaining
+		}
+		if resetsAt != nil {
+			reset := time.Unix(*resetsAt, 0).UTC()
+			window.ResetsAt = &reset
+		}
+		usage.Windows = append(usage.Windows, window)
+	}
+	if snapshot.RateLimits.FiveHour != nil {
+		appendWindow("five-hour", "5 hour limit", 300, snapshot.RateLimits.FiveHour.UsedPercentage, snapshot.RateLimits.FiveHour.ResetsAt)
+	}
+	if snapshot.RateLimits.SevenDay != nil {
+		appendWindow("seven-day", "Weekly limit", 10080, snapshot.RateLimits.SevenDay.UsedPercentage, snapshot.RateLimits.SevenDay.ResetsAt)
+	}
+	if len(usage.Windows) == 0 {
+		usage.Status = "partial"
+		usage.Message = "Claude Code's latest status-line snapshot did not include subscriber quota windows."
+		return usage, nil
+	}
+	if now.Sub(usage.ObservedAt) > claudeUsageMaxAge {
+		usage.Status = "partial"
+		usage.Message = "This is Claude Code's last official snapshot; start or resume a Claude Code session to refresh it."
+	}
+	return usage, nil
 }
 
 func isUsageAuthError(err error) bool {
