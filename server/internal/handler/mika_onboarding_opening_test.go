@@ -100,3 +100,40 @@ func TestMikaOnboardingOpeningKeepsItsFourBeats(t *testing.T) {
 		t.Errorf("the opening must not list options — that is the cards' job:\n%s", opening)
 	}
 }
+
+func TestMikaOnboardingOpeningUsesTaiwanTraditionalChinese(t *testing.T) {
+	opening := buildMikaOnboardingOpening("zh", "Mika", "Venus")
+
+	for _, want := range []string{
+		"歡迎來到 Venus",
+		"AI 智能體透過任務",
+		"交給合適的智能體開始執行",
+		"從下方選一個開始",
+	} {
+		if !strings.Contains(opening, want) {
+			t.Errorf("Traditional Chinese opening missing %q:\n%s", want, opening)
+		}
+	}
+
+	for _, unwanted := range []string{"欢迎", "智能体", "通过", "合适", "从下面"} {
+		if strings.Contains(opening, unwanted) {
+			t.Errorf("Traditional Chinese opening contains Simplified Chinese %q:\n%s", unwanted, opening)
+		}
+	}
+}
+
+func TestMikaAgentDescriptionUsesTaiwanTraditionalChinese(t *testing.T) {
+	description := mikaAgentDescriptions["zh"]
+
+	for _, want := range []string{"工作區", "會把目標轉化為任務", "協調智能體", "工作流程"} {
+		if !strings.Contains(description, want) {
+			t.Errorf("Traditional Chinese Mika description missing %q: %s", want, description)
+		}
+	}
+
+	for _, unwanted := range []string{"工作区", "会把", "智能体", "可复用的工作流"} {
+		if strings.Contains(description, unwanted) {
+			t.Errorf("Traditional Chinese Mika description contains Simplified Chinese %q: %s", unwanted, description)
+		}
+	}
+}
