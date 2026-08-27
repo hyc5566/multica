@@ -656,13 +656,34 @@ func TestBootstrapOnboardingNoRuntimeUsesChineseGuideForChineseUsers(t *testing.
 		t.Fatalf("lookup no-runtime onboarding issue: %v", err)
 	}
 	for _, want := range []string{
-		"先体验项目管理功能",
+		"先體驗專案管理功能",
 		"https://multica.ai/docs/install-agent-runtime",
-		"中文用户建议先装 Kimi CLI",
+		"繁體中文使用者建議先安裝 Kimi CLI",
 		"kimi --version",
 	} {
 		if !strings.Contains(description, want) {
 			t.Fatalf("Chinese issue description missing %q: %q", want, description)
+		}
+	}
+}
+
+func TestNoRuntimeChineseGuideUsesTaiwanTraditionalChinese(t *testing.T) {
+	description := zhNoRuntimeIssueDescription()
+
+	for _, want := range []string{
+		"先體驗專案管理功能",
+		"安裝第一個 Agent 執行環境",
+		"繁體中文使用者建議先安裝 Kimi CLI",
+		"回到 Runtimes 頁面重新整理",
+	} {
+		if !strings.Contains(description, want) {
+			t.Errorf("Traditional Chinese guide missing %q: %s", want, description)
+		}
+	}
+
+	for _, unwanted := range []string{"欢迎", "智能体", "运行时", "体验项目", "中文用户", "页面刷新"} {
+		if strings.Contains(description, unwanted) {
+			t.Errorf("Traditional Chinese guide contains Simplified Chinese %q: %s", unwanted, description)
 		}
 	}
 }
