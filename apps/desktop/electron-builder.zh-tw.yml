@@ -25,6 +25,12 @@ asarUnpack:
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   notarize: false
+  extendInfo:
+    LSEnvironment:
+      # The self-hosted s90 deployment uses a private CA installed in the
+      # macOS System Keychain. Electron main-process fetches need this opt-in
+      # so Desktop can mint its daemon PAT without duplicating the CA bundle.
+      NODE_USE_SYSTEM_CA: "1"
   target:
     - dir
 npmRebuild: false
