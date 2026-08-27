@@ -2,6 +2,8 @@ package agent
 
 import (
 	"errors"
+	"os"
+	"path/filepath"
 	"testing"
 	"time"
 )
@@ -82,10 +84,61 @@ func TestParseAntigravityUsageUsesStructuredCommandData(t *testing.T) {
 	}
 }
 
-func TestProbeProviderUsageNeverFabricatesUnsupportedProvider(t *testing.T) {
+func TestParseClaudeUsageUsesOfficialStatusLineWindows(t *testing.T) {
 	t.Parallel()
+	now := time.Date(2026, 8, 27, 15, 20, 0, 0, time.UTC)
+	raw := []byte(`{
+		"schema_version":1,
+		"observed_at":"2026-08-27T15:19:00Z",
+		"rate_limits":{
+			"five_hour":{"used_percentage":23.5,"resets_at":1787859306},
+			"seven_day":{"used_percentage":41.2,"resets_at":1788446106}
+		}
+	}`)
+	got, err := parseClaudeUsage(raw, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != "available" || got.Source != "official" || len(got.Windows) != 2 {
+		t.Fatalf("unexpected snapshot: %+v", got)
+	}
+	if got.Windows[0].UsedPercent == nil || *got.Windows[0].UsedPercent != 23.5 {
+		t.Fatalf("five-hour percentage missing: %+v", got.Windows[0])
+	}
+	if got.Windows[1].RemainingPercent == nil || *got.Windows[1].RemainingPercent < 58.79 || *got.Windows[1].RemainingPercent > 58.81 {
+		t.Fatalf("weekly remaining percentage = %v", got.Windows[1].RemainingPercent)
+	}
+}
+
+func TestParseClaudeUsageMarksStaleSnapshotPartial(t *testing.T) {
+	t.Parallel()
+	observed := time.Date(2026, 8, 27, 14, 0, 0, 0, time.UTC)
+	raw := []byte(`{"observed_at":"2026-08-27T14:00:00Z","rate_limits":{"five_hour":{"used_percentage":20}}}`)
+	got, err := parseClaudeUsage(raw, observed.Add(claudeUsageMaxAge+time.Second))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != "partial" || len(got.Windows) != 1 || got.Message == "" {
+		t.Fatalf("stale snapshot = %+v", got)
+	}
+}
+
+func TestProbeClaudeUsageMissingSnapshotIsUnavailable(t *testing.T) {
+	t.Setenv(claudeUsageSnapshotEnv, filepath.Join(t.TempDir(), "missing.json"))
 	got := ProbeProviderUsage(t.Context(), "claude", Command{})
 	if got.Status != "unavailable" || got.Source != "unavailable" || len(got.Windows) != 0 {
-		t.Fatalf("claude unsupported snapshot = %+v", got)
+		t.Fatalf("missing Claude snapshot = %+v", got)
+	}
+}
+
+func TestProbeClaudeUsageReadsCredentialFreeCache(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "claude.json")
+	if err := os.WriteFile(path, []byte(`{"observed_at":"2099-01-01T00:00:00Z","rate_limits":{"seven_day":{"used_percentage":12}}}`), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv(claudeUsageSnapshotEnv, path)
+	got := ProbeProviderUsage(t.Context(), "claude", Command{})
+	if got.Status != "available" || got.Source != "official" || len(got.Windows) != 1 {
+		t.Fatalf("cached Claude snapshot = %+v", got)
 	}
 }

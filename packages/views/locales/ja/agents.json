@@ -160,7 +160,7 @@
       "runtime_offline": "ランタイムがオフラインのため、使用量を更新できません。",
       "unavailable": "プロバイダーから機械可読の上限データが返されませんでした。",
       "auth_required": "このランタイムでプロバイダーCLIにサインインしてから更新してください。",
-      "claude_unavailable": "Claude Codeは単独で呼び出せる構造化されたアカウント上限コマンドを提供していません。Claude Code内で /usage を開いてください。",
+      "claude_unavailable": "Claude Code の上限スナップショットはまだありません。ステータスラインの取得を有効にした Claude Code で一度会話し、再読み込みしてください。",
       "probe_error": "ランタイムCLIからアカウント上限のスナップショットを取得できませんでした。",
       "multica_7d": "Multicaでのこのエージェント · 7日間",
       "tokens": "トークン",
