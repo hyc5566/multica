@@ -180,7 +180,7 @@
       "runtime_offline": "The runtime is offline. Usage cannot be refreshed.",
       "unavailable": "The provider did not return a machine-readable quota snapshot.",
       "auth_required": "Sign in to the provider CLI on this runtime, then refresh.",
-      "claude_unavailable": "Claude Code does not expose account quota through a standalone structured command. Open /usage in Claude Code to view it.",
+      "claude_unavailable": "No Claude Code quota snapshot is available yet. Run one Claude Code turn with status-line capture enabled, then refresh.",
       "probe_error": "The runtime CLI could not provide an account-quota snapshot.",
       "multica_7d": "This agent in Multica · 7 days",
       "tokens": "tokens",
