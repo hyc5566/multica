@@ -75,6 +75,7 @@ import type {
   PluginSurfaceLaunch,
   ResourceLabelsResponse,
   RuntimeModelListRequest,
+  RuntimeProviderUsageRequest,
   SearchIssuesResponse,
   SearchProjectsResponse,
   ShareLink,
@@ -2957,14 +2958,37 @@ const RuntimeUnavailableModelSchema = z.object({
   reason: z.string().optional(),
 }).loose();
 
+const RuntimeProviderUsageWindowSchema = z.object({
+  id: z.string(),
+  group: z.string().optional(),
+  label: z.string().default(""),
+  used_percent: z.number().min(0).max(100).optional(),
+  remaining_percent: z.number().min(0).max(100).optional(),
+  window_duration_mins: z.number().int().positive().optional(),
+  resets_at: z.string().optional(),
+  unit: z.string().default("percent"),
+}).loose();
+
+const RuntimeProviderUsageSchema = z.object({
+  provider: z.string().default(""),
+  account_scope: z.string().optional(),
+  status: z.enum(["available", "partial", "unavailable", "auth_required", "error"]),
+  source: z.enum(["official", "derived", "unavailable"]),
+  windows: z.array(RuntimeProviderUsageWindowSchema).optional(),
+  observed_at: z.string().default(""),
+  message: z.string().optional(),
+}).loose();
+
 export const RuntimeModelListRequestSchema = z.object({
   id: z.string().default(""),
   runtime_id: z.string().default(""),
+  purpose: z.string().optional(),
   status: z.string(),
   models: z.array(RuntimeModelSchema).optional(),
   // Absent on any daemon or server older than the field, which simply means
   // the picker shows no unavailable section.
   unavailable_models: z.array(RuntimeUnavailableModelSchema).optional(),
+  provider_usage: RuntimeProviderUsageSchema.optional(),
   supported: z.boolean().default(true),
   error: z.string().optional(),
   created_at: z.string().default(""),
@@ -2972,6 +2996,25 @@ export const RuntimeModelListRequestSchema = z.object({
   cached: z.boolean().optional(),
   cached_at: z.string().optional(),
 }).loose();
+
+export const RuntimeProviderUsageRequestSchema = z.object({
+  id: z.string().default(""),
+  runtime_id: z.string().default(""),
+  status: z.string(),
+  provider_usage: RuntimeProviderUsageSchema.optional(),
+  error: z.string().optional(),
+  created_at: z.string().default(""),
+  updated_at: z.string().default(""),
+}).loose();
+
+export const MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST: RuntimeProviderUsageRequest = {
+  id: "",
+  runtime_id: "",
+  status: "failed",
+  error: "invalid provider usage response",
+  created_at: "",
+  updated_at: "",
+};
 
 // Fallback for an unparseable model-discovery response. `failed` is the only
 // honest choice: `completed` would fabricate an empty catalog (and silently

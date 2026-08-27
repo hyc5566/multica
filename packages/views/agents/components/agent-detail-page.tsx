@@ -61,6 +61,7 @@ import { PageHeader } from "../../layout/page-header";
 import { ActorAvatar } from "../../common/actor-avatar";
 import { AgentPresenceIndicator } from "./agent-presence-indicator";
 import { VisibilityBadge } from "./visibility-badge";
+import { AgentUsageSummary } from "./agent-usage-summary";
 import { AgentOverviewPane, type DetailTab } from "./agent-overview-pane";
 import { ExpandableDescription } from "../../common/expandable-description";
 import { useT, useTimeAgo } from "../../i18n";
@@ -601,6 +602,7 @@ function DetailHeader({
             ) : null}
           </div>
         </div>
+        <AgentUsageSummary agent={agent} runtime={runtime} />
       </div>
     </header>
   );

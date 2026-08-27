@@ -59,16 +59,22 @@ const (
 type ModelListRequest struct {
 	ID        string          `json:"id"`
 	RuntimeID string          `json:"runtime_id"`
+	Purpose   string          `json:"purpose,omitempty"`
 	Status    ModelListStatus `json:"status"`
 	Models    []ModelEntry    `json:"models,omitempty"`
 	// UnavailableModels is advisory display copy, never a source of pickable
 	// values. Older daemons omit it and older clients ignore it.
 	UnavailableModels []UnavailableModelEntry `json:"unavailable_models,omitempty"`
-	Supported         bool                    `json:"supported"`
-	Error             string                  `json:"error,omitempty"`
-	CreatedAt         time.Time               `json:"created_at"`
-	UpdatedAt         time.Time               `json:"updated_at"`
-	RunStartedAt      *time.Time              `json:"-"`
+	// ProviderUsage is populated for live runtime-introspection requests. The
+	// model-list queue carries this optional snapshot too so quota discovery can
+	// reuse the daemon's existing NAT-safe request/report path without creating
+	// a second heartbeat queue with identical lifecycle semantics.
+	ProviderUsage *ProviderUsageSnapshot `json:"provider_usage,omitempty"`
+	Supported     bool                   `json:"supported"`
+	Error         string                 `json:"error,omitempty"`
+	CreatedAt     time.Time              `json:"created_at"`
+	UpdatedAt     time.Time              `json:"updated_at"`
+	RunStartedAt  *time.Time             `json:"-"`
 	// Cached marks a response answered from the server-side catalog cache
 	// instead of a live daemon round trip (MUL-5444). Purely informational —
 	// Status is already "completed" and Models is already populated, so a client
@@ -78,6 +84,30 @@ type ModelListRequest struct {
 	// the synthetic cache-hit response.
 	Cached   bool       `json:"cached,omitempty"`
 	CachedAt *time.Time `json:"cached_at,omitempty"`
+}
+
+// ProviderUsageSnapshot is deliberately normalized and credential-free. A
+// provider that does not publish a field omits it; it never sends a synthetic
+// zero. Percent values use 0..100 for both Codex and Antigravity.
+type ProviderUsageSnapshot struct {
+	Provider     string                `json:"provider"`
+	AccountScope string                `json:"account_scope,omitempty"`
+	Status       string                `json:"status"`
+	Source       string                `json:"source"`
+	Windows      []ProviderUsageWindow `json:"windows,omitempty"`
+	ObservedAt   time.Time             `json:"observed_at"`
+	Message      string                `json:"message,omitempty"`
+}
+
+type ProviderUsageWindow struct {
+	ID                 string     `json:"id"`
+	Group              string     `json:"group,omitempty"`
+	Label              string     `json:"label"`
+	UsedPercent        *float64   `json:"used_percent,omitempty"`
+	RemainingPercent   *float64   `json:"remaining_percent,omitempty"`
+	WindowDurationMins *int64     `json:"window_duration_mins,omitempty"`
+	ResetsAt           *time.Time `json:"resets_at,omitempty"`
+	Unit               string     `json:"unit"`
 }
 
 // ModelEntry mirrors agent.Model for the wire. `Default` tags the
@@ -170,14 +200,14 @@ const (
 // implementation can honour the heartbeat-side timeout that gates a
 // slow shared store from stalling the rest of the heartbeat.
 type ModelListStore interface {
-	Create(ctx context.Context, runtimeID string) (*ModelListRequest, error)
+	Create(ctx context.Context, runtimeID string, purpose ...string) (*ModelListRequest, error)
 	Get(ctx context.Context, id string) (*ModelListRequest, error)
 	// HasPending is a cheap read-only probe used by the heartbeat hot path
 	// to gate the side-effecting PopPending. A spurious "true" is fine —
 	// PopPending handles "queue empty after probe" by returning nil.
 	HasPending(ctx context.Context, runtimeID string) (bool, error)
 	PopPending(ctx context.Context, runtimeID string) (*ModelListRequest, error)
-	Complete(ctx context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool) error
+	Complete(ctx context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool, usage ...*ProviderUsageSnapshot) error
 	Fail(ctx context.Context, id string, errMsg string) error
 }
 
@@ -220,7 +250,7 @@ func NewInMemoryModelListStore() *InMemoryModelListStore {
 	return &InMemoryModelListStore{requests: make(map[string]*ModelListRequest)}
 }
 
-func (s *InMemoryModelListStore) Create(_ context.Context, runtimeID string) (*ModelListRequest, error) {
+func (s *InMemoryModelListStore) Create(_ context.Context, runtimeID string, purpose ...string) (*ModelListRequest, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -241,6 +271,9 @@ func (s *InMemoryModelListStore) Create(_ context.Context, runtimeID string) (*M
 		Supported: true,
 		CreatedAt: now,
 		UpdatedAt: now,
+	}
+	if len(purpose) > 0 {
+		req.Purpose = purpose[0]
 	}
 	s.requests[req.ID] = req
 	return req, nil
@@ -295,7 +328,7 @@ func (s *InMemoryModelListStore) PopPending(_ context.Context, runtimeID string)
 	return oldest, nil
 }
 
-func (s *InMemoryModelListStore) Complete(_ context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool) error {
+func (s *InMemoryModelListStore) Complete(_ context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool, usage ...*ProviderUsageSnapshot) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -304,6 +337,9 @@ func (s *InMemoryModelListStore) Complete(_ context.Context, id string, models [
 		req.Models = models
 		req.UnavailableModels = unavailable
 		req.Supported = supported
+		if len(usage) > 0 {
+			req.ProviderUsage = usage[0]
+		}
 		req.UpdatedAt = time.Now()
 	}
 	return nil
@@ -384,6 +420,31 @@ func (h *Handler) InitiateListModels(w http.ResponseWriter, r *http.Request) {
 	req, err := h.ModelListStore.Create(r.Context(), resolvedRuntimeID)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to enqueue model list request: "+err.Error())
+		return
+	}
+	h.requestDaemonPendingWork(resolvedRuntimeID, protocol.PendingWorkKindModelList)
+	writeJSON(w, http.StatusOK, req)
+}
+
+// InitiateProviderUsage requests a fresh account-quota snapshot from the
+// runtime machine. It intentionally bypasses the model catalog cache: quota is
+// time-sensitive, and a synthetic cache-hit request has no daemon report to
+// attach usage to. The shared model-list queue is an internal transport detail;
+// the public endpoint and response remain usage-specific.
+func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) {
+	runtimeID := chi.URLParam(r, "runtimeId")
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	if !ok {
+		return
+	}
+	if rt.Status != "online" {
+		writeError(w, http.StatusServiceUnavailable, "runtime is offline")
+		return
+	}
+	resolvedRuntimeID := uuidToString(rt.ID)
+	req, err := h.ModelListStore.Create(r.Context(), resolvedRuntimeID, "provider_usage")
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request: "+err.Error())
 		return
 	}
 	h.requestDaemonPendingWork(resolvedRuntimeID, protocol.PendingWorkKindModelList)
@@ -478,6 +539,39 @@ func (h *Handler) GetModelListRequest(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, req)
 }
 
+// GetProviderUsageRequest polls the shared runtime-introspection record. An
+// older daemon can complete model discovery without the additive usage field;
+// surface that as unavailable rather than implying a zero balance.
+func (h *Handler) GetProviderUsageRequest(w http.ResponseWriter, r *http.Request) {
+	runtimeID := chi.URLParam(r, "runtimeId")
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	if !ok {
+		return
+	}
+	requestID := chi.URLParam(r, "requestId")
+	req, err := h.ModelListStore.Get(r.Context(), requestID)
+	if err != nil {
+		writeError(w, http.StatusInternalServerError, "failed to load request: "+err.Error())
+		return
+	}
+	if req == nil || req.RuntimeID != uuidToString(rt.ID) {
+		writeError(w, http.StatusNotFound, "request not found")
+		return
+	}
+	if req.Status == ModelListCompleted && req.ProviderUsage == nil {
+		clone := *req
+		clone.ProviderUsage = &ProviderUsageSnapshot{
+			Provider:   rt.Provider,
+			Status:     "unavailable",
+			Source:     "unavailable",
+			ObservedAt: req.UpdatedAt,
+			Message:    "The connected daemon does not support provider usage discovery yet.",
+		}
+		req = &clone
+	}
+	writeJSON(w, http.StatusOK, req)
+}
+
 // ReportModelListResult receives the list result from the daemon.
 func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
@@ -507,11 +601,12 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var body struct {
-		Status string       `json:"status"` // "completed" or "failed"
-		Models []ModelEntry `json:"models"`
+		Status        string                 `json:"status"` // "completed" or "failed"
+		Models        []ModelEntry           `json:"models"`
 		// UnavailableModels is what the runtime named but will not run. Older
 		// daemons omit it; absent simply means no advisory rows to show.
 		UnavailableModels []UnavailableModelEntry `json:"unavailable_models"`
+		ProviderUsage *ProviderUsageSnapshot `json:"provider_usage"`
 		Supported         *bool                   `json:"supported"`
 		Error             string                  `json:"error"`
 		// Fallback marks a completed report whose models are a static
@@ -532,7 +627,7 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 		if body.Supported != nil {
 			supported = *body.Supported
 		}
-		if err := h.ModelListStore.Complete(r.Context(), requestID, body.Models, body.UnavailableModels, supported); err != nil {
+		if err := h.ModelListStore.Complete(r.Context(), requestID, body.Models, body.UnavailableModels, supported, body.ProviderUsage); err != nil {
 			// Surface the store failure as 5xx so the daemon can retry instead
 			// of swallowing the report (leaves the request stuck in running
 			// until the server-side timeout, which is exactly the "looks OK
@@ -556,7 +651,7 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 		// models are a static stand-in, so they are neither fresh truth to
 		// store nor grounds to discard a real catalog we already hold. Treat it
 		// like a failure and leave the cache untouched (MUL-5549).
-		if h.ModelCatalogCache != nil {
+		if h.ModelCatalogCache != nil && existing.Purpose != "provider_usage" {
 			switch modelCatalogCacheDecision(body.Models, supported, body.Fallback) {
 			case modelCatalogCacheStore:
 				if err := h.ModelCatalogCache.Put(r.Context(), runtimeID, body.Models, body.UnavailableModels, supported); err != nil {

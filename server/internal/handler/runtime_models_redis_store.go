@@ -49,7 +49,7 @@ func NewRedisModelListStore(rdb *redis.Client) *RedisModelListStore {
 	return &RedisModelListStore{rdb: rdb}
 }
 
-func (s *RedisModelListStore) Create(ctx context.Context, runtimeID string) (*ModelListRequest, error) {
+func (s *RedisModelListStore) Create(ctx context.Context, runtimeID string, purpose ...string) (*ModelListRequest, error) {
 	now := time.Now()
 	req := &ModelListRequest{
 		ID:        randomID(),
@@ -58,6 +58,9 @@ func (s *RedisModelListStore) Create(ctx context.Context, runtimeID string) (*Mo
 		Supported: true,
 		CreatedAt: now,
 		UpdatedAt: now,
+	}
+	if len(purpose) > 0 {
+		req.Purpose = purpose[0]
 	}
 	data, err := s.marshalRequest(req)
 	if err != nil {
@@ -227,7 +230,7 @@ func (s *RedisModelListStore) PopPending(ctx context.Context, runtimeID string) 
 	return nil, nil
 }
 
-func (s *RedisModelListStore) Complete(ctx context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool) error {
+func (s *RedisModelListStore) Complete(ctx context.Context, id string, models []ModelEntry, unavailable []UnavailableModelEntry, supported bool, usage ...*ProviderUsageSnapshot) error {
 	req, err := s.loadRequest(ctx, id)
 	if err != nil {
 		return err
@@ -239,6 +242,9 @@ func (s *RedisModelListStore) Complete(ctx context.Context, id string, models []
 	req.Models = models
 	req.UnavailableModels = unavailable
 	req.Supported = supported
+	if len(usage) > 0 {
+		req.ProviderUsage = usage[0]
+	}
 	req.UpdatedAt = time.Now()
 	return s.persistRequest(ctx, req)
 }
