@@ -169,7 +169,7 @@ describe("AgentActivityHoverContent", () => {
       locale: "zh-Hans",
     });
 
-    expect(screen.getByText("3 次运行进行中")).toBeInTheDocument();
+    expect(screen.getByText("3 次運行進行中")).toBeInTheDocument();
   });
 });
 
@@ -253,8 +253,8 @@ describe("WorkspaceAgentActivityHoverContent", () => {
       { locale: "zh-Hans" },
     );
 
-    // issue is 任务 in Chinese; the agent execution is 运行, so the two
+    // issue is 任務 in Chinese; the agent execution is 運行, so the two
     // counted units remain distinct (conventions.zh.mdx).
-    expect(screen.getByText("1 个任务 · 2 次运行")).toBeInTheDocument();
+    expect(screen.getByText("1 個任務 · 2 次運行")).toBeInTheDocument();
   });
 });
