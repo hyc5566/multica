@@ -10,7 +10,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "alpha-centauri",
     names: {
       en: "Alpha Centauri",
-      "zh-Hans": "南门二",
+      "zh-Hans": "南門二",
       ja: "アルファ・ケンタウリ",
       ko: "알파 센타우리",
       fr: "Alpha du Centaure",
@@ -40,7 +40,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "ariel",
     names: {
       en: "Ariel",
-      "zh-Hans": "天卫一",
+      "zh-Hans": "天衛一",
       ja: "アリエル",
       ko: "아리엘",
       fr: "Ariel",
@@ -50,7 +50,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "betelgeuse",
     names: {
       en: "Betelgeuse",
-      "zh-Hans": "参宿四",
+      "zh-Hans": "參宿四",
       ja: "ベテルギウス",
       ko: "베텔게우스",
       fr: "Bételgeuse",
@@ -60,7 +60,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "callisto",
     names: {
       en: "Callisto",
-      "zh-Hans": "木卫四",
+      "zh-Hans": "木衛四",
       ja: "カリスト",
       ko: "칼리스토",
       fr: "Callisto",
@@ -70,7 +70,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "capella",
     names: {
       en: "Capella",
-      "zh-Hans": "五车二",
+      "zh-Hans": "五車二",
       ja: "カペラ",
       ko: "카펠라",
       fr: "Capella",
@@ -80,7 +80,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "ceres",
     names: {
       en: "Ceres",
-      "zh-Hans": "谷神星",
+      "zh-Hans": "穀神星",
       ja: "ケレス",
       ko: "세레스",
       fr: "Cérès",
@@ -90,7 +90,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "deimos",
     names: {
       en: "Deimos",
-      "zh-Hans": "火卫二",
+      "zh-Hans": "火衛二",
       ja: "ダイモス",
       ko: "데이모스",
       fr: "Déimos",
@@ -110,7 +110,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "dione",
     names: {
       en: "Dione",
-      "zh-Hans": "土卫四",
+      "zh-Hans": "土衛四",
       ja: "ディオネ",
       ko: "디오네",
       fr: "Dioné",
@@ -120,7 +120,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "enceladus",
     names: {
       en: "Enceladus",
-      "zh-Hans": "土卫二",
+      "zh-Hans": "土衛二",
       ja: "エンケラドゥス",
       ko: "엔셀라두스",
       fr: "Encelade",
@@ -130,7 +130,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "eris",
     names: {
       en: "Eris",
-      "zh-Hans": "阋神星",
+      "zh-Hans": "鬩神星",
       ja: "エリス",
       ko: "에리스",
       fr: "Éris",
@@ -140,7 +140,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "europa",
     names: {
       en: "Europa",
-      "zh-Hans": "木卫二",
+      "zh-Hans": "木衛二",
       ja: "エウロパ",
       ko: "유로파",
       fr: "Europe",
@@ -150,7 +150,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "ganymede",
     names: {
       en: "Ganymede",
-      "zh-Hans": "木卫三",
+      "zh-Hans": "木衛三",
       ja: "ガニメデ",
       ko: "가니메데",
       fr: "Ganymède",
@@ -170,7 +170,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "hyperion",
     names: {
       en: "Hyperion",
-      "zh-Hans": "土卫七",
+      "zh-Hans": "土衛七",
       ja: "ヒペリオン",
       ko: "히페리온",
       fr: "Hypérion",
@@ -180,7 +180,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "io",
     names: {
       en: "Io",
-      "zh-Hans": "木卫一",
+      "zh-Hans": "木衛一",
       ja: "イオ",
       ko: "이오",
       fr: "Io",
@@ -210,7 +210,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "mimas",
     names: {
       en: "Mimas",
-      "zh-Hans": "土卫一",
+      "zh-Hans": "土衛一",
       ja: "ミマス",
       ko: "미마스",
       fr: "Mimas",
@@ -220,7 +220,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "miranda",
     names: {
       en: "Miranda",
-      "zh-Hans": "天卫五",
+      "zh-Hans": "天衛五",
       ja: "ミランダ",
       ko: "미란다",
       fr: "Miranda",
@@ -240,7 +240,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "oberon",
     names: {
       en: "Oberon",
-      "zh-Hans": "天卫四",
+      "zh-Hans": "天衛四",
       ja: "オベロン",
       ko: "오베론",
       fr: "Obéron",
@@ -250,7 +250,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "orion-nebula",
     names: {
       en: "Orion Nebula",
-      "zh-Hans": "猎户座星云",
+      "zh-Hans": "獵戶座星雲",
       ja: "オリオン大星雲",
       ko: "오리온 성운",
       fr: "Nébuleuse d'Orion",
@@ -260,7 +260,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "phobos",
     names: {
       en: "Phobos",
-      "zh-Hans": "火卫一",
+      "zh-Hans": "火衛一",
       ja: "フォボス",
       ko: "포보스",
       fr: "Phobos",
@@ -280,7 +280,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "polaris",
     names: {
       en: "Polaris",
-      "zh-Hans": "北极星",
+      "zh-Hans": "北極星",
       ja: "北極星",
       ko: "북극성",
       fr: "Polaris",
@@ -290,7 +290,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "proxima-centauri",
     names: {
       en: "Proxima Centauri",
-      "zh-Hans": "比邻星",
+      "zh-Hans": "比鄰星",
       ja: "プロキシマ・ケンタウリ",
       ko: "프록시마 센타우리",
       fr: "Proxima du Centaure",
@@ -300,7 +300,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "rhea",
     names: {
       en: "Rhea",
-      "zh-Hans": "土卫五",
+      "zh-Hans": "土衛五",
       ja: "レア",
       ko: "레아",
       fr: "Rhéa",
@@ -310,7 +310,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "rigel",
     names: {
       en: "Rigel",
-      "zh-Hans": "参宿七",
+      "zh-Hans": "參宿七",
       ja: "リゲル",
       ko: "리겔",
       fr: "Rigel",
@@ -350,7 +350,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "titan",
     names: {
       en: "Titan",
-      "zh-Hans": "土卫六",
+      "zh-Hans": "土衛六",
       ja: "タイタン",
       ko: "타이탄",
       fr: "Titan",
@@ -360,7 +360,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "titania",
     names: {
       en: "Titania",
-      "zh-Hans": "天卫三",
+      "zh-Hans": "天衛三",
       ja: "チタニア",
       ko: "티타니아",
       fr: "Titania",
@@ -370,7 +370,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "triton",
     names: {
       en: "Triton",
-      "zh-Hans": "海卫一",
+      "zh-Hans": "海衛一",
       ja: "トリトン",
       ko: "트리톤",
       fr: "Triton",
@@ -380,7 +380,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "vega",
     names: {
       en: "Vega",
-      "zh-Hans": "织女星",
+      "zh-Hans": "織女星",
       ja: "ベガ",
       ko: "베가",
       fr: "Véga",
@@ -440,7 +440,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "adrastea",
     names: {
       en: "Adrastea",
-      "zh-Hans": "木卫十五",
+      "zh-Hans": "木衛十五",
       ja: "アドラステア",
       ko: "아드라스테아",
       fr: "Adrastée",
@@ -460,7 +460,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "aldebaran",
     names: {
       en: "Aldebaran",
-      "zh-Hans": "毕宿五",
+      "zh-Hans": "畢宿五",
       ja: "アルデバラン",
       ko: "알데바란",
       fr: "Aldébaran",
@@ -490,7 +490,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "alnair",
     names: {
       en: "Alnair",
-      "zh-Hans": "鹤一",
+      "zh-Hans": "鶴一",
       ja: "アルナイル",
       ko: "알나이르",
       fr: "Alnair",
@@ -500,7 +500,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "alnilam",
     names: {
       en: "Alnilam",
-      "zh-Hans": "参宿二",
+      "zh-Hans": "參宿二",
       ja: "アルニラム",
       ko: "알닐람",
       fr: "Alnilam",
@@ -510,7 +510,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "alnitak",
     names: {
       en: "Alnitak",
-      "zh-Hans": "参宿一",
+      "zh-Hans": "參宿一",
       ja: "アルニタク",
       ko: "알니탁",
       fr: "Alnitak",
@@ -530,7 +530,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "amalthea",
     names: {
       en: "Amalthea",
-      "zh-Hans": "木卫五",
+      "zh-Hans": "木衛五",
       ja: "アマルテア",
       ko: "아말테아",
       fr: "Amalthée",
@@ -540,7 +540,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "ananke",
     names: {
       en: "Ananke",
-      "zh-Hans": "木卫十二",
+      "zh-Hans": "木衛十二",
       ja: "アナンケ",
       ko: "아난케",
       fr: "Ananké",
@@ -560,7 +560,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "bellatrix",
     names: {
       en: "Bellatrix",
-      "zh-Hans": "参宿五",
+      "zh-Hans": "參宿五",
       ja: "ベラトリックス",
       ko: "벨라트릭스",
       fr: "Bellatrix",
@@ -570,7 +570,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "bianca",
     names: {
       en: "Bianca",
-      "zh-Hans": "天卫八",
+      "zh-Hans": "天衛八",
       ja: "ビアンカ",
       ko: "비앙카",
       fr: "Bianca",
@@ -590,7 +590,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "carme",
     names: {
       en: "Carme",
-      "zh-Hans": "木卫十一",
+      "zh-Hans": "木衛十一",
       ja: "カルメ",
       ko: "카르메",
       fr: "Carmé",
@@ -600,7 +600,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "cartwheel-galaxy",
     names: {
       en: "Cartwheel Galaxy",
-      "zh-Hans": "车轮星系",
+      "zh-Hans": "車輪星系",
       ja: "カートホイール銀河",
       ko: "수레바퀴 은하",
       fr: "Galaxie de la Roue de chariot",
@@ -620,7 +620,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "charon",
     names: {
       en: "Charon",
-      "zh-Hans": "冥卫一",
+      "zh-Hans": "冥衛一",
       ja: "カロン",
       ko: "카론",
       fr: "Charon",
@@ -630,7 +630,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "cordelia",
     names: {
       en: "Cordelia",
-      "zh-Hans": "天卫六",
+      "zh-Hans": "天衛六",
       ja: "コーディリア",
       ko: "코델리아",
       fr: "Cordélia",
@@ -640,7 +640,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "crab-nebula",
     names: {
       en: "Crab Nebula",
-      "zh-Hans": "蟹状星云",
+      "zh-Hans": "蟹狀星雲",
       ja: "かに星雲",
       ko: "게 성운",
       fr: "Nébuleuse du Crabe",
@@ -650,7 +650,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "cygnus-x-1",
     names: {
       en: "Cygnus X-1",
-      "zh-Hans": "天鹅座 X-1",
+      "zh-Hans": "天鵝座 X-1",
       ja: "はくちょう座X-1",
       ko: "백조자리 X-1",
       fr: "Cygnus X-1",
@@ -660,7 +660,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "despina",
     names: {
       en: "Despina",
-      "zh-Hans": "海卫五",
+      "zh-Hans": "海衛五",
       ja: "デスピナ",
       ko: "데스피나",
       fr: "Despina",
@@ -670,7 +670,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "elara",
     names: {
       en: "Elara",
-      "zh-Hans": "木卫七",
+      "zh-Hans": "木衛七",
       ja: "エララ",
       ko: "엘라라",
       fr: "Élara",
@@ -690,7 +690,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "fomalhaut",
     names: {
       en: "Fomalhaut",
-      "zh-Hans": "北落师门",
+      "zh-Hans": "北落師門",
       ja: "フォーマルハウト",
       ko: "포말하우트",
       fr: "Fomalhaut",
@@ -710,7 +710,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "helene",
     names: {
       en: "Helene",
-      "zh-Hans": "土卫十二",
+      "zh-Hans": "土衛十二",
       ja: "ヘレネ",
       ko: "헬레네",
       fr: "Hélène",
@@ -720,7 +720,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "iapetus",
     names: {
       en: "Iapetus",
-      "zh-Hans": "土卫八",
+      "zh-Hans": "土衛八",
       ja: "イアペトゥス",
       ko: "이아페투스",
       fr: "Japet",
@@ -730,7 +730,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "janus",
     names: {
       en: "Janus",
-      "zh-Hans": "土卫十",
+      "zh-Hans": "土衛十",
       ja: "ヤヌス",
       ko: "야누스",
       fr: "Janus",
@@ -740,7 +740,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "juliet",
     names: {
       en: "Juliet",
-      "zh-Hans": "天卫十一",
+      "zh-Hans": "天衛十一",
       ja: "ジュリエット",
       ko: "줄리엣",
       fr: "Juliette",
@@ -750,7 +750,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "larissa",
     names: {
       en: "Larissa",
-      "zh-Hans": "海卫七",
+      "zh-Hans": "海衛七",
       ja: "ラリッサ",
       ko: "라리사",
       fr: "Larissa",
@@ -760,7 +760,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "leda",
     names: {
       en: "Leda",
-      "zh-Hans": "木卫十三",
+      "zh-Hans": "木衛十三",
       ja: "レダ",
       ko: "레다",
       fr: "Léda",
@@ -770,7 +770,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "makemake",
     names: {
       en: "Makemake",
-      "zh-Hans": "鸟神星",
+      "zh-Hans": "鳥神星",
       ja: "マケマケ",
       ko: "마케마케",
       fr: "Makémaké",
@@ -790,7 +790,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "metis",
     names: {
       en: "Metis",
-      "zh-Hans": "木卫十六",
+      "zh-Hans": "木衛十六",
       ja: "メティス",
       ko: "메티스",
       fr: "Métis",
@@ -800,7 +800,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "mintaka",
     names: {
       en: "Mintaka",
-      "zh-Hans": "参宿三",
+      "zh-Hans": "參宿三",
       ja: "ミンタカ",
       ko: "민타카",
       fr: "Mintaka",
@@ -810,7 +810,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "naiad",
     names: {
       en: "Naiad",
-      "zh-Hans": "海卫三",
+      "zh-Hans": "海衛三",
       ja: "ナイアド",
       ko: "나이아드",
       fr: "Naïade",
@@ -820,7 +820,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "nereid",
     names: {
       en: "Nereid",
-      "zh-Hans": "海卫二",
+      "zh-Hans": "海衛二",
       ja: "ネレイド",
       ko: "네레이드",
       fr: "Néréide",
@@ -830,7 +830,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "ophelia",
     names: {
       en: "Ophelia",
-      "zh-Hans": "天卫七",
+      "zh-Hans": "天衛七",
       ja: "オフィーリア",
       ko: "오필리아",
       fr: "Ophélie",
@@ -840,7 +840,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "pan",
     names: {
       en: "Pan",
-      "zh-Hans": "土卫十八",
+      "zh-Hans": "土衛十八",
       ja: "パン",
       ko: "판",
       fr: "Pan",
@@ -850,7 +850,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "pandora",
     names: {
       en: "Pandora",
-      "zh-Hans": "土卫十七",
+      "zh-Hans": "土衛十七",
       ja: "パンドラ",
       ko: "판도라",
       fr: "Pandore",
@@ -860,7 +860,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "pasiphae",
     names: {
       en: "Pasiphae",
-      "zh-Hans": "木卫八",
+      "zh-Hans": "木衛八",
       ja: "パシファエ",
       ko: "파시파에",
       fr: "Pasiphaé",
@@ -870,7 +870,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "phoebe",
     names: {
       en: "Phoebe",
-      "zh-Hans": "土卫九",
+      "zh-Hans": "土衛九",
       ja: "フェーベ",
       ko: "포에베",
       fr: "Phœbé",
@@ -880,7 +880,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "pinwheel-galaxy",
     names: {
       en: "Pinwheel Galaxy",
-      "zh-Hans": "风车星系",
+      "zh-Hans": "風車星系",
       ja: "回転花火銀河",
       ko: "바람개비 은하",
       fr: "Galaxie du Moulinet",
@@ -900,7 +900,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "portia",
     names: {
       en: "Portia",
-      "zh-Hans": "天卫十二",
+      "zh-Hans": "天衛十二",
       ja: "ポーシャ",
       ko: "포샤",
       fr: "Portia",
@@ -910,7 +910,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "proteus",
     names: {
       en: "Proteus",
-      "zh-Hans": "海卫八",
+      "zh-Hans": "海衛八",
       ja: "プロテウス",
       ko: "프로테우스",
       fr: "Protée",
@@ -920,7 +920,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "puck",
     names: {
       en: "Puck",
-      "zh-Hans": "天卫十五",
+      "zh-Hans": "天衛十五",
       ja: "パック",
       ko: "퍽",
       fr: "Puck",
@@ -930,7 +930,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "regulus",
     names: {
       en: "Regulus",
-      "zh-Hans": "轩辕十四",
+      "zh-Hans": "軒轅十四",
       ja: "レグルス",
       ko: "레굴루스",
       fr: "Régulus",
@@ -940,7 +940,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "rosalind",
     names: {
       en: "Rosalind",
-      "zh-Hans": "天卫十三",
+      "zh-Hans": "天衛十三",
       ja: "ロザリンド",
       ko: "로잘린드",
       fr: "Rosalinde",
@@ -960,7 +960,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "sycorax",
     names: {
       en: "Sycorax",
-      "zh-Hans": "天卫十七",
+      "zh-Hans": "天衛十七",
       ja: "シコラクス",
       ko: "시코락스",
       fr: "Sycorax",
@@ -970,7 +970,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "telesto",
     names: {
       en: "Telesto",
-      "zh-Hans": "土卫十三",
+      "zh-Hans": "土衛十三",
       ja: "テレスト",
       ko: "텔레스토",
       fr: "Télesto",
@@ -980,7 +980,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "thebe",
     names: {
       en: "Thebe",
-      "zh-Hans": "木卫十四",
+      "zh-Hans": "木衛十四",
       ja: "テーベ",
       ko: "테베",
       fr: "Thébé",
@@ -990,7 +990,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "umbriel",
     names: {
       en: "Umbriel",
-      "zh-Hans": "天卫二",
+      "zh-Hans": "天衛二",
       ja: "ウンブリエル",
       ko: "움브리엘",
       fr: "Umbriel",
@@ -1000,7 +1000,7 @@ export const CELESTIAL_WORKSPACE_NAMES = [
     slugBase: "whirlpool-galaxy",
     names: {
       en: "Whirlpool Galaxy",
-      "zh-Hans": "涡状星系",
+      "zh-Hans": "渦狀星系",
       ja: "子持ち銀河",
       ko: "소용돌이 은하",
       fr: "Galaxie du Tourbillon",
