@@ -164,15 +164,14 @@ describe("installContextMenu — link items", () => {
 
   it("uses zh-Hans labels when the OS preferred language is Chinese", () => {
     // Locale fallback is intentionally permissive: every zh-* variant
-    // routes to zh-Hans so users on zh-CN / zh-TW / zh-HK still see
-    // Chinese rather than dropping to English. The renderer ships only
-    // zh-Hans translations, so this matches the rest of the app.
-    ctx.preferredLanguagesRef.current = ["zh-CN"];
+    // routes to the compatibility zh-Hans key so users on zh-CN / zh-TW /
+    // zh-HK all receive the Taiwan Traditional Chinese bundle.
+    ctx.preferredLanguagesRef.current = ["zh-TW"];
     const wc = makeWebContents();
     installContextMenu(wc as never);
     wc.fire(baseSelection({ linkURL: "https://multica.ai" }));
-    expect(lastMenuLabels()).toContain("在浏览器中打开链接");
-    expect(lastMenuLabels()).toContain("复制链接地址");
+    expect(lastMenuLabels()).toContain("在瀏覽器中開啟連結");
+    expect(lastMenuLabels()).toContain("複製連結地址");
   });
 
   it("falls back to English when the OS preferred language is something we don't ship", () => {

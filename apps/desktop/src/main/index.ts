@@ -4,7 +4,6 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import fixPath from "fix-path";
-import { setupAutoUpdater } from "./updater";
 import { setupDaemonManager } from "./daemon-manager";
 import { setupLocalDirectory } from "./local-directory";
 import { openExternalSafely, downloadURLSafely } from "./external-url";
@@ -117,7 +116,11 @@ if (process.platform !== "win32") {
   process.env.PATH = `${fallbackPaths.join(":")}:${process.env.PATH ?? ""}`;
 }
 
-const PROTOCOL = "multica";
+// The Taiwan-localized package is intentionally isolated from the official
+// Desktop app: it has its own deep-link scheme, single-instance lock, and
+// userData directory, and it never replaces the official auto-update channel.
+const PROTOCOL = "multica-zh-tw";
+const PACKAGED_APP_NAME = "Multica 繁中版";
 const devLog = is.dev ? createBestEffortDevLog() : undefined;
 
 // Where the main process parks a freeze/crash breadcrumb until the next
@@ -555,13 +558,11 @@ if (is.dev) {
   app.setName(DEV_APP_NAME);
   app.setPath("userData", join(app.getPath("appData"), DEV_APP_NAME));
 } else {
-  // Pin the production app name in code. Electron's Linux WM_CLASS is set
-  // from app.getName() when the first BrowserWindow is realized; the
-  // packaged ASAR's package.json `productName` already steers app.getName()
-  // to "Multica", but anchoring it here makes WM_CLASS ↔ StartupWMClass
-  // (declared in electron-builder.yml) survive a regression in
-  // productName / the build pipeline. Must run before requestSingleInstanceLock().
-  app.setName("Multica");
+  // Keep this local package independent from the official Multica app. This
+  // must run before requestSingleInstanceLock(), whose location comes from
+  // userData.
+  app.setName(PACKAGED_APP_NAME);
+  app.setPath("userData", join(app.getPath("appData"), PACKAGED_APP_NAME));
 }
 
 // --- Protocol registration -----------------------------------------------
@@ -829,7 +830,8 @@ if (!gotTheLock) {
     desktopInitialized = true;
     createWindow();
 
-    setupAutoUpdater(() => mainWindow);
+    // This local package is not signed or published by Multica. Never let it
+    // consume the official app's update feed.
     setupDaemonManager(() => mainWindow);
     setupLocalDirectory(() => mainWindow);
 
