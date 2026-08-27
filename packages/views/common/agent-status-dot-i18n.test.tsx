@@ -69,7 +69,7 @@ describe("AgentStatusDot accessible name", () => {
     presence.availability = "offline";
     renderWithI18n(<AgentStatusDot agentId="agent-1" />, { locale: "zh-Hans" });
 
-    expect(screen.getByLabelText("状态：离线")).toBeInTheDocument();
+    expect(screen.getByLabelText("狀態：離線")).toBeInTheDocument();
     expect(screen.queryByLabelText(/Status:/)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/Offline/)).not.toBeInTheDocument();
   });
@@ -78,10 +78,10 @@ describe("AgentStatusDot accessible name", () => {
     // `archived` is a lifecycle state the dot also renders; it was in the same
     // English table, so it needs the same coverage as the runtime states.
     for (const [availability, expected] of [
-      ["online", "状态：在线"],
-      ["unstable", "状态：不稳定"],
-      ["offline", "状态：离线"],
-      ["archived", "状态：已归档"],
+      ["online", "狀態：線上"],
+      ["unstable", "狀態：不穩定"],
+      ["offline", "狀態：離線"],
+      ["archived", "狀態：已歸檔"],
     ] as const) {
       presence.availability = availability;
       const { unmount } = renderWithI18n(<AgentStatusDot agentId="agent-1" />, {
