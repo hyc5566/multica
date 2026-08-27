@@ -120,12 +120,12 @@ export const metadata: Metadata = {
 };
 
 // HTML lang attribute uses BCP-47 region tags that screen readers and font
-// stacks recognize widely. i18next keeps `zh-Hans` as its internal locale
-// (script subtag is what we actually translate against), but the html element
-// expects a region-flavoured tag for accessibility tooling and CJK fallback.
+// stacks recognize widely. This self-host build keeps `zh-Hans` as its internal
+// locale key for compatibility, while serving Taiwan Traditional Chinese copy.
+// The html element uses zh-TW for accessibility tooling and CJK font fallback.
 const HTML_LANG: Record<SupportedLocale, string> = {
   en: "en",
-  "zh-Hans": "zh-CN",
+  "zh-Hans": "zh-TW",
   ko: "ko-KR",
   ja: "ja-JP",
 };

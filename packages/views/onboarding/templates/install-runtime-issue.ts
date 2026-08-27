@@ -23,7 +23,7 @@
  */
 export const INSTALL_RUNTIME_ISSUE_TITLE = {
   en: "Connect a runtime to start with Mika",
-  zh: "连接运行时，和 Mika 开始",
+  zh: "連線執行環境，和 Mika 開始",
   ko: "runtime을 연결하고 Mika와 시작하기",
   ja: "runtime を接続して Mika と始める",
 } as const;
@@ -70,46 +70,46 @@ Codex reference: https://developers.openai.com/codex/cli
 
 Mika will turn one real goal into an issue, start it with the right agent, and suggest reusable specialists when your workflow needs them.`;
 
-const zh = `欢迎来到 Multica。
+const zh = `歡迎來到 Multica。
 
-智能体需要先连上运行时才能执行工作。运行时还没准备好时,你也可以先把 Multica 当作轻量项目管理工具体验起来。
+智能體需要先連上執行環境才能執行工作。執行環境還沒準備好時,你也可以先把 Multica 當作輕量專案管理工具體驗起來。
 
-## 先体验项目管理功能
+## 先體驗專案管理功能
 
-运行时安装前,你可以先做这些事:
+執行環境安裝前,你可以先做這些事:
 
-1. 为当前工作创建一个项目。
-2. 新建几个任务,并在 backlog、todo、in_progress、done 之间流转。
-3. 给任务加优先级、标签、评论和订阅。
-4. 用收件箱追踪分配给你的事项和 @mention。
+1. 為當前工作建立一個專案。
+2. 新建幾個任務,並在 backlog、todo、in_progress、done 之間流轉。
+3. 給任務加優先順序、標籤、評論和訂閱。
+4. 用收件匣追蹤分配給你的事項和 @mention。
 
-这样你先熟悉项目管理层。连上运行时后,智能体会直接在这些任务上开始工作。
+這樣你先熟悉專案管理層。連上執行環境後,智能體會直接在這些任務上開始工作。
 
-## 安装第一个 Agent 运行时
+## 安裝第一個 Agent 執行環境
 
-完整文档:https://multica.ai/docs/install-agent-runtime
+完整文件:https://multica.ai/docs/install-agent-runtime
 
-中文用户建议先装 Kimi CLI:
+中文使用者建議先裝 Kimi CLI:
 
-1. 在 macOS / Linux 终端安装 Kimi CLI:
+1. 在 macOS / Linux 終端安裝 Kimi CLI:
    curl -LsSf https://code.kimi.com/install.sh | bash
    Windows PowerShell:
    Invoke-RestMethod https://code.kimi.com/install.ps1 | Invoke-Expression
-2. 确认终端能找到 Kimi:
+2. 確認終端能找到 Kimi:
    kimi --version
-3. 在你想让 Kimi 工作的项目目录里启动一次:
+3. 在你想讓 Kimi 工作的專案目錄裡啟動一次:
    kimi
-4. 首次启动后输入 /login,按提示完成 Kimi Code 或 API key 配置。
-5. 等 Multica 识别到它。运行中的守护进程每隔几分钟会重新检查一次新装的 CLI,通常不需要重启。
+4. 首次啟動後輸入 /login,按提示完成 Kimi Code 或 API key 配置。
+5. 等 Multica 識別到它。執行中的守護程序每隔幾分鐘會重新檢查一次新裝的 CLI,通常不需要重啟。
    想立刻生效:
    multica daemon restart
-   桌面端请打开任意一个本机 runtime 并点 Restart。退出再打开 app 是不够的 —— 守护进程会继续在后台运行。
-6. 回到 Runtimes 页面刷新。你应该能看到一个在线的 Kimi 运行时。
-7. 打开"运行时"页面。页面会显示 **和 Mika 开始**；点击后会创建 Mika，并进入引导式的首次对话。
+   桌面端請開啟任意一個本機 runtime 並點 Restart。退出再開啟 app 是不夠的 —— 守護程序會繼續在後臺執行。
+6. 回到 Runtimes 頁面重新整理。你應該能看到一個線上的 Kimi 執行環境。
+7. 開啟"執行環境"頁面。頁面會顯示 **和 Mika 開始**；點選後會建立 Mika，並進入引導式的首次對話。
 
-Kimi CLI 官方文档:https://moonshotai.github.io/kimi-cli/zh/guides/getting-started.html
+Kimi CLI 官方文件:https://moonshotai.github.io/kimi-cli/zh/guides/getting-started.html
 
-Mika 会把一个真实目标转化为任务，交给合适的智能体启动执行，并在工作流需要时建议添加可复用的 specialist。`;
+Mika 會把一個真實目標轉化為任務，交給合適的智能體啟動執行，並在工作流需要時建議新增可複用的 specialist。`;
 
 const ko = `Multica에 오신 것을 환영합니다.
 
