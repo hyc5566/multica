@@ -240,8 +240,8 @@
         "desc": "從空白 SKILL.md 開始寫。"
       },
       "local": {
-        "title": "從本地導入",
-        "desc": "選擇包含 SKILL.md 的文件夾，或 .skill / .zip 壓縮包。"
+        "title": "從本地匯入",
+        "desc": "選擇包含 SKILL.md 的資料夾或 .skill / .zip 壓縮檔。"
       },
       "url": {
         "title": "從 URL 匯入",
@@ -266,21 +266,21 @@
       "toast_created": "已建立 skill"
     },
     "local": {
-      "choose_folder": "選擇文件夾",
+      "choose_folder": "選擇資料夾",
       "choose_archive": "選擇 .skill / .zip",
-      "folder_label": "文件夾",
-      "archive_label": "壓縮包",
-      "files_other": "{{count}} 個文件",
-      "missing_skill_md": "這個文件夾不是 skill——裡面沒有 SKILL.md。",
-      "too_large": "這個 skill 太大，無法導入。",
-      "empty": "文件夾是空的。",
-      "too_many_files": "這個 skill 的文件太多，無法導入。",
-      "name_conflict_hint": "導入的 skill 名稱已存在——請先刪除已有的再重試。",
-      "fallback_error": "導入失敗",
+      "folder_label": "資料夾",
+      "archive_label": "壓縮檔",
+      "files_other": "{{count}} 個檔案",
+      "missing_skill_md": "這個資料夾不是 skill——裡面沒有 SKILL.md。",
+      "too_large": "這個 skill 太大，無法匯入。",
+      "empty": "資料夾是空的。",
+      "too_many_files": "這個 skill 的檔案太多，無法匯入。",
+      "name_conflict_hint": "匯入的 skill 名稱已存在——請先刪除已有的再重試。",
+      "fallback_error": "匯入失敗",
       "cancel": "取消",
-      "import": "導入",
-      "importing": "導入中...",
-      "toast_imported": "已導入 skill"
+      "import": "匯入",
+      "importing": "匯入中...",
+      "toast_imported": "已匯入 skill"
     },
     "url": {
       "url_label": "Skill URL",
