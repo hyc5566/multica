@@ -105,8 +105,8 @@ const labelsByLocale: Record<string, ContextMenuLabels> = {
     copyLinkAddress: "Copy Link Address",
   },
   "zh-Hans": {
-    openLink: "在浏览器中打开链接",
-    copyLinkAddress: "复制链接地址",
+    openLink: "在瀏覽器中開啟連結",
+    copyLinkAddress: "複製連結地址",
   },
   ja: {
     openLink: "ブラウザでリンクを開く",
@@ -127,9 +127,8 @@ const labelsByLocale: Record<string, ContextMenuLabels> = {
 function pickLabels(): ContextMenuLabels {
   const preferred = app.getPreferredSystemLanguages()[0]?.toLowerCase() ?? "";
   if (preferred.startsWith("zh")) {
-    // All Chinese variants get the Simplified copy — Multica only
-    // ships zh-Hans, and zh-Hant users falling through to en would be
-    // worse than reading Simplified Chinese.
+    // This self-host build serves Taiwan Traditional Chinese through the
+    // existing zh-Hans compatibility key, so all Chinese variants use it.
     return labelsByLocale["zh-Hans"];
   }
   if (preferred.startsWith("ja")) return labelsByLocale.ja;

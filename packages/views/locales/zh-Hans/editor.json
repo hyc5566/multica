@@ -1,129 +1,129 @@
 {
   "bubble_menu": {
     "bold": "加粗",
-    "italic": "斜体",
-    "strikethrough": "删除线",
-    "code": "代码",
+    "italic": "斜體",
+    "strikethrough": "刪除線",
+    "code": "程式碼",
     "highlight": "高亮",
-    "link": "链接",
+    "link": "連結",
     "list": "列表",
-    "task_list": "待办列表",
+    "task_list": "待辦列表",
     "quote": "引用",
     "url_aria_label": "URL",
     "link_edit": {
-      "apply": "应用链接",
-      "remove": "移除链接",
-      "close": "关闭链接编辑器"
+      "apply": "應用連結",
+      "remove": "移除連結",
+      "close": "關閉連結編輯器"
     },
     "heading_dropdown": {
       "text": "正文",
       "normal_text": "正文",
-      "heading_1": "标题 1",
-      "heading_2": "标题 2",
-      "heading_3": "标题 3"
+      "heading_1": "標題 1",
+      "heading_2": "標題 2",
+      "heading_3": "標題 3"
     },
     "list_dropdown": {
-      "bullet_list": "无序列表",
+      "bullet_list": "無序列表",
       "ordered_list": "有序列表",
-      "task_list": "待办列表"
+      "task_list": "待辦列表"
     },
     "sub_issue": {
-      "tooltip": "用选中内容创建子任务",
-      "created": "已创建 {{identifier}}",
-      "create_failed": "创建子任务失败"
+      "tooltip": "用選中內容建立子任務",
+      "created": "已建立 {{identifier}}",
+      "create_failed": "建立子任務失敗"
     }
   },
   "image": {
-    "view": "查看图片",
-    "download": "下载",
-    "copy_link": "复制链接",
-    "delete": "删除",
-    "link_copied": "已复制链接",
-    "copy_link_failed": "复制链接失败",
-    "canvas_label": "图片画布,拖动可平移,滚动可缩放,双击可切换实际大小。",
-    "previous": "上一张",
-    "next": "下一张",
-    "sequence_position": "第 {{index}} / {{total}} 张",
-    "unavailable": "这张图片已失效,已跳过。"
+    "view": "檢視圖片",
+    "download": "下載",
+    "copy_link": "複製連結",
+    "delete": "刪除",
+    "link_copied": "已複製連結",
+    "copy_link_failed": "複製連結失敗",
+    "canvas_label": "圖片畫布,拖動可平移,滾動可縮放,雙擊可切換實際大小。",
+    "previous": "上一張",
+    "next": "下一張",
+    "sequence_position": "第 {{index}} / {{total}} 張",
+    "unavailable": "這張圖片已失效,已跳過。"
   },
   "canvas": {
     "zoom_in": "放大",
-    "zoom_out": "缩小",
-    "zoom_fit": "适应窗口",
-    "zoom_actual": "实际大小"
+    "zoom_out": "縮小",
+    "zoom_fit": "適應視窗",
+    "zoom_actual": "實際大小"
   },
   "attachment": {
-    "download_failed": "下载链接获取失败，请稍后重试。",
-    "preview": "预览",
-    "preview_loading": "加载预览中…",
-    "preview_failed": "预览加载失败",
-    "preview_too_large": "文件太大，无法在线预览，请下载查看。",
-    "preview_unsupported": "该文件类型暂不支持预览。",
-    "close": "关闭",
-    "open_in_new_tab": "在新标签页打开",
+    "download_failed": "下載連結獲取失敗，請稍後重試。",
+    "preview": "預覽",
+    "preview_loading": "載入預覽中…",
+    "preview_failed": "預覽載入失敗",
+    "preview_too_large": "檔案太大，無法線上預覽，請下載檢視。",
+    "preview_unsupported": "該檔案型別暫不支援預覽。",
+    "close": "關閉",
+    "open_in_new_tab": "在新標籤頁開啟",
     "remove": "移除附件"
   },
   "link_hover": {
-    "copy_link": "复制链接",
-    "open_link": "打开链接",
-    "link_copied": "已复制链接",
-    "copy_failed": "复制失败"
+    "copy_link": "複製連結",
+    "open_link": "開啟連結",
+    "link_copied": "已複製連結",
+    "copy_failed": "複製失敗"
   },
   "mention": {
-    "group_users": "用户",
-    "group_issues": "任务",
-    "all_members": "所有成员",
-    "agent_badge": "智能体",
-    "squad_badge": "小队",
-    "searching": "搜索中...",
-    "no_results": "无结果",
-    "group_current": "当前页面",
-    "group_recent": "最近浏览",
-    "group_search": "搜索结果",
+    "group_users": "使用者",
+    "group_issues": "任務",
+    "all_members": "所有成員",
+    "agent_badge": "智能體",
+    "squad_badge": "小隊",
+    "searching": "搜尋中...",
+    "no_results": "無結果",
+    "group_current": "當前頁面",
+    "group_recent": "最近瀏覽",
+    "group_search": "搜尋結果",
     "group_cancelled": "已取消"
   },
   "slash_command": {
-    "no_skills_configured": "暂无配置的技能",
-    "no_results": "没有匹配的技能",
+    "no_skills_configured": "暫無配置的技能",
+    "no_results": "沒有匹配的技能",
     "commands": {
-      "note": "添加备注——不触发任何智能体"
+      "note": "添加備注——不觸發任何智能體"
     }
   },
   "code_block": {
-    "html_preview": "HTML 预览",
-    "copy_code": "复制代码",
-    "show_preview": "显示预览",
-    "show_source": "显示源码",
+    "html_preview": "HTML 預覽",
+    "copy_code": "複製程式碼",
+    "show_preview": "顯示預覽",
+    "show_source": "顯示原始碼",
     "fullscreen": "放大"
   },
   "file_card": {
-    "uploading": "正在上传 {{filename}}"
+    "uploading": "正在上傳 {{filename}}"
   },
   "upload": {
-    "failed": "{{filename}} 上传失败：{{reason}}",
-    "in_progress": "上传中…",
-    "interrupted": "上传已中断——文件未保存。请重新添加。",
+    "failed": "{{filename}} 上傳失敗：{{reason}}",
+    "in_progress": "上傳中…",
+    "interrupted": "上傳已中斷——檔案未儲存。請重新新增。",
     "remove": "移除",
-    "uploading_label": "正在上传 {{filename}}…",
-    "failed_label": "{{filename}} 上传失败"
+    "uploading_label": "正在上傳 {{filename}}…",
+    "failed_label": "{{filename}} 上傳失敗"
   },
   "title_editor": {
-    "title_aria_label": "标题"
+    "title_aria_label": "標題"
   },
   "mermaid": {
-    "diagram_label": "Mermaid 图表",
-    "render_error": "无法渲染 Mermaid 图。",
+    "diagram_label": "Mermaid 圖表",
+    "render_error": "無法渲染 Mermaid 圖。",
     "rendering": "渲染中…",
-    "viewer_title": "图表",
-    "canvas_label": "图表画布,拖动可平移,滚动可缩放。",
-    "open_viewer": "打开图表查看器",
-    "close_viewer": "关闭",
-    "copy_source": "复制图表源码",
-    "show_source": "显示源码",
-    "show_diagram": "显示图表",
-    "export": "导出",
-    "export_png": "下载 PNG",
-    "export_svg": "下载 SVG",
-    "export_source": "下载 .mmd"
+    "viewer_title": "圖表",
+    "canvas_label": "圖表畫布,拖動可平移,滾動可縮放。",
+    "open_viewer": "開啟圖表檢視器",
+    "close_viewer": "關閉",
+    "copy_source": "複製圖表原始碼",
+    "show_source": "顯示原始碼",
+    "show_diagram": "顯示圖表",
+    "export": "匯出",
+    "export_png": "下載 PNG",
+    "export_svg": "下載 SVG",
+    "export_source": "下載 .mmd"
   }
 }

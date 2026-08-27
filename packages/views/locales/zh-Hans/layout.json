@@ -1,63 +1,63 @@
 {
   "nav": {
-    "inbox": "收件箱",
+    "inbox": "收件匣",
     "chat": "聊天",
-    "my_issues": "我的任务",
-    "issues": "任务",
-    "projects": "项目",
-    "autopilots": "自动化",
-    "agents": "智能体",
-    "squads": "小队",
-    "usage": "统计",
-    "runtimes": "运行时",
+    "my_issues": "我的任務",
+    "issues": "任務",
+    "projects": "專案",
+    "autopilots": "自動化",
+    "agents": "智能體",
+    "squads": "小隊",
+    "usage": "統計",
+    "runtimes": "執行環境",
     "skills": "Skills",
-    "settings": "设置"
+    "settings": "設定"
   },
   "tab": {
-    "issue": "任务",
-    "project": "项目",
-    "autopilot": "自动化",
-    "agent": "智能体",
-    "member": "成员",
-    "squad": "小队",
+    "issue": "任務",
+    "project": "專案",
+    "autopilot": "自動化",
+    "agent": "智能體",
+    "member": "成員",
+    "squad": "小隊",
     "skill": "Skill",
-    "machine": "机器",
-    "runtime": "运行时",
+    "machine": "機器",
+    "runtime": "執行環境",
     "attachment": "附件",
-    "create_agent": "创建智能体",
-    "unknown": "未知页面"
+    "create_agent": "建立智能體",
+    "unknown": "未知頁面"
   },
   "help": {
-    "trigger": "帮助",
+    "trigger": "幫助",
     "download_desktop": "桌面端",
-    "docs": "文档",
-    "changelog": "更新日志",
+    "docs": "文件",
+    "changelog": "更新日誌",
     "discord": "Discord",
-    "feedback": "反馈",
-    "server_version": "服务器版本 {{version}}"
+    "feedback": "反饋",
+    "server_version": "伺服器版本 {{version}}"
   },
   "workspace_loader": {
-    "loading_workspace": "正在加载工作区...",
-    "loading_named_prefix": "正在加载"
+    "loading_workspace": "正在載入工作區...",
+    "loading_named_prefix": "正在載入"
   },
   "sidebar": {
     "unpin_tooltip": "取消固定",
-    "workspaces_label": "工作区",
-    "create_workspace": "创建工作区",
-    "pending_invitations_label": "待处理的邀请",
-    "invitation_workspace_fallback": "工作区",
+    "workspaces_label": "工作區",
+    "create_workspace": "建立工作區",
+    "pending_invitations_label": "待處理的邀請",
+    "invitation_workspace_fallback": "工作區",
     "invitation_join": "加入",
-    "invitation_decline": "拒绝",
-    "log_out": "退出登录",
-    "new_issue": "新建任务",
+    "invitation_decline": "拒絕",
+    "log_out": "退出登入",
+    "new_issue": "新建任務",
     "new_issue_shortcut": "C",
     "pinned_label": "固定",
-    "workspace_group": "工作区",
+    "workspace_group": "工作區",
     "configure_group": "配置",
     "unread_overflow": "99+",
     "discord_card": {
       "title": "加入 Discord",
-      "dismiss": "关闭"
+      "dismiss": "關閉"
     }
   }
 }
