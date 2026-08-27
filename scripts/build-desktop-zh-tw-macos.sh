@@ -24,7 +24,7 @@ if [[ $(uname -s) != "Darwin" || $(uname -m) != "arm64" ]]; then
   exit 2
 fi
 
-for required_command in git node pnpm xcode-select codesign ditto shasum; do
+for required_command in git node pnpm xcode-select codesign ditto shasum ssh scp; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "error: missing required command: $required_command" >&2
     exit 2
@@ -117,8 +117,49 @@ fi
 
 ditto -c -k --sequesterRsrc --keepParent "$built_app" "$zip_path"
 
+artifact_sha=$(shasum -a 256 "$zip_path" | awk '{print $1}')
+artifact_name=$(basename "$zip_path")
+
+if [[ ${MULTICA_ZH_TW_SKIP_S90_SYNC:-0} == "1" ]]; then
+  echo "warning: s90 artifact sync explicitly skipped (MULTICA_ZH_TW_SKIP_S90_SYNC=1)" >&2
+else
+  artifact_host=${MULTICA_ZH_TW_ARTIFACT_HOST:-s90}
+  artifact_remote_dir=${MULTICA_ZH_TW_ARTIFACT_DIR:-/home/hungyu/artifacts}
+  if [[ ! "$artifact_host" =~ ^[A-Za-z0-9._@-]+$ ]]; then
+    echo "error: invalid MULTICA_ZH_TW_ARTIFACT_HOST: $artifact_host" >&2
+    exit 2
+  fi
+  if [[ ! "$artifact_remote_dir" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+    echo "error: MULTICA_ZH_TW_ARTIFACT_DIR must be a simple absolute path" >&2
+    exit 2
+  fi
+
+  artifact_remote_final="$artifact_remote_dir/$artifact_name"
+  artifact_remote_tmp="$artifact_remote_dir/.$artifact_name.partial-$$"
+  artifact_remote_checksum="$artifact_remote_final.sha256"
+
+  echo "Syncing verified artifact to $artifact_host:$artifact_remote_dir"
+  ssh -o BatchMode=yes -o ConnectTimeout=8 "$artifact_host" \
+    "mkdir -p '$artifact_remote_dir' && test ! -e '$artifact_remote_final' && test ! -e '$artifact_remote_tmp'"
+  scp -o BatchMode=yes -o ConnectTimeout=8 "$zip_path" "$artifact_host:$artifact_remote_tmp"
+
+  remote_sha=$(ssh -o BatchMode=yes -o ConnectTimeout=8 "$artifact_host" \
+    "sha256sum '$artifact_remote_tmp' | awk '{print \$1}'")
+  if [[ "$remote_sha" != "$artifact_sha" ]]; then
+    ssh -o BatchMode=yes -o ConnectTimeout=8 "$artifact_host" "rm -f '$artifact_remote_tmp'"
+    echo "error: s90 artifact checksum mismatch (local $artifact_sha, remote $remote_sha)" >&2
+    exit 1
+  fi
+
+  ssh -o BatchMode=yes -o ConnectTimeout=8 "$artifact_host" \
+    "mv '$artifact_remote_tmp' '$artifact_remote_final' && printf '%s  %s\\n' '$artifact_sha' '$artifact_name' > '$artifact_remote_checksum' && chmod 0644 '$artifact_remote_final' '$artifact_remote_checksum' && cd '$artifact_remote_dir' && sha256sum -c '$artifact_name.sha256'"
+fi
+
 echo "Build complete:"
 echo "  App: $built_app"
 echo "  ZIP: $zip_path"
-shasum -a 256 "$zip_path"
+echo "  SHA-256: $artifact_sha"
+if [[ ${MULTICA_ZH_TW_SKIP_S90_SYNC:-0} != "1" ]]; then
+  echo "  s90: $artifact_host:$artifact_remote_final"
+fi
 echo "Signature: ad-hoc local build (not notarized)"
