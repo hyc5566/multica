@@ -79,7 +79,7 @@ func runLogin(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, "\n→ Run 'multica daemon start' to start your local agent runtime.\n")
+	fmt.Fprintf(os.Stderr, "\n→ 執行 'multica daemon start' 以啟動本機智能體執行環境。\n")
 	return nil
 }
 
