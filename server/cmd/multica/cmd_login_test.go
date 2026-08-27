@@ -100,7 +100,7 @@ func TestRunLoginTokenAutoWatchesDiscoveredWorkspaces(t *testing.T) {
 	if err != nil {
 		t.Fatalf("runLogin: %v", err)
 	}
-	if !strings.Contains(errOut, "Found 2 workspace(s):") || !strings.Contains(errOut, "daemon start") {
+	if !strings.Contains(errOut, "Found 2 workspace(s):") || !strings.Contains(errOut, "→ 執行 'multica daemon start' 以啟動本機智能體執行環境。") {
 		t.Fatalf("stderr = %q, want workspace discovery and daemon hint", errOut)
 	}
 
