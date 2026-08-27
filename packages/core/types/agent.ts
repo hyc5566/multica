@@ -1144,8 +1144,10 @@ export type RuntimeModelListStatus =
 export interface RuntimeModelListRequest {
   id: string;
   runtime_id: string;
+  purpose?: string;
   status: RuntimeModelListStatus;
   models?: RuntimeModel[];
+  provider_usage?: RuntimeProviderUsage;
   supported: boolean;
   error?: string;
   created_at: string;
@@ -1159,6 +1161,50 @@ export interface RuntimeModelListRequest {
    */
   cached?: boolean;
   cached_at?: string;
+}
+
+export type RuntimeProviderUsageStatus =
+  | "available"
+  | "partial"
+  | "unavailable"
+  | "auth_required"
+  | "error";
+
+export type RuntimeProviderUsageSource =
+  | "official"
+  | "derived"
+  | "unavailable";
+
+export interface RuntimeProviderUsageWindow {
+  id: string;
+  group?: string;
+  label: string;
+  used_percent?: number;
+  remaining_percent?: number;
+  window_duration_mins?: number;
+  /** Provider timestamp preserved as RFC3339 by the backend. */
+  resets_at?: string;
+  unit: string;
+}
+
+export interface RuntimeProviderUsage {
+  provider: string;
+  account_scope?: string;
+  status: RuntimeProviderUsageStatus;
+  source: RuntimeProviderUsageSource;
+  windows?: RuntimeProviderUsageWindow[];
+  observed_at: string;
+  message?: string;
+}
+
+export interface RuntimeProviderUsageRequest {
+  id: string;
+  runtime_id: string;
+  status: RuntimeModelListStatus;
+  provider_usage?: RuntimeProviderUsage;
+  error?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Result shape returned by resolveRuntimeModels — includes the

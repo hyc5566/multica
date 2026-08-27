@@ -2113,6 +2113,8 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 					r.Get("/update/{updateId}", h.GetUpdate)
 					r.Post("/models", h.InitiateListModels)
 					r.Get("/models/{requestId}", h.GetModelListRequest)
+					r.Post("/provider-usage", h.InitiateProviderUsage)
+					r.Get("/provider-usage/{requestId}", h.GetProviderUsageRequest)
 					r.Post("/local-skills", h.InitiateListLocalSkills)
 					r.Get("/local-skills/{requestId}", h.GetLocalSkillListRequest)
 					r.Post("/local-skills/import", h.InitiateImportLocalSkill)

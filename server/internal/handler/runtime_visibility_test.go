@@ -297,6 +297,10 @@ func TestPrivateRuntimeReadEndpointsHideKnownRuntimeFromNonOwners(t *testing.T) 
 	if err != nil {
 		t.Fatalf("create model list request: %v", err)
 	}
+	providerUsageRequest, err := testHandler.ModelListStore.Create(context.Background(), runtimeID, "provider_usage")
+	if err != nil {
+		t.Fatalf("create provider usage request: %v", err)
+	}
 	localSkillRequest, err := testHandler.LocalSkillListStore.Create(context.Background(), runtimeID)
 	if err != nil {
 		t.Fatalf("create local skill list request: %v", err)
@@ -315,6 +319,8 @@ func TestPrivateRuntimeReadEndpointsHideKnownRuntimeFromNonOwners(t *testing.T) 
 		{"usage by hour", http.MethodGet, "/api/runtimes/" + runtimeID + "/usage/by-hour", testHandler.GetRuntimeUsageByHour, []string{"runtimeId", runtimeID}},
 		{"model discovery", http.MethodPost, "/api/runtimes/" + runtimeID + "/models", testHandler.InitiateListModels, []string{"runtimeId", runtimeID}},
 		{"model discovery poll", http.MethodGet, "/api/runtimes/" + runtimeID + "/models/" + modelRequest.ID, testHandler.GetModelListRequest, []string{"runtimeId", runtimeID, "requestId", modelRequest.ID}},
+		{"provider usage", http.MethodPost, "/api/runtimes/" + runtimeID + "/provider-usage", testHandler.InitiateProviderUsage, []string{"runtimeId", runtimeID}},
+		{"provider usage poll", http.MethodGet, "/api/runtimes/" + runtimeID + "/provider-usage/" + providerUsageRequest.ID, testHandler.GetProviderUsageRequest, []string{"runtimeId", runtimeID, "requestId", providerUsageRequest.ID}},
 		{"local skill discovery", http.MethodPost, "/api/runtimes/" + runtimeID + "/local-skills", testHandler.InitiateListLocalSkills, []string{"runtimeId", runtimeID}},
 		{"local skill discovery poll", http.MethodGet, "/api/runtimes/" + runtimeID + "/local-skills/" + localSkillRequest.ID, testHandler.GetLocalSkillListRequest, []string{"runtimeId", runtimeID, "requestId", localSkillRequest.ID}},
 	}

@@ -1305,7 +1305,7 @@ func (h *Handler) processHeartbeat(ctx context.Context, rt db.AgentRuntime, supp
 		if popErr != nil {
 			slog.Warn("model list PopPending failed", "error", popErr, "runtime_id", runtimeID)
 		} else if pendingModel != nil {
-			ack.PendingModelList = &protocol.DaemonHeartbeatPendingModelList{ID: pendingModel.ID}
+			ack.PendingModelList = &protocol.DaemonHeartbeatPendingModelList{ID: pendingModel.ID, Purpose: pendingModel.Purpose}
 		}
 	case probeModelErr != nil:
 		if errors.Is(probeModelErr, context.DeadlineExceeded) || errors.Is(probeModelErr, context.Canceled) {

@@ -3941,7 +3941,11 @@ func (d *Daemon) handleHeartbeatActions(ctx context.Context, runtimeID string, r
 	}
 	if resp.PendingModelList != nil {
 		if rt := d.findRuntime(runtimeID); rt != nil {
-			go d.handleModelList(ctx, *rt, resp.PendingModelList.ID)
+			if resp.PendingModelList.Purpose == "provider_usage" {
+				go d.handleProviderUsage(ctx, *rt, resp.PendingModelList.ID)
+			} else {
+				go d.handleModelList(ctx, *rt, resp.PendingModelList.ID)
+			}
 		}
 	}
 	if resp.PendingLocalSkills != nil {
@@ -4054,6 +4058,43 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 	}
 	d.logger.Debug("pending work hint served", "runtime_id", runtimeID, "kind", kind)
 	d.handleHeartbeatActions(ctx, runtimeID, resp)
+}
+
+// handleProviderUsage asks the same executable this runtime launches for a
+// normalized account-quota snapshot. The provider adapter reads only the
+// CLI's structured output and returns fixed, credential-free errors.
+func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
+	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
+
+	var execPath string
+	var fixedArgs []string
+	if customSpec, isCustom := d.customProfileLaunchForRuntime(rt.ID); isCustom {
+		execPath = customSpec.path
+		fixedArgs = agent.FilterLaunchPrefix(rt.Provider, customSpec.fixedArgs, d.logger)
+	} else if entry, ok := d.agents()[rt.Provider]; ok {
+		entry, _ = d.resolveAgentEntry(ctx, rt.Provider, entry)
+		execPath = entry.Path
+	}
+	if strings.TrimSpace(execPath) == "" {
+		d.reportModelListResult(ctx, rt, requestID, map[string]any{
+			"status": "completed",
+			"provider_usage": agent.ProviderUsage{
+				Provider:   rt.Provider,
+				Status:     "error",
+				Source:     "unavailable",
+				ObservedAt: time.Now().UTC(),
+				Message:    "The runtime executable is not available on the connected machine.",
+			},
+		})
+		return
+	}
+
+	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.NewCommand(execPath, fixedArgs))
+	d.reportModelListResult(ctx, rt, requestID, map[string]any{
+		"status":         "completed",
+		"supported":      true,
+		"provider_usage": usage,
+	})
 }
 
 // handleModelList resolves the provider's supported models (via static
