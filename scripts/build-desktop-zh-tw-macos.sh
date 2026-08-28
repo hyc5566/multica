@@ -9,7 +9,7 @@ usage() {
 repo_dir=${1:-$(git rev-parse --show-toplevel 2>/dev/null || true)}
 requested_version=${2:-}
 
-if [[ -z "$repo_dir" || ! -d "$repo_dir/.git" ]]; then
+if [[ -z "$repo_dir" ]] || ! git -C "$repo_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   usage
   echo "error: repo-dir must be a Multica Git checkout" >&2
   exit 2
