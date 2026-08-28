@@ -90,26 +90,135 @@ const (
 	claudeUsageMaxAge      = 30 * time.Minute
 )
 
-// probeClaudeUsage reads a credential-free cache populated by Claude Code's
-// statusLine input. Claude Code has no non-interactive /usage command, but its
-// documented status-line payload includes the official five-hour and seven-day
-// quota windows after the first API response in a subscriber session. A status
-// line can copy only those fields to this cache without exposing auth material.
-func probeClaudeUsage() (ProviderUsage, error) {
-	path := strings.TrimSpace(os.Getenv(claudeUsageSnapshotEnv))
-	if path == "" {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return ProviderUsage{}, err
+type claudeRateLimitInfo struct {
+	UnifiedWindows struct {
+		FiveHour *claudeRateLimitWindow `json:"five_hour,omitempty"`
+		SevenDay *claudeRateLimitWindow `json:"seven_day,omitempty"`
+	} `json:"unifiedWindows"`
+}
+
+type claudeRateLimitWindow struct {
+	Utilization *float64 `json:"utilization,omitempty"`
+	ResetsAt    *int64   `json:"resetsAt,omitempty"`
+}
+
+type claudeUsageSnapshot struct {
+	SchemaVersion int                           `json:"schema_version"`
+	ObservedAt    time.Time                     `json:"observed_at"`
+	RateLimits    claudeUsageSnapshotRateLimits `json:"rate_limits"`
+}
+
+type claudeUsageSnapshotRateLimits struct {
+	FiveHour *claudeUsageWindow `json:"five_hour,omitempty"`
+	SevenDay *claudeUsageWindow `json:"seven_day,omitempty"`
+}
+
+type claudeUsageWindow struct {
+	UsedPercentage float64 `json:"used_percentage"`
+	ResetsAt       int64   `json:"resets_at"`
+}
+
+func claudeUsageSnapshotPath() (string, error) {
+	if path := strings.TrimSpace(os.Getenv(claudeUsageSnapshotEnv)); path != "" {
+		return path, nil
+	}
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, ".multica", "provider-usage", "claude.json"), nil
+}
+
+// writeClaudeUsageSnapshot persists the credential-free quota windows emitted
+// by Claude Code's non-interactive stream-json rate_limit_event. Utilization is
+// a 0..1 fraction on that wire, while the provider-usage contract stores
+// percentages in the 0..100 range.
+func writeClaudeUsageSnapshot(info *claudeRateLimitInfo, observedAt time.Time) error {
+	if info == nil {
+		return nil
+	}
+	windows := claudeUsageSnapshotRateLimits{}
+	validWindow := func(window *claudeRateLimitWindow) *claudeUsageWindow {
+		if window == nil || window.Utilization == nil || window.ResetsAt == nil {
+			return nil
 		}
-		path = filepath.Join(home, ".multica", "provider-usage", "claude.json")
+		if *window.Utilization < 0 || *window.Utilization > 1 || *window.ResetsAt <= 0 {
+			return nil
+		}
+		return &claudeUsageWindow{
+			UsedPercentage: *window.Utilization * 100,
+			ResetsAt:       *window.ResetsAt,
+		}
+	}
+	windows.FiveHour = validWindow(info.UnifiedWindows.FiveHour)
+	windows.SevenDay = validWindow(info.UnifiedWindows.SevenDay)
+	if windows.FiveHour == nil && windows.SevenDay == nil {
+		return nil
+	}
+	if observedAt.IsZero() {
+		observedAt = time.Now().UTC()
+	}
+	raw, err := json.Marshal(claudeUsageSnapshot{
+		SchemaVersion: 1,
+		ObservedAt:    observedAt.UTC(),
+		RateLimits:    windows,
+	})
+	if err != nil {
+		return err
+	}
+	path, err := claudeUsageSnapshotPath()
+	if err != nil {
+		return err
+	}
+	dir := filepath.Dir(path)
+	if err := os.MkdirAll(dir, 0o700); err != nil {
+		return err
+	}
+	if err := os.Chmod(dir, 0o700); err != nil {
+		return err
+	}
+	tmp, err := os.CreateTemp(dir, ".claude.json.*")
+	if err != nil {
+		return err
+	}
+	tmpPath := tmp.Name()
+	removeTemp := true
+	defer func() {
+		_ = tmp.Close()
+		if removeTemp {
+			_ = os.Remove(tmpPath)
+		}
+	}()
+	if err := tmp.Chmod(0o600); err != nil {
+		return err
+	}
+	if _, err := tmp.Write(raw); err != nil {
+		return err
+	}
+	if err := tmp.Close(); err != nil {
+		return err
+	}
+	if err := os.Rename(tmpPath, path); err != nil {
+		return err
+	}
+	removeTemp = false
+	return os.Chmod(path, 0o600)
+}
+
+// probeClaudeUsage reads a credential-free cache populated from Claude Code's
+// official stream-json rate_limit_event. The daemon persists only the five-hour
+// and seven-day quota windows and never stores session or authentication data.
+func probeClaudeUsage() (ProviderUsage, error) {
+	path, err := claudeUsageSnapshotPath()
+	if err != nil {
+		return ProviderUsage{}, err
 	}
 	raw, err := os.ReadFile(path)
 	if errors.Is(err, os.ErrNotExist) {
 		return ProviderUsage{
 			Status:  "unavailable",
 			Source:  "unavailable",
-			Message: "No Claude Code status-line quota snapshot is available yet. Run one Claude Code turn with usage capture enabled, then refresh.",
+			Message: "No Claude Code rate-limit snapshot is available yet. Run one Claude task with a compatible Multica daemon, then refresh.",
 		}, nil
 	}
 	if err != nil {
@@ -171,7 +280,7 @@ func parseClaudeUsage(raw []byte, now time.Time) (ProviderUsage, error) {
 	}
 	if len(usage.Windows) == 0 {
 		usage.Status = "partial"
-		usage.Message = "Claude Code's latest status-line snapshot did not include subscriber quota windows."
+		usage.Message = "Claude Code's latest rate-limit event did not include subscriber quota windows."
 		return usage, nil
 	}
 	if now.Sub(usage.ObservedAt) > claudeUsageMaxAge {

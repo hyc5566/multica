@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -84,7 +85,7 @@ func TestParseAntigravityUsageUsesStructuredCommandData(t *testing.T) {
 	}
 }
 
-func TestParseClaudeUsageUsesOfficialStatusLineWindows(t *testing.T) {
+func TestParseClaudeUsageUsesOfficialRateLimitWindows(t *testing.T) {
 	t.Parallel()
 	now := time.Date(2026, 8, 27, 15, 20, 0, 0, time.UTC)
 	raw := []byte(`{
@@ -142,3 +143,84 @@ func TestProbeClaudeUsageReadsCredentialFreeCache(t *testing.T) {
 		t.Fatalf("cached Claude snapshot = %+v", got)
 	}
 }
+
+func TestClaudeRateLimitEventWritesProviderSnapshot(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "provider-usage", "claude.json")
+	t.Setenv(claudeUsageSnapshotEnv, path)
+
+	var msg claudeSDKMessage
+	if err := json.Unmarshal([]byte(`{
+		"type":"rate_limit_event",
+		"rate_limit_info":{
+			"status":"rejected",
+			"rateLimitType":"five_hour",
+			"unifiedWindows":{
+				"five_hour":{"utilization":1,"resetsAt":1787920800},
+				"seven_day":{"utilization":0.26,"resetsAt":1788415200}
+			}
+		}
+	}`), &msg); err != nil {
+		t.Fatal(err)
+	}
+	observedAt := time.Date(2026, 8, 28, 10, 0, 0, 0, time.UTC)
+	if err := writeClaudeUsageSnapshot(msg.RateLimitInfo, observedAt); err != nil {
+		t.Fatal(err)
+	}
+
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(raw) == "" || !json.Valid(raw) {
+		t.Fatalf("snapshot is not valid JSON: %q", raw)
+	}
+	if string(raw) != `{"schema_version":1,"observed_at":"2026-08-28T10:00:00Z","rate_limits":{"five_hour":{"used_percentage":100,"resets_at":1787920800},"seven_day":{"used_percentage":26,"resets_at":1788415200}}}` {
+		t.Fatalf("snapshot = %s", raw)
+	}
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := info.Mode().Perm(); got != 0o600 {
+		t.Fatalf("snapshot mode = %o, want 600", got)
+	}
+
+	got, err := parseClaudeUsage(raw, observedAt)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.Status != "available" || len(got.Windows) != 2 {
+		t.Fatalf("parsed snapshot = %+v", got)
+	}
+	if got.Windows[0].UsedPercent == nil || *got.Windows[0].UsedPercent != 100 {
+		t.Fatalf("five-hour window = %+v", got.Windows[0])
+	}
+	if got.Windows[1].UsedPercent == nil || *got.Windows[1].UsedPercent != 26 {
+		t.Fatalf("seven-day window = %+v", got.Windows[1])
+	}
+}
+
+func TestClaudeRateLimitEventWithNoValidWindowKeepsSnapshot(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "claude.json")
+	t.Setenv(claudeUsageSnapshotEnv, path)
+	want := []byte(`{"observed_at":"2026-08-28T09:00:00Z","rate_limits":{"five_hour":{"used_percentage":20}}}`)
+	if err := os.WriteFile(path, want, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	invalid := &claudeRateLimitInfo{}
+	invalid.UnifiedWindows.FiveHour = &claudeRateLimitWindow{Utilization: float64Pointer(1.1), ResetsAt: int64Pointer(1787920800)}
+	if err := writeClaudeUsageSnapshot(invalid, time.Now().UTC()); err != nil {
+		t.Fatal(err)
+	}
+	got, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != string(want) {
+		t.Fatalf("invalid event overwrote snapshot: %s", got)
+	}
+}
+
+func float64Pointer(value float64) *float64 { return &value }
+
+func int64Pointer(value int64) *int64 { return &value }
