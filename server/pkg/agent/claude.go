@@ -276,6 +276,10 @@ func (b *claudeBackend) Execute(ctx context.Context, prompt string, opts ExecOpt
 					sessionID = msg.SessionID
 				}
 				trySend(msgCh, Message{Type: MessageStatus, Status: "running", SessionID: sessionID})
+			case "rate_limit_event":
+				if err := writeClaudeUsageSnapshot(msg.RateLimitInfo, time.Now().UTC()); err != nil {
+					b.cfg.Logger.Warn("claude rate-limit snapshot write failed", "error", err)
+				}
 			case "result":
 				sawResult = true
 				finalResultText = msg.ResultText
@@ -650,6 +654,9 @@ type claudeSDKMessage struct {
 	SessionID       string          `json:"session_id,omitempty"`
 	Model           string          `json:"model,omitempty"`
 	ParentToolUseID string          `json:"parent_tool_use_id,omitempty"`
+
+	// rate_limit_event fields
+	RateLimitInfo *claudeRateLimitInfo `json:"rate_limit_info,omitempty"`
 
 	// result fields
 	ResultText string `json:"result,omitempty"`

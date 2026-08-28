@@ -171,7 +171,7 @@
       "runtime_offline": "執行環境目前離線，無法重新整理用量。",
       "unavailable": "供應商未回傳可供程式讀取的額度資料。",
       "auth_required": "請在此執行環境登入供應商 CLI，然後重新整理。",
-      "claude_unavailable": "目前還沒有 Claude Code 額度快照。請在已啟用狀態列擷取的 Claude Code 執行一次對話，再回來重新整理。",
+      "claude_unavailable": "目前還沒有 Claude Code 額度快照。請使用相容的 Multica 守護進程執行一次 Claude task，再回來重新整理。",
       "probe_error": "執行環境的 CLI 無法提供帳號額度快照。",
       "multica_7d": "此智能體在 Multica · 近 7 天",
       "tokens": "tokens",
