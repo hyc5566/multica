@@ -141,10 +141,10 @@ export function AgentUsageSummary({
                     ? t(($) => $.detail.usage.runtime_offline)
                     : usage?.status === "auth_required"
                       ? t(($) => $.detail.usage.auth_required)
-                      : runtime.provider === "claude"
-                        ? t(($) => $.detail.usage.claude_unavailable)
-                        : usage?.status === "error"
+                      : providerQuery.isError || usage?.status === "error"
                           ? t(($) => $.detail.usage.probe_error)
+                        : runtime.provider === "claude" && usage?.status === "unavailable"
+                          ? t(($) => $.detail.usage.claude_unavailable)
                           : usage?.message || t(($) => $.detail.usage.unavailable)
               }
             />
