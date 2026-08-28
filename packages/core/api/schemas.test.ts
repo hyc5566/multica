@@ -46,7 +46,9 @@ import {
   ListIssuesResponseSchema,
   ListPropertiesResponseSchema,
   MALFORMED_RUNTIME_MODEL_LIST_REQUEST,
+  MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
   RuntimeModelListRequestSchema,
+  RuntimeProviderUsageRequestSchema,
   SearchProjectsResponseSchema,
   RuntimeHourlyActivityListSchema,
   RuntimeUsageByAgentListSchema,
@@ -1602,6 +1604,80 @@ describe("RuntimeModelListRequestSchema", () => {
     expect((parsed as unknown as { future_field?: string }).future_field).toBe(
       "keep me",
     );
+  });
+});
+
+describe("RuntimeProviderUsageRequestSchema", () => {
+  const completed = {
+    id: "request-1",
+    runtime_id: "runtime-1",
+    status: "completed",
+    created_at: "2026-08-28T10:00:00Z",
+    updated_at: "2026-08-28T10:00:01Z",
+    provider_usage: {
+      provider: "codex",
+      status: "available",
+      source: "official",
+      observed_at: "2026-08-28T10:00:01Z",
+      context: {
+        scope: "active_task",
+        status: "available",
+        source: "official",
+        active_task_count: 1,
+        used_tokens: 125274,
+        max_tokens: 258400,
+        remaining_tokens: 133126,
+        used_percent: 48.48,
+        observed_at: "2026-08-28T10:00:01Z",
+      },
+    },
+  };
+
+  it("preserves the active-task context separately from account quota", () => {
+    const parsed = parseWithFallback(
+      completed,
+      RuntimeProviderUsageRequestSchema,
+      MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
+      { endpoint: "test" },
+    );
+    expect(parsed.provider_usage?.context).toMatchObject({
+      scope: "active_task",
+      used_tokens: 125274,
+      max_tokens: 258400,
+      remaining_tokens: 133126,
+    });
+  });
+
+  it("keeps older daemon responses usable when context is absent", () => {
+    const withoutContext = {
+      ...completed,
+      provider_usage: { ...completed.provider_usage, context: undefined },
+    };
+    const parsed = parseWithFallback(
+      withoutContext,
+      RuntimeProviderUsageRequestSchema,
+      MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
+      { endpoint: "test" },
+    );
+    expect(parsed.status).toBe("completed");
+    expect(parsed.provider_usage?.context).toBeUndefined();
+  });
+
+  it("fails closed when context numeric fields are malformed", () => {
+    const parsed = parseWithFallback(
+      {
+        ...completed,
+        provider_usage: {
+          ...completed.provider_usage,
+          context: { ...completed.provider_usage.context, max_tokens: -1 },
+        },
+      },
+      RuntimeProviderUsageRequestSchema,
+      MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
+      { endpoint: "test" },
+    );
+    expect(parsed.status).toBe("failed");
+    expect(parsed.error).toBe("invalid provider usage response");
   });
 });
 

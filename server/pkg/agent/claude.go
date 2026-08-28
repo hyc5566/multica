@@ -384,6 +384,9 @@ func (b *claudeBackend) handleAssistant(msg claudeSDKMessage, ch chan<- Message,
 		u.CacheReadTokens += content.Usage.CacheReadInputTokens
 		u.CacheWriteTokens += content.Usage.CacheCreationInputTokens
 		usage[content.Model] = u
+		if contextUsage := claudeProviderContextUsage(content.Usage, time.Now().UTC()); contextUsage != nil {
+			trySend(ch, Message{Type: MessageContext, ContextUsage: contextUsage})
+		}
 	}
 
 	for _, block := range content.Content {
@@ -420,6 +423,25 @@ func (b *claudeBackend) handleAssistant(msg claudeSDKMessage, ch chan<- Message,
 	turn.text = assistantText.String()
 	turn.toolUses = toolUseCount
 	return turn
+}
+
+// claudeProviderContextUsage derives the current context tokens from Claude
+// Code's official assistant usage buckets. Claude's headless stream-json mode
+// does not publish the model's maximum context window, so max, remaining and
+// percent stay nil and the snapshot is explicitly partial.
+func claudeProviderContextUsage(raw *claudeUsage, observedAt time.Time) *ProviderContextUsage {
+	if raw == nil {
+		return nil
+	}
+	used := raw.InputTokens + raw.OutputTokens + raw.CacheReadInputTokens + raw.CacheCreationInputTokens
+	if used <= 0 {
+		return nil
+	}
+	return &ProviderContextUsage{
+		Status: "partial", Source: "derived", Reason: "max_unavailable",
+		UsedTokens: &used, ObservedAt: observedAt.UTC(),
+		Message: "Claude Code stream-json publishes current usage buckets but not the model context-window maximum.",
+	}
 }
 
 func (b *claudeBackend) handleUser(msg claudeSDKMessage, ch chan<- Message) bool {

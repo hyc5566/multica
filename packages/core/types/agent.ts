@@ -1187,12 +1187,37 @@ export interface RuntimeProviderUsageWindow {
   unit: string;
 }
 
+export type RuntimeProviderContextReason =
+  | "idle"
+  | "telemetry_pending"
+  | "provider_unsupported"
+  | "multiple_active_tasks"
+  | "stale"
+  | "max_unavailable"
+  | "agent_scope_missing";
+
+export interface RuntimeProviderContextUsage {
+  scope: "active_task";
+  status: RuntimeProviderUsageStatus;
+  source: RuntimeProviderUsageSource;
+  reason?: RuntimeProviderContextReason;
+  active_task_count: number;
+  used_tokens?: number;
+  max_tokens?: number;
+  remaining_tokens?: number;
+  used_percent?: number;
+  observed_at: string;
+  message?: string;
+}
+
 export interface RuntimeProviderUsage {
   provider: string;
   account_scope?: string;
   status: RuntimeProviderUsageStatus;
   source: RuntimeProviderUsageSource;
   windows?: RuntimeProviderUsageWindow[];
+  /** Current active Multica task/session only; never account or 7-day usage. */
+  context?: RuntimeProviderContextUsage;
   observed_at: string;
   message?: string;
 }

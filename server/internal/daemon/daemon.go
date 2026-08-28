@@ -568,6 +568,9 @@ type Daemon struct {
 	activeStores     map[string]int  // persistent store path (per-conversation Codex sessions, per-agent Hermes memories) -> live-task refcount; guards the store from GC mid-task (MUL-4424)
 	deletingStores   map[string]bool // store paths a GC delete has reserved; markActive waits these out so a task never mounts a store mid-removal
 
+	providerContextsMu sync.RWMutex
+	providerContexts   map[string]activeProviderContext // task_id -> current credential-free context snapshot
+
 	// repoCheckoutTasks binds the localhost /repo/checkout endpoint to the
 	// task-scoped bearer token of a currently running agent. The request body is
 	// never an identity source: workspace, task, agent, and allowed workdir all
@@ -636,6 +639,7 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 		deletingEnvRoots:          make(map[string]bool),
 		activeStores:              make(map[string]int),
 		deletingStores:            make(map[string]bool),
+		providerContexts:          make(map[string]activeProviderContext),
 		localPathLocks:            NewLocalPathLocker(),
 		runtimeGoneInflight:       make(map[string]struct{}),
 		pendingWorkInflight:       make(map[string]struct{}),
@@ -3941,8 +3945,8 @@ func (d *Daemon) handleHeartbeatActions(ctx context.Context, runtimeID string, r
 	}
 	if resp.PendingModelList != nil {
 		if rt := d.findRuntime(runtimeID); rt != nil {
-			if resp.PendingModelList.Purpose == "provider_usage" {
-				go d.handleProviderUsage(ctx, *rt, resp.PendingModelList.ID)
+			if agentID, ok := providerUsageAgentID(resp.PendingModelList.Purpose); ok {
+				go d.handleProviderUsage(ctx, *rt, resp.PendingModelList.ID, agentID)
 			} else {
 				go d.handleModelList(ctx, *rt, resp.PendingModelList.ID)
 			}
@@ -4063,7 +4067,7 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 // handleProviderUsage asks the same executable this runtime launches for a
 // normalized account-quota snapshot. The provider adapter reads only the
 // CLI's structured output and returns fixed, credential-free errors.
-func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
+func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID, agentID string) {
 	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
 
 	var execPath string
@@ -4076,12 +4080,14 @@ func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID 
 		execPath = entry.Path
 	}
 	if strings.TrimSpace(execPath) == "" {
+		contextUsage := d.providerContextSnapshot(rt.ID, agentID, rt.Provider, time.Now().UTC())
 		d.reportModelListResult(ctx, rt, requestID, map[string]any{
 			"status": "completed",
 			"provider_usage": agent.ProviderUsage{
 				Provider:   rt.Provider,
 				Status:     "error",
 				Source:     "unavailable",
+				Context:    contextUsage,
 				ObservedAt: time.Now().UTC(),
 				Message:    "The runtime executable is not available on the connected machine.",
 			},
@@ -4090,6 +4096,7 @@ func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID 
 	}
 
 	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.NewCommand(execPath, fixedArgs))
+	usage.Context = d.providerContextSnapshot(rt.ID, agentID, rt.Provider, time.Now().UTC())
 	d.reportModelListResult(ctx, rt, requestID, map[string]any{
 		"status":         "completed",
 		"supported":      true,
@@ -7671,6 +7678,8 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 		WorkDir:     env.WorkDir,
 	})
 	defer d.clearActiveRepoCheckoutTask(agentToken)
+	d.registerActiveProviderContext(task.ID, task.RuntimeID, task.AgentID, provider, taskStart)
+	defer d.clearActiveProviderContext(task.ID)
 
 	taskLog.Debug("invoking backend",
 		"provider", provider,
@@ -8342,6 +8351,9 @@ func (d *Daemon) executeAndDrain(ctx context.Context, backend agent.Backend, pro
 				// slow downstream call (mu.Lock contention, batch resize)
 				// can't be misattributed to backend silence.
 				lastActivityAt.Store(time.Now().UnixNano())
+				if msg.ContextUsage != nil {
+					d.updateActiveProviderContext(taskID, *msg.ContextUsage)
+				}
 				switch msg.Type {
 				case agent.MessageStatus:
 					// Persist the session/work_dir as soon as the backend
@@ -8461,6 +8473,9 @@ func (d *Daemon) executeAndDrain(ctx context.Context, backend agent.Backend, pro
 						Content: msg.Content,
 					})
 					mu.Unlock()
+				case agent.MessageContext:
+					// Consumed by updateActiveProviderContext above. Context
+					// telemetry is runtime state and must not enter the transcript.
 				}
 			case <-drainCtx.Done():
 				goto drainDone

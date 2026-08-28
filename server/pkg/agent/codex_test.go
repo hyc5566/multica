@@ -578,6 +578,35 @@ func TestCodexRawTurnCompletedSubtractsCachedInput(t *testing.T) {
 	}
 }
 
+func TestCodexRawTokenUsageEmitsOfficialContextWindow(t *testing.T) {
+	t.Parallel()
+	c, _, _ := newTestCodexClient(t)
+	c.notificationProtocol = "raw"
+	c.threadID = "thread-current"
+	messages := make(chan Message, 1)
+	c.onMessage = func(message Message) { messages <- message }
+
+	c.handleLine(`{"jsonrpc":"2.0","method":"thread/tokenUsage/updated","params":{"threadId":"thread-current","turnId":"turn-1","tokenUsage":{"total":{"totalTokens":2139867},"last":{"totalTokens":125274},"modelContextWindow":258400}}}`)
+
+	message := <-messages
+	if message.Type != MessageContext || message.ContextUsage == nil {
+		t.Fatalf("message = %+v, want context usage", message)
+	}
+	usage := message.ContextUsage
+	if usage.Status != "available" || usage.Source != "official" {
+		t.Fatalf("usage = %+v", usage)
+	}
+	if usage.UsedTokens == nil || *usage.UsedTokens != 125274 {
+		t.Fatalf("used tokens = %v, want last.totalTokens", usage.UsedTokens)
+	}
+	if usage.MaxTokens == nil || *usage.MaxTokens != 258400 {
+		t.Fatalf("max tokens = %v", usage.MaxTokens)
+	}
+	if usage.RemainingTokens == nil || *usage.RemainingTokens != 133126 {
+		t.Fatalf("remaining tokens = %v", usage.RemainingTokens)
+	}
+}
+
 func TestCodexRawTurnCompletedDeduplication(t *testing.T) {
 	t.Parallel()
 

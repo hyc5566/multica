@@ -49,6 +49,38 @@ func TestClaudeHandleAssistantText(t *testing.T) {
 	}
 }
 
+func TestClaudeHandleAssistantEmitsDerivedPartialContext(t *testing.T) {
+	t.Parallel()
+	b := &claudeBackend{cfg: Config{Logger: slog.Default()}}
+	ch := make(chan Message, 2)
+	msg := claudeSDKMessage{
+		Type: "assistant",
+		Message: mustMarshal(t, claudeMessageContent{
+			Role: "assistant", Model: "claude-sonnet-5",
+			Usage: &claudeUsage{
+				InputTokens: 120, OutputTokens: 30,
+				CacheReadInputTokens: 80, CacheCreationInputTokens: 20,
+			},
+		}),
+	}
+	b.handleAssistant(msg, ch, make(map[string]TokenUsage))
+
+	message := <-ch
+	if message.Type != MessageContext || message.ContextUsage == nil {
+		t.Fatalf("message = %+v, want context usage", message)
+	}
+	usage := message.ContextUsage
+	if usage.Status != "partial" || usage.Source != "derived" || usage.Reason != "max_unavailable" {
+		t.Fatalf("usage = %+v", usage)
+	}
+	if usage.UsedTokens == nil || *usage.UsedTokens != 250 {
+		t.Fatalf("used tokens = %v, want 250", usage.UsedTokens)
+	}
+	if usage.MaxTokens != nil || usage.RemainingTokens != nil || usage.UsedPercent != nil {
+		t.Fatalf("Claude max-derived fields must stay unavailable: %+v", usage)
+	}
+}
+
 func TestClaudeHandleAssistantToolUse(t *testing.T) {
 	t.Parallel()
 

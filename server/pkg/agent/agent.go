@@ -151,9 +151,28 @@ const (
 	MessageToolUse    MessageType = "tool-use"
 	MessageToolResult MessageType = "tool-result"
 	MessageStatus     MessageType = "status"
-	MessageError      MessageType = "error"
-	MessageLog        MessageType = "log"
+	// MessageContext carries credential-free live context-window telemetry to
+	// the daemon. It is runtime state, not transcript content, so the daemon
+	// consumes it locally and never posts it as a task message.
+	MessageContext MessageType = "context-usage"
+	MessageError   MessageType = "error"
+	MessageLog     MessageType = "log"
 )
+
+// ProviderContextUsage is the provider-neutral snapshot for one active model
+// session. Nil numeric fields mean the provider did not publish them. The
+// daemon derives remaining/percent only when both used and max are known.
+type ProviderContextUsage struct {
+	Status          string
+	Source          string
+	Reason          string
+	UsedTokens      *int64
+	MaxTokens       *int64
+	RemainingTokens *int64
+	UsedPercent     *float64
+	ObservedAt      time.Time
+	Message         string
+}
 
 // Message is a unified event emitted by an agent during execution.
 type Message struct {
@@ -166,6 +185,9 @@ type Message struct {
 	Status    string         // agent status string (Status)
 	Level     string         // log level (Log)
 	SessionID string         // backend session id (Status), for early resume-pointer pinning
+	// ContextUsage is populated only on MessageContext. It contains no prompt,
+	// response, session id, task id, credential, or account detail.
+	ContextUsage *ProviderContextUsage
 }
 
 // TokenUsage tracks token consumption for a single model.

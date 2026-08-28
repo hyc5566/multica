@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
@@ -91,8 +92,23 @@ type ProviderUsageSnapshot struct {
 	Status       string                `json:"status"`
 	Source       string                `json:"source"`
 	Windows      []ProviderUsageWindow `json:"windows,omitempty"`
+	Context      *ProviderContextUsage `json:"context,omitempty"`
 	ObservedAt   time.Time             `json:"observed_at"`
 	Message      string                `json:"message,omitempty"`
+}
+
+type ProviderContextUsage struct {
+	Scope           string    `json:"scope"`
+	Status          string    `json:"status"`
+	Source          string    `json:"source"`
+	Reason          string    `json:"reason,omitempty"`
+	ActiveTaskCount int       `json:"active_task_count"`
+	UsedTokens      *int64    `json:"used_tokens,omitempty"`
+	MaxTokens       *int64    `json:"max_tokens,omitempty"`
+	RemainingTokens *int64    `json:"remaining_tokens,omitempty"`
+	UsedPercent     *float64  `json:"used_percent,omitempty"`
+	ObservedAt      time.Time `json:"observed_at"`
+	Message         string    `json:"message,omitempty"`
 }
 
 type ProviderUsageWindow struct {
@@ -411,7 +427,24 @@ func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	resolvedRuntimeID := uuidToString(rt.ID)
-	req, err := h.ModelListStore.Create(r.Context(), resolvedRuntimeID, "provider_usage")
+	var body struct {
+		AgentID string `json:"agent_id"`
+	}
+	if r.ContentLength != 0 {
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			writeError(w, http.StatusBadRequest, "invalid request body")
+			return
+		}
+	}
+	purpose := "provider_usage"
+	if body.AgentID != "" {
+		agentID, ok := parseUUIDOrBadRequest(w, body.AgentID, "agent_id")
+		if !ok {
+			return
+		}
+		purpose += ":" + uuidToString(agentID)
+	}
+	req, err := h.ModelListStore.Create(r.Context(), resolvedRuntimeID, purpose)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request: "+err.Error())
 		return
@@ -617,7 +650,7 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 		// models are a static stand-in, so they are neither fresh truth to
 		// store nor grounds to discard a real catalog we already hold. Treat it
 		// like a failure and leave the cache untouched (MUL-5549).
-		if h.ModelCatalogCache != nil && existing.Purpose != "provider_usage" {
+		if h.ModelCatalogCache != nil && existing.Purpose != "provider_usage" && !strings.HasPrefix(existing.Purpose, "provider_usage:") {
 			switch modelCatalogCacheDecision(body.Models, supported, body.Fallback) {
 			case modelCatalogCacheStore:
 				if err := h.ModelCatalogCache.Put(r.Context(), runtimeID, body.Models, supported); err != nil {

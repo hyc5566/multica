@@ -25,6 +25,7 @@ func TestModelListStoreProviderUsageRoundTrip(t *testing.T) {
 		t.Fatalf("claimed request = %+v", claimed)
 	}
 	used, remaining := 12.0, 88.0
+	usedTokens, maxTokens, remainingTokens := int64(125274), int64(258400), int64(133126)
 	usage := &ProviderUsageSnapshot{
 		Provider: "codex",
 		Status:   "available",
@@ -33,6 +34,11 @@ func TestModelListStoreProviderUsageRoundTrip(t *testing.T) {
 			ID: "weekly", Label: "Weekly limit", UsedPercent: &used,
 			RemainingPercent: &remaining, Unit: "percent",
 		}},
+		Context: &ProviderContextUsage{
+			Scope: "active_task", Status: "available", Source: "official", ActiveTaskCount: 1,
+			UsedTokens: &usedTokens, MaxTokens: &maxTokens, RemainingTokens: &remainingTokens,
+			ObservedAt: time.Now().UTC(),
+		},
 		ObservedAt: time.Now().UTC(),
 	}
 	if err := store.Complete(t.Context(), req.ID, nil, true, usage); err != nil {
@@ -44,6 +50,25 @@ func TestModelListStoreProviderUsageRoundTrip(t *testing.T) {
 	}
 	if got == nil || got.ProviderUsage == nil || got.ProviderUsage.Provider != "codex" {
 		t.Fatalf("stored usage = %+v", got)
+	}
+	if got.ProviderUsage.Context == nil || got.ProviderUsage.Context.UsedTokens == nil || *got.ProviderUsage.Context.UsedTokens != usedTokens {
+		t.Fatalf("stored context = %+v", got.ProviderUsage.Context)
+	}
+}
+
+func TestModelListStorePreservesAgentScopedProviderUsagePurpose(t *testing.T) {
+	t.Parallel()
+	store := NewInMemoryModelListStore()
+	req, err := store.Create(t.Context(), "rt-usage", "provider_usage:agent-id")
+	if err != nil {
+		t.Fatal(err)
+	}
+	claimed, err := store.PopPending(t.Context(), "rt-usage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if claimed == nil || claimed.ID != req.ID || claimed.Purpose != "provider_usage:agent-id" {
+		t.Fatalf("claimed request = %+v", claimed)
 	}
 }
 

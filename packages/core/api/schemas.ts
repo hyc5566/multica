@@ -2944,12 +2944,35 @@ const RuntimeProviderUsageWindowSchema = z.object({
   unit: z.string().default("percent"),
 }).loose();
 
+const RuntimeProviderContextUsageSchema = z.object({
+  scope: z.literal("active_task"),
+  status: z.enum(["available", "partial", "unavailable", "auth_required", "error"]),
+  source: z.enum(["official", "derived", "unavailable"]),
+  reason: z.enum([
+    "idle",
+    "telemetry_pending",
+    "provider_unsupported",
+    "multiple_active_tasks",
+    "stale",
+    "max_unavailable",
+    "agent_scope_missing",
+  ]).optional(),
+  active_task_count: z.number().int().min(0).default(0),
+  used_tokens: z.number().int().nonnegative().optional(),
+  max_tokens: z.number().int().positive().optional(),
+  remaining_tokens: z.number().int().nonnegative().optional(),
+  used_percent: z.number().min(0).max(100).optional(),
+  observed_at: z.string().default(""),
+  message: z.string().optional(),
+}).loose();
+
 const RuntimeProviderUsageSchema = z.object({
   provider: z.string().default(""),
   account_scope: z.string().optional(),
   status: z.enum(["available", "partial", "unavailable", "auth_required", "error"]),
   source: z.enum(["official", "derived", "unavailable"]),
   windows: z.array(RuntimeProviderUsageWindowSchema).optional(),
+  context: RuntimeProviderContextUsageSchema.optional(),
   observed_at: z.string().default(""),
   message: z.string().optional(),
 }).loose();

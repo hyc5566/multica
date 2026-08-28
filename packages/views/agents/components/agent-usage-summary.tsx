@@ -6,6 +6,8 @@ import { AlertCircle, Database, Gauge, RefreshCw } from "lucide-react";
 import type {
   Agent,
   AgentRuntime,
+  RuntimeProviderContextUsage,
+  RuntimeProviderUsageSource,
   RuntimeProviderUsageWindow,
 } from "@multica/core/types";
 import {
@@ -29,7 +31,7 @@ export function AgentUsageSummary({
   const tz = useViewingTimezone();
   const online = runtime?.status === "online";
   const providerQuery = useQuery({
-    ...runtimeProviderUsageOptions(online ? runtime.id : null),
+    ...runtimeProviderUsageOptions(online ? runtime.id : null, agent.id),
     enabled: Boolean(runtime && online),
   });
   const multicaQuery = useQuery({
@@ -62,16 +64,6 @@ export function AgentUsageSummary({
   const refreshing = providerQuery.isFetching || multicaQuery.isFetching;
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const usage = providerQuery.data;
-  const sourceLabel =
-    usage?.source === "official"
-      ? t(($) => $.detail.usage.source_official)
-      : usage?.source === "derived"
-        ? t(($) => $.detail.usage.source_derived)
-        : t(($) => $.detail.usage.source_unavailable);
-  const observedLabel = formatDate(usage?.observed_at, locale, tz, {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
   const providerUnavailable =
     !runtime ||
     !online ||
@@ -89,11 +81,6 @@ export function AgentUsageSummary({
           <h2 className="text-caption font-semibold">
             {t(($) => $.detail.usage.title)}
           </h2>
-          {usage?.source ? (
-            <span className="rounded-full border bg-background px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
-              {t(($) => $.detail.usage.source, { source: sourceLabel })}
-            </span>
-          ) : null}
         </div>
         <Button
           type="button"
@@ -111,20 +98,35 @@ export function AgentUsageSummary({
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline justify-between gap-1">
-            <p className="text-caption font-medium">
-              {runtime?.provider ?? t(($) => $.detail.usage.provider_quota)}
-            </p>
-            {usage?.observed_at && observedLabel ? (
-              <time
-                dateTime={usage.observed_at}
-                title={usage.observed_at}
-                className="text-[11px] text-muted-foreground"
-              >
-                {t(($) => $.detail.usage.updated_at, {
-                  when: observedLabel,
-                })}
-              </time>
-            ) : null}
+            <div className="flex items-center gap-1.5">
+              <p className="text-caption font-medium">
+                {t(($) => $.detail.usage.current_context)}
+              </p>
+              {usage?.context?.source ? <SourceBadge source={usage.context.source} /> : null}
+            </div>
+            <ObservedAt value={usage?.context?.observed_at} locale={locale} tz={tz} />
+          </div>
+          {!runtime ? (
+            <UnavailableState message={t(($) => $.detail.usage.no_runtime)} />
+          ) : !online ? (
+            <UnavailableState message={t(($) => $.detail.usage.runtime_offline)} />
+          ) : providerQuery.isPending ? (
+            <Skeleton className="mt-2 h-20 w-full" />
+          ) : (
+            <ContextWindow context={usage?.context} locale={locale} />
+          )}
+          <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
+            {t(($) => $.detail.usage.current_context_scope_hint)}
+          </p>
+
+          <div className="mt-4 flex flex-wrap items-baseline justify-between gap-1">
+            <div className="flex items-center gap-1.5">
+              <p className="text-caption font-medium">
+                {t(($) => $.detail.usage.provider_quota)} · {runtime?.provider ?? "—"}
+              </p>
+              {usage?.source ? <SourceBadge source={usage.source} /> : null}
+            </div>
+            <ObservedAt value={usage?.observed_at} locale={locale} tz={tz} />
           </div>
 
           {providerQuery.isPending && online ? (
@@ -179,6 +181,109 @@ export function AgentUsageSummary({
         </div>
       </div>
     </section>
+  );
+}
+
+function SourceBadge({ source }: { source: RuntimeProviderUsageSource }) {
+  const { t } = useT("agents");
+  const label =
+    source === "official"
+      ? t(($) => $.detail.usage.source_official)
+      : source === "derived"
+        ? t(($) => $.detail.usage.source_derived)
+        : t(($) => $.detail.usage.source_unavailable);
+  return (
+    <span className="rounded-full border bg-background px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+      {t(($) => $.detail.usage.source, { source: label })}
+    </span>
+  );
+}
+
+function ObservedAt({
+  value,
+  locale,
+  tz,
+}: {
+  value: string | undefined;
+  locale: string;
+  tz: string;
+}) {
+  const { t } = useT("agents");
+  const label = formatDate(value, locale, tz, { hour: "2-digit", minute: "2-digit" });
+  if (!value || !label) return null;
+  return (
+    <time dateTime={value} title={value} className="text-[11px] text-muted-foreground">
+      {t(($) => $.detail.usage.updated_at, { when: label })}
+    </time>
+  );
+}
+
+function ContextWindow({
+  context,
+  locale,
+}: {
+  context: RuntimeProviderContextUsage | undefined;
+  locale: string;
+}) {
+  const { t } = useT("agents");
+  const message = (() => {
+    switch (context?.reason) {
+      case "idle":
+        return t(($) => $.detail.usage.context_idle);
+      case "telemetry_pending":
+        return t(($) => $.detail.usage.context_pending);
+      case "provider_unsupported":
+        return t(($) => $.detail.usage.context_unsupported);
+      case "multiple_active_tasks":
+        return t(($) => $.detail.usage.context_multiple, {
+          count: context.active_task_count,
+        });
+      case "stale":
+        return t(($) => $.detail.usage.context_stale);
+      case "max_unavailable":
+        return t(($) => $.detail.usage.context_max_unavailable);
+      case "agent_scope_missing":
+        return t(($) => $.detail.usage.context_scope_missing);
+      default:
+        return context?.message || t(($) => $.detail.usage.context_unavailable);
+    }
+  })();
+  if (!context || context.status === "unavailable" || context.status === "error") {
+    return <UnavailableState message={message} />;
+  }
+  const used = context.used_tokens;
+  const max = context.max_tokens;
+  const remaining = context.remaining_tokens;
+  return (
+    <div className="mt-2 rounded-md border bg-background px-2.5 py-2">
+      <div className="grid grid-cols-3 gap-3">
+        <Metric value={used == null ? "—" : formatCompact(used, locale)} label={t(($) => $.detail.usage.context_used_tokens)} />
+        <Metric value={max == null ? "—" : formatCompact(max, locale)} label={t(($) => $.detail.usage.context_max_tokens)} />
+        <Metric value={remaining == null ? "—" : formatCompact(remaining, locale)} label={t(($) => $.detail.usage.context_remaining_tokens)} />
+      </div>
+      {context.used_percent == null ? null : (
+        <div className="mt-2">
+          <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+            <span>{t(($) => $.detail.usage.context_fill)}</span>
+            <span className="tabular-nums">{Math.round(context.used_percent)}%</span>
+          </div>
+          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className={cn(
+                "h-full rounded-full",
+                context.used_percent >= 90 ? "bg-destructive" : context.used_percent >= 70 ? "bg-amber-500" : "bg-primary",
+              )}
+              style={{ width: `${Math.max(1, Math.min(100, context.used_percent))}%` }}
+            />
+          </div>
+        </div>
+      )}
+      {context.status === "partial" || context.reason ? (
+        <p className="mt-2 text-[11px] leading-relaxed text-muted-foreground">
+          {message}
+        </p>
+      ) : null}
+    </div>
   );
 }
 

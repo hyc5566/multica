@@ -7,14 +7,15 @@ const POLL_TIMEOUT_MS = 100_000;
 
 export const runtimeProviderUsageKeys = {
   all: () => ["runtimes", "provider-usage"] as const,
-  forRuntime: (runtimeId: string) =>
-    [...runtimeProviderUsageKeys.all(), runtimeId] as const,
+  forAgent: (runtimeId: string, agentId: string) =>
+    [...runtimeProviderUsageKeys.all(), runtimeId, agentId] as const,
 };
 
 export async function resolveRuntimeProviderUsage(
   runtimeId: string,
+  agentId: string,
 ): Promise<RuntimeProviderUsage> {
-  const initial = await api.initiateProviderUsage(runtimeId);
+  const initial = await api.initiateProviderUsage(runtimeId, agentId);
   const startedAt = Date.now();
   let current = initial;
   while (current.status === "pending" || current.status === "running") {
@@ -34,13 +35,14 @@ export async function resolveRuntimeProviderUsage(
 
 export function runtimeProviderUsageOptions(
   runtimeId: string | null | undefined,
+  agentId: string | null | undefined,
 ) {
   return queryOptions({
-    queryKey: runtimeId
-      ? runtimeProviderUsageKeys.forRuntime(runtimeId)
+    queryKey: runtimeId && agentId
+      ? runtimeProviderUsageKeys.forAgent(runtimeId, agentId)
       : runtimeProviderUsageKeys.all(),
-    queryFn: () => resolveRuntimeProviderUsage(runtimeId as string),
-    enabled: Boolean(runtimeId),
+    queryFn: () => resolveRuntimeProviderUsage(runtimeId as string, agentId as string),
+    enabled: Boolean(runtimeId && agentId),
     staleTime: 60_000,
     gcTime: 10 * 60_000,
     retry: false,

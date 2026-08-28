@@ -71,6 +71,8 @@ export type {
   RuntimeModelListRequest,
   RuntimeModelListStatus,
   RuntimeModelsResult,
+  RuntimeProviderContextUsage,
+  RuntimeProviderContextReason,
   RuntimeProviderUsage,
   RuntimeProviderUsageRequest,
   RuntimeProviderUsageSource,

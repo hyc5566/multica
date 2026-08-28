@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -19,13 +20,31 @@ import (
 // range; providers that do not publish a value leave it nil rather than
 // fabricating zero.
 type ProviderUsage struct {
-	Provider     string                `json:"provider"`
-	AccountScope string                `json:"account_scope,omitempty"`
-	Status       string                `json:"status"`
-	Source       string                `json:"source"`
-	Windows      []ProviderUsageWindow `json:"windows,omitempty"`
-	ObservedAt   time.Time             `json:"observed_at"`
-	Message      string                `json:"message,omitempty"`
+	Provider     string                        `json:"provider"`
+	AccountScope string                        `json:"account_scope,omitempty"`
+	Status       string                        `json:"status"`
+	Source       string                        `json:"source"`
+	Windows      []ProviderUsageWindow         `json:"windows,omitempty"`
+	Context      *ProviderContextUsageSnapshot `json:"context,omitempty"`
+	ObservedAt   time.Time                     `json:"observed_at"`
+	Message      string                        `json:"message,omitempty"`
+}
+
+// ProviderContextUsageSnapshot describes only the currently executing
+// Multica task/session. It is deliberately separate from account quota
+// windows and historical Multica task usage.
+type ProviderContextUsageSnapshot struct {
+	Scope           string    `json:"scope"`
+	Status          string    `json:"status"`
+	Source          string    `json:"source"`
+	Reason          string    `json:"reason,omitempty"`
+	ActiveTaskCount int       `json:"active_task_count"`
+	UsedTokens      *int64    `json:"used_tokens,omitempty"`
+	MaxTokens       *int64    `json:"max_tokens,omitempty"`
+	RemainingTokens *int64    `json:"remaining_tokens,omitempty"`
+	UsedPercent     *float64  `json:"used_percent,omitempty"`
+	ObservedAt      time.Time `json:"observed_at"`
+	Message         string    `json:"message,omitempty"`
 }
 
 type ProviderUsageWindow struct {
@@ -336,15 +355,14 @@ func probeCodexUsage(ctx context.Context, command Command) (ProviderUsage, error
 		return ProviderUsage{}, err
 	}
 	cmd.Stderr = newStderrTail(io.Discard, 2048)
-	if err := cmd.Start(); err != nil {
+	if err := startOwnedProcessTree(cmd, command.logger); err != nil {
 		return ProviderUsage{}, err
 	}
 	defer func() {
 		_ = stdin.Close()
-		if cmd.Process != nil {
-			_ = cmd.Process.Kill()
-		}
+		signalProcessGroup(cmd, syscall.SIGKILL)
 		_ = cmd.Wait()
+		releaseProcessGroup(cmd)
 	}()
 
 	write := func(v any) error {
@@ -485,7 +503,7 @@ func probeAntigravityUsage(ctx context.Context, command Command) (ProviderUsage,
 	cmd := command.exec(probeCtx, "-p", "/usage", "--output-format", "json")
 	stderr := newStderrTail(io.Discard, 2048)
 	cmd.Stderr = stderr
-	raw, err := cmd.Output()
+	raw, err := outputOwned(cmd, command.logger)
 	if err != nil {
 		return ProviderUsage{}, fmt.Errorf("antigravity usage failed: %w: %s", err, stderr.Tail())
 	}

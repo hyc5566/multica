@@ -3146,6 +3146,11 @@ func (c *codexClient) handleRawNotification(method string, params map[string]any
 			c.onTurnDone(aborted)
 		}
 
+	case "thread/tokenUsage/updated":
+		if usage := codexProviderContextUsage(params, time.Now().UTC()); usage != nil && c.onMessage != nil {
+			c.onMessage(Message{Type: MessageContext, ContextUsage: usage})
+		}
+
 	case "error":
 		// Top-level protocol error. Retrying notifications (willRetry=true) are
 		// transient reconnect attempts; only capture terminal errors so we
@@ -3178,6 +3183,44 @@ func (c *codexClient) handleRawNotification(method string, params map[string]any
 			c.handleItemNotification(method, params)
 		}
 	}
+}
+
+// codexProviderContextUsage reads Codex app-server's official
+// thread/tokenUsage/updated notification. `last.totalTokens` is the current
+// model call/context; `total.totalTokens` is cumulative across turns and must
+// never be presented as the context-window fill level.
+func codexProviderContextUsage(params map[string]any, observedAt time.Time) *ProviderContextUsage {
+	tokenUsage, ok := params["tokenUsage"].(map[string]any)
+	if !ok {
+		return nil
+	}
+	last, _ := tokenUsage["last"].(map[string]any)
+	used := codexInt64(last, "totalTokens", "total_tokens")
+	maxTokens := codexInt64(tokenUsage, "modelContextWindow", "model_context_window")
+	if used <= 0 && maxTokens <= 0 {
+		return nil
+	}
+	usage := &ProviderContextUsage{
+		Status: "partial", Source: "official", Reason: "max_unavailable", ObservedAt: observedAt.UTC(),
+	}
+	if used > 0 {
+		usage.UsedTokens = &used
+	}
+	if maxTokens > 0 {
+		usage.MaxTokens = &maxTokens
+	}
+	if used > 0 && maxTokens > 0 {
+		remaining := maxTokens - used
+		if remaining < 0 {
+			remaining = 0
+		}
+		percent := clampPercent(float64(used) / float64(maxTokens) * 100)
+		usage.RemainingTokens = &remaining
+		usage.UsedPercent = &percent
+		usage.Status = "available"
+		usage.Reason = ""
+	}
+	return usage
 }
 
 func (c *codexClient) isNotificationFromOtherThread(params map[string]any) bool {

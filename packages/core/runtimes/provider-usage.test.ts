@@ -7,8 +7,8 @@ const getProviderUsageResult = vi.fn();
 
 vi.mock("../api", () => ({
   api: {
-    initiateProviderUsage: (runtimeId: string) =>
-      initiateProviderUsage(runtimeId),
+    initiateProviderUsage: (runtimeId: string, agentId: string) =>
+      initiateProviderUsage(runtimeId, agentId),
     getProviderUsageResult: (runtimeId: string, requestId: string) =>
       getProviderUsageResult(runtimeId, requestId),
   },
@@ -48,13 +48,25 @@ describe("resolveRuntimeProviderUsage", () => {
           unit: "percent",
         },
       ],
+      context: {
+        scope: "active_task" as const,
+        status: "available" as const,
+        source: "official" as const,
+        active_task_count: 1,
+        used_tokens: 125_274,
+        max_tokens: 258_400,
+        remaining_tokens: 133_126,
+        used_percent: 48.48,
+        observed_at: "2026-08-27T01:00:01Z",
+      },
     };
     initiateProviderUsage.mockResolvedValue(request({ status: "pending" }));
     getProviderUsageResult.mockResolvedValue(
       request({ status: "completed", provider_usage: snapshot }),
     );
 
-    await expect(resolveRuntimeProviderUsage("rt-1")).resolves.toEqual(snapshot);
+    await expect(resolveRuntimeProviderUsage("rt-1", "agent-1")).resolves.toEqual(snapshot);
+    expect(initiateProviderUsage).toHaveBeenCalledWith("rt-1", "agent-1");
     expect(getProviderUsageResult).toHaveBeenCalledWith("rt-1", "req-usage");
   });
 
@@ -70,7 +82,7 @@ describe("resolveRuntimeProviderUsage", () => {
       request({ status: "completed", provider_usage: snapshot }),
     );
 
-    const result = await resolveRuntimeProviderUsage("rt-1");
+    const result = await resolveRuntimeProviderUsage("rt-1", "agent-1");
     expect(result).toEqual(snapshot);
     expect(result.windows).toBeUndefined();
   });
@@ -79,14 +91,14 @@ describe("resolveRuntimeProviderUsage", () => {
     initiateProviderUsage.mockResolvedValue(
       request({ status: "failed", error: "runtime report failed" }),
     );
-    await expect(resolveRuntimeProviderUsage("rt-1")).rejects.toThrow(
+    await expect(resolveRuntimeProviderUsage("rt-1", "agent-1")).rejects.toThrow(
       "runtime report failed",
     );
 
     initiateProviderUsage.mockResolvedValue(
       request({ status: "completed", provider_usage: undefined }),
     );
-    await expect(resolveRuntimeProviderUsage("rt-1")).rejects.toThrow(
+    await expect(resolveRuntimeProviderUsage("rt-1", "agent-1")).rejects.toThrow(
       /provider usage failed/,
     );
   });

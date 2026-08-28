@@ -2303,10 +2303,11 @@ export class ApiClient {
 
   async initiateProviderUsage(
     runtimeId: string,
+    agentId: string,
   ): Promise<RuntimeProviderUsageRequest> {
     const raw = await this.fetch<unknown>(
       `/api/runtimes/${runtimeId}/provider-usage`,
-      { method: "POST" },
+      { method: "POST", body: JSON.stringify({ agent_id: agentId }) },
     );
     return parseWithFallback<RuntimeProviderUsageRequest>(
       raw,
