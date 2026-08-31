@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Database, Gauge, RefreshCw } from "lucide-react";
 import type {
   Agent,
   AgentRuntime,
+  RuntimeProviderUsage,
   RuntimeProviderUsageWindow,
 } from "@multica/core/types";
 import {
@@ -41,7 +42,7 @@ export function AgentUsageSummary({
     const rows = (multicaQuery.data ?? []).filter(
       (row) => row.agent_id === agent.id,
     );
-    return rows.reduce(
+    const totals = rows.reduce(
       (total, row) => ({
         tokens:
           total.tokens +
@@ -53,6 +54,16 @@ export function AgentUsageSummary({
       }),
       { tokens: 0, tasks: 0 },
     );
+    const models = Array.from(
+      new Set(
+        rows
+          .filter((row) => row.model.trim().length > 0)
+          .map((row) =>
+            row.provider ? `${row.provider}/${row.model}` : row.model,
+          ),
+      ),
+    ).sort();
+    return { ...totals, models };
   }, [agent.id, multicaQuery.data]);
 
   const refresh = () => {
@@ -61,7 +72,36 @@ export function AgentUsageSummary({
   };
   const refreshing = providerQuery.isFetching || multicaQuery.isFetching;
   const locale = i18n.resolvedLanguage ?? i18n.language;
-  const usage = providerQuery.data;
+  const latestUsage = providerQuery.data;
+  const latestIsGood =
+    latestUsage != null &&
+    ["available", "partial"].includes(latestUsage.status) &&
+    (latestUsage.windows?.length ?? 0) > 0;
+  const lastGoodRef = useRef<{
+    runtimeId: string;
+    usage: RuntimeProviderUsage;
+  } | null>(null);
+  useEffect(() => {
+    if (runtime && latestUsage && latestIsGood) {
+      lastGoodRef.current = { runtimeId: runtime.id, usage: latestUsage };
+    }
+  }, [latestIsGood, latestUsage, runtime]);
+  const previousGood =
+    runtime && lastGoodRef.current?.runtimeId === runtime.id
+      ? lastGoodRef.current.usage
+      : null;
+  const usage = latestIsGood ? latestUsage : previousGood;
+  const showingLastGood = usage != null && usage !== latestUsage;
+  const refreshFailureMessage =
+    latestUsage?.status === "rate_limited"
+      ? t(($) => $.detail.usage.rate_limited, {
+          seconds: latestUsage.retry_after_seconds ?? 1,
+        })
+      : latestUsage?.status === "auth_required"
+        ? t(($) => $.detail.usage.auth_required)
+        : providerQuery.isError || latestUsage?.status === "error"
+          ? t(($) => $.detail.usage.probe_error)
+          : latestUsage?.message || t(($) => $.detail.usage.unavailable);
   const sourceLabel =
     usage?.source === "official"
       ? t(($) => $.detail.usage.source_official)
@@ -75,8 +115,10 @@ export function AgentUsageSummary({
   const providerUnavailable =
     !runtime ||
     !online ||
-    providerQuery.isError ||
-    (usage && !["available", "partial"].includes(usage.status));
+    (!usage &&
+      (providerQuery.isError ||
+        (latestUsage != null &&
+          !["available", "partial"].includes(latestUsage.status))));
 
   return (
     <section
@@ -111,9 +153,29 @@ export function AgentUsageSummary({
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
         <div className="min-w-0">
           <div className="flex flex-wrap items-baseline justify-between gap-1">
-            <p className="text-caption font-medium">
-              {runtime?.provider ?? t(($) => $.detail.usage.provider_quota)}
-            </p>
+            <div className="min-w-0">
+              <p className="text-caption font-medium">
+                {runtime?.provider ?? t(($) => $.detail.usage.provider_quota)}
+              </p>
+              {runtime ? (
+                <p className="truncate text-[11px] text-muted-foreground">
+                  {t(($) => $.detail.usage.model, {
+                    model:
+                      agent.model || t(($) => $.detail.usage.model_default),
+                  })}
+                  {runtime.profile_id
+                    ? ` · ${t(($) => $.detail.usage.profile, {
+                        profile: runtime.profile_id,
+                      })}`
+                    : ""}
+                  {usage?.account_scope
+                    ? ` · ${t(($) => $.detail.usage.account_scope, {
+                        scope: usage.account_scope,
+                      })}`
+                    : ` · ${t(($) => $.detail.usage.provider_scope)}`}
+                </p>
+              ) : null}
+            </div>
             {usage?.observed_at && observedLabel ? (
               <time
                 dateTime={usage.observed_at}
@@ -139,24 +201,30 @@ export function AgentUsageSummary({
                   ? t(($) => $.detail.usage.no_runtime)
                   : !online
                     ? t(($) => $.detail.usage.runtime_offline)
-                    : usage?.status === "auth_required"
-                      ? t(($) => $.detail.usage.auth_required)
-                      : providerQuery.isError || usage?.status === "error"
-                          ? t(($) => $.detail.usage.probe_error)
-                        : runtime.provider === "claude" && usage?.status === "unavailable"
-                          ? t(($) => $.detail.usage.claude_unavailable)
-                          : usage?.message || t(($) => $.detail.usage.unavailable)
+                    : refreshFailureMessage
               }
             />
           ) : (
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-              {(usage?.windows ?? []).map((window) => (
-                <QuotaWindow key={window.id} window={window} locale={locale} tz={tz} />
-              ))}
-              {(usage?.windows ?? []).length === 0 ? (
-                <UnavailableState message={usage?.message || t(($) => $.detail.usage.unavailable)} />
+            <>
+              {showingLastGood ? (
+                <div className="mt-2 flex items-start gap-2 rounded-md border border-amber-500/30 bg-amber-500/10 px-2.5 py-2 text-[11px] leading-relaxed text-amber-900 dark:text-amber-100">
+                  <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                  <span>
+                    {t(($) => $.detail.usage.showing_last_good, {
+                      reason: refreshFailureMessage,
+                    })}
+                  </span>
+                </div>
               ) : null}
-            </div>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
+                {(usage?.windows ?? []).map((window) => (
+                  <QuotaWindow key={window.id} window={window} locale={locale} tz={tz} />
+                ))}
+                {(usage?.windows ?? []).length === 0 ? (
+                  <UnavailableState message={usage?.message || t(($) => $.detail.usage.unavailable)} />
+                ) : null}
+              </div>
+            </>
           )}
         </div>
 
@@ -175,6 +243,14 @@ export function AgentUsageSummary({
           )}
           <p className="mt-1.5 text-[11px] leading-relaxed text-muted-foreground">
             {t(($) => $.detail.usage.multica_scope_hint)}
+          </p>
+          <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+            {t(($) => $.detail.usage.actual_models_7d, {
+              models:
+                multicaUsage.models.length > 0
+                  ? multicaUsage.models.join(", ")
+                  : t(($) => $.detail.usage.no_actual_model),
+            })}
           </p>
         </div>
       </div>

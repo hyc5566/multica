@@ -83,13 +83,13 @@
     "move_failed": "移動任務失敗"
   },
   "status": {
-    "backlog": "待規劃",
-    "todo": "待辦",
-    "in_progress": "進行中",
-    "in_review": "稽核中",
-    "done": "已完成",
-    "blocked": "已阻塞",
-    "cancelled": "已取消"
+    "backlog": "待規劃（backlog）",
+    "todo": "待辦（todo）",
+    "in_progress": "進行中（in progress）",
+    "in_review": "稽核中（in review）",
+    "done": "已完成（done）",
+    "blocked": "已阻塞（blocked）",
+    "cancelled": "已取消（cancelled）"
   },
   "priority": {
     "urgent": "緊急",

@@ -57,7 +57,8 @@ MULTICA_PROVIDER_USAGE_STATE_DIR=/var/lib/multica/provider-usage
 ```
 
 Manual refreshes and daemon-driven refreshes share the same state when they run
-as the same OS user and use the same state directory. A locally rejected request
+as the same OS user and use the same state directory. Concurrent requests for
+the same provider inside one daemon share one in-flight probe. A locally rejected request
 does not contact the provider and returns `status: "rate_limited"` with
 `retry_after_seconds`.
 

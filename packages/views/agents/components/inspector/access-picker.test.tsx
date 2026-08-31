@@ -95,7 +95,7 @@ describe("AccessPicker owner-only editing (MUL-3963)", () => {
       screen.getByRole("radio", { name: /^Entire workspace/i }),
     );
     expect(onChange).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     expect(onChange).toHaveBeenCalledWith({
       permission_mode: "public_to",
       invocation_targets: [{ target_type: "workspace" }],
@@ -123,7 +123,7 @@ describe("AccessPicker owner-only editing (MUL-3963)", () => {
       screen.getByRole("radio", { name: /^Specific people/i }),
     );
     fireEvent.click(screen.getByRole("checkbox", { name: /Alice/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     expect(onChange).toHaveBeenCalledWith({
       permission_mode: "public_to",
       invocation_targets: [{ target_type: "member", target_id: "u1" }],
@@ -138,7 +138,7 @@ describe("AccessPicker owner-only editing (MUL-3963)", () => {
       visibility: "private",
     });
     fireEvent.click(screen.getByRole("radio", { name: /^Entire workspace/i }));
-    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     expect(onChange).toHaveBeenCalledWith({
       permission_mode: "public_to",
       invocation_targets: [{ target_type: "workspace" }],

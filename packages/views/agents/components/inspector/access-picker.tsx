@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Globe, Loader2, Lock, Users } from "lucide-react";
+import { Globe, Lock, Users } from "lucide-react";
 import type {
   AgentInvocationTarget,
   AgentInvocationTargetInput,
@@ -10,10 +10,10 @@ import type {
   MemberWithUser,
 } from "@multica/core/types";
 import { effectiveAccessScope } from "@multica/core/agents";
-import { Button } from "@multica/ui/components/ui/button";
 import { Checkbox } from "@multica/ui/components/ui/checkbox";
 import { ActorAvatar } from "../../../common/actor-avatar";
 import { useT } from "../../../i18n";
+import { DirtyFormActions } from "../dirty-form-actions";
 
 export type AccessChange = {
   permission_mode: AgentPermissionMode;
@@ -71,7 +71,6 @@ export function AccessPicker({
   hideFooter?: boolean;
 }) {
   const { t } = useT("agents");
-  const { t: tc } = useT("common");
   // Centralized derivation (MUL-3963): map canonical scope to picker's
   // local draft key (private / workspace / members).
   const canonical = effectiveAccessScope(permissionMode, invocationTargets);
@@ -202,6 +201,12 @@ export function AccessPicker({
     }
   };
 
+  const reset = () => {
+    setDraftScope(persistedScope);
+    setDraftMembers(persistedMembers);
+    setHasInteracted(false);
+  };
+
   if (!canEdit) {
     const summaryLabel = persistedPrivate
       ? t(($) => $.access.trigger_private)
@@ -326,22 +331,17 @@ export function AccessPicker({
       ) : null}
 
       {hideFooter ? null : (
-        <div className="flex justify-end border-t border-surface-border px-4 py-3.5">
-          <Button
-            type="button"
-            onClick={() => void save()}
-            disabled={
-              !onChange || !dirty || saving || (draftScope === "members" && !hasMemberTarget)
+        <div className="border-t border-surface-border px-4 py-3.5">
+          <DirtyFormActions
+            dirty={dirty}
+            saving={saving}
+            saveDisabled={
+              !onChange ||
+              (draftScope === "members" && !hasMemberTarget)
             }
-          >
-            {saving ? (
-              <Loader2
-                className="size-4 animate-spin motion-reduce:animate-none"
-                aria-hidden="true"
-              />
-            ) : null}
-            {tc(($) => $.save)}
-          </Button>
+            onReset={reset}
+            onSave={() => void save()}
+          />
         </div>
       )}
     </fieldset>

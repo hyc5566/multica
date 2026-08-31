@@ -2,10 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import {
-  Loader2,
   Pencil,
   Plus,
-  Save,
   Terminal,
   Trash2,
 } from "lucide-react";
@@ -19,6 +17,7 @@ import {
   SettingsCard,
   SettingsSection,
 } from "../../../settings/components/settings-layout";
+import { DirtyFormActions } from "../dirty-form-actions";
 
 interface ArgEntry {
   id: string;
@@ -124,6 +123,11 @@ export function CustomArgsTab({
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleReset = () => {
+    setEntries(argsToEntries(originalArgs));
+    closeEditor();
   };
 
   const renderEditor = (index?: number) => (
@@ -280,28 +284,14 @@ export function CustomArgsTab({
         </SettingsSection>
       ) : null}
 
-      <div className="flex items-center justify-end gap-3 pt-1">
-        {dirty ? (
-          <span role="status" className="text-caption text-muted-foreground">
-            {t(($) => $.tab_body.common.unsaved_changes)}
-          </span>
-        ) : null}
-        <Button
-          onClick={handleSave}
-          disabled={!dirty || saving || editor !== null}
-          size="sm"
-        >
-          {saving ? (
-            <Loader2
-              className="size-3.5 animate-spin motion-reduce:animate-none"
-              aria-hidden="true"
-            />
-          ) : (
-            <Save className="size-3.5" aria-hidden="true" />
-          )}
-          {t(($) => $.tab_body.common.save)}
-        </Button>
-      </div>
+      <DirtyFormActions
+        dirty={dirty}
+        saving={saving}
+        saveDisabled={editor !== null}
+        onReset={handleReset}
+        onSave={() => void handleSave()}
+        className="pt-1"
+      />
     </div>
   );
 }

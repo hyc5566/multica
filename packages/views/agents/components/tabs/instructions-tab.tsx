@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Loader2, Save } from "lucide-react";
 import { useConfigStore } from "@multica/core/config";
 import { AGENT_FOCUS_CONVERSATION_STARTERS } from "@multica/core/paths";
 import type { Agent, AgentConversationStarter } from "@multica/core/types";
@@ -12,6 +11,7 @@ import { useT } from "../../../i18n";
 import { useOptionalNavigation } from "../../../navigation";
 
 import { ConversationStartersEditor } from "../conversation-starters-editor";
+import { DirtyFormActions } from "../dirty-form-actions";
 
 /** How long the deep-linked conversation-starters editor stays ringed. */
 const FOCUS_FLASH_MS = 1600;
@@ -187,6 +187,11 @@ export function InstructionsTab({
     }
   };
 
+  const handleReset = () => {
+    setValue(agent.instructions ?? "");
+    setConversationStarters(agent.conversation_starters ?? []);
+  };
+
   return (
     <div className="space-y-5">
       <p className="max-w-2xl text-pretty text-body leading-6 text-muted-foreground">
@@ -264,28 +269,13 @@ export function InstructionsTab({
         </div>
       ) : null}
 
-      <div className="flex items-center justify-end gap-3">
-        {isDirty && (
-          <span className="text-caption text-muted-foreground">
-            {t(($) => $.tab_body.common.unsaved_changes)}
-          </span>
-        )}
-        <Button
-          size="sm"
-          onClick={handleSave}
-          disabled={!isDirty || !conversationStartersValid || saving}
-        >
-          {saving ? (
-            <Loader2
-              className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none"
-              aria-hidden="true"
-            />
-          ) : (
-            <Save className="h-3.5 w-3.5" aria-hidden="true" />
-          )}
-          {t(($) => $.tab_body.common.save)}
-        </Button>
-      </div>
+      <DirtyFormActions
+        dirty={isDirty}
+        saving={saving}
+        saveDisabled={!conversationStartersValid}
+        onReset={handleReset}
+        onSave={() => void handleSave()}
+      />
     </div>
   );
 }

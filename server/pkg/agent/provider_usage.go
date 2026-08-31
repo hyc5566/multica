@@ -11,6 +11,8 @@ import (
 	osexec "os/exec"
 	"strings"
 	"time"
+
+	"golang.org/x/sync/singleflight"
 )
 
 // ProviderUsage is a normalized, credential-free snapshot of provider account
@@ -43,6 +45,8 @@ const providerUsageProbeMaxOutput = 2 * 1024 * 1024
 //go:embed provider_usage_probe.py
 var providerUsageProbeScript string
 
+var providerUsageProbeGroup singleflight.Group
+
 // ProbeProviderUsage runs the bundled deterministic direct-HTTP probe. The
 // helper reads the runtime user's local OAuth credential and never starts an
 // agent CLI, creates a model turn, or returns credential material.
@@ -64,7 +68,9 @@ func ProbeProviderUsage(ctx context.Context, provider string, _ Command) Provide
 			Message:    "This runtime does not expose a supported account-quota source.",
 		}
 	}
-	usage, err := runProviderUsageProbe(ctx, provider)
+	usage, err := coalesceProviderUsage(provider, func() (ProviderUsage, error) {
+		return runProviderUsageProbe(ctx, provider)
+	})
 	if err != nil {
 		return ProviderUsage{
 			Provider:   provider,
@@ -75,6 +81,23 @@ func ProbeProviderUsage(ctx context.Context, provider string, _ Command) Provide
 		}
 	}
 	return usage
+}
+
+func coalesceProviderUsage(
+	provider string,
+	probe func() (ProviderUsage, error),
+) (ProviderUsage, error) {
+	value, err, _ := providerUsageProbeGroup.Do(provider, func() (any, error) {
+		return probe()
+	})
+	if err != nil {
+		return ProviderUsage{}, err
+	}
+	usage, ok := value.(ProviderUsage)
+	if !ok {
+		return ProviderUsage{}, errors.New("provider usage probe returned an invalid result")
+	}
+	return usage, nil
 }
 
 func runProviderUsageProbe(ctx context.Context, provider string) (ProviderUsage, error) {

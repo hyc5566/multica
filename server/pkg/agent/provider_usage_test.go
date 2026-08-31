@@ -1,6 +1,52 @@
 package agent
 
-import "testing"
+import (
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+)
+
+func TestCoalesceProviderUsageSharesConcurrentProbe(t *testing.T) {
+	var calls atomic.Int32
+	started := make(chan struct{})
+	release := make(chan struct{})
+	probe := func() (ProviderUsage, error) {
+		if calls.Add(1) == 1 {
+			close(started)
+		}
+		<-release
+		return ProviderUsage{Provider: "codex", Status: "available"}, nil
+	}
+
+	const workers = 8
+	results := make(chan ProviderUsage, workers)
+	var ready sync.WaitGroup
+	ready.Add(workers)
+	for range workers {
+		go func() {
+			ready.Done()
+			usage, err := coalesceProviderUsage("test-coalesce", probe)
+			if err != nil {
+				t.Errorf("coalesced probe: %v", err)
+				return
+			}
+			results <- usage
+		}()
+	}
+	ready.Wait()
+	<-started
+	time.Sleep(10 * time.Millisecond)
+	close(release)
+	for range workers {
+		if got := <-results; got.Provider != "codex" {
+			t.Fatalf("provider = %q", got.Provider)
+		}
+	}
+	if got := calls.Load(); got != 1 {
+		t.Fatalf("probe calls = %d, want 1", got)
+	}
+}
 
 func TestParseProviderUsageProbeAcceptsRateLimitMetadata(t *testing.T) {
 	t.Parallel()
