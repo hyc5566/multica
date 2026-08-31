@@ -1188,6 +1188,7 @@ export type RuntimeProviderUsageStatus =
   | "partial"
   | "unavailable"
   | "auth_required"
+  | "rate_limited"
   | "error";
 
 export type RuntimeProviderUsageSource =
@@ -1215,6 +1216,7 @@ export interface RuntimeProviderUsage {
   windows?: RuntimeProviderUsageWindow[];
   observed_at: string;
   message?: string;
+  retry_after_seconds?: number;
 }
 
 export interface RuntimeProviderUsageRequest {
