@@ -4060,36 +4060,14 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 	d.handleHeartbeatActions(ctx, runtimeID, resp)
 }
 
-// handleProviderUsage asks the same executable this runtime launches for a
-// normalized account-quota snapshot. The provider adapter reads only the
-// CLI's structured output and returns fixed, credential-free errors.
+// handleProviderUsage runs the deterministic direct-HTTP quota probe on the
+// runtime host. It does not resolve or start an agent executable: the bundled
+// helper reads the local provider credential and returns normalized,
+// credential-free JSON.
 func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
 	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
 
-	var execPath string
-	var fixedArgs []string
-	if customSpec, isCustom := d.customProfileLaunchForRuntime(rt.ID); isCustom {
-		execPath = customSpec.path
-		fixedArgs = agent.FilterLaunchPrefix(rt.Provider, customSpec.fixedArgs, d.logger)
-	} else if entry, ok := d.agents()[rt.Provider]; ok {
-		entry, _ = d.resolveAgentEntry(ctx, rt.Provider, entry)
-		execPath = entry.Path
-	}
-	if strings.TrimSpace(execPath) == "" {
-		d.reportModelListResult(ctx, rt, requestID, map[string]any{
-			"status": "completed",
-			"provider_usage": agent.ProviderUsage{
-				Provider:   rt.Provider,
-				Status:     "error",
-				Source:     "unavailable",
-				ObservedAt: time.Now().UTC(),
-				Message:    "The runtime executable is not available on the connected machine.",
-			},
-		})
-		return
-	}
-
-	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.NewCommand(execPath, fixedArgs))
+	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.Command{})
 	d.reportModelListResult(ctx, rt, requestID, map[string]any{
 		"status":         "completed",
 		"supported":      true,

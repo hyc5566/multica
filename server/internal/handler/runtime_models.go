@@ -86,13 +86,14 @@ type ModelListRequest struct {
 // provider that does not publish a field omits it; it never sends a synthetic
 // zero. Percent values use 0..100 for both Codex and Antigravity.
 type ProviderUsageSnapshot struct {
-	Provider     string                `json:"provider"`
-	AccountScope string                `json:"account_scope,omitempty"`
-	Status       string                `json:"status"`
-	Source       string                `json:"source"`
-	Windows      []ProviderUsageWindow `json:"windows,omitempty"`
-	ObservedAt   time.Time             `json:"observed_at"`
-	Message      string                `json:"message,omitempty"`
+	Provider          string                `json:"provider"`
+	AccountScope      string                `json:"account_scope,omitempty"`
+	Status            string                `json:"status"`
+	Source            string                `json:"source"`
+	Windows           []ProviderUsageWindow `json:"windows,omitempty"`
+	ObservedAt        time.Time             `json:"observed_at"`
+	Message           string                `json:"message,omitempty"`
+	RetryAfterSeconds *int64                `json:"retry_after_seconds,omitempty"`
 }
 
 type ProviderUsageWindow struct {
