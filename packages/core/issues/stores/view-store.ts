@@ -59,6 +59,18 @@ export interface TableColumnConfig {
   key: TableColumnKey;
   width?: number;
 }
+
+export const DEFAULT_BOARD_COLUMN_WIDTH = 280;
+export const MIN_BOARD_COLUMN_WIDTH = 220;
+export const MAX_BOARD_COLUMN_WIDTH = 520;
+
+export function clampBoardColumnWidth(width: number): number {
+  if (!Number.isFinite(width)) return DEFAULT_BOARD_COLUMN_WIDTH;
+  return Math.min(
+    MAX_BOARD_COLUMN_WIDTH,
+    Math.max(MIN_BOARD_COLUMN_WIDTH, Math.round(width)),
+  );
+}
 export type TableGrouping =
   | "none"
   | "status"
@@ -224,6 +236,10 @@ export interface IssueViewState {
    * (MUL-6243)
    */
   hiddenStatusCategories: IssueStatusCategory[];
+  /** Per-board-group width overrides. The surrounding surface store decides
+   *  the persistence scope, so project boards and workspace boards do not
+   *  overwrite each other's layout. Missing keys use the default width. */
+  boardColumnWidths: Record<string, number>;
   ganttZoom: GanttZoom;
   ganttShowCompleted: boolean;
   /** Active swimlane grouping dimension. */
@@ -259,6 +275,8 @@ export interface IssueViewState {
   toggleAgentRunningFilter: () => void;
   hideStatus: (category: IssueStatusCategory) => void;
   showStatus: (category: IssueStatusCategory) => void;
+  setBoardColumnWidth: (groupId: string, width: number) => void;
+  resetBoardColumnWidths: () => void;
   clearFilters: () => void;
   /** Clear one filter dimension (a filter-bar chip). `property:<id>` clears
    *  that definition's entry only. Paired boolean flags (no-assignee /
@@ -318,6 +336,7 @@ export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): Issue
   showSubIssues: true,
   listCollapsedStatuses: [],
   hiddenStatusCategories: [],
+  boardColumnWidths: {},
   ganttZoom: "week",
   ganttShowCompleted: false,
   swimlaneGrouping: "assignee",
@@ -413,6 +432,18 @@ export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): Issue
     set((state) => ({
       hiddenStatusCategories: state.hiddenStatusCategories.filter((c) => c !== category),
     })),
+  setBoardColumnWidth: (groupId, width) =>
+    set((state) => {
+      const nextWidth = clampBoardColumnWidth(width);
+      const boardColumnWidths = { ...state.boardColumnWidths };
+      if (nextWidth === DEFAULT_BOARD_COLUMN_WIDTH) {
+        delete boardColumnWidths[groupId];
+      } else {
+        boardColumnWidths[groupId] = nextWidth;
+      }
+      return { boardColumnWidths };
+    }),
+  resetBoardColumnWidths: () => set({ boardColumnWidths: {} }),
   clearFilters: () =>
     set({
       statusFilters: [],
@@ -570,6 +601,7 @@ export const viewStorePersistOptions = (name: string) => ({
     showSubIssues: state.showSubIssues,
     listCollapsedStatuses: state.listCollapsedStatuses,
     hiddenStatusCategories: state.hiddenStatusCategories,
+    boardColumnWidths: state.boardColumnWidths,
     ganttZoom: state.ganttZoom,
     ganttShowCompleted: state.ganttShowCompleted,
     swimlaneGrouping: state.swimlaneGrouping,
@@ -621,6 +653,19 @@ export function mergeViewStatePersisted<T extends IssueViewState>(
   const persistedTitle = persistedTableColumns.find(
     (column) => column.key === "title",
   );
+  const boardColumnWidths = isRecord(p.boardColumnWidths)
+    ? Object.fromEntries(
+        Object.entries(p.boardColumnWidths).flatMap(([groupId, width]) => {
+          if (!groupId || typeof width !== "number" || !Number.isFinite(width)) {
+            return [];
+          }
+          const normalized = clampBoardColumnWidth(width);
+          return normalized === DEFAULT_BOARD_COLUMN_WIDTH
+            ? []
+            : [[groupId, normalized]];
+        }),
+      )
+    : current.boardColumnWidths;
   return {
     ...current,
     ...p,
@@ -634,6 +679,7 @@ export function mergeViewStatePersisted<T extends IssueViewState>(
     collapsedSwimlanes: isRecord(p.collapsedSwimlanes)
       ? { ...current.collapsedSwimlanes, ...p.collapsedSwimlanes }
       : current.collapsedSwimlanes,
+    boardColumnWidths,
     tableColumns: [
       persistedTitle ?? current.tableColumns[0] ?? { key: "title" },
       ...dedupedTableColumns,

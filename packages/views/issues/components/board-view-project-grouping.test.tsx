@@ -8,7 +8,7 @@
  * as the "no assignee" column.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ViewStoreProvider } from "@multica/core/issues/stores/view-store-context";
 import { getIssueSurfaceViewStore } from "@multica/core/issues/stores/surface-view-store";
@@ -227,6 +227,7 @@ describe("Board grouped by project", () => {
         </ViewStoreProvider>
       </QueryClientProvider>,
     );
+    return { store };
   }
 
   it("titles each column with its project, never with its id", () => {
@@ -255,6 +256,47 @@ describe("Board grouped by project", () => {
     render();
 
     expect(screen.getAllByText("No project")).toHaveLength(1);
+  });
+
+  it("resizes each column with the pointer and restores the default width", () => {
+    const { store } = render();
+    const handle = screen
+      .getAllByRole("separator", { name: "Resize column" })
+      .find((candidate) =>
+        candidate.parentElement?.textContent?.includes("Acme Corp"),
+      );
+    expect(handle).toBeTruthy();
+    if (!handle) return;
+    handle.setPointerCapture = vi.fn();
+    handle.releasePointerCapture = vi.fn();
+    const column = handle.parentElement as HTMLElement;
+
+    expect(column.style.width).toBe("280px");
+    fireEvent.pointerDown(handle, {
+      button: 0,
+      clientX: 100,
+      pointerId: 7,
+      pointerType: "mouse",
+    });
+    fireEvent.pointerMove(handle, {
+      buttons: 1,
+      clientX: 240,
+      pointerId: 7,
+      pointerType: "mouse",
+    });
+    expect(column.style.width).toBe("420px");
+    expect(store.getState().boardColumnWidths).toEqual({});
+
+    fireEvent.pointerUp(handle, {
+      button: 0,
+      clientX: 240,
+      pointerId: 7,
+      pointerType: "mouse",
+    });
+    expect(store.getState().boardColumnWidths[`project:${ACME_ID}`]).toBe(420);
+
+    act(() => store.getState().resetBoardColumnWidths());
+    expect(column.style.width).toBe("280px");
   });
 
   it("reads an unresolvable project the way the Table does", () => {
