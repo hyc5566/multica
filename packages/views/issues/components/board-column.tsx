@@ -3,12 +3,8 @@
 import {
   memo,
   useCallback,
-  useEffect,
   useMemo,
-  useRef,
   useState,
-  type KeyboardEvent,
-  type PointerEvent,
   type ReactNode,
 } from "react";
 import { Virtuoso } from "react-virtuoso";
@@ -31,9 +27,7 @@ import {
 import { STATUS_CONFIG } from "@multica/core/issues/config";
 import {
   DEFAULT_BOARD_COLUMN_WIDTH,
-  MAX_BOARD_COLUMN_WIDTH,
   MIN_BOARD_COLUMN_WIDTH,
-  clampBoardColumnWidth,
 } from "@multica/core/issues/stores/view-store";
 import {
   useViewStore,
@@ -59,7 +53,7 @@ import type { IssueCreateDefaults } from "../surface/types";
 
 export const BOARD_COL_WIDTH = DEFAULT_BOARD_COLUMN_WIDTH;
 export const BOARD_CARD_WIDTH = BOARD_COL_WIDTH - 16 - 8; // col(280) - col p-2(16) - droppable p-1(8)
-const BOARD_COLUMN_KEYBOARD_STEP = 16;
+export const COMPACT_BOARD_CARD_WIDTH = MIN_BOARD_COLUMN_WIDTH - 16 - 8;
 
 // Board cards are ~90-140px tall, so ~10 fill a column viewport — unlike the
 // generic VIRTUOSO_SEED_COUNT (30, sized for 36px list rows). The seed mounts
@@ -142,124 +136,16 @@ export const BoardColumn = memo(function BoardColumn({
   const cfg = status ? STATUS_CONFIG[status] : null;
   const { setNodeRef, isOver } = useDroppable({ id: group.id });
   const viewStoreApi = useViewStoreApi();
-  const storedColumnWidth = useViewStore(
-    (state) =>
-      state.boardColumnWidths?.[group.id] ?? DEFAULT_BOARD_COLUMN_WIDTH,
-  );
-  const [columnWidth, setColumnWidth] = useState(storedColumnWidth);
-  const columnWidthRef = useRef(storedColumnWidth);
-  const resizeStartRef = useRef<{
-    pointerId: number;
-    clientX: number;
-    width: number;
-  } | null>(null);
+  const columnDensity = useViewStore((state) => state.boardColumnDensity);
+  const columnWidth =
+    columnDensity === "compact"
+      ? MIN_BOARD_COLUMN_WIDTH
+      : DEFAULT_BOARD_COLUMN_WIDTH;
   // A status fixed by the open saved view cannot be hidden from the board —
   // that would silently strip one of the view's own conditions.
   const viewBaseline = useViewBaseline();
   const statusFixedByView = !!status && viewBaseline?.status.has(status) === true;
   const { t } = useT("issues");
-
-  useEffect(() => {
-    if (resizeStartRef.current) return;
-    columnWidthRef.current = storedColumnWidth;
-    setColumnWidth(storedColumnWidth);
-  }, [storedColumnWidth]);
-
-  const updateDraftWidth = useCallback((width: number) => {
-    const nextWidth = clampBoardColumnWidth(width);
-    columnWidthRef.current = nextWidth;
-    setColumnWidth(nextWidth);
-  }, []);
-
-  const commitColumnWidth = useCallback(() => {
-    viewStoreApi
-      .getState()
-      .setBoardColumnWidth(group.id, columnWidthRef.current);
-  }, [group.id, viewStoreApi]);
-
-  const handleResizePointerDown = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      if (event.button !== 0) return;
-      event.preventDefault();
-      event.stopPropagation();
-      resizeStartRef.current = {
-        pointerId: event.pointerId,
-        clientX: event.clientX,
-        width: columnWidthRef.current,
-      };
-      event.currentTarget.setPointerCapture?.(event.pointerId);
-    },
-    [],
-  );
-
-  const handleResizePointerMove = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      const start = resizeStartRef.current;
-      if (!start || start.pointerId !== event.pointerId) return;
-      event.preventDefault();
-      event.stopPropagation();
-      updateDraftWidth(start.width + event.clientX - start.clientX);
-    },
-    [updateDraftWidth],
-  );
-
-  const handleResizePointerUp = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      const start = resizeStartRef.current;
-      if (!start || start.pointerId !== event.pointerId) return;
-      event.preventDefault();
-      event.stopPropagation();
-      resizeStartRef.current = null;
-      commitColumnWidth();
-      event.currentTarget.releasePointerCapture?.(event.pointerId);
-    },
-    [commitColumnWidth],
-  );
-
-  const handleResizePointerCancel = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      const start = resizeStartRef.current;
-      if (!start || start.pointerId !== event.pointerId) return;
-      event.stopPropagation();
-      resizeStartRef.current = null;
-      columnWidthRef.current = storedColumnWidth;
-      setColumnWidth(storedColumnWidth);
-      event.currentTarget.releasePointerCapture?.(event.pointerId);
-    },
-    [storedColumnWidth],
-  );
-
-  const handleResizeLostPointerCapture = useCallback(
-    (event: PointerEvent<HTMLButtonElement>) => {
-      const start = resizeStartRef.current;
-      if (!start || start.pointerId !== event.pointerId) return;
-      resizeStartRef.current = null;
-      commitColumnWidth();
-    },
-    [commitColumnWidth],
-  );
-
-  const handleResizeKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLButtonElement>) => {
-      const delta = event.shiftKey
-        ? BOARD_COLUMN_KEYBOARD_STEP * 3
-        : BOARD_COLUMN_KEYBOARD_STEP;
-      const nextWidth =
-        event.key === "ArrowLeft"
-          ? columnWidthRef.current - delta
-          : event.key === "ArrowRight"
-            ? columnWidthRef.current + delta
-            : event.key === "Home"
-              ? DEFAULT_BOARD_COLUMN_WIDTH
-              : null;
-      if (nextWidth === null) return;
-      event.preventDefault();
-      event.stopPropagation();
-      updateDraftWidth(nextWidth);
-      commitColumnWidth();
-    },
-    [commitColumnWidth, updateDraftWidth],
-  );
 
   // Resolve IDs to Issue objects, preserving parent-provided order
   const resolvedIssues = useMemo(
@@ -467,25 +353,6 @@ export const BoardColumn = memo(function BoardColumn({
           )}
         </div>
       </div>
-      <button
-        type="button"
-        role="separator"
-        aria-orientation="vertical"
-        aria-label={t(($) => $.board.resize_column)}
-        aria-valuemin={MIN_BOARD_COLUMN_WIDTH}
-        aria-valuemax={MAX_BOARD_COLUMN_WIDTH}
-        aria-valuenow={columnWidth}
-        title={t(($) => $.board.resize_column)}
-        className="group/resize absolute -right-2 top-0 z-20 h-full w-4 cursor-col-resize touch-none outline-none"
-        onPointerDown={handleResizePointerDown}
-        onPointerMove={handleResizePointerMove}
-        onPointerUp={handleResizePointerUp}
-        onPointerCancel={handleResizePointerCancel}
-        onLostPointerCapture={handleResizeLostPointerCapture}
-        onKeyDown={handleResizeKeyDown}
-      >
-        <span className="absolute bottom-3 left-1/2 top-3 w-px -translate-x-1/2 rounded-full bg-border opacity-30 transition-opacity group-hover/resize:opacity-100 group-focus-visible/resize:bg-ring group-focus-visible/resize:opacity-100" />
-      </button>
     </div>
   );
 });

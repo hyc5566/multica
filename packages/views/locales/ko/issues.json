@@ -155,6 +155,8 @@
     "grouping_section": "그룹화",
     "column_width_section": "열 너비",
     "reset_column_widths": "기본값으로 복원",
+    "column_width_compact": "좁게",
+    "column_width_default": "기본",
     "ordering_section": "정렬",
     "card_properties_section": "카드 속성",
     "ascending_title": "오름차순",

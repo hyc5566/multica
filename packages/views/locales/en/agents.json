@@ -173,6 +173,7 @@
       "provider_quota": "Provider account quota",
       "model": "Model: {{model}}",
       "model_default": "runtime default",
+      "current_model": "Current model",
       "profile": "Profile: {{profile}}",
       "account_scope": "Account: {{scope}}",
       "provider_scope": "provider account scope",

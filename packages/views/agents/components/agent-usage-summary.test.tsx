@@ -127,4 +127,39 @@ describe("AgentUsageSummary", () => {
     expect(screen.getByText(/Model: gpt-5\.6-sol/)).toBeInTheDocument();
     expect(screen.getByText(/Profile: profile-1/)).toBeInTheDocument();
   });
+
+  it("highlights the current model and places its quota before alternatives", () => {
+    providerState.current = usage({
+      provider: "antigravity",
+      windows: [
+        {
+          id: "gemini-2.5-pro",
+          group: "Gemini 2.5 Pro",
+          label: "Daily limit",
+          used_percent: 60,
+          remaining_percent: 40,
+          unit: "percent",
+        },
+        {
+          id: "gpt-5.6-sol",
+          group: "GPT 5.6 Sol",
+          label: "Daily limit",
+          used_percent: 20,
+          remaining_percent: 80,
+          unit: "percent",
+        },
+      ],
+    });
+
+    render(view());
+
+    const cards = Array.from(
+      document.querySelectorAll("[data-current-model-usage]"),
+    );
+    expect(cards[0]).toHaveAttribute("data-current-model-usage", "true");
+    expect(cards[0]?.textContent).toContain("GPT 5.6 Sol");
+    expect(cards[0]?.textContent).toContain("Current model");
+    expect(cards[1]).toHaveAttribute("data-current-model-usage", "false");
+    expect(cards[1]?.textContent).toContain("Gemini 2.5 Pro");
+  });
 });

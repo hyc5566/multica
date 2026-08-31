@@ -10,6 +10,7 @@ import { defaultStorage } from "../../platform/storage";
 
 export type ViewMode = "board" | "list" | "table" | "gantt" | "swimlane";
 export type GanttZoom = "day" | "week" | "month";
+export type BoardColumnDensity = "compact" | "default";
 /**
  * Board grouping. Besides the three built-ins, a select-type custom property
  * groups columns by its options via the `property:<definitionId>` form.
@@ -240,6 +241,10 @@ export interface IssueViewState {
    *  the persistence scope, so project boards and workspace boards do not
    *  overwrite each other's layout. Missing keys use the default width. */
   boardColumnWidths: Record<string, number>;
+  /** Board columns use one of two supported widths. Per-column drag resizing
+   *  is intentionally unavailable; the legacy width map remains persisted
+   *  only so older snapshots can still be read safely. */
+  boardColumnDensity: BoardColumnDensity;
   ganttZoom: GanttZoom;
   ganttShowCompleted: boolean;
   /** Active swimlane grouping dimension. */
@@ -277,6 +282,7 @@ export interface IssueViewState {
   showStatus: (category: IssueStatusCategory) => void;
   setBoardColumnWidth: (groupId: string, width: number) => void;
   resetBoardColumnWidths: () => void;
+  setBoardColumnDensity: (density: BoardColumnDensity) => void;
   clearFilters: () => void;
   /** Clear one filter dimension (a filter-bar chip). `property:<id>` clears
    *  that definition's entry only. Paired boolean flags (no-assignee /
@@ -337,6 +343,7 @@ export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): Issue
   listCollapsedStatuses: [],
   hiddenStatusCategories: [],
   boardColumnWidths: {},
+  boardColumnDensity: "default",
   ganttZoom: "week",
   ganttShowCompleted: false,
   swimlaneGrouping: "assignee",
@@ -444,6 +451,7 @@ export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): Issue
       return { boardColumnWidths };
     }),
   resetBoardColumnWidths: () => set({ boardColumnWidths: {} }),
+  setBoardColumnDensity: (density) => set({ boardColumnDensity: density }),
   clearFilters: () =>
     set({
       statusFilters: [],
@@ -602,6 +610,7 @@ export const viewStorePersistOptions = (name: string) => ({
     listCollapsedStatuses: state.listCollapsedStatuses,
     hiddenStatusCategories: state.hiddenStatusCategories,
     boardColumnWidths: state.boardColumnWidths,
+    boardColumnDensity: state.boardColumnDensity,
     ganttZoom: state.ganttZoom,
     ganttShowCompleted: state.ganttShowCompleted,
     swimlaneGrouping: state.swimlaneGrouping,
@@ -666,6 +675,10 @@ export function mergeViewStatePersisted<T extends IssueViewState>(
         }),
       )
     : current.boardColumnWidths;
+  const boardColumnDensity =
+    p.boardColumnDensity === "compact" || p.boardColumnDensity === "default"
+      ? p.boardColumnDensity
+      : current.boardColumnDensity;
   return {
     ...current,
     ...p,
@@ -680,6 +693,7 @@ export function mergeViewStatePersisted<T extends IssueViewState>(
       ? { ...current.collapsedSwimlanes, ...p.collapsedSwimlanes }
       : current.collapsedSwimlanes,
     boardColumnWidths,
+    boardColumnDensity,
     tableColumns: [
       persistedTitle ?? current.tableColumns[0] ?? { key: "title" },
       ...dedupedTableColumns,

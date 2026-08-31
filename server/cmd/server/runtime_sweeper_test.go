@@ -296,6 +296,13 @@ func TestStartTaskSkipsUnchangedAgentStatusWriteAndBroadcast(t *testing.T) {
 	if statusEvents != 0 {
 		t.Fatalf("unchanged status broadcasts = %d, want 0", statusEvents)
 	}
+	var issueStatus string
+	if err := testPool.QueryRow(ctx, `SELECT status FROM issue WHERE id = $1`, issueID).Scan(&issueStatus); err != nil {
+		t.Fatalf("load issue after StartTask: %v", err)
+	}
+	if issueStatus != "in_progress" {
+		t.Fatalf("issue status after StartTask = %q, want in_progress", issueStatus)
+	}
 }
 
 // TestSweepStaleTasksBroadcastsWithWorkspaceID verifies that when the task sweeper
@@ -846,8 +853,8 @@ func TestRuntimeReconnectRetryHasBoundedTerminalPath(t *testing.T) {
 	if err := testPool.QueryRow(ctx, `SELECT status FROM issue WHERE id = $1`, issueID).Scan(&issueStatus); err != nil {
 		t.Fatalf("read issue status: %v", err)
 	}
-	if issueStatus != "todo" {
-		t.Fatalf("issue status = %q, want todo after terminal reconnect timeout", issueStatus)
+	if issueStatus != "blocked" {
+		t.Fatalf("issue status = %q, want blocked after terminal reconnect timeout", issueStatus)
 	}
 
 	var undrained, retryChildren int
@@ -863,13 +870,13 @@ func TestRuntimeReconnectRetryHasBoundedTerminalPath(t *testing.T) {
 	}
 }
 
-// TestSweepResetsInProgressIssueToTodo verifies the core fix: when the sweeper
+// TestSweepBlocksOrphanedInProgressIssue verifies the execution invariant: when the sweeper
 // force-fails a stale task whose issue is still in_progress (because the daemon
-// crashed mid-run), the issue is reset back to todo so the daemon can re-queue it.
+// crashed mid-run), the issue moves to blocked instead of claiming work is active.
 //
 // Without this fix the issue stays in_progress permanently — the agent never runs
 // to update the status because it was never dispatched.
-func TestSweepResetsInProgressIssueToTodo(t *testing.T) {
+func TestSweepBlocksOrphanedInProgressIssue(t *testing.T) {
 	if testPool == nil {
 		t.Skip("no database connection")
 	}
@@ -945,7 +952,7 @@ func TestSweepResetsInProgressIssueToTodo(t *testing.T) {
 		t.Fatalf("expected task %s to be in failed tasks, got %v", taskID, failedTasks)
 	}
 
-	// This is what we're testing: issue must be reset from in_progress → todo.
+	// This is what we're testing: issue must move from in_progress → blocked.
 	broadcastFailedTasks(ctx, queries, nil, bus, failedTasks)
 
 	var issueStatus string
@@ -953,8 +960,8 @@ func TestSweepResetsInProgressIssueToTodo(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to query issue status: %v", err)
 	}
-	if issueStatus != "todo" {
-		t.Fatalf("expected issue status 'todo' after sweep, got '%s' — issue is stuck", issueStatus)
+	if issueStatus != "blocked" {
+		t.Fatalf("expected issue status 'blocked' after sweep, got '%s'", issueStatus)
 	}
 }
 

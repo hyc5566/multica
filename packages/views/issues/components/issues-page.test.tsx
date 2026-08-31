@@ -322,6 +322,7 @@ const mockViewState = {
   listCollapsedStatuses: [] as string[],
   hiddenStatusCategories: [] as string[],
   boardColumnWidths: {} as Record<string, number>,
+  boardColumnDensity: "default" as "compact" | "default",
   setViewMode: vi.fn(),
   setGrouping: vi.fn(),
   toggleStatusFilter: vi.fn(),
@@ -338,6 +339,7 @@ const mockViewState = {
   showStatus: vi.fn(),
   setBoardColumnWidth: vi.fn(),
   resetBoardColumnWidths: vi.fn(),
+  setBoardColumnDensity: vi.fn(),
   clearFilters: vi.fn(),
   setSortBy: vi.fn(),
   setSortDirection: vi.fn(),
@@ -699,6 +701,7 @@ describe("IssuesPage (shared)", () => {
     mockViewState.statusFilters = [];
     mockViewState.priorityFilters = [];
     mockViewState.boardColumnWidths = {};
+    mockViewState.boardColumnDensity = "default";
     mockScope = "all";
   });
 
@@ -739,14 +742,15 @@ describe("IssuesPage (shared)", () => {
     expect(screen.getAllByText("In Progress").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("offers one control to restore every board column to its default width", () => {
-    mockViewState.boardColumnWidths = { "status:todo": 360 };
+  it("offers compact and default board column widths", () => {
     renderWithQuery(<IssuesPage />);
 
     fireEvent.click(screen.getByRole("button", { name: "Display" }));
-    fireEvent.click(screen.getByRole("button", { name: "Restore default" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compact" }));
+    fireEvent.click(screen.getByRole("button", { name: "Default" }));
 
-    expect(mockViewState.resetBoardColumnWidths).toHaveBeenCalledOnce();
+    expect(mockViewState.setBoardColumnDensity).toHaveBeenNthCalledWith(1, "compact");
+    expect(mockViewState.setBoardColumnDensity).toHaveBeenNthCalledWith(2, "default");
   });
 
   it("groups board columns by assignee", async () => {

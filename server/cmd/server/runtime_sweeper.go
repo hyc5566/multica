@@ -118,6 +118,9 @@ const (
 	// delegatedFailureRecoveryBatchSize bounds the durable recovery-outbox
 	// replay so a historical backlog cannot monopolise the runtime sweep tick.
 	delegatedFailureRecoveryBatchSize = 100
+	// issueTaskStatusReconcileBatchSize bounds the execution-lane invariant
+	// repair so a historical backlog cannot monopolise the liveness sweep.
+	issueTaskStatusReconcileBatchSize = 500
 )
 
 type runtimeGCTxStarter interface {
@@ -181,7 +184,22 @@ func runRuntimeSweeper(ctx context.Context, queries *db.Queries, liveness handle
 		sweepExpiredQueuedTasks(ctx, queries, taskSvc, queuedTTL)
 		sweepPendingDelegatedFailureRecoveries(ctx, taskSvc)
 		sweepDeferredChatFinalizations(ctx, queries, taskSvc)
+		sweepIssueTaskStatuses(ctx, taskSvc)
 	})
+}
+
+func sweepIssueTaskStatuses(ctx context.Context, taskSvc *service.TaskService) {
+	if taskSvc == nil {
+		return
+	}
+	changed, err := taskSvc.ReconcileIssueTaskStatuses(ctx, issueTaskStatusReconcileBatchSize)
+	if err != nil {
+		slog.Warn("runtime sweeper: issue task status reconciliation failed", "error", err)
+		return
+	}
+	if changed > 0 {
+		slog.Info("runtime sweeper: reconciled issue task statuses", "count", changed)
+	}
 }
 
 func runRuntimeGCSweeper(ctx context.Context, txStarter runtimeGCTxStarter, queries *db.Queries, metrics *obsmetrics.BusinessMetrics, bus *events.Bus) {
@@ -677,14 +695,14 @@ func sweepDeferredChatFinalizations(ctx context.Context, queries *db.Queries, ta
 // broadcastFailedTasks is preserved as a thin shim for the integration tests
 // in this package. New call sites should use TaskService.HandleFailedTasks
 // directly so the side effects (event broadcast, agent reconcile, issue
-// rollback, auto-retry) are guaranteed in one place.
+// execution-state reconcile, auto-retry) are guaranteed in one place.
 func broadcastFailedTasks(ctx context.Context, queries *db.Queries, taskSvc *service.TaskService, bus *events.Bus, tasks []db.AgentTaskQueue) {
 	if taskSvc != nil {
 		taskSvc.HandleFailedTasks(ctx, tasks)
 		return
 	}
 	// Fallback path used by tests that don't construct a TaskService:
-	// publish task:failed events with workspace IDs and reset stuck issues.
+	// publish task:failed events with workspace IDs and block orphaned issues.
 	processedIssues := make(map[string]bool)
 	affectedAgents := make(map[string]pgtype.UUID)
 	for _, t := range tasks {
@@ -698,17 +716,17 @@ func broadcastFailedTasks(ctx context.Context, queries *db.Queries, taskSvc *ser
 				workspaceID = util.UUIDToString(issue.WorkspaceID)
 				issueKey := util.UUIDToString(t.IssueID)
 				// Only issues whose status means "an agent is actively working"
-				// get reset. in_review and blocked are deliberately excluded —
+				// get blocked. in_review and blocked are deliberately excluded —
 				// they mean a human or an external dependency owns the issue
-				// now, and resetting those to todo would re-trigger an agent on
+				// now, and changing those would clobber the user-visible outcome of
 				// work someone else is holding. A custom status resolves to the
 				// canonical status it inherits, so a custom review gate is
 				// excluded for the same reason In Review is. (MUL-6243)
 				effectiveStatus := issuestatus.Effective(ctx, queries, issue.WorkspaceID, issue.Status)
 				if effectiveStatus == "in_progress" && !processedIssues[issueKey] {
 					processedIssues[issueKey] = true
-					if hasActive, herr := queries.HasActiveTaskForIssue(ctx, t.IssueID); herr == nil && !hasActive {
-						queries.UpdateIssueStatus(ctx, db.UpdateIssueStatusParams{ID: t.IssueID, Status: "todo", WorkspaceID: issue.WorkspaceID})
+					if hasRunning, herr := queries.HasRunningTaskForIssue(ctx, t.IssueID); herr == nil && !hasRunning {
+						queries.UpdateIssueStatus(ctx, db.UpdateIssueStatusParams{ID: t.IssueID, Status: "blocked", WorkspaceID: issue.WorkspaceID})
 					}
 				}
 			}

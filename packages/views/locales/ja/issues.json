@@ -155,6 +155,8 @@
     "grouping_section": "グループ化",
     "column_width_section": "列の幅",
     "reset_column_widths": "既定値に戻す",
+    "column_width_compact": "コンパクト",
+    "column_width_default": "デフォルト",
     "ordering_section": "並び替え",
     "card_properties_section": "カードのプロパティ",
     "ascending_title": "昇順",

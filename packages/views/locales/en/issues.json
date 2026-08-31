@@ -158,6 +158,8 @@
     "grouping_section": "Grouping",
     "column_width_section": "Column width",
     "reset_column_widths": "Restore default",
+    "column_width_compact": "Compact",
+    "column_width_default": "Default",
     "ordering_section": "Ordering",
     "card_properties_section": "Card properties",
     "ascending_title": "Ascending",

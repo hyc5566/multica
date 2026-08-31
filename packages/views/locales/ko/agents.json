@@ -165,6 +165,7 @@
       "provider_quota": "제공업체 계정 한도",
       "model": "모델: {{model}}",
       "model_default": "런타임 기본값",
+      "current_model": "현재 모델",
       "profile": "프로필: {{profile}}",
       "account_scope": "계정: {{scope}}",
       "provider_scope": "제공업체 계정 범위",

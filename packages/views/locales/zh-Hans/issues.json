@@ -155,6 +155,8 @@
     "grouping_section": "分組",
     "column_width_section": "欄寬",
     "reset_column_widths": "恢復預設值",
+    "column_width_compact": "緊緻",
+    "column_width_default": "預設",
     "ordering_section": "排序",
     "card_properties_section": "卡片屬性",
     "ascending_title": "升序",

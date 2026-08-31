@@ -1708,6 +1708,12 @@ FOR UPDATE;
 SELECT count(*) > 0 AS has_active FROM agent_task_queue
 WHERE issue_id = $1 AND status IN ('queued', 'dispatched', 'running', 'waiting_local_directory');
 
+-- name: HasRunningTaskForIssue :one
+-- Only a task whose daemon acknowledged execution makes an issue actively
+-- in progress. Queued, dispatched, and local-directory waiters remain planned.
+SELECT count(*) > 0 AS has_running FROM agent_task_queue
+WHERE issue_id = $1 AND status = 'running';
+
 -- name: HasPendingTaskForIssue :one
 -- Returns true if there is a queued or dispatched (but not yet running) task for the issue.
 -- Used by the coalescing queue: allow enqueue when a task is running (so

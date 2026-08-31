@@ -4920,6 +4920,20 @@ func (q *Queries) HasRetryTaskForParent(ctx context.Context, parentTaskID pgtype
 	return column_1, err
 }
 
+const hasRunningTaskForIssue = `-- name: HasRunningTaskForIssue :one
+SELECT count(*) > 0 AS has_running FROM agent_task_queue
+WHERE issue_id = $1 AND status = 'running'
+`
+
+// Only a task whose daemon acknowledged execution makes an issue actively
+// in progress. Queued, dispatched, and local-directory waiters remain planned.
+func (q *Queries) HasRunningTaskForIssue(ctx context.Context, issueID pgtype.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, hasRunningTaskForIssue, issueID)
+	var has_running bool
+	err := row.Scan(&has_running)
+	return has_running, err
+}
+
 const hasTaskCoveringDelegatedFailureComment = `-- name: HasTaskCoveringDelegatedFailureComment :one
 SELECT count(*) > 0 AS covered
 FROM agent_task_queue

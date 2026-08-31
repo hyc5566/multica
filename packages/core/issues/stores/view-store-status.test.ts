@@ -89,6 +89,14 @@ describe("board column widths", () => {
     store = createStore<IssueViewState>()((set) => viewStoreSlice(set));
   });
 
+  it("switches between the only two exposed board densities", () => {
+    expect(store.getState().boardColumnDensity).toBe("default");
+    store.getState().setBoardColumnDensity("compact");
+    expect(store.getState().boardColumnDensity).toBe("compact");
+    store.getState().setBoardColumnDensity("default");
+    expect(store.getState().boardColumnDensity).toBe("default");
+  });
+
   it("stores sparse per-group overrides and resets all columns", () => {
     store.getState().setBoardColumnWidth("status:todo", 360);
     store.getState().setBoardColumnWidth("status:done", 420);
@@ -133,5 +141,14 @@ describe("board column widths", () => {
       "status:todo": MIN_BOARD_COLUMN_WIDTH,
       "status:done": MAX_BOARD_COLUMN_WIDTH,
     });
+  });
+
+  it("ignores an invalid persisted board density", () => {
+    store.getState().setBoardColumnDensity("compact");
+    const merged = mergeViewStatePersisted(
+      { boardColumnDensity: "freeform" },
+      store.getState(),
+    );
+    expect(merged.boardColumnDensity).toBe("compact");
   });
 });

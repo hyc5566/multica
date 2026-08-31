@@ -165,6 +165,7 @@
       "provider_quota": "供應商帳號額度",
       "model": "模型：{{model}}",
       "model_default": "執行環境預設模型",
+      "current_model": "目前模型",
       "profile": "設定檔：{{profile}}",
       "account_scope": "帳號方案：{{scope}}",
       "provider_scope": "供應商帳號層級",

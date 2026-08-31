@@ -134,32 +134,22 @@ describe("issue surface view store registry", () => {
     ).toContainEqual({ key: "property:estimate", width: 184 });
   });
 
-  it("persists board column widths per surface and resets them together", async () => {
+  it("persists board density per surface", async () => {
     setCurrentWorkspace("acme", "ws_a");
     await flush();
     const projectA = getIssueSurfaceViewStore("project:board-a");
     const projectB = getIssueSurfaceViewStore("project:board-b");
 
-    projectA.getState().setBoardColumnWidth("status:todo", 352);
-    projectA.getState().setBoardColumnWidth("status:in_progress", 416);
+    projectA.getState().setBoardColumnDensity("compact");
 
-    expect(projectA.getState().boardColumnWidths).toEqual({
-      "status:todo": 352,
-      "status:in_progress": 416,
-    });
-    expect(projectB.getState().boardColumnWidths).toEqual({});
+    expect(projectA.getState().boardColumnDensity).toBe("compact");
+    expect(projectB.getState().boardColumnDensity).toBe("default");
 
     const raw = localStorage.getItem(`${ISSUE_SURFACE_VIEW_STORAGE_KEY}:acme`);
     const parsed = JSON.parse(raw as string);
     expect(
-      parsed.state.surfaces["project:board-a"].state.boardColumnWidths,
-    ).toEqual({
-      "status:todo": 352,
-      "status:in_progress": 416,
-    });
-
-    projectA.getState().resetBoardColumnWidths();
-    expect(projectA.getState().boardColumnWidths).toEqual({});
+      parsed.state.surfaces["project:board-a"].state.boardColumnDensity,
+    ).toBe("compact");
   });
 
   it("rehydrates existing surface stores when the workspace changes", async () => {

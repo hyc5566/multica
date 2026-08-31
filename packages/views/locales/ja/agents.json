@@ -157,6 +157,7 @@
       "provider_quota": "プロバイダーアカウント上限",
       "model": "モデル: {{model}}",
       "model_default": "ランタイムのデフォルト",
+      "current_model": "現在のモデル",
       "profile": "プロファイル: {{profile}}",
       "account_scope": "アカウント: {{scope}}",
       "provider_scope": "プロバイダーアカウント単位",

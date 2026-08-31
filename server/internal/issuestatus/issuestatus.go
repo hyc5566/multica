@@ -9,8 +9,9 @@
 // platform treats them identically — and by that definition the 7 built-ins are
 // 7 distinct classes: in_progress, in_review and blocked differ on whether they
 // finalize an autopilot run, whether they notify a delegated subscriber,
-// whether they dismiss stale task_failed inbox rows, and whether the stuck-issue
-// sweeper resets them. Collapsing them into one "started" category (the Linear
+// whether they dismiss stale task_failed inbox rows, and whether the task-state
+// reconciler blocks them when no agent is running. Collapsing them into one
+// "started" category (the Linear
 // model) is what would force a second per-status "behaves_as" concept to
 // re-express the difference, and with it the possibility of a status that
 // inherits only half a behavior.

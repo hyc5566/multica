@@ -14,7 +14,6 @@ import {
   FolderMinus,
   List,
   Rows3,
-  RotateCcw,
   SignalHigh,
   SlidersHorizontal,
   Tag,
@@ -1654,7 +1653,7 @@ export function IssueDisplayControls({
   const grouping = useViewStore((s) => s.grouping);
   const swimlaneGrouping = useViewStore((s) => s.swimlaneGrouping);
   const cardProperties = useViewStore((s) => s.cardProperties);
-  const boardColumnWidths = useViewStore((s) => s.boardColumnWidths);
+  const boardColumnDensity = useViewStore((s) => s.boardColumnDensity);
   const tableGrouping = useViewStore((s) => s.tableGrouping ?? "none");
   const tableHierarchy = useViewStore((s) => s.tableHierarchy ?? true);
   const showSubIssues = useViewStore((s) => s.showSubIssues);
@@ -1962,15 +1961,24 @@ export function IssueDisplayControls({
                     <span className="text-caption font-medium text-muted-foreground">
                       {t(($) => $.display.column_width_section)}
                     </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={Object.keys(boardColumnWidths).length === 0}
-                      onClick={() => act.resetBoardColumnWidths()}
-                    >
-                      <RotateCcw className="size-3.5" />
-                      {t(($) => $.display.reset_column_widths)}
-                    </Button>
+                    <div className="flex items-center rounded-md border p-0.5">
+                      <Button
+                        variant={boardColumnDensity === "compact" ? "secondary" : "ghost"}
+                        size="sm"
+                        aria-pressed={boardColumnDensity === "compact"}
+                        onClick={() => act.setBoardColumnDensity("compact")}
+                      >
+                        {t(($) => $.display.column_width_compact)}
+                      </Button>
+                      <Button
+                        variant={boardColumnDensity === "default" ? "secondary" : "ghost"}
+                        size="sm"
+                        aria-pressed={boardColumnDensity === "default"}
+                        onClick={() => act.setBoardColumnDensity("default")}
+                      >
+                        {t(($) => $.display.column_width_default)}
+                      </Button>
+                    </div>
                   </div>
                 </>
               )}

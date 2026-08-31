@@ -1036,6 +1036,78 @@ func (q *Queries) ListIssueGCStatuses(ctx context.Context, arg ListIssueGCStatus
 	return items, nil
 }
 
+const listIssueTaskStatusReconciliationCandidates = `-- name: ListIssueTaskStatusReconciliationCandidates :many
+SELECT i.id, i.workspace_id, i.title, i.description, i.status, i.priority, i.assignee_type, i.assignee_id, i.creator_type, i.creator_id, i.parent_issue_id, i.acceptance_criteria, i.context_refs, i.position, i.due_date, i.created_at, i.updated_at, i.number, i.project_id, i.origin_type, i.origin_id, i.first_executed_at, i.start_date, i.metadata, i.stage, i.properties, i.revision, i.last_activity_at FROM issue AS i
+LEFT JOIN issue_status AS s
+  ON s.workspace_id = i.workspace_id AND s.key = i.status
+WHERE (
+    EXISTS (
+      SELECT 1 FROM agent_task_queue AS t
+      WHERE t.issue_id = i.id AND t.status = 'running'
+    ) AND COALESCE(s.category, i.status) <> 'in_progress'
+  ) OR (
+    NOT EXISTS (
+      SELECT 1 FROM agent_task_queue AS t
+      WHERE t.issue_id = i.id AND t.status = 'running'
+    ) AND COALESCE(s.category, i.status) = 'in_progress'
+  )
+ORDER BY i.updated_at, i.id
+LIMIT $1::int
+`
+
+// The project board treats in_progress as a live execution lane. Find both
+// sides of drift: a running task whose issue is outside that category, and an
+// in-progress issue with no running task. Custom statuses inherit their
+// category from issue_status, so they obey the same invariant.
+func (q *Queries) ListIssueTaskStatusReconciliationCandidates(ctx context.Context, maxPerTick int32) ([]Issue, error) {
+	rows, err := q.db.Query(ctx, listIssueTaskStatusReconciliationCandidates, maxPerTick)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Issue{}
+	for rows.Next() {
+		var i Issue
+		if err := rows.Scan(
+			&i.ID,
+			&i.WorkspaceID,
+			&i.Title,
+			&i.Description,
+			&i.Status,
+			&i.Priority,
+			&i.AssigneeType,
+			&i.AssigneeID,
+			&i.CreatorType,
+			&i.CreatorID,
+			&i.ParentIssueID,
+			&i.AcceptanceCriteria,
+			&i.ContextRefs,
+			&i.Position,
+			&i.DueDate,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Number,
+			&i.ProjectID,
+			&i.OriginType,
+			&i.OriginID,
+			&i.FirstExecutedAt,
+			&i.StartDate,
+			&i.Metadata,
+			&i.Stage,
+			&i.Properties,
+			&i.Revision,
+			&i.LastActivityAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listIssues = `-- name: ListIssues :many
 SELECT i.id, i.workspace_id, i.title, i.description, i.status, i.priority,
        i.assignee_type, i.assignee_id, i.creator_type, i.creator_id,

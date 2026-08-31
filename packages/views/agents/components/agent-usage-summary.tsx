@@ -119,6 +119,15 @@ export function AgentUsageSummary({
       (providerQuery.isError ||
         (latestUsage != null &&
           !["available", "partial"].includes(latestUsage.status))));
+  const quotaWindows = useMemo(
+    () =>
+      prioritizeUsageWindows(
+        usage?.windows ?? [],
+        agent.model,
+        runtime?.provider,
+      ),
+    [agent.model, runtime?.provider, usage?.windows],
+  );
 
   return (
     <section
@@ -217,8 +226,14 @@ export function AgentUsageSummary({
                 </div>
               ) : null}
               <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-                {(usage?.windows ?? []).map((window) => (
-                  <QuotaWindow key={window.id} window={window} locale={locale} tz={tz} />
+                {quotaWindows.map(({ window, current }) => (
+                  <QuotaWindow
+                    key={window.id}
+                    window={window}
+                    locale={locale}
+                    tz={tz}
+                    current={current}
+                  />
                 ))}
                 {(usage?.windows ?? []).length === 0 ? (
                   <UnavailableState message={usage?.message || t(($) => $.detail.usage.unavailable)} />
@@ -262,10 +277,12 @@ function QuotaWindow({
   window,
   locale,
   tz,
+  current,
 }: {
   window: RuntimeProviderUsageWindow;
   locale: string;
   tz: string;
+  current: boolean;
 }) {
   const { t } = useT("agents");
   const used = window.used_percent;
@@ -283,10 +300,25 @@ function QuotaWindow({
         ? t(($) => $.detail.usage.window_weekly)
         : window.label;
   return (
-    <div className="rounded-md border bg-background px-2.5 py-2">
-      <p className="truncate text-[11px] text-muted-foreground" title={[window.group, windowLabel].filter(Boolean).join(" · ")}>
-        {window.group ? `${window.group} · ` : ""}{windowLabel}
-      </p>
+    <div
+      data-current-model-usage={current ? "true" : "false"}
+      className={cn(
+        "rounded-md border px-2.5 py-2",
+        current
+          ? "border-brand/50 bg-brand/10 ring-1 ring-brand/20"
+          : "bg-background",
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-1.5">
+        <p className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground" title={[window.group, windowLabel].filter(Boolean).join(" · ")}>
+          {window.group ? `${window.group} · ` : ""}{windowLabel}
+        </p>
+        {current ? (
+          <span className="shrink-0 rounded-full bg-brand/15 px-1.5 py-0.5 text-[9px] font-semibold text-brand">
+            {t(($) => $.detail.usage.current_model)}
+          </span>
+        ) : null}
+      </div>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-body font-semibold tabular-nums">
           {used == null
@@ -319,6 +351,43 @@ function QuotaWindow({
       </p>
     </div>
   );
+}
+
+export function prioritizeUsageWindows(
+  windows: RuntimeProviderUsageWindow[],
+  model: string | undefined,
+  provider: string | undefined,
+): Array<{ window: RuntimeProviderUsageWindow; current: boolean }> {
+  if (windows.length === 0) return [];
+  const modelKey = normalizeUsageKey(model);
+  const explicit = windows.map((window) =>
+    modelKey.length > 0 &&
+    [window.id, window.group, window.label].some((value) => {
+      const candidate = normalizeUsageKey(value);
+      return candidate.length > 0 &&
+        (candidate.includes(modelKey) || modelKey.includes(candidate));
+    }),
+  );
+  const hasExplicit = explicit.some(Boolean);
+  const providerKey = normalizeUsageKey(provider);
+  const currentFlags = hasExplicit
+    ? explicit
+    : windows.map((window, index) => {
+        if (!providerKey) return index === 0;
+        return [window.id, window.group].some((value) =>
+          normalizeUsageKey(value).includes(providerKey),
+        );
+      });
+  if (!currentFlags.some(Boolean)) currentFlags[0] = true;
+
+  return windows
+    .map((window, index) => ({ window, current: currentFlags[index] ?? false, index }))
+    .sort((a, b) => Number(b.current) - Number(a.current) || a.index - b.index)
+    .map(({ window, current }) => ({ window, current }));
+}
+
+function normalizeUsageKey(value: string | undefined) {
+  return (value ?? "").toLocaleLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
 function UnavailableState({ message }: { message: string }) {
