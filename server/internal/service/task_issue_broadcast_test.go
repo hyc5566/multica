@@ -31,7 +31,7 @@ func (noRow) Scan(...any) error { return pgx.ErrNoRows }
 
 // TestBroadcastIssueUpdated_EmitsStatusChange pins the realtime contract behind
 // #4648 / MUL-3782: when a background path resets an issue's status (e.g. the
-// failed-task handler flipping a stuck in_progress issue back to todo), it must
+// failed-task handler moving an orphaned in_progress issue to blocked), it must
 // publish issue:updated with status_changed=true and the new status so the
 // frontend's onIssueUpdated reconcile moves the card between status columns /
 // filters instead of leaving it stale until the next unrelated write.
@@ -49,7 +49,7 @@ func TestBroadcastIssueUpdated_EmitsStatusChange(t *testing.T) {
 		ID:          testUUID(1),
 		WorkspaceID: testUUID(2),
 		Number:      7,
-		Status:      "todo",
+		Status:      "blocked",
 	}
 	svc.broadcastIssueUpdated(context.Background(), issue, "in_progress")
 
@@ -78,8 +78,8 @@ func TestBroadcastIssueUpdated_EmitsStatusChange(t *testing.T) {
 	if !ok {
 		t.Fatalf("issue payload is not map[string]any: %T", payload["issue"])
 	}
-	if issueMap["status"] != "todo" {
-		t.Errorf("expected issue.status=todo, got %v", issueMap["status"])
+	if issueMap["status"] != "blocked" {
+		t.Errorf("expected issue.status=blocked, got %v", issueMap["status"])
 	}
 	if issueMap["id"] != util.UUIDToString(issue.ID) {
 		t.Errorf("issue.id mismatch: got %v want %q", issueMap["id"], util.UUIDToString(issue.ID))

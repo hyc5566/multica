@@ -83,13 +83,13 @@
     "move_failed": "移動任務失敗"
   },
   "status": {
-    "backlog": "待規劃",
-    "todo": "待辦",
-    "in_progress": "進行中",
-    "in_review": "稽核中",
-    "done": "已完成",
-    "blocked": "已阻塞",
-    "cancelled": "已取消"
+    "backlog": "待規劃（backlog）",
+    "todo": "待辦（todo）",
+    "in_progress": "進行中（in progress）",
+    "in_review": "稽核中（in review）",
+    "done": "已完成（done）",
+    "blocked": "已阻塞（blocked）",
+    "cancelled": "已取消（cancelled）"
   },
   "priority": {
     "urgent": "緊急",
@@ -153,6 +153,10 @@
     "tooltip": "顯示設定",
     "button": "顯示",
     "grouping_section": "分組",
+    "column_width_section": "欄寬",
+    "reset_column_widths": "恢復預設值",
+    "column_width_compact": "緊緻",
+    "column_width_default": "預設",
     "ordering_section": "排序",
     "card_properties_section": "卡片屬性",
     "ascending_title": "升序",
@@ -307,6 +311,7 @@
     "hidden_columns_label": "隱藏的列",
     "hide_column": "隱藏列",
     "show_column": "顯示列",
+    "resize_column": "調整欄位寬度",
     "add_issue_tooltip": "新建任務",
     "empty_column": "無任務",
     "empty_grouping": "沒有匹配的任務",

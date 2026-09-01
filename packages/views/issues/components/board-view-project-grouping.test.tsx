@@ -8,7 +8,7 @@
  * as the "no assignee" column.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, screen } from "@testing-library/react";
+import { act, cleanup, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ViewStoreProvider } from "@multica/core/issues/stores/view-store-context";
 import { getIssueSurfaceViewStore } from "@multica/core/issues/stores/surface-view-store";
@@ -227,6 +227,7 @@ describe("Board grouped by project", () => {
         </ViewStoreProvider>
       </QueryClientProvider>,
     );
+    return { store };
   }
 
   it("titles each column with its project, never with its id", () => {
@@ -255,6 +256,69 @@ describe("Board grouped by project", () => {
     render();
 
     expect(screen.getAllByText("No project")).toHaveLength(1);
+  });
+
+  it("locks pointer resizing and switches all columns between compact and default", () => {
+    const { store } = render();
+    const column = screen.getByText("Acme Corp").closest(".relative") as HTMLElement;
+
+    expect(screen.queryByRole("separator", { name: "Resize column" })).toBeNull();
+    expect(column.style.width).toBe("280px");
+    act(() => store.getState().setBoardColumnDensity("compact"));
+    expect(column.style.width).toBe("220px");
+    act(() => store.getState().setBoardColumnDensity("default"));
+    expect(column.style.width).toBe("280px");
+  });
+
+  it("puts a fixed-height horizontal running lane above the other status columns", () => {
+    const store = getIssueSurfaceViewStore(
+      `board-status-${Math.floor(Math.random() * 1e9)}`,
+    );
+    const todo = { ...makeIssue("todo", ACME_ID), title: "Planned task" };
+    const running = {
+      ...makeIssue("running", ACME_ID),
+      title: "Running task",
+      status: "in_progress" as const,
+    };
+    const runningTwo = {
+      ...makeIssue("running-two", ACME_ID),
+      title: "Second running task",
+      status: "in_progress" as const,
+    };
+    renderWithI18n(
+      <QueryClientProvider client={queryClient}>
+        <ViewStoreProvider store={store}>
+          <IssueContextMenuProvider>
+            <BoardView
+              issues={[todo, running, runningTwo]}
+              visibleStatuses={["todo", "in_progress"]}
+              hiddenStatuses={[]}
+              onMoveIssue={() => {}}
+              projectId={ACME_ID}
+            />
+          </IssueContextMenuProvider>
+        </ViewStoreProvider>
+      </QueryClientProvider>,
+    );
+
+    const planned = document.querySelector('[data-board-section="planned"]');
+    const live = document.querySelector('[data-board-section="running"]');
+    expect(planned?.textContent).toContain("Planned task");
+    expect(planned?.textContent).not.toContain("Running task");
+    expect(live?.textContent).toContain("Running task");
+    expect(live?.textContent).toContain("Second running task");
+    expect(live?.textContent).not.toContain("Planned task");
+    expect(
+      live?.compareDocumentPosition(planned as Node) ?? 0,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    const runningColumn = live?.querySelector(
+      '[data-board-column-layout="row"]',
+    );
+    expect(runningColumn).toHaveClass("h-56");
+    expect(runningColumn?.querySelectorAll("[data-board-card]")).toHaveLength(2);
+    expect(
+      runningColumn?.querySelector("[data-board-row-scroll]"),
+    ).toHaveClass("overflow-x-auto");
   });
 
   it("reads an unresolvable project the way the Table does", () => {

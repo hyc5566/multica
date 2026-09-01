@@ -462,6 +462,7 @@ export function AgentOverviewPane({
                       members={members}
                       currentUserId={currentUserId ?? null}
                       canEdit={canEdit}
+                      onDirtyChange={setActiveDirty}
                       onUpdate={onUpdate}
                     />
                   )}

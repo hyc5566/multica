@@ -136,7 +136,7 @@ describe("EnvTab", () => {
     fireEvent.paste(screen.getByPlaceholderText("KEY"), {
       clipboardData: { getData: () => "__proto__=secret" },
     });
-    await user.click(screen.getByRole("button", { name: /^save$/i }));
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     const payload = updateAgentEnv.mock.calls[0]?.[1] as {
       custom_env: Record<string, string>;
@@ -214,7 +214,7 @@ describe("EnvTab bulk editing", () => {
     const textarea = screen.getByRole("textbox", { name: /bulk edit/i });
     await user.clear(textarea);
     await user.type(textarea, "WIN_DIR=C:\\Users\\me{Enter}PG=p$ssw0rd");
-    await user.click(screen.getByRole("button", { name: /^save$/i }));
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(updateAgentEnv.mock.calls[0]?.[1]).toEqual({
       custom_env: { WIN_DIR: String.raw`C:\Users\me`, PG: "p$ssw0rd" },
@@ -231,14 +231,18 @@ describe("EnvTab bulk editing", () => {
     expect(
       screen.getByText("Line 2 isn't a KEY=value assignment"),
     ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^save$/i })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: /save changes/i }),
+    ).toBeDisabled();
     // Leaving via the toggle would silently discard the text, so it waits too.
     expect(screen.getByRole("button", { name: /edit as rows/i })).toBeDisabled();
 
     // Fixing the line releases both.
     await user.clear(textarea);
     await user.type(textarea, "FIRST=one");
-    expect(screen.getByRole("button", { name: /^save$/i })).toBeEnabled();
+    expect(
+      screen.getByRole("button", { name: /save changes/i }),
+    ).toBeEnabled();
     expect(screen.getByRole("button", { name: /edit as rows/i })).toBeEnabled();
   });
 
@@ -419,7 +423,7 @@ describe("EnvTab values that bulk text cannot represent", () => {
     await user.click(screen.getByRole("button", { name: /edit as rows/i }));
     await user.click(screen.getByRole("button", { name: /^add$/i }));
     await user.type(screen.getAllByPlaceholderText("KEY")[1]!, "NEW");
-    await user.click(screen.getByRole("button", { name: /^save$/i }));
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(updateAgentEnv.mock.calls[0]?.[1]).toEqual({
       custom_env: { TRICKY: 'foo" #bar', NEW: "" },

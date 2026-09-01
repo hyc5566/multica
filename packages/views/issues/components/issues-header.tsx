@@ -1653,6 +1653,7 @@ export function IssueDisplayControls({
   const grouping = useViewStore((s) => s.grouping);
   const swimlaneGrouping = useViewStore((s) => s.swimlaneGrouping);
   const cardProperties = useViewStore((s) => s.cardProperties);
+  const boardColumnDensity = useViewStore((s) => s.boardColumnDensity);
   const tableGrouping = useViewStore((s) => s.tableGrouping ?? "none");
   const tableHierarchy = useViewStore((s) => s.tableHierarchy ?? true);
   const showSubIssues = useViewStore((s) => s.showSubIssues);
@@ -1916,45 +1917,70 @@ export function IssueDisplayControls({
               {/* Uniform rows: caption label left, control right. Spacing
                   separates sections — no dividers (see UI rules). */}
               {viewMode === "board" && (
-                <div className="flex items-center justify-between gap-3">
-                  <span className="text-caption font-medium text-muted-foreground">
-                    {t(($) => $.display.grouping_section)}
-                  </span>
-                  <Select
-                    items={[
-                      ...GROUPING_OPTIONS.map((opt) => ({
-                        value: opt.value as string,
-                        label: t(($) => $.display[GROUPING_LABEL_KEY[opt.value]]),
-                      })),
-                      ...groupableProperties.map((p) => ({
-                        value: `property:${p.id}`,
-                        label: p.name,
-                      })),
-                    ]}
-                    value={grouping}
-                    onValueChange={(v) => {
-                      if (v) act.setGrouping(v as IssueGrouping);
-                    }}
-                  >
-                    <SelectTrigger size="sm" className="w-32" aria-label={t(($) => $.display.grouping_section)}>
-                      <SelectValue>{groupingLabel}</SelectValue>
-                    </SelectTrigger>
-                    <SelectContent align="end">
-                      <SelectGroup>
-                      {GROUPING_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {t(($) => $.display[GROUPING_LABEL_KEY[opt.value]])}
-                        </SelectItem>
-                      ))}
-                      {groupableProperties.map((property) => (
-                        <SelectItem key={property.id} value={`property:${property.id}`}>
-                          {property.name}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-caption font-medium text-muted-foreground">
+                      {t(($) => $.display.grouping_section)}
+                    </span>
+                    <Select
+                      items={[
+                        ...GROUPING_OPTIONS.map((opt) => ({
+                          value: opt.value as string,
+                          label: t(($) => $.display[GROUPING_LABEL_KEY[opt.value]]),
+                        })),
+                        ...groupableProperties.map((p) => ({
+                          value: `property:${p.id}`,
+                          label: p.name,
+                        })),
+                      ]}
+                      value={grouping}
+                      onValueChange={(v) => {
+                        if (v) act.setGrouping(v as IssueGrouping);
+                      }}
+                    >
+                      <SelectTrigger size="sm" className="w-32" aria-label={t(($) => $.display.grouping_section)}>
+                        <SelectValue>{groupingLabel}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent align="end">
+                        <SelectGroup>
+                        {GROUPING_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>
+                            {t(($) => $.display[GROUPING_LABEL_KEY[opt.value]])}
+                          </SelectItem>
+                        ))}
+                        {groupableProperties.map((property) => (
+                          <SelectItem key={property.id} value={`property:${property.id}`}>
+                            {property.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="text-caption font-medium text-muted-foreground">
+                      {t(($) => $.display.column_width_section)}
+                    </span>
+                    <div className="flex items-center rounded-md border p-0.5">
+                      <Button
+                        variant={boardColumnDensity === "compact" ? "secondary" : "ghost"}
+                        size="sm"
+                        aria-pressed={boardColumnDensity === "compact"}
+                        onClick={() => act.setBoardColumnDensity("compact")}
+                      >
+                        {t(($) => $.display.column_width_compact)}
+                      </Button>
+                      <Button
+                        variant={boardColumnDensity === "default" ? "secondary" : "ghost"}
+                        size="sm"
+                        aria-pressed={boardColumnDensity === "default"}
+                        onClick={() => act.setBoardColumnDensity("default")}
+                      >
+                        {t(($) => $.display.column_width_default)}
+                      </Button>
+                    </div>
+                  </div>
+                </>
               )}
               {viewMode === "swimlane" && (
                 <div className="flex items-center justify-between gap-3">

@@ -2559,6 +2559,7 @@ func (s *TaskService) CancelTasksForIssue(ctx context.Context, issueID pgtype.UU
 	for _, agentID := range distinctAgentIDs(cancelled) {
 		s.ReconcileAgentStatus(ctx, agentID)
 	}
+	s.reconcileIssueTaskStatusesForTasks(ctx, cancelled)
 	s.notifyTasksFinished(cancelled)
 	return nil
 }
@@ -2581,6 +2582,20 @@ func distinctAgentIDs(cancelled []db.AgentTaskQueue) []pgtype.UUID {
 	return ids
 }
 
+func (s *TaskService) reconcileIssueTaskStatusesForTasks(ctx context.Context, tasks []db.AgentTaskQueue) {
+	seen := make(map[pgtype.UUID]struct{}, len(tasks))
+	for _, task := range tasks {
+		if !task.IssueID.Valid {
+			continue
+		}
+		if _, duplicate := seen[task.IssueID]; duplicate {
+			continue
+		}
+		seen[task.IssueID] = struct{}{}
+		s.ReconcileIssueTaskStatus(ctx, task.IssueID)
+	}
+}
+
 // CancelTasksForAgent cancels every active task belonging to an agent
 // (queued + dispatched + running), reconciles the agent's status, and
 // broadcasts task:cancelled events. Used by the agent-level "Cancel all
@@ -2600,6 +2615,7 @@ func (s *TaskService) CancelTasksForAgent(ctx context.Context, agentID pgtype.UU
 	// working→available based on remaining task counts, no need to call
 	// per row (the rows we just cancelled all belong to the same agent).
 	s.ReconcileAgentStatus(ctx, agentID)
+	s.reconcileIssueTaskStatusesForTasks(ctx, cancelled)
 	s.notifyTasksFinished(cancelled)
 	return cancelled, nil
 }
@@ -2623,6 +2639,7 @@ func (s *TaskService) CancelTasksByTriggerComment(ctx context.Context, commentID
 	for _, agentID := range distinctAgentIDs(cancelled) {
 		s.ReconcileAgentStatus(ctx, agentID)
 	}
+	s.reconcileIssueTaskStatusesForTasks(ctx, cancelled)
 	s.notifyTasksFinished(cancelled)
 	return cancelled, nil
 }
@@ -2852,8 +2869,9 @@ func (s *TaskService) CancelTaskWithResult(ctx context.Context, taskID pgtype.UU
 		cancelledChatMessage = s.finalizeCancelledChatMessage(ctx, task, opts)
 	}
 
-	// Reconcile agent status
+	// Reconcile agent and issue status after the task leaves running.
 	s.ReconcileAgentStatus(ctx, task.AgentID)
+	s.ReconcileIssueTaskStatus(ctx, task.IssueID)
 
 	// Broadcast cancellation as a task:failed event so frontends clear the live card
 	s.broadcastTaskEvent(ctx, protocol.EventTaskCancelled, task)
@@ -3992,8 +4010,8 @@ func (s *TaskService) maybeLogClaimSlow(agentID pgtype.UUID, outcome string, sta
 	)
 }
 
-// StartTask transitions a dispatched task to running.
-// Issue status is NOT changed here — the agent manages it via the CLI.
+// StartTask transitions a dispatched task to running. A running issue task is
+// also the server-side authority for the issue's in_progress state.
 func (s *TaskService) StartTask(ctx context.Context, taskID pgtype.UUID) (*db.AgentTaskQueue, error) {
 	task, err := s.Queries.StartAgentTask(ctx, taskID)
 	if err != nil {
@@ -4009,6 +4027,7 @@ func (s *TaskService) StartTask(ctx context.Context, taskID pgtype.UUID) (*db.Ag
 	// normal dispatched -> running path is already working, so this is
 	// intentionally idempotent there.
 	s.ReconcileAgentStatus(ctx, task.AgentID)
+	s.ReconcileIssueTaskStatus(ctx, task.IssueID)
 	// Tell every connected workspace WS client that this task transitioned
 	// (dispatched | waiting_local_directory) → running. Without this, the
 	// workspace-wide `agentTaskSnapshot` query only refreshes on the 30s
@@ -4375,8 +4394,9 @@ func (s *TaskService) CompleteTask(ctx context.Context, taskID pgtype.UUID, resu
 		}
 	}
 
-	// Reconcile agent status
+	// Reconcile agent and issue status after the task leaves running.
 	s.ReconcileAgentStatus(ctx, task.AgentID)
+	s.ReconcileIssueTaskStatus(ctx, task.IssueID)
 
 	// Broadcast
 	s.broadcastTaskEvent(ctx, protocol.EventTaskCompleted, task)
@@ -4575,8 +4595,8 @@ func (s *TaskService) observeChatOutputLocalPath(task db.AgentTaskQueue, body st
 	)
 }
 
-// FailTask marks a task as failed.
-// Issue status is NOT changed here — the agent manages it via the CLI.
+// FailTask marks a task as failed. Issue status is reconciled from the live
+// running-task set after the terminal transition.
 //
 // sessionID/workDir are optional: when the agent established a real session
 // before failing (e.g. crashed mid-conversation, was cancelled, or hit a
@@ -4962,8 +4982,9 @@ func (s *TaskService) FailTask(ctx context.Context, taskID pgtype.UUID, errMsg, 
 			}
 		}
 	}
-	// Reconcile agent status
+	// Reconcile agent and issue status after the task leaves running.
 	s.ReconcileAgentStatus(ctx, task.AgentID)
+	s.ReconcileIssueTaskStatus(ctx, task.IssueID)
 
 	// Broadcast. Channel subscribers need the same redacted failure text that
 	// was persisted in the chat transcript. A retry-pending attempt stays silent
@@ -5608,9 +5629,7 @@ func (s *TaskService) enqueueRerunTask(ctx context.Context, issue db.Issue, agen
 
 // HandleFailedTasks runs the post-failure side effects for a batch of
 // freshly-failed tasks: optional auto-retry, task:failed event broadcast,
-// agent status reconciliation, and (when an issue has no remaining active
-// task and isn't being retried) resetting the issue back to todo so the
-// daemon can pick it up again.
+// agent status reconciliation, and issue execution-state reconciliation.
 //
 // All callers that surface a task as failed — sweepers, FailTask,
 // recover-orphans — funnel through here so the same UI-consistency
@@ -5621,20 +5640,16 @@ func (s *TaskService) HandleFailedTasks(ctx context.Context, tasks []db.AgentTas
 	}
 
 	affectedAgents := make(map[string]pgtype.UUID)
-	processedIssues := make(map[string]bool)
-	retriedIssues := make(map[string]bool)
 	retried := 0
 
 	for _, t := range tasks {
-		// Auto-retry first so the issue stays in_progress rather than
-		// flapping todo → in_progress within a tick.
+		// Auto-retry first so failure events can say whether another attempt is
+		// pending. A queued retry is not running, so the issue remains eligible
+		// for the blocked invariant until the retry actually starts.
 		retryPending := false
 		if child, _ := s.MaybeRetryFailedTask(ctx, t); child != nil {
 			retryPending = true
 			retried++
-			if t.IssueID.Valid {
-				retriedIssues[util.UUIDToString(t.IssueID)] = true
-			}
 		}
 		if !retryPending {
 			if _, err := s.recoverDelegatedTaskFailure(ctx, t); err != nil {
@@ -5656,45 +5671,8 @@ func (s *TaskService) HandleFailedTasks(ctx context.Context, tasks []db.AgentTas
 		if t.IssueID.Valid {
 			if issue, err := s.Queries.GetIssue(ctx, t.IssueID); err == nil {
 				workspaceID = util.UUIDToString(issue.WorkspaceID)
-				// Reset stuck in_progress issues only when no other active
-				// task exists for the issue and no retry was just enqueued.
-				issueKey := util.UUIDToString(t.IssueID)
-				// Only "an agent is actively working" resets. in_review and
-				// blocked are excluded — a human or an external dependency owns
-				// the issue then — and a custom status resolves to the canonical
-				// status it inherits, so a custom review gate is excluded for
-				// the same reason In Review is. (MUL-6243)
-				effectiveStatus := issuestatus.Effective(ctx, s.Queries, issue.WorkspaceID, issue.Status)
-				if effectiveStatus == "in_progress" && !processedIssues[issueKey] && !retriedIssues[issueKey] {
-					processedIssues[issueKey] = true
-					hasActive, checkErr := s.Queries.HasActiveTaskForIssue(ctx, t.IssueID)
-					if checkErr != nil {
-						slog.Warn("handle failed tasks: active check failed",
-							"issue_id", issueKey,
-							"error", checkErr,
-						)
-					} else if !hasActive {
-						updatedIssue, updateErr := s.Queries.UpdateIssueStatus(ctx, db.UpdateIssueStatusParams{
-							ID:          t.IssueID,
-							Status:      "todo",
-							WorkspaceID: issue.WorkspaceID,
-						})
-						if updateErr != nil {
-							slog.Warn("handle failed tasks: reset stuck issue failed",
-								"issue_id", issueKey,
-								"error", updateErr,
-							)
-						} else {
-							// This direct reset bypasses the HTTP UpdateIssue
-							// handler that normally emits issue:updated, so emit
-							// it here too. Without it the board / status-filter
-							// caches keep showing the issue as in_progress until
-							// the next write touches it (#4648 / MUL-3782).
-							s.broadcastIssueUpdated(ctx, updatedIssue, issue.Status)
-						}
-					}
-				}
 			}
+			s.ReconcileIssueTaskStatus(ctx, t.IssueID)
 		}
 		if workspaceID == "" {
 			workspaceID = s.ResolveTaskWorkspaceID(ctx, t)
@@ -6302,6 +6280,74 @@ func (s *TaskService) ReconcileAgentStatus(ctx context.Context, agentID pgtype.U
 	s.publishAgentStatus(agent)
 }
 
+// ReconcileIssueTaskStatus enforces the project-board execution invariant:
+// running issue tasks live in in_progress; an in-progress issue without a
+// running task is blocked. Invalid issue IDs (chat/quick-create tasks) are a
+// no-op. The periodic sweeper repairs any concurrent status race.
+func (s *TaskService) ReconcileIssueTaskStatus(ctx context.Context, issueID pgtype.UUID) bool {
+	if !issueID.Valid {
+		return false
+	}
+	issue, err := s.Queries.GetIssue(ctx, issueID)
+	if err != nil {
+		return false
+	}
+	hasRunning, err := s.Queries.HasRunningTaskForIssue(ctx, issueID)
+	if err != nil {
+		slog.Warn("reconcile issue task status: running-task check failed",
+			"issue_id", util.UUIDToString(issueID), "error", err)
+		return false
+	}
+	effectiveStatus := issuestatus.Effective(ctx, s.Queries, issue.WorkspaceID, issue.Status)
+	desiredStatus := ""
+	if hasRunning && effectiveStatus != "in_progress" {
+		desiredStatus = "in_progress"
+	} else if !hasRunning && effectiveStatus == "in_progress" {
+		desiredStatus = "blocked"
+	}
+	if desiredStatus == "" {
+		return false
+	}
+	updated, err := s.Queries.UpdateIssueStatus(ctx, db.UpdateIssueStatusParams{
+		ID:          issue.ID,
+		Status:      desiredStatus,
+		WorkspaceID: issue.WorkspaceID,
+	})
+	if err != nil {
+		slog.Warn("reconcile issue task status: update failed",
+			"issue_id", util.UUIDToString(issueID),
+			"from", issue.Status, "to", desiredStatus, "error", err)
+		return false
+	}
+	s.broadcastIssueUpdated(ctx, updated, issue.Status)
+	return true
+}
+
+// ReconcileIssueTaskStatuses is the periodic crash/race backstop. Immediate
+// lifecycle hooks cover ordinary starts and stops; this scan catches daemon
+// loss and manual status changes that occur between those hooks. An in-review
+// issue is deliberately preserved while a task is still winding down: agents
+// must write that handoff before their process exits, and reverting it here
+// creates an in_progress -> blocked race at terminal reconciliation. A genuinely
+// new task still moves the issue to in_progress through the immediate StartTask
+// hook above.
+func (s *TaskService) ReconcileIssueTaskStatuses(ctx context.Context, maxPerTick int32) (int, error) {
+	issues, err := s.Queries.ListIssueTaskStatusReconciliationCandidates(ctx, maxPerTick)
+	if err != nil {
+		return 0, err
+	}
+	changed := 0
+	for _, issue := range issues {
+		if issuestatus.Effective(ctx, s.Queries, issue.WorkspaceID, issue.Status) == "in_review" {
+			continue
+		}
+		if s.ReconcileIssueTaskStatus(ctx, issue.ID) {
+			changed++
+		}
+	}
+	return changed, nil
+}
+
 func (s *TaskService) updateAgentStatus(ctx context.Context, agentID pgtype.UUID, status string) {
 	agent, err := s.Queries.UpdateAgentStatus(ctx, db.UpdateAgentStatusParams{
 		ID:     agentID,
@@ -6892,7 +6938,7 @@ func (s *TaskService) AutoUnresolveThreadOnReply(ctx context.Context, parent *db
 // issue:updated broadcast payloads carry under their "issue" key. It is the
 // single source of truth for that shape wherever the event is published from
 // outside the HTTP handler — autopilot and the channel engine's /issue command
-// on issue:created, the background stuck-issue status reset on issue:updated.
+// on issue:created, the background task-state reconciliation on issue:updated.
 // The workspace WS fanout marshals it as-is for the UI, and cmd/server's
 // extractIssueFields reads id / creator_id / workspace_id off it to decide who
 // to auto-subscribe.

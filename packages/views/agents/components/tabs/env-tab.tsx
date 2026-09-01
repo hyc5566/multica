@@ -9,7 +9,6 @@ import {
   Loader2,
   Lock,
   Plus,
-  Save,
   Trash2,
   WrapText,
 } from "lucide-react";
@@ -27,6 +26,7 @@ import {
   parseEnvFile,
   parseEnvFileResult,
 } from "./env-file";
+import { DirtyFormActions } from "../dirty-form-actions";
 
 // Env values never reach this component until the user clicks
 // "Reveal & edit" — the agent resource feed no longer carries
@@ -319,6 +319,17 @@ export function EnvTab({
     }
   };
 
+  const handleReset = () => {
+    const resetEntries = envMapToEntries(originalMap);
+    setRevealed(resetEntries);
+    setBulkError(null);
+    if (bulkEditing) {
+      const formatted = entriesToBulkText(resetEntries);
+      if (formatted.ok) setBulkText(formatted.text);
+      else leaveBulkEditing();
+    }
+  };
+
   // Pre-reveal state: show count + Reveal button. We never auto-fetch
   // on mount so a member just navigating between tabs doesn't trigger
   // an audit-log entry; the reveal must be intentional.
@@ -489,25 +500,13 @@ export function EnvTab({
         </p>
       )}
 
-      <div className="flex items-center justify-end gap-3">
-        {hasUnsavedWork && (
-          <span className="text-caption text-muted-foreground">
-            {t(($) => $.tab_body.common.unsaved_changes)}
-          </span>
-        )}
-        <Button
-          onClick={handleSave}
-          disabled={!dirty || saving || bulkError !== null}
-          size="sm"
-        >
-          {saving ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Save className="h-3.5 w-3.5" />
-          )}
-          {t(($) => $.tab_body.common.save)}
-        </Button>
-      </div>
+      <DirtyFormActions
+        dirty={hasUnsavedWork}
+        saving={saving}
+        saveDisabled={!dirty || bulkError !== null}
+        onReset={handleReset}
+        onSave={() => void handleSave()}
+      />
     </div>
   );
 }

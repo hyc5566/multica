@@ -2947,11 +2947,19 @@ const RuntimeProviderUsageWindowSchema = z.object({
 const RuntimeProviderUsageSchema = z.object({
   provider: z.string().default(""),
   account_scope: z.string().optional(),
-  status: z.enum(["available", "partial", "unavailable", "auth_required", "error"]),
+  status: z.enum([
+    "available",
+    "partial",
+    "unavailable",
+    "auth_required",
+    "rate_limited",
+    "error",
+  ]),
   source: z.enum(["official", "derived", "unavailable"]),
   windows: z.array(RuntimeProviderUsageWindowSchema).optional(),
   observed_at: z.string().default(""),
   message: z.string().optional(),
+  retry_after_seconds: z.number().int().positive().optional(),
 }).loose();
 
 export const RuntimeModelListRequestSchema = z.object({

@@ -1,7 +1,14 @@
 // @vitest-environment node
 import { describe, expect, it, beforeEach } from "vitest";
 import { createStore, type StoreApi } from "zustand/vanilla";
-import { viewStoreSlice, type IssueViewState } from "./view-store";
+import {
+  DEFAULT_BOARD_COLUMN_WIDTH,
+  MAX_BOARD_COLUMN_WIDTH,
+  MIN_BOARD_COLUMN_WIDTH,
+  mergeViewStatePersisted,
+  viewStoreSlice,
+  type IssueViewState,
+} from "./view-store";
 import { baselineFromQuery } from "../../issue-views/baseline";
 
 /**
@@ -72,5 +79,76 @@ describe("saved view baseline", () => {
     const baseline = baselineFromQuery({ statusFilters: ["", "qa"] });
 
     expect([...baseline.status]).toEqual(["qa"]);
+  });
+});
+
+describe("board column widths", () => {
+  let store: StoreApi<IssueViewState>;
+
+  beforeEach(() => {
+    store = createStore<IssueViewState>()((set) => viewStoreSlice(set));
+  });
+
+  it("switches between the only two exposed board densities", () => {
+    expect(store.getState().boardColumnDensity).toBe("default");
+    store.getState().setBoardColumnDensity("compact");
+    expect(store.getState().boardColumnDensity).toBe("compact");
+    store.getState().setBoardColumnDensity("default");
+    expect(store.getState().boardColumnDensity).toBe("default");
+  });
+
+  it("stores sparse per-group overrides and resets all columns", () => {
+    store.getState().setBoardColumnWidth("status:todo", 360);
+    store.getState().setBoardColumnWidth("status:done", 420);
+
+    expect(store.getState().boardColumnWidths).toEqual({
+      "status:todo": 360,
+      "status:done": 420,
+    });
+
+    store
+      .getState()
+      .setBoardColumnWidth("status:todo", DEFAULT_BOARD_COLUMN_WIDTH);
+    expect(store.getState().boardColumnWidths).toEqual({
+      "status:done": 420,
+    });
+
+    store.getState().resetBoardColumnWidths();
+    expect(store.getState().boardColumnWidths).toEqual({});
+  });
+
+  it("clamps interactive and persisted widths to the supported range", () => {
+    store.getState().setBoardColumnWidth("status:todo", 40);
+    store.getState().setBoardColumnWidth("status:done", 900);
+
+    expect(store.getState().boardColumnWidths).toEqual({
+      "status:todo": MIN_BOARD_COLUMN_WIDTH,
+      "status:done": MAX_BOARD_COLUMN_WIDTH,
+    });
+
+    const merged = mergeViewStatePersisted(
+      {
+        boardColumnWidths: {
+          "status:todo": 100,
+          "status:done": 800,
+          invalid: "wide",
+          nan: Number.NaN,
+        },
+      },
+      store.getState(),
+    );
+    expect(merged.boardColumnWidths).toEqual({
+      "status:todo": MIN_BOARD_COLUMN_WIDTH,
+      "status:done": MAX_BOARD_COLUMN_WIDTH,
+    });
+  });
+
+  it("ignores an invalid persisted board density", () => {
+    store.getState().setBoardColumnDensity("compact");
+    const merged = mergeViewStatePersisted(
+      { boardColumnDensity: "freeform" },
+      store.getState(),
+    );
+    expect(merged.boardColumnDensity).toBe("compact");
   });
 });

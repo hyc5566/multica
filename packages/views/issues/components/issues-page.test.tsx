@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { Issue } from "@multica/core/types";
 import { I18nProvider } from "@multica/core/i18n/react";
@@ -321,6 +321,8 @@ const mockViewState = {
   ],
   listCollapsedStatuses: [] as string[],
   hiddenStatusCategories: [] as string[],
+  boardColumnWidths: {} as Record<string, number>,
+  boardColumnDensity: "default" as "compact" | "default",
   setViewMode: vi.fn(),
   setGrouping: vi.fn(),
   toggleStatusFilter: vi.fn(),
@@ -335,6 +337,9 @@ const mockViewState = {
   toggleCardPropertyId: vi.fn(),
   hideStatus: vi.fn(),
   showStatus: vi.fn(),
+  setBoardColumnWidth: vi.fn(),
+  resetBoardColumnWidths: vi.fn(),
+  setBoardColumnDensity: vi.fn(),
   clearFilters: vi.fn(),
   setSortBy: vi.fn(),
   setSortDirection: vi.fn(),
@@ -343,6 +348,11 @@ const mockViewState = {
 };
 
 vi.mock("@multica/core/issues/stores/view-store", () => ({
+  DEFAULT_BOARD_COLUMN_WIDTH: 280,
+  MIN_BOARD_COLUMN_WIDTH: 220,
+  MAX_BOARD_COLUMN_WIDTH: 520,
+  clampBoardColumnWidth: (width: number) =>
+    Math.min(520, Math.max(220, Math.round(width))),
   useClearFiltersOnWorkspaceChange: () => {},
   PROPERTY_VIEW_PREFIX: "property:",
   propertyIdFromViewKey: (key: string) =>
@@ -690,6 +700,8 @@ describe("IssuesPage (shared)", () => {
     mockViewState.grouping = "status";
     mockViewState.statusFilters = [];
     mockViewState.priorityFilters = [];
+    mockViewState.boardColumnWidths = {};
+    mockViewState.boardColumnDensity = "default";
     mockScope = "all";
   });
 
@@ -728,6 +740,17 @@ describe("IssuesPage (shared)", () => {
     await screen.findByText("Backlog");
     expect(screen.getAllByText("Todo").length).toBeGreaterThanOrEqual(1);
     expect(screen.getAllByText("In Progress").length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("offers compact and default board column widths", () => {
+    renderWithQuery(<IssuesPage />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Display" }));
+    fireEvent.click(screen.getByRole("button", { name: "Compact" }));
+    fireEvent.click(screen.getByRole("button", { name: "Default" }));
+
+    expect(mockViewState.setBoardColumnDensity).toHaveBeenNthCalledWith(1, "compact");
+    expect(mockViewState.setBoardColumnDensity).toHaveBeenNthCalledWith(2, "default");
   });
 
   it("groups board columns by assignee", async () => {

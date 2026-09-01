@@ -46,6 +46,9 @@ vi.mock("../../common/actor-avatar", () => ({
 vi.mock("./agent-presence-indicator", () => ({
   AgentPresenceIndicator: () => null,
 }));
+vi.mock("./agent-usage-summary", () => ({
+  AgentUsageSummary: () => null,
+}));
 
 const agentsRef = vi.hoisted(() => ({ current: [] as unknown[] }));
 const membersRef = vi.hoisted(() => ({ current: [] as unknown[] }));

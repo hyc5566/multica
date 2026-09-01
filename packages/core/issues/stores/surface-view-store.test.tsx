@@ -134,6 +134,24 @@ describe("issue surface view store registry", () => {
     ).toContainEqual({ key: "property:estimate", width: 184 });
   });
 
+  it("persists board density per surface", async () => {
+    setCurrentWorkspace("acme", "ws_a");
+    await flush();
+    const projectA = getIssueSurfaceViewStore("project:board-a");
+    const projectB = getIssueSurfaceViewStore("project:board-b");
+
+    projectA.getState().setBoardColumnDensity("compact");
+
+    expect(projectA.getState().boardColumnDensity).toBe("compact");
+    expect(projectB.getState().boardColumnDensity).toBe("default");
+
+    const raw = localStorage.getItem(`${ISSUE_SURFACE_VIEW_STORAGE_KEY}:acme`);
+    const parsed = JSON.parse(raw as string);
+    expect(
+      parsed.state.surfaces["project:board-a"].state.boardColumnDensity,
+    ).toBe("compact");
+  });
+
   it("rehydrates existing surface stores when the workspace changes", async () => {
     setCurrentWorkspace("acme", "ws_a");
     await flush();

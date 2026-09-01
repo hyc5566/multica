@@ -27,7 +27,12 @@ import { propertyListOptions, useSetIssueProperty, useUnsetIssueProperty } from 
 import { useWorkspaceId } from "@multica/core/hooks";
 import type { IssueGrouping } from "@multica/core/issues/stores/view-store";
 import { useActorName } from "@multica/core/workspace/hooks";
-import { BoardColumn, BOARD_CARD_WIDTH, type BoardColumnGroup } from "./board-column";
+import {
+  BoardColumn,
+  BOARD_CARD_WIDTH,
+  COMPACT_BOARD_CARD_WIDTH,
+  type BoardColumnGroup,
+} from "./board-column";
 import { BoardCardContent } from "./board-card";
 import { HiddenColumnsPanel, HiddenColumnRow } from "./hidden-columns-panel";
 import { InfiniteScrollSentinel } from "./infinite-scroll-sentinel";
@@ -269,6 +274,7 @@ function BoardViewImpl({
   const { t } = useT("issues");
   const storeGrouping = useViewStore((s) => s.grouping);
   const sortBy = useViewStore((s) => s.sortBy);
+  const boardColumnDensity = useViewStore((s) => s.boardColumnDensity);
   const boardWsId = useWorkspaceId();
   const { data: workspaceProperties = [] } = useQuery(propertyListOptions(boardWsId));
   const groupingPropertyId = propertyIdFromViewKey(storeGrouping);
@@ -678,6 +684,61 @@ function BoardViewImpl({
     setColumns(buildColumns(groupedIssues, groups, grouping, groupingOptionIds));
   }, [groupedIssues, groups, grouping, groupingOptionIds, setColumns, isDraggingRef]);
 
+  const renderGroup = (
+    group: BoardColumnGroup,
+    layout: "column" | "row" = "column",
+  ) =>
+    isStatusGroup(group) ? (
+      <ServerPaginatedBoardColumn
+        key={group.id}
+        group={group}
+        issueIds={columns[group.id] ?? EMPTY_IDS}
+        issueMap={issueMapRef.current}
+        childProgressMap={childProgressMap}
+        projectMap={projectMap}
+        page={statusPagination?.[group.status]}
+        projectId={projectId}
+        onCreateIssue={onCreateIssue}
+        sortLabel={sortLabel}
+        layout={layout}
+      />
+    ) : groupPagination?.[group.id] ? (
+      <ServerPaginatedBoardColumn
+        key={group.id}
+        group={group}
+        issueIds={columns[group.id] ?? EMPTY_IDS}
+        issueMap={issueMapRef.current}
+        childProgressMap={childProgressMap}
+        projectMap={projectMap}
+        page={groupPagination[group.id]!}
+        projectId={projectId}
+        onCreateIssue={onCreateIssue}
+        sortLabel={sortLabel}
+        layout={layout}
+      />
+    ) : (
+      <BoardColumn
+        key={group.id}
+        group={group}
+        issueIds={columns[group.id] ?? EMPTY_IDS}
+        issueMap={issueMapRef.current}
+        childProgressMap={childProgressMap}
+        projectMap={projectMap}
+        projectId={projectId}
+        onCreateIssue={onCreateIssue}
+        totalCount={group.totalCount}
+        sortLabel={sortLabel}
+        layout={layout}
+      />
+    );
+  const splitProjectStatusBoard = Boolean(projectId) && grouping === "status";
+  const upperGroups = splitProjectStatusBoard
+    ? groups.filter((group) => group.status !== "in_progress")
+    : groups;
+  const runningGroups = splitProjectStatusBoard
+    ? groups.filter((group) => group.status === "in_progress")
+    : [];
+
   return (
     <DndContext
       sensors={sensors}
@@ -688,13 +749,17 @@ function BoardViewImpl({
       onDragCancel={handleDragCancel}
     >
       <div
-        ref={pan.ref}
-        onPointerDown={pan.onPointerDown}
-        onPointerMove={pan.onPointerMove}
-        onPointerUp={pan.onPointerUp}
-        onPointerCancel={pan.onPointerCancel}
-        onLostPointerCapture={pan.onLostPointerCapture}
-        className="flex flex-1 min-h-0 gap-4 overflow-x-auto p-2"
+        ref={splitProjectStatusBoard ? undefined : pan.ref}
+        onPointerDown={splitProjectStatusBoard ? undefined : pan.onPointerDown}
+        onPointerMove={splitProjectStatusBoard ? undefined : pan.onPointerMove}
+        onPointerUp={splitProjectStatusBoard ? undefined : pan.onPointerUp}
+        onPointerCancel={splitProjectStatusBoard ? undefined : pan.onPointerCancel}
+        onLostPointerCapture={splitProjectStatusBoard ? undefined : pan.onLostPointerCapture}
+        className={
+          splitProjectStatusBoard
+            ? "flex flex-1 min-h-0 flex-col gap-3 overflow-hidden p-2"
+            : "flex flex-1 min-h-0 gap-4 overflow-x-auto p-2"
+        }
       >
         {groups.length === 0 ? (
           groupBranches?.isError ? (
@@ -710,51 +775,37 @@ function BoardViewImpl({
               {t(($) => $.board.empty_grouping)}
             </div>
           )
+        ) : splitProjectStatusBoard ? (
+          <>
+            {runningGroups.length > 0 && (
+              <div
+                data-board-section="running"
+                className="shrink-0 border-b border-border pb-3"
+              >
+                {runningGroups.map((group) => renderGroup(group, "row"))}
+              </div>
+            )}
+            <div
+              ref={pan.ref}
+              onPointerDown={pan.onPointerDown}
+              onPointerMove={pan.onPointerMove}
+              onPointerUp={pan.onPointerUp}
+              onPointerCancel={pan.onPointerCancel}
+              onLostPointerCapture={pan.onLostPointerCapture}
+              data-board-section="planned"
+              className="flex min-h-0 flex-1 gap-4 overflow-x-auto"
+            >
+              {upperGroups.map((group) => renderGroup(group))}
+              {hiddenStatuses.length > 0 && (
+                <BoardHiddenColumnsPanel
+                  hiddenStatuses={hiddenStatuses}
+                  statusPagination={statusPagination}
+                />
+              )}
+            </div>
+          </>
         ) : (
-          groups.map((group) =>
-            isStatusGroup(group) ? (
-              <ServerPaginatedBoardColumn
-                key={group.id}
-                group={group}
-                issueIds={columns[group.id] ?? EMPTY_IDS}
-                issueMap={issueMapRef.current}
-                childProgressMap={childProgressMap}
-                projectMap={projectMap}
-                page={statusPagination?.[group.status]}
-                projectId={projectId}
-                onCreateIssue={onCreateIssue}
-                sortLabel={sortLabel}
-              />
-            ) : (
-              groupPagination?.[group.id] ? (
-                <ServerPaginatedBoardColumn
-                  key={group.id}
-                  group={group}
-                  issueIds={columns[group.id] ?? EMPTY_IDS}
-                  issueMap={issueMapRef.current}
-                  childProgressMap={childProgressMap}
-                  projectMap={projectMap}
-                  page={groupPagination[group.id]!}
-                  projectId={projectId}
-                  onCreateIssue={onCreateIssue}
-                  sortLabel={sortLabel}
-                />
-              ) : (
-                <BoardColumn
-                  key={group.id}
-                  group={group}
-                  issueIds={columns[group.id] ?? EMPTY_IDS}
-                  issueMap={issueMapRef.current}
-                  childProgressMap={childProgressMap}
-                  projectMap={projectMap}
-                  projectId={projectId}
-                  onCreateIssue={onCreateIssue}
-                  totalCount={group.totalCount}
-                  sortLabel={sortLabel}
-                />
-              )
-            ),
-          )
+          groups.map((group) => renderGroup(group))
         )}
         {groupBranches?.hasMoreGroups && (
           <div className="flex w-8 shrink-0 items-center justify-center">
@@ -766,7 +817,7 @@ function BoardViewImpl({
         )}
 
 
-        {grouping === "status" && hiddenStatuses.length > 0 && (
+        {!splitProjectStatusBoard && grouping === "status" && hiddenStatuses.length > 0 && (
           <BoardHiddenColumnsPanel
             hiddenStatuses={hiddenStatuses}
             statusPagination={statusPagination}
@@ -776,7 +827,15 @@ function BoardViewImpl({
 
       <DragOverlay dropAnimation={null}>
         {activeIssue ? (
-          <div style={{ width: BOARD_CARD_WIDTH }} className="rotate-1 cursor-grabbing opacity-90 shadow-lg shadow-black/10">
+          <div
+            style={{
+              width:
+                boardColumnDensity === "compact"
+                  ? COMPACT_BOARD_CARD_WIDTH
+                  : BOARD_CARD_WIDTH,
+            }}
+            className="rotate-1 cursor-grabbing opacity-90 shadow-lg shadow-black/10"
+          >
             <BoardCardContent
               issue={activeIssue}
               childProgress={childProgressMap.get(activeIssue.id)}
@@ -804,6 +863,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
   projectId,
   onCreateIssue,
   sortLabel,
+  layout,
 }: {
   group: BoardColumnGroup;
   issueIds: string[];
@@ -814,6 +874,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
   projectId?: string;
   onCreateIssue?: (defaults: IssueCreateDefaults) => void;
   sortLabel?: string | null;
+  layout?: "column" | "row";
 }) {
   const footer = page ? (
     <ListLoadMoreFooter
@@ -837,6 +898,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
       onCreateIssue={onCreateIssue}
       sortLabel={sortLabel}
       footer={footer}
+      layout={layout}
     />
   );
 });

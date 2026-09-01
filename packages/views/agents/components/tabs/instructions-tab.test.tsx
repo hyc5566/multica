@@ -123,7 +123,7 @@ describe("InstructionsTab persisted-state synchronization", () => {
     await user.type(label, "Inspect the patch");
     await user.clear(prompt);
     await user.type(prompt, "Inspect the patch for correctness.");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
 
     const optimisticPrompt = {
       label: "Inspect the patch",
@@ -169,7 +169,7 @@ describe("InstructionsTab persisted-state synchronization", () => {
     const instructions = screen.getByLabelText("System prompt");
     await user.clear(instructions);
     await user.type(instructions, "Updated instructions.");
-    await user.click(screen.getByRole("button", { name: "Save" }));
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
 
     expect(onSave).toHaveBeenCalledWith({
       instructions: "Updated instructions.",

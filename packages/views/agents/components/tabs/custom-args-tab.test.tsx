@@ -117,7 +117,7 @@ describe("CustomArgsTab", () => {
       "value with spaces",
     );
     await user.click(screen.getByRole("button", { name: /^add$/i }));
-    await user.click(screen.getByRole("button", { name: /^save$/i }));
+    await user.click(screen.getByRole("button", { name: /save changes/i }));
 
     expect(onSave).toHaveBeenCalledWith({ custom_args: ["value with spaces"] });
   });

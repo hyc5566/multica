@@ -120,6 +120,28 @@ WHERE id = sqlc.arg(id)
   AND workspace_id = sqlc.arg(workspace_id)
 RETURNING *;
 
+-- name: ListIssueTaskStatusReconciliationCandidates :many
+-- The project board treats in_progress as a live execution lane. Find both
+-- sides of drift: a running task whose issue is outside that category, and an
+-- in-progress issue with no running task. Custom statuses inherit their
+-- category from issue_status, so they obey the same invariant.
+SELECT i.* FROM issue AS i
+LEFT JOIN issue_status AS s
+  ON s.workspace_id = i.workspace_id AND s.key = i.status
+WHERE (
+    EXISTS (
+      SELECT 1 FROM agent_task_queue AS t
+      WHERE t.issue_id = i.id AND t.status = 'running'
+    ) AND COALESCE(s.category, i.status) <> 'in_progress'
+  ) OR (
+    NOT EXISTS (
+      SELECT 1 FROM agent_task_queue AS t
+      WHERE t.issue_id = i.id AND t.status = 'running'
+    ) AND COALESCE(s.category, i.status) = 'in_progress'
+  )
+ORDER BY i.updated_at, i.id
+LIMIT sqlc.arg('max_per_tick')::int;
+
 -- name: LockIssueForDelete :one
 -- Issue deletion must collect every attachment URL after it has won the same
 -- row-lock race used by channel media binding. FOR UPDATE conflicts with the
