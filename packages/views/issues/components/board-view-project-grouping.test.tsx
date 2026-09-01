@@ -270,7 +270,7 @@ describe("Board grouped by project", () => {
     expect(column.style.width).toBe("280px");
   });
 
-  it("splits a project status board with running work in the lower half", () => {
+  it("puts a fixed-height horizontal running lane above the other status columns", () => {
     const store = getIssueSurfaceViewStore(
       `board-status-${Math.floor(Math.random() * 1e9)}`,
     );
@@ -280,12 +280,17 @@ describe("Board grouped by project", () => {
       title: "Running task",
       status: "in_progress" as const,
     };
+    const runningTwo = {
+      ...makeIssue("running-two", ACME_ID),
+      title: "Second running task",
+      status: "in_progress" as const,
+    };
     renderWithI18n(
       <QueryClientProvider client={queryClient}>
         <ViewStoreProvider store={store}>
           <IssueContextMenuProvider>
             <BoardView
-              issues={[todo, running]}
+              issues={[todo, running, runningTwo]}
               visibleStatuses={["todo", "in_progress"]}
               hiddenStatuses={[]}
               onMoveIssue={() => {}}
@@ -301,7 +306,19 @@ describe("Board grouped by project", () => {
     expect(planned?.textContent).toContain("Planned task");
     expect(planned?.textContent).not.toContain("Running task");
     expect(live?.textContent).toContain("Running task");
+    expect(live?.textContent).toContain("Second running task");
     expect(live?.textContent).not.toContain("Planned task");
+    expect(
+      live?.compareDocumentPosition(planned as Node) ?? 0,
+    ).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    const runningColumn = live?.querySelector(
+      '[data-board-column-layout="row"]',
+    );
+    expect(runningColumn).toHaveClass("h-56");
+    expect(runningColumn?.querySelectorAll("[data-board-card]")).toHaveLength(2);
+    expect(
+      runningColumn?.querySelector("[data-board-row-scroll]"),
+    ).toHaveClass("overflow-x-auto");
   });
 
   it("reads an unresolvable project the way the Table does", () => {

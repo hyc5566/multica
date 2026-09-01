@@ -305,6 +305,45 @@ func TestStartTaskSkipsUnchangedAgentStatusWriteAndBroadcast(t *testing.T) {
 	}
 }
 
+func TestPeriodicIssueTaskReconcilePreservesReviewHandoff(t *testing.T) {
+	if testPool == nil {
+		t.Skip("no database connection")
+	}
+
+	ctx := context.Background()
+	issueID, agentID, _ := setupSweeperTestFixture(t, "running")
+	t.Cleanup(func() { cleanupSweeperFixture(t, issueID, agentID) })
+	if _, err := testPool.Exec(ctx, `UPDATE issue SET status = 'in_review' WHERE id = $1`, issueID); err != nil {
+		t.Fatalf("seed in_review handoff: %v", err)
+	}
+
+	taskService := service.NewTaskService(db.New(testPool), testPool, nil, events.New())
+	if _, err := taskService.ReconcileIssueTaskStatuses(ctx, issueTaskStatusReconcileBatchSize); err != nil {
+		t.Fatalf("periodic issue-task reconcile: %v", err)
+	}
+
+	var status string
+	if err := testPool.QueryRow(ctx, `SELECT status FROM issue WHERE id = $1`, issueID).Scan(&status); err != nil {
+		t.Fatalf("load issue after periodic reconcile: %v", err)
+	}
+	if status != "in_review" {
+		t.Fatalf("periodic reconcile clobbered review handoff: got %q", status)
+	}
+
+	// The lifecycle hook remains strict: if a genuinely new task starts from an
+	// in-review issue, StartTask's direct reconciliation moves it back to the
+	// active execution lane.
+	if !taskService.ReconcileIssueTaskStatus(ctx, parseUUID(issueID)) {
+		t.Fatal("direct lifecycle reconcile did not restore in_progress")
+	}
+	if err := testPool.QueryRow(ctx, `SELECT status FROM issue WHERE id = $1`, issueID).Scan(&status); err != nil {
+		t.Fatalf("load issue after direct reconcile: %v", err)
+	}
+	if status != "in_progress" {
+		t.Fatalf("direct lifecycle reconcile status = %q, want in_progress", status)
+	}
+}
+
 // TestSweepStaleTasksBroadcastsWithWorkspaceID verifies that when the task sweeper
 // fails a stale running task, the task:failed event is broadcast with the correct
 // WorkspaceID so it reaches frontend WebSocket clients (events without WorkspaceID

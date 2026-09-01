@@ -684,7 +684,10 @@ function BoardViewImpl({
     setColumns(buildColumns(groupedIssues, groups, grouping, groupingOptionIds));
   }, [groupedIssues, groups, grouping, groupingOptionIds, setColumns, isDraggingRef]);
 
-  const renderGroup = (group: BoardColumnGroup) =>
+  const renderGroup = (
+    group: BoardColumnGroup,
+    layout: "column" | "row" = "column",
+  ) =>
     isStatusGroup(group) ? (
       <ServerPaginatedBoardColumn
         key={group.id}
@@ -697,6 +700,7 @@ function BoardViewImpl({
         projectId={projectId}
         onCreateIssue={onCreateIssue}
         sortLabel={sortLabel}
+        layout={layout}
       />
     ) : groupPagination?.[group.id] ? (
       <ServerPaginatedBoardColumn
@@ -710,6 +714,7 @@ function BoardViewImpl({
         projectId={projectId}
         onCreateIssue={onCreateIssue}
         sortLabel={sortLabel}
+        layout={layout}
       />
     ) : (
       <BoardColumn
@@ -723,6 +728,7 @@ function BoardViewImpl({
         onCreateIssue={onCreateIssue}
         totalCount={group.totalCount}
         sortLabel={sortLabel}
+        layout={layout}
       />
     );
   const splitProjectStatusBoard = Boolean(projectId) && grouping === "status";
@@ -743,15 +749,15 @@ function BoardViewImpl({
       onDragCancel={handleDragCancel}
     >
       <div
-        ref={pan.ref}
-        onPointerDown={pan.onPointerDown}
-        onPointerMove={pan.onPointerMove}
-        onPointerUp={pan.onPointerUp}
-        onPointerCancel={pan.onPointerCancel}
-        onLostPointerCapture={pan.onLostPointerCapture}
+        ref={splitProjectStatusBoard ? undefined : pan.ref}
+        onPointerDown={splitProjectStatusBoard ? undefined : pan.onPointerDown}
+        onPointerMove={splitProjectStatusBoard ? undefined : pan.onPointerMove}
+        onPointerUp={splitProjectStatusBoard ? undefined : pan.onPointerUp}
+        onPointerCancel={splitProjectStatusBoard ? undefined : pan.onPointerCancel}
+        onLostPointerCapture={splitProjectStatusBoard ? undefined : pan.onLostPointerCapture}
         className={
           splitProjectStatusBoard
-            ? "flex flex-1 min-h-0 flex-col gap-3 overflow-x-auto p-2"
+            ? "flex flex-1 min-h-0 flex-col gap-3 overflow-hidden p-2"
             : "flex flex-1 min-h-0 gap-4 overflow-x-auto p-2"
         }
       >
@@ -771,8 +777,25 @@ function BoardViewImpl({
           )
         ) : splitProjectStatusBoard ? (
           <>
-            <div data-board-section="planned" className="flex min-h-0 flex-1 gap-4">
-              {upperGroups.map(renderGroup)}
+            {runningGroups.length > 0 && (
+              <div
+                data-board-section="running"
+                className="shrink-0 border-b border-border pb-3"
+              >
+                {runningGroups.map((group) => renderGroup(group, "row"))}
+              </div>
+            )}
+            <div
+              ref={pan.ref}
+              onPointerDown={pan.onPointerDown}
+              onPointerMove={pan.onPointerMove}
+              onPointerUp={pan.onPointerUp}
+              onPointerCancel={pan.onPointerCancel}
+              onLostPointerCapture={pan.onLostPointerCapture}
+              data-board-section="planned"
+              className="flex min-h-0 flex-1 gap-4 overflow-x-auto"
+            >
+              {upperGroups.map((group) => renderGroup(group))}
               {hiddenStatuses.length > 0 && (
                 <BoardHiddenColumnsPanel
                   hiddenStatuses={hiddenStatuses}
@@ -780,17 +803,9 @@ function BoardViewImpl({
                 />
               )}
             </div>
-            {runningGroups.length > 0 && (
-              <div
-                data-board-section="running"
-                className="flex min-h-0 flex-1 gap-4 border-t border-border pt-3"
-              >
-                {runningGroups.map(renderGroup)}
-              </div>
-            )}
           </>
         ) : (
-          groups.map(renderGroup)
+          groups.map((group) => renderGroup(group))
         )}
         {groupBranches?.hasMoreGroups && (
           <div className="flex w-8 shrink-0 items-center justify-center">
@@ -848,6 +863,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
   projectId,
   onCreateIssue,
   sortLabel,
+  layout,
 }: {
   group: BoardColumnGroup;
   issueIds: string[];
@@ -858,6 +874,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
   projectId?: string;
   onCreateIssue?: (defaults: IssueCreateDefaults) => void;
   sortLabel?: string | null;
+  layout?: "column" | "row";
 }) {
   const footer = page ? (
     <ListLoadMoreFooter
@@ -881,6 +898,7 @@ const ServerPaginatedBoardColumn = memo(function ServerPaginatedBoardColumn({
       onCreateIssue={onCreateIssue}
       sortLabel={sortLabel}
       footer={footer}
+      layout={layout}
     />
   );
 });

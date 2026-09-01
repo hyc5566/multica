@@ -10,7 +10,11 @@ import {
 import { Virtuoso } from "react-virtuoso";
 import { EyeOff, FolderMinus, MoreHorizontal, Plus, UserMinus } from "lucide-react";
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import type {
   Issue,
   IssueAssigneeType,
@@ -119,6 +123,7 @@ export const BoardColumn = memo(function BoardColumn({
   projectId,
   onCreateIssue,
   sortLabel,
+  layout = "column",
 }: {
   group: BoardColumnGroup;
   issueIds: string[];
@@ -131,6 +136,7 @@ export const BoardColumn = memo(function BoardColumn({
   projectId?: string;
   onCreateIssue?: (defaults: IssueCreateDefaults) => void;
   sortLabel?: string | null;
+  layout?: "column" | "row";
 }) {
   const status = group.status;
   const cfg = status ? STATUS_CONFIG[status] : null;
@@ -206,8 +212,11 @@ export const BoardColumn = memo(function BoardColumn({
 
   return (
     <div
-      style={{ width: columnWidth }}
-      className={`relative flex shrink-0 flex-col rounded-xl ${cfg?.columnBg ?? "bg-muted/40"} p-2`}
+      data-board-column-layout={layout}
+      style={{ width: layout === "row" ? "100%" : columnWidth }}
+      className={`relative flex shrink-0 flex-col rounded-xl ${cfg?.columnBg ?? "bg-muted/40"} p-2 ${
+        layout === "row" ? "h-56 min-w-0" : ""
+      }`}
     >
       <div className="mb-2 flex items-center justify-between px-1.5">
         <BoardGroupHeading group={group} count={totalCount ?? issueIds.length} />
@@ -273,7 +282,13 @@ export const BoardColumn = memo(function BoardColumn({
           )}
         </div>
       </div>
-      <div className="relative min-h-[200px] flex-1 rounded-lg">
+      <div
+        className={
+          layout === "row"
+            ? "relative min-h-0 flex-1 rounded-lg"
+            : "relative min-h-[200px] flex-1 rounded-lg"
+        }
+      >
         {isOver && sortLabel && (
           <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/40">
             <span className="rounded-md bg-popover px-2.5 py-1 text-caption font-medium text-popover-foreground shadow-sm border border-border">
@@ -287,7 +302,12 @@ export const BoardColumn = memo(function BoardColumn({
           // (MUL-4741): the group id is the stable memento key, so every
           // column's offset survives tab switches/reloads independently.
           data-tab-scroll-root={scrollMementoKey}
-          className={`absolute inset-0 overflow-y-auto rounded-lg p-1 transition-colors ${
+          data-board-row-scroll={layout === "row" ? "true" : undefined}
+          className={`absolute inset-0 rounded-lg p-1 transition-colors ${
+            layout === "row"
+              ? "overflow-x-auto overflow-y-hidden"
+              : "overflow-y-auto"
+          } ${
             isOver && sortLabel
               ? "ring-2 ring-brand/25 bg-accent/15"
               : isOver
@@ -296,8 +316,42 @@ export const BoardColumn = memo(function BoardColumn({
           }`}
         >
           {resolvedIssues.length > 0 ? (
-            <SortableContext items={issueIds} strategy={verticalListSortingStrategy}>
-              {resolvedIssues.length <= BOARD_VIRTUALIZE_THRESHOLD ? (
+            <SortableContext
+              items={issueIds}
+              strategy={
+                layout === "row"
+                  ? horizontalListSortingStrategy
+                  : verticalListSortingStrategy
+              }
+            >
+              {layout === "row" ? (
+                <div className="flex min-w-max items-start gap-2">
+                  {resolvedIssues.map((issue) => (
+                    <div
+                      key={issue.id}
+                      className="shrink-0"
+                      style={{
+                        width:
+                          columnDensity === "compact"
+                            ? COMPACT_BOARD_CARD_WIDTH
+                            : BOARD_CARD_WIDTH,
+                      }}
+                    >
+                      <DraggableBoardCard
+                        issue={issue}
+                        childProgress={childProgressMap?.get(issue.id)}
+                        project={
+                          issue.project_id
+                            ? projectMap?.get(issue.project_id)
+                            : undefined
+                        }
+                        disableSorting={!!sortLabel}
+                      />
+                    </div>
+                  ))}
+                  {footer ? <div className="shrink-0">{footer}</div> : null}
+                </div>
+              ) : resolvedIssues.length <= BOARD_VIRTUALIZE_THRESHOLD ? (
                 /* Small column: plain full render (reusing the same
                    itemContent, so it is byte-identical to the virtualized
                    rows). No handoff, no estimates — see

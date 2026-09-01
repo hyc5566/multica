@@ -6325,7 +6325,12 @@ func (s *TaskService) ReconcileIssueTaskStatus(ctx context.Context, issueID pgty
 
 // ReconcileIssueTaskStatuses is the periodic crash/race backstop. Immediate
 // lifecycle hooks cover ordinary starts and stops; this scan catches daemon
-// loss and manual status changes that occur between those hooks.
+// loss and manual status changes that occur between those hooks. An in-review
+// issue is deliberately preserved while a task is still winding down: agents
+// must write that handoff before their process exits, and reverting it here
+// creates an in_progress -> blocked race at terminal reconciliation. A genuinely
+// new task still moves the issue to in_progress through the immediate StartTask
+// hook above.
 func (s *TaskService) ReconcileIssueTaskStatuses(ctx context.Context, maxPerTick int32) (int, error) {
 	issues, err := s.Queries.ListIssueTaskStatusReconciliationCandidates(ctx, maxPerTick)
 	if err != nil {
@@ -6333,6 +6338,9 @@ func (s *TaskService) ReconcileIssueTaskStatuses(ctx context.Context, maxPerTick
 	}
 	changed := 0
 	for _, issue := range issues {
+		if issuestatus.Effective(ctx, s.Queries, issue.WorkspaceID, issue.Status) == "in_review" {
+			continue
+		}
 		if s.ReconcileIssueTaskStatus(ctx, issue.ID) {
 			changed++
 		}
