@@ -1,4 +1,9 @@
-import { deriveRuntimeHealth, type RuntimeHealth } from "@multica/core/runtimes";
+import {
+  deriveMachineCCXRayDisplayStatus,
+  deriveRuntimeHealth,
+  type CCXRayDisplayStatus,
+  type RuntimeHealth,
+} from "@multica/core/runtimes";
 import type { AgentRuntime } from "@multica/core/types";
 import { formatDeviceInfo } from "../utils";
 
@@ -27,6 +32,7 @@ export interface RuntimeMachine {
   issueCount: number;
   runningCount: number;
   queuedCount: number;
+  observationStatus: CCXRayDisplayStatus;
   providerNames: string[];
   lastSeenAt: string | null;
 }
@@ -144,6 +150,7 @@ function placeholderLocalMachine(
     issueCount: 0,
     runningCount: 0,
     queuedCount: 0,
+    observationStatus: "offline",
     providerNames: [],
     lastSeenAt: null,
   };
@@ -247,6 +254,11 @@ function finalizeRuntimeMachine(
     },
     { runningCount: 0, queuedCount: 0 },
   );
+  const observationStatus = deriveMachineCCXRayDisplayStatus({
+    runtimes,
+    machineHealth: health,
+    now: options.now,
+  });
 
   return {
     id: draft.id,
@@ -265,6 +277,7 @@ function finalizeRuntimeMachine(
     issueCount,
     runningCount: workload.runningCount,
     queuedCount: workload.queuedCount,
+    observationStatus,
     providerNames,
     lastSeenAt: latestLastSeenAt(runtimes),
   };

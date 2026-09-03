@@ -64,6 +64,7 @@ function machine(runtimes: AgentRuntime[]): RuntimeMachine {
     issueCount: 0,
     runningCount: 0,
     queuedCount: 0,
+    observationStatus: "disabled",
     providerNames: runtimes.map((item) => item.provider),
     lastSeenAt: "2026-07-15T00:00:00Z",
   };

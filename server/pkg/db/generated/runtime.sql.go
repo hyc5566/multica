@@ -1333,6 +1333,27 @@ func (q *Queries) UnbindUserAgentsFromRuntime(ctx context.Context, runtimeID pgt
 	return items, nil
 }
 
+const updateAgentRuntimeCCXRaySummary = `-- name: UpdateAgentRuntimeCCXRaySummary :exec
+UPDATE agent_runtime
+SET metadata = jsonb_set(COALESCE(metadata, '{}'::jsonb), '{ccxray}', $1::jsonb, true)
+WHERE id = $2
+  AND metadata->'ccxray' IS DISTINCT FROM $1::jsonb
+`
+
+type UpdateAgentRuntimeCCXRaySummaryParams struct {
+	Summary []byte      `json:"summary"`
+	ID      pgtype.UUID `json:"id"`
+}
+
+// The heartbeat allowlist lives in runtime metadata so old daemons and old
+// clients ignore it without a migration. Avoid a write when the minute-bucketed
+// health summary is unchanged; heartbeat liveness already has its own bounded
+// DB flush cadence.
+func (q *Queries) UpdateAgentRuntimeCCXRaySummary(ctx context.Context, arg UpdateAgentRuntimeCCXRaySummaryParams) error {
+	_, err := q.db.Exec(ctx, updateAgentRuntimeCCXRaySummary, arg.Summary, arg.ID)
+	return err
+}
+
 const updateAgentRuntimeCustomName = `-- name: UpdateAgentRuntimeCustomName :one
 UPDATE agent_runtime
 SET custom_name = $1, updated_at = now()

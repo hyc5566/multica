@@ -196,6 +196,7 @@ func daemonClientCapabilities() string {
 		protocol.DaemonCapabilityLocalWorktreeV1,
 		protocol.DaemonCapabilitySourceContextQuickCreateV1,
 		protocol.DaemonCapabilityHandoffNoteV1,
+		protocol.DaemonCapabilityCCXRaySummaryV1,
 		protocol.DaemonCapabilityRPCV1,
 	}, ",")
 }
@@ -603,12 +604,16 @@ type (
 	PendingLocalSkillImport = protocol.DaemonHeartbeatPendingLocalSkillImport
 )
 
-func (c *Client) SendHeartbeat(ctx context.Context, runtimeID string) (*HeartbeatResponse, error) {
+func (c *Client) SendHeartbeat(ctx context.Context, runtimeID string, ccxray ...*protocol.CCXRayHealthSummary) (*HeartbeatResponse, error) {
 	var resp HeartbeatResponse
-	if err := c.postJSON(ctx, "/api/daemon/heartbeat", map[string]any{
+	payload := map[string]any{
 		"runtime_id":            runtimeID,
 		"supports_batch_import": true,
-	}, &resp); err != nil {
+	}
+	if len(ccxray) > 0 && ccxray[0] != nil {
+		payload["ccxray"] = ccxray[0]
+	}
+	if err := c.postJSON(ctx, "/api/daemon/heartbeat", payload, &resp); err != nil {
 		return nil, err
 	}
 	return &resp, nil

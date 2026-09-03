@@ -31,6 +31,7 @@ function makeMachine(
     issueCount: 0,
     runningCount: 0,
     queuedCount: 0,
+    observationStatus: "disabled",
     providerNames: ["claude"],
     lastSeenAt: "2026-05-17T11:59:50Z",
     ...overrides,

@@ -500,12 +500,17 @@ function MachineRow({ machine }: { machine: RuntimeMachine }) {
         <ProviderIconStack providers={machine.providerNames} />
       </span>
       <span className="hidden w-36 shrink-0 text-caption text-muted-foreground xl:block">
-        {busyCount > 0
-          ? t(($) => $.machine.metrics.workload_hint, {
-              running: machine.runningCount,
-              queued: machine.queuedCount,
-            })
-          : t(($) => $.machine.metrics.workload_idle)}
+        <span className="block text-foreground">
+          {t(($) => $.observation.label)}: {t(($) => $.observation.status[machine.observationStatus])}
+        </span>
+        <span className="mt-0.5 block">
+          {busyCount > 0
+            ? t(($) => $.machine.metrics.workload_hint, {
+                running: machine.runningCount,
+                queued: machine.queuedCount,
+              })
+            : t(($) => $.machine.metrics.workload_idle)}
+        </span>
       </span>
       <span className="hidden w-28 shrink-0 text-right text-caption text-muted-foreground lg:block">
         {machine.lastSeenAt ? timeAgo(machine.lastSeenAt) : "—"}

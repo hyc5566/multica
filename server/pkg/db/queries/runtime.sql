@@ -211,6 +211,16 @@ UPDATE agent_runtime
 SET status = 'offline', updated_at = now()
 WHERE id = $1;
 
+-- name: UpdateAgentRuntimeCCXRaySummary :exec
+-- The heartbeat allowlist lives in runtime metadata so old daemons and old
+-- clients ignore it without a migration. Avoid a write when the minute-bucketed
+-- health summary is unchanged; heartbeat liveness already has its own bounded
+-- DB flush cadence.
+UPDATE agent_runtime
+SET metadata = jsonb_set(COALESCE(metadata, '{}'::jsonb), '{ccxray}', @summary::jsonb, true)
+WHERE id = @id
+  AND metadata->'ccxray' IS DISTINCT FROM @summary::jsonb;
+
 -- name: SetAgentRuntimeOfflineWithReason :exec
 -- Takes a runtime offline and records WHY, for the one class of cause the user
 -- has to repair before the runtime can come back (MUL-6164). Everything that

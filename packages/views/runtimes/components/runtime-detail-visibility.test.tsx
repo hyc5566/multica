@@ -99,12 +99,14 @@ vi.mock("@multica/core/runtimes", async () => ({
 
 vi.mock("@multica/core/agents", () => ({
   useWorkspacePresenceMap: () => ({ byAgent: new Map() }),
+  agentTaskSnapshotOptions: () => ({ queryKey: ["agent-task-snapshot"] }),
 }));
 
 vi.mock("@multica/core/paths", () => ({
   useWorkspacePaths: () => ({
     runtimes: () => "/runtimes",
     agentDetail: () => "/agents",
+    issueDetail: () => "/issues",
   }),
 }));
 
@@ -132,6 +134,9 @@ vi.mock("@multica/core/runtimes/mutations", () => ({
 vi.mock("./provider-logo", () => ({ ProviderLogo: () => null }));
 vi.mock("./usage-section", () => ({
   UsageSection: () => <div data-testid="usage-section" />,
+}));
+vi.mock("./agent-usage-status-card", () => ({
+  AgentUsageStatusCard: () => <div data-testid="agent-usage-status-card" />,
 }));
 vi.mock("./shared", () => ({ HealthBadge: () => null }));
 vi.mock("../../agents/presence", () => ({

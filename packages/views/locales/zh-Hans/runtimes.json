@@ -181,6 +181,34 @@
     "running_chip_other": "· {{count}} 個進行中",
     "queued_chip_other": "· {{count}} 個排隊中"
   },
+  "observation": {
+    "label": "Agent 觀測",
+    "status": {
+      "unsupported": "未支援",
+      "disabled": "未啟用",
+      "not_installed": "未安裝",
+      "observing": "觀測中",
+      "degraded": "降級",
+      "offline": "離線"
+    }
+  },
+  "agent_usage": {
+    "title": "Agent 使用狀況",
+    "today_caption": "顯示所有服務中 Agent 的今日原生用量；ccxray 僅補充安全的健康摘要。",
+    "status": {
+      "running": "執行中",
+      "waiting": "等待中",
+      "idle": "閒置",
+      "stale": "資料過期"
+    },
+    "issue_ref": "議題 {{id}}",
+    "task_ref": "Task {{id}}",
+    "input": "輸入",
+    "output": "輸出",
+    "cache": "快取",
+    "cost": "成本",
+    "never_observed": "尚無事件"
+  },
   "detail_page": {
     "not_found_title": "未找到執行環境",
     "not_found_hint": "它可能已被刪除，或你沒有訪問許可權。"

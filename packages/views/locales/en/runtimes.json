@@ -191,6 +191,34 @@
     "queued_chip_one": "· {{count}} queued",
     "queued_chip_other": "· {{count}} queued"
   },
+  "observation": {
+    "label": "Agent observation",
+    "status": {
+      "unsupported": "Not supported",
+      "disabled": "Not enabled",
+      "not_installed": "Not installed",
+      "observing": "Observing",
+      "degraded": "Degraded",
+      "offline": "Offline"
+    }
+  },
+  "agent_usage": {
+    "title": "Agent usage status",
+    "today_caption": "Native usage for every serving agent today; ccxray adds only a safe health summary.",
+    "status": {
+      "running": "Running",
+      "waiting": "Waiting",
+      "idle": "Idle",
+      "stale": "Stale data"
+    },
+    "issue_ref": "Issue {{id}}",
+    "task_ref": "Task {{id}}",
+    "input": "Input",
+    "output": "Output",
+    "cache": "Cache",
+    "cost": "Cost",
+    "never_observed": "No events yet"
+  },
   "detail_page": {
     "not_found_title": "Runtime not found",
     "not_found_hint": "It may have been deleted or you may not have access."

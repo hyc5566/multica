@@ -305,9 +305,16 @@ func (d *Daemon) sendWSHeartbeats(ctx context.Context, runtimeIDs []string, writ
 		if ctx.Err() != nil {
 			return
 		}
+		payload := protocol.DaemonHeartbeatRequestPayload{
+			RuntimeID:           rid,
+			SupportsBatchImport: true,
+		}
+		if summary := d.ccxrayHealthSummaryForRuntime(rid); summary != nil {
+			payload.CCXRay = marshalRaw(summary)
+		}
 		frame, err := json.Marshal(protocol.Message{
 			Type:    protocol.EventDaemonHeartbeat,
-			Payload: marshalRaw(protocol.DaemonHeartbeatRequestPayload{RuntimeID: rid, SupportsBatchImport: true}),
+			Payload: marshalRaw(payload),
 		})
 		if err != nil {
 			d.logger.Debug("ws heartbeat marshal failed", "error", err, "runtime_id", rid)

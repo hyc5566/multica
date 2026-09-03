@@ -28,6 +28,10 @@ const (
 	// handoff note into the opening task brief. Prefer this positive signal over
 	// inferring support from development or locally packaged version strings.
 	DaemonCapabilityHandoffNoteV1 = "handoff-note-v1"
+	// DaemonCapabilityCCXRaySummaryV1 advertises the bounded ccxray health
+	// allowlist carried on daemon heartbeats. It never includes raw traces,
+	// prompts, responses, headers, credentials, or filesystem paths.
+	DaemonCapabilityCCXRaySummaryV1 = "ccxray-summary-v1"
 
 	// DaemonCapabilityRPCV1 advertises that the daemon can carry
 	// request/response RPCs over the WebSocket control connection (MUL-4257).
@@ -43,6 +47,11 @@ const (
 	// synchronous restore — a client without this capability would silently
 	// drop the user's prompt, and keeps the legacy synchronous restore instead.
 	AppCapabilityChatDraftRestoreV1 = "chat-draft-restore-v1"
+
+	CCXRayStatusDisabled     = "disabled"
+	CCXRayStatusNotInstalled = "not_installed"
+	CCXRayStatusObserving    = "observing"
+	CCXRayStatusDegraded     = "degraded"
 )
 
 // ChatQuickAction is a server-validated follow-up attached to one assistant
@@ -350,6 +359,22 @@ type ChatSessionUpdatedPayload struct {
 type DaemonHeartbeatRequestPayload struct {
 	RuntimeID           string `json:"runtime_id"`
 	SupportsBatchImport bool   `json:"supports_batch_import,omitempty"`
+	// CCXRay is intentionally RawMessage at the boundary. The server validates
+	// total bytes, required fields, enums, string lengths, and timestamp bounds
+	// independently, then ignores an invalid optional summary without failing
+	// runtime liveness or task dispatch.
+	CCXRay json.RawMessage `json:"ccxray,omitempty"`
+}
+
+// CCXRayHealthSummary is the complete central-server allowlist. Raw ccxray
+// traces remain on the daemon host and must never be added to this contract.
+type CCXRayHealthSummary struct {
+	Enabled       bool   `json:"enabled"`
+	Installed     bool   `json:"installed"`
+	Status        string `json:"status"`
+	Version       string `json:"version"`
+	ObservedAt    string `json:"observed_at"`
+	LastErrorCode string `json:"last_error_code"`
 }
 
 // DaemonHeartbeatAckPayload is the server's reply to DaemonHeartbeatRequestPayload.

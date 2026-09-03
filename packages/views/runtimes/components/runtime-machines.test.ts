@@ -52,6 +52,7 @@ describe("runtime machine grouping", () => {
       isCurrent: true,
       onlineCount: 2,
       issueCount: 0,
+      observationStatus: "disabled",
       providerNames: ["claude", "codex"],
     });
   });

@@ -181,6 +181,34 @@
     "running_chip_other": "· 실행 중 {{count}}개",
     "queued_chip_other": "· 대기 중 {{count}}개"
   },
+  "observation": {
+    "label": "Agent 관측",
+    "status": {
+      "unsupported": "지원 안 함",
+      "disabled": "활성화 안 됨",
+      "not_installed": "설치 안 됨",
+      "observing": "관측 중",
+      "degraded": "저하됨",
+      "offline": "오프라인"
+    }
+  },
+  "agent_usage": {
+    "title": "Agent 사용 상태",
+    "today_caption": "서비스 중인 모든 Agent의 오늘 기본 사용량을 표시하고 ccxray는 안전한 상태 요약만 추가합니다.",
+    "status": {
+      "running": "실행 중",
+      "waiting": "대기 중",
+      "idle": "유휴",
+      "stale": "오래된 데이터"
+    },
+    "issue_ref": "Issue {{id}}",
+    "task_ref": "Task {{id}}",
+    "input": "입력",
+    "output": "출력",
+    "cache": "캐시",
+    "cost": "비용",
+    "never_observed": "이벤트 없음"
+  },
   "detail_page": {
     "not_found_title": "런타임을 찾을 수 없습니다",
     "not_found_hint": "삭제되었거나 접근 권한이 없을 수 있습니다."
