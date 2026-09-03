@@ -433,7 +433,7 @@ func (h *Handler) InitiateListModels(w http.ResponseWriter, r *http.Request) {
 // the public endpoint and response remain usage-specific.
 func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
-	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeAPI, runtimeID)
 	if !ok {
 		return
 	}
@@ -544,7 +544,7 @@ func (h *Handler) GetModelListRequest(w http.ResponseWriter, r *http.Request) {
 // surface that as unavailable rather than implying a zero balance.
 func (h *Handler) GetProviderUsageRequest(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
-	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeModelPoll, runtimeID)
 	if !ok {
 		return
 	}
@@ -601,12 +601,12 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 	}
 
 	var body struct {
-		Status        string                 `json:"status"` // "completed" or "failed"
-		Models        []ModelEntry           `json:"models"`
+		Status string       `json:"status"` // "completed" or "failed"
+		Models []ModelEntry `json:"models"`
 		// UnavailableModels is what the runtime named but will not run. Older
 		// daemons omit it; absent simply means no advisory rows to show.
 		UnavailableModels []UnavailableModelEntry `json:"unavailable_models"`
-		ProviderUsage *ProviderUsageSnapshot `json:"provider_usage"`
+		ProviderUsage     *ProviderUsageSnapshot  `json:"provider_usage"`
 		Supported         *bool                   `json:"supported"`
 		Error             string                  `json:"error"`
 		// Fallback marks a completed report whose models are a static
