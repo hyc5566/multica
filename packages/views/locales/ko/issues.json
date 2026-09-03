@@ -90,6 +90,13 @@
     "blocked": "막힘",
     "cancelled": "취소됨"
   },
+  "execution_state": {
+    "active": "실행 중",
+    "waiting": "대기 중",
+    "blocked": "차단됨",
+    "paused": "일시 중지",
+    "not_applicable": "해당 없음"
+  },
   "priority": {
     "urgent": "긴급",
     "high": "높음",
@@ -321,6 +328,9 @@
     "back": "뒤로",
     "title_placeholder": "태스크 제목",
     "desc_placeholder": "설명 추가...",
+    "desc_edit": "편집",
+    "desc_save": "변경 사항 저장",
+    "desc_cancel": "취소",
     "current_issue": "현재 태스크",
     "sub_issues_label": "하위 태스크",
     "sub_issue_of": "상위 태스크",
@@ -370,6 +380,8 @@
     "pull_request_card_show_more": "{{count}}개 더 보기",
     "pull_request_card_show_less": "간단히 보기",
     "prop_status": "상태",
+    "prop_workflow_stage": "워크플로 단계",
+    "prop_execution_state": "실행 상태",
     "prop_priority": "우선순위",
     "prop_stage": "단계",
     "prop_assignee": "담당자",

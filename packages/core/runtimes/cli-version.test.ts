@@ -7,6 +7,7 @@ import {
   MIN_CHAT_PROJECT_CONTEXT_CLI_VERSION,
   MIN_HANDOFF_CLI_VERSION,
   runtimeAdvertisesLocalWorktree,
+  runtimeSupportsHandoff,
 } from "./cli-version";
 
 describe("checkQuickCreateCliVersion", () => {
@@ -65,6 +66,22 @@ describe("handoffSupported", () => {
   it("treats git-describe dev builds as supported regardless of base tag", () => {
     expect(handoffSupported("v0.3.0-5-gabc1234")).toBe(true);
     expect(handoffSupported("v0.1.0-235-gdaf0e935-dirty")).toBe(true);
+  });
+});
+
+describe("runtimeSupportsHandoff", () => {
+  it("prefers an explicit daemon capability over an unusual version", () => {
+    expect(
+      runtimeSupportsHandoff({
+        cli_version: "local-build",
+        capabilities: ["handoff-note-v1"],
+      }),
+    ).toBe(true);
+  });
+
+  it("retains the release-version fallback for older daemon metadata", () => {
+    expect(runtimeSupportsHandoff({ cli_version: "0.4.0" })).toBe(true);
+    expect(runtimeSupportsHandoff({ cli_version: "0.3.27" })).toBe(false);
   });
 });
 

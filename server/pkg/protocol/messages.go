@@ -24,6 +24,10 @@ const (
 	// two-section quick-create prompt that keeps a new instruction separate
 	// from immutable historical source context.
 	DaemonCapabilitySourceContextQuickCreateV1 = "source_context_quick_create_v1"
+	// DaemonCapabilityHandoffNoteV1 advertises that the daemon renders a
+	// handoff note into the opening task brief. Prefer this positive signal over
+	// inferring support from development or locally packaged version strings.
+	DaemonCapabilityHandoffNoteV1 = "handoff-note-v1"
 
 	// DaemonCapabilityRPCV1 advertises that the daemon can carry
 	// request/response RPCs over the WebSocket control connection (MUL-4257).

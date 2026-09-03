@@ -90,6 +90,13 @@
     "blocked": "ブロック中",
     "cancelled": "キャンセル済み"
   },
+  "execution_state": {
+    "active": "実行中",
+    "waiting": "待機中",
+    "blocked": "ブロック中",
+    "paused": "一時停止",
+    "not_applicable": "該当なし"
+  },
   "priority": {
     "urgent": "緊急",
     "high": "高",
@@ -321,6 +328,9 @@
     "back": "戻る",
     "title_placeholder": "タスクのタイトル",
     "desc_placeholder": "説明を追加...",
+    "desc_edit": "編集",
+    "desc_save": "変更を保存",
+    "desc_cancel": "キャンセル",
     "current_issue": "現在のタスク",
     "sub_issues_label": "サブタスク",
     "sub_issue_of": "親タスク",
@@ -370,6 +380,8 @@
     "pull_request_card_show_more": "他 {{count}} 件を表示",
     "pull_request_card_show_less": "折りたたむ",
     "prop_status": "ステータス",
+    "prop_workflow_stage": "ワークフローステージ",
+    "prop_execution_state": "実行状態",
     "prop_priority": "優先度",
     "prop_stage": "ステージ",
     "prop_assignee": "担当者",

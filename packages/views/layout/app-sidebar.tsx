@@ -217,7 +217,6 @@ function SortablePinItem({
       {...listeners}
     >
       <SidebarMenuButton
-        size="sm"
         isActive={isActive}
         render={<AppLink href={href} newTabTitle={label} draggable={false} />}
         onClick={(event) => {

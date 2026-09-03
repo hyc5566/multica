@@ -1,7 +1,19 @@
-import type { Issue, IssueMetadata, IssueStatus, IssueStatusCategory, IssuePriority, IssueAssigneeType } from "./issue";
+import type {
+  Issue,
+  IssueMetadata,
+  IssueStatus,
+  IssueStatusCategory,
+  IssuePriority,
+  IssueAssigneeType,
+} from "./issue";
 import type { PropertyFilterValue } from "./property";
 import type { MemberRole } from "./workspace";
 import type { Project } from "./project";
+
+export interface IssueMetadataResponse {
+  metadata: IssueMetadata;
+  issue_revision?: number;
+}
 
 // Issue API
 export interface CreateIssueRequest {

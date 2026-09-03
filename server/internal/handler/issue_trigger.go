@@ -12,6 +12,7 @@ import (
 	"github.com/multica-ai/multica/server/internal/util"
 	agentver "github.com/multica-ai/multica/server/pkg/agent"
 	db "github.com/multica-ai/multica/server/pkg/db/generated"
+	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
 // maxPreviewTriggerIssues caps a single preview request so a pathological
@@ -268,5 +269,6 @@ func (h *Handler) runtimeSupportsHandoff(ctx context.Context, agentID pgtype.UUI
 	if err != nil {
 		return false
 	}
-	return agentver.HandoffSupported(readRuntimeCLIVersion(rt.Metadata))
+	return runtimeHasCapability(rt.Metadata, protocol.DaemonCapabilityHandoffNoteV1) ||
+		agentver.HandoffSupported(readRuntimeCLIVersion(rt.Metadata))
 }

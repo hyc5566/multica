@@ -90,6 +90,13 @@
     "blocked": "已阻塞",
     "cancelled": "已取消"
   },
+  "execution_state": {
+    "active": "進行中",
+    "waiting": "等待中",
+    "blocked": "受阻",
+    "paused": "已暫停",
+    "not_applicable": "不適用"
+  },
   "priority": {
     "urgent": "緊急",
     "high": "高",
@@ -321,6 +328,9 @@
     "back": "返回",
     "title_placeholder": "任務標題",
     "desc_placeholder": "新增描述...",
+    "desc_edit": "編輯",
+    "desc_save": "儲存變更",
+    "desc_cancel": "取消",
     "current_issue": "當前任務",
     "sub_issues_label": "子任務",
     "sub_issue_of": "屬於父任務",
@@ -370,6 +380,8 @@
     "pull_request_card_show_more": "顯示其餘 {{count}} 條",
     "pull_request_card_show_less": "收起",
     "prop_status": "狀態",
+    "prop_workflow_stage": "工作階段",
+    "prop_execution_state": "目前狀態",
     "prop_priority": "優先順序",
     "prop_stage": "階段",
     "prop_assignee": "負責人",

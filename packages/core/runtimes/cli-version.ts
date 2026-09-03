@@ -99,6 +99,7 @@ export function readRuntimeCliVersion(metadata: Record<string, unknown> | undefi
  * (the server is authoritative) but must agree so the warning matches reality.
  */
 export const MIN_HANDOFF_CLI_VERSION = "0.3.28";
+export const HANDOFF_NOTE_CAPABILITY = "handoff-note-v1";
 
 /**
  * Whether a daemon-reported CLI version is new enough to render a handoff note.
@@ -111,6 +112,15 @@ export const MIN_HANDOFF_CLI_VERSION = "0.3.28";
  */
 export function handoffSupported(detected: string | undefined | null): boolean {
   return meetsMinCliVersion(detected, MIN_HANDOFF_CLI_VERSION);
+}
+
+/** Prefer the daemon's explicit capability and retain the version fallback. */
+export function runtimeSupportsHandoff(metadata: Record<string, unknown> | undefined): boolean {
+  const caps = metadata?.capabilities;
+  return (
+    (Array.isArray(caps) && caps.includes(HANDOFF_NOTE_CAPABILITY)) ||
+    handoffSupported(readRuntimeCliVersion(metadata))
+  );
 }
 
 /**

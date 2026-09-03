@@ -55,6 +55,7 @@ import type {
   QuickAction,
   ListQuickActionsResponse,
   IssuePropertiesResponse,
+  IssueMetadataResponse,
   IssueTableGroupDescriptor,
   IssueTableFacetsResponse,
   IssueTableGroupsResponse,
@@ -1085,7 +1086,18 @@ export const IssueTriggerPreviewSchema = z.object({
 // Metadata is primitive-only by API/DB contract. Stay lenient on shape:
 // unknown keys land as `unknown` to a caller, but the field itself defaults
 // to {} so consumers never need to nil-guard `issue.metadata`.
-const IssueMetadataSchema = z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({});
+const IssueMetadataSchema = z
+  .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+  .default({});
+
+export const IssueMetadataResponseSchema = z.object({
+  metadata: IssueMetadataSchema,
+  issue_revision: z.number().int().positive().optional(),
+}).loose();
+
+export const EMPTY_ISSUE_METADATA_RESPONSE: IssueMetadataResponse = {
+  metadata: {},
+};
 
 const SourceContextAttachmentSchema = z.object({
   id: z.string(),

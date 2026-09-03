@@ -91,6 +91,13 @@
     "blocked": "Blocked",
     "cancelled": "Cancelled"
   },
+  "execution_state": {
+    "active": "Active",
+    "waiting": "Waiting",
+    "blocked": "Blocked",
+    "paused": "Paused",
+    "not_applicable": "Not applicable"
+  },
   "priority": {
     "urgent": "Urgent",
     "high": "High",
@@ -324,6 +331,9 @@
     "back": "Back",
     "title_placeholder": "Issue title",
     "desc_placeholder": "Add description...",
+    "desc_edit": "Edit",
+    "desc_save": "Save changes",
+    "desc_cancel": "Cancel",
     "current_issue": "This issue",
     "sub_issues_label": "Sub-issues",
     "sub_issue_of": "Sub-issue of",
@@ -374,6 +384,8 @@
     "pull_request_card_show_more": "Show {{count}} more",
     "pull_request_card_show_less": "Show less",
     "prop_status": "Status",
+    "prop_workflow_stage": "Workflow stage",
+    "prop_execution_state": "Execution state",
     "prop_priority": "Priority",
     "prop_stage": "Stage",
     "prop_assignee": "Assignee",

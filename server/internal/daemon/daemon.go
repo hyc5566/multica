@@ -8010,8 +8010,13 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	// families go through New. This is the single production boundary — the
 	// daemon never calls agent.New or agent.NewRuntime directly, so the two
 	// factories stay meaning exactly one thing each.
+	executablePath, profileFixedArgs, ccxrayEnabled := ccxrayLaunch(
+		d.cfg.CCXRayEnabled, usesCustomProfileCommand, provider, entry.Path, profileFixedArgs)
+	if d.cfg.CCXRayEnabled && !ccxrayEnabled && !usesCustomProfileCommand && (provider == "claude" || provider == "codex") {
+		taskLog.Warn("ccxray requested but executable was not found; launching provider directly")
+	}
 	backend, err := agent.ResolveBackend(provider, agent.Config{
-		ExecutablePath: entry.Path,
+		ExecutablePath: executablePath,
 		LaunchPrefix:   profileFixedArgs,
 		CLIVersion:     resolvedVersion,
 		Env:            agentEnv,
@@ -8053,6 +8058,7 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 		"workdir", env.WorkDir,
 		"model", model,
 		"resume_reachable", resumeReachable,
+		"ccxray", ccxrayEnabled,
 	)
 	if task.PriorSessionID != "" {
 		taskLog.Info("resuming session", "session_id", task.PriorSessionID)

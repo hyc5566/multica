@@ -20,7 +20,7 @@ import { errorCode } from "@multica/core/api";
 import { useActorName } from "@multica/core/workspace/hooks";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { agentListOptions, squadListOptions } from "@multica/core/workspace/queries";
-import { runtimeListOptions, readRuntimeCliVersion, handoffSupported } from "@multica/core/runtimes";
+import { runtimeListOptions, runtimeSupportsHandoff } from "@multica/core/runtimes";
 import { useShortcut, shortcutMatchesEvent, isPlainShortcut } from "@multica/core/shortcuts";
 import { isImeComposing } from "@multica/core/utils";
 import { ShortcutKeycaps } from "../common/shortcut-keycaps";
@@ -147,7 +147,7 @@ export function RunConfirmModal({
     if (!agent?.runtime_id) return null;
     const runtime = runtimes.find((r) => r.id === agent.runtime_id);
     if (!runtime) return null;
-    return handoffSupported(readRuntimeCliVersion(runtime.metadata));
+    return runtimeSupportsHandoff(runtime.metadata);
   }, [d.assigneeType, d.assigneeId, agents, runtimes, squads]);
 
   // Soft gate: an old runtime can't render the note. Disable the box but let

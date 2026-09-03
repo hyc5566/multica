@@ -5,6 +5,7 @@ import {
   issueBehavesAsAny,
   issueStatusCategory,
   statusCategoryOfKey,
+  issueExecutionState,
 } from "@multica/core/issues";
 import { useStatusLabel } from "../utils/status-label";
 import { priorityLabel } from "../utils/priority-label";
@@ -25,6 +26,7 @@ import {
   Milestone,
   MoreHorizontal,
   PanelRight,
+  Pencil,
   Pin,
   PinOff,
   Plus,
@@ -39,7 +41,7 @@ import { Button } from "@multica/ui/components/ui/button";
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@multica/ui/components/ui/resizable";
 import { Sheet, SheetContent } from "@multica/ui/components/ui/sheet";
 import { useIsMobile } from "@multica/ui/hooks/use-mobile";
-import { ContentEditor, type ContentEditorRef, TitleEditor, type TitleEditorRef, useFileDropZone, FileDropOverlay, useLazyEditor, useEditorUpload, ImageSequenceProvider } from "../../editor";
+import { ContentEditor, type ContentEditorRef, ReadonlyContent, TitleEditor, type TitleEditorRef, useFileDropZone, FileDropOverlay, useLazyEditor, useEditorUpload, ImageSequenceProvider } from "../../editor";
 import { collectImageSequence, type ImageSequenceBlock } from "@multica/core/attachments/image-sequence";
 import { FileUploadButton } from "@multica/ui/components/common/file-upload-button";
 import {
@@ -68,7 +70,7 @@ import { formatDateOnly, isPastDateOnly } from "@multica/core/issues/date";
 import { useUpdateIssue } from "@multica/core/issues/mutations";
 import { toast } from "sonner";
 import { errorCode } from "@multica/core/api";
-import { StatusIcon, PriorityIcon, StatusPicker, PriorityPicker, StagePicker, StartDatePicker, DueDatePicker, AssigneePicker, LabelPicker } from ".";
+import { StatusIcon, PriorityIcon, StatusPicker, PriorityPicker, StagePicker, StartDatePicker, DueDatePicker, AssigneePicker, LabelPicker, ExecutionStatePicker } from ".";
 import { maxSiblingStage } from "./pickers/stage-picker";
 import { CustomPropertyValueEditor, CustomPropertyValueDisplay } from "./pickers/custom-property-picker";
 import { Switch } from "@multica/ui/components/ui/switch";
@@ -2002,19 +2004,11 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
   }, [highlightCommentId, highlightRequestToken, id, writeViewState, items, targetIdx, scrollContainerEl, replyToRoot, expandedResolved, timelineView, toggleResolvedExpand]);
 
   const descEditorRef = useRef<ContentEditorRef>(null);
-  const descriptionEditingRef = useRef(false);
-  const descriptionSaveInFlightRef = useRef(false);
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const [descriptionSaving, setDescriptionSaving] = useState(false);
   const descriptionSaveIssueIdRef = useRef(id);
-  const pendingDescriptionSaveRef = useRef<{
-    markdown: string;
-    baseMarkdown: string;
-    attachmentIds: string[];
-  } | null>(null);
-  // Keep the description editor mounted from the start. Unlike the empty
-  // composer shells, a long rendered description cannot swap between
-  // react-markdown and ProseMirror without small per-block height differences
-  // accumulating into a visible scroll/layout jump. The chunked Markdown path
-  // keeps this single eager editor affordable; title and composers stay lazy.
+  const descriptionDraftRef = useRef("");
+  const descriptionBaseRef = useRef("");
   const titleEditorRef = useRef<TitleEditorRef>(null);
   const titleBaseRef = useRef<string | undefined>(issue?.title);
   const [titleConflictDraft, setTitleConflictDraft] = useState<string | null>(null);
@@ -2025,9 +2019,11 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
   useEffect(() => {
     setTitleConflictDraft(null);
     titleBaseRef.current = undefined;
-    descriptionSaveInFlightRef.current = false;
+    setDescriptionEditing(false);
+    setDescriptionSaving(false);
     descriptionSaveIssueIdRef.current = id;
-    pendingDescriptionSaveRef.current = null;
+    descriptionDraftRef.current = "";
+    descriptionBaseRef.current = "";
   }, [id]);
   const titleLazy = useLazyEditor({ editorRef: titleEditorRef, resetKey: id });
   const { isDragOver: descDragOver, dropZoneProps: descDropZoneProps } = useFileDropZone({
@@ -2263,51 +2259,35 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
     return <IssueNotFound showBackLink={!onDelete} leading={leadingAction} />;
   }
 
-  const persistDescriptionSave = (
-    draft: { markdown: string; baseMarkdown: string; attachmentIds: string[] },
-  ) => {
-    descriptionSaveInFlightRef.current = true;
+  const saveDescription = () => {
+    if (descriptionSaving) return;
+    const markdown = descEditorRef.current?.getMarkdown() ?? descriptionDraftRef.current;
+    const attachmentIds = descPendingAttachmentsRef.current
+      .filter((a) => contentReferencesAttachment(markdown, a))
+      .map((a) => a.id);
+    setDescriptionSaving(true);
+    descriptionSaveIssueIdRef.current = id;
     handleUpdateField(
       {
-        description: draft.markdown,
-        description_base: draft.baseMarkdown,
+        description: markdown,
+        description_base: descriptionBaseRef.current,
         attachment_ids:
-          draft.attachmentIds.length > 0 ? draft.attachmentIds : undefined,
+          attachmentIds.length > 0 ? attachmentIds : undefined,
       },
       {
-        onSuccess: (serverIssue) => {
+        onSuccess: () => {
           if (descriptionSaveIssueIdRef.current !== id) return;
-          descriptionSaveInFlightRef.current = false;
-          const pending = pendingDescriptionSaveRef.current;
-          pendingDescriptionSaveRef.current = null;
-          if (pending) {
-            // Usually the accepted document is exactly what we submitted. If
-            // the server appended late channel media, keep the submitted body
-            // as the next editor baseline: the server can recognize that the
-            // only delta is media the editor never saw and preserve it again.
-            const nextBase = serverIssue.description === draft.markdown
-              ? serverIssue.description
-              : draft.markdown;
-            persistDescriptionSave({ ...pending, baseMarkdown: nextBase });
-          }
+          setDescriptionSaving(false);
+          setDescriptionEditing(false);
+          descPendingAttachmentsRef.current = [];
+          setDescPendingAttachments([]);
         },
         onError: () => {
           if (descriptionSaveIssueIdRef.current !== id) return;
-          descriptionSaveInFlightRef.current = false;
-          pendingDescriptionSaveRef.current = null;
+          setDescriptionSaving(false);
         },
       },
     );
-  };
-
-  const queueDescriptionSave = (
-    draft: { markdown: string; baseMarkdown: string; attachmentIds: string[] },
-  ) => {
-    if (descriptionSaveInFlightRef.current) {
-      pendingDescriptionSaveRef.current = draft;
-      return;
-    }
-    persistDescriptionSave(draft);
   };
 
   const sidebarContent = (
@@ -2324,8 +2304,11 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
         </button>
         {propertiesOpen && <div className="grid grid-cols-[auto_1fr] gap-x-2 gap-y-0.5 pl-2">
           {/* Core props — always rendered. */}
-          <PropRow label={t(($) => $.detail.prop_status)}>
+          <PropRow label={t(($) => $.detail.prop_workflow_stage)}>
             <StatusPicker status={issue.status} onUpdate={handleUpdateField} align="start" />
+          </PropRow>
+          <PropRow label={t(($) => $.detail.prop_execution_state)}>
+            <ExecutionStatePicker issueId={issue.id} state={issueExecutionState(issue)} />
           </PropRow>
           <PropRow label={t(($) => $.detail.prop_assignee)}>
             <AssigneePicker assigneeType={issue.assignee_type} assigneeId={issue.assignee_id} onUpdate={handleUpdateField} align="start" />
@@ -3040,60 +3023,72 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
           )}
 
           <div
-            {...descDropZoneProps}
+            {...(descriptionEditing ? descDropZoneProps : {})}
             className="relative mt-5 rounded-lg"
-            onFocusCapture={() => {
-              if (!descriptionEditingRef.current) {
-                descriptionEditingRef.current = true;
-              }
-            }}
-            onBlurCapture={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) {
-                descriptionEditingRef.current = false;
-              }
-            }}
           >
-            <ContentEditor
-              ref={descEditorRef}
-              key={id}
-              value={issue.description ?? ""}
-              placeholder={t(($) => $.detail.desc_placeholder)}
-              onUpdate={(md, baseMarkdown) => {
-                // Bind any pending uploads still referenced in the markdown
-                // so they appear in `issueAttachments` after refresh and the
-                // editor's text/code preview keeps working past reload.
-                //
-                // Match with `contentReferencesAttachment`, NOT `md.includes(a.url)`:
-                // the editor persists the durable `markdownLink`
-                // (`/api/attachments/<id>/download` / `markdown_url`) into the
-                // body, never the raw storage `a.url`. A bare `md.includes(a.url)`
-                // therefore never matches, so the upload is never linked via
-                // `attachment_ids`. After reload it's absent from
-                // `issueAttachments`, the renderer can't resolve it to a
-                // freshly-signed `download_url`, and the persisted auth-gated
-                // download endpoint fails to load as a native <img> on clients
-                // whose origin isn't the API host (Desktop/Electron, mobile
-                // webview) — while still working on web via the cookie/proxy.
-                // This mirrors the comment/reply/chat composers, which already
-                // bind via `contentReferencesAttachment` (MUL-3130 / MUL-3192).
-                const ids = descPendingAttachmentsRef.current
-                  .filter((a) => contentReferencesAttachment(md, a))
-                  .map((a) => a.id);
-                queueDescriptionSave({
-                  markdown: md,
-                  baseMarkdown,
-                  attachmentIds: ids,
-                });
-              }}
-              onUploadFile={handleDescriptionUpload}
-              debounceMs={1500}
-              // Closing the issue modal must save what the user last saw —
-              // without the flush, a paste followed by a quick close loses
-              // the image markdown and its attachment_ids bind (MUL-3254).
-              flushPendingOnUnmount
-              currentIssueId={id}
-              attachments={descEditorAttachments}
-            />
+            {descriptionEditing ? (
+              <>
+                <ContentEditor
+                  ref={descEditorRef}
+                  key={id}
+                  defaultValue={descriptionBaseRef.current}
+                  placeholder={t(($) => $.detail.desc_placeholder)}
+                  onUpdate={(md) => {
+                    descriptionDraftRef.current = md;
+                  }}
+                  onUploadFile={handleDescriptionUpload}
+                  currentIssueId={id}
+                  attachments={descEditorAttachments}
+                />
+                <div className="mt-3 flex items-center gap-2">
+                  <Button size="sm" disabled={descriptionSaving} onClick={saveDescription}>
+                    {t(($) => $.detail.desc_save)}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={descriptionSaving}
+                    onClick={() => {
+                      setDescriptionEditing(false);
+                      descPendingAttachmentsRef.current = [];
+                      setDescPendingAttachments([]);
+                    }}
+                  >
+                    {t(($) => $.detail.desc_cancel)}
+                  </Button>
+                  <FileUploadButton
+                    size="sm"
+                    multiple
+                    onSelect={(file) => descEditorRef.current?.uploadFile(file)}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="group/description flex items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  {issue.description ? (
+                    <ReadonlyContent content={issue.description} attachments={descEditorAttachments} />
+                  ) : (
+                    <p className="text-body text-muted-foreground">
+                      {t(($) => $.detail.desc_placeholder)}
+                    </p>
+                  )}
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const current = issue.description ?? "";
+                    descriptionBaseRef.current = current;
+                    descriptionDraftRef.current = current;
+                    setDescriptionEditing(true);
+                  }}
+                >
+                  <Pencil className="size-3.5" />
+                  {t(($) => $.detail.desc_edit)}
+                </Button>
+              </div>
+            )}
 
             <div className="flex items-center gap-1 mt-3">
               <ReactionBar
@@ -3102,13 +3097,8 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
                 onToggle={handleToggleIssueReaction}
                 getActorName={getActorName}
               />
-              <FileUploadButton
-                size="sm"
-                multiple
-                onSelect={(file) => descEditorRef.current?.uploadFile(file)}
-              />
             </div>
-            {descDragOver && <FileDropOverlay />}
+            {descriptionEditing && descDragOver && <FileDropOverlay />}
           </div>
 
           {/* Sub-issues — Linear-style */}

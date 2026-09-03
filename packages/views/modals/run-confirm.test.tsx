@@ -60,9 +60,11 @@ vi.mock("@multica/core/workspace/queries", () => ({
 // is exercised end to end.
 vi.mock("@multica/core/runtimes", () => ({
   runtimeListOptions: (wsId: string) => ({ queryKey: ["runtimes", wsId, "list"] }),
-  readRuntimeCliVersion: (m?: { cli_version?: unknown }) =>
-    typeof m?.cli_version === "string" ? m.cli_version : "",
-  handoffSupported: (v?: string | null) => {
+  runtimeSupportsHandoff: (metadata?: { cli_version?: unknown; capabilities?: unknown }) => {
+    if (Array.isArray(metadata?.capabilities) && metadata.capabilities.includes("handoff-note-v1")) {
+      return true;
+    }
+    const v = typeof metadata?.cli_version === "string" ? metadata.cli_version : "";
     const m = /(\d+)\.(\d+)\.(\d+)/.exec((v ?? "").trim());
     if (!m) return false;
     return Number(m[1]) * 1e6 + Number(m[2]) * 1e3 + Number(m[3]) >= 3028; // 0.3.28

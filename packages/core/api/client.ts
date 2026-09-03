@@ -115,6 +115,8 @@ import type {
   UpdatePropertyRequest,
   ListPropertiesResponse,
   IssuePropertiesResponse,
+  IssueMetadataResponse,
+  IssueMetadataValue,
   CreateLabelRequest,
   UpdateLabelRequest,
   ListLabelsResponse,
@@ -387,6 +389,7 @@ import {
   IssuePropertySchema,
   ListPropertiesResponseSchema,
   IssuePropertiesResponseSchema,
+  IssueMetadataResponseSchema,
   QuickActionSchema,
   ListQuickActionsResponseSchema,
   QuickActionRenderSchema,
@@ -397,6 +400,7 @@ import {
   EMPTY_ISSUE_PROPERTY,
   EMPTY_LIST_PROPERTIES_RESPONSE,
   EMPTY_ISSUE_PROPERTIES_RESPONSE,
+  EMPTY_ISSUE_METADATA_RESPONSE,
   EMPTY_ISSUE_PULL_REQUESTS_RESPONSE,
   IssuePullRequestsResponseSchema,
   ResourceLabelsResponseSchema,
@@ -3891,6 +3895,16 @@ export class ApiClient {
     });
     return parseWithFallback(raw, IssuePropertiesResponseSchema, EMPTY_ISSUE_PROPERTIES_RESPONSE, {
       endpoint: "DELETE /api/issues/{id}/properties/{propertyId}",
+    });
+  }
+
+  async setIssueMetadata(issueId: string, key: string, value: IssueMetadataValue): Promise<IssueMetadataResponse> {
+    const raw = await this.fetch<unknown>(`/api/issues/${issueId}/metadata/${encodeURIComponent(key)}`, {
+      method: "PUT",
+      body: JSON.stringify({ value }),
+    });
+    return parseWithFallback(raw, IssueMetadataResponseSchema, EMPTY_ISSUE_METADATA_RESPONSE, {
+      endpoint: "PUT /api/issues/{id}/metadata/{key}",
     });
   }
 

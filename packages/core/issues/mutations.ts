@@ -27,7 +27,7 @@ import {
 import { useWorkspaceId } from "../hooks";
 import { useRecentContextStore } from "../chat/recent-context-store";
 import { useRecentIssuesStore } from "./stores";
-import type { InboxItem, Issue, IssueReaction } from "../types";
+import type { InboxItem, Issue, IssueMetadataValue, IssueReaction } from "../types";
 import type {
   CreateCommentSubIssueManualRequest,
   CreateIssueRequest,
@@ -41,6 +41,7 @@ import {
   onIssueAuxiliaryRevision,
   invalidateIssueOwnerProjections,
   reconcileIssueFullSnapshotRevision,
+  onIssueMetadataChanged,
 } from "./ws-updaters";
 
 // ---------------------------------------------------------------------------
@@ -67,6 +68,18 @@ export type UpdateIssueMutationInput = {
    */
   move_intent?: Pick<MoveIssueRequest, "before_id" | "after_id">;
 } & UpdateIssueRequest;
+
+export function useSetIssueMetadata() {
+  const qc = useQueryClient();
+  const wsId = useWorkspaceId();
+  return useMutation({
+    mutationFn: ({ issueId, key, value }: { issueId: string; key: string; value: IssueMetadataValue }) =>
+      api.setIssueMetadata(issueId, key, value),
+    onSuccess: (data, { issueId }) => {
+      onIssueMetadataChanged(qc, wsId, issueId, data.metadata, data.issue_revision);
+    },
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Per-status pagination
