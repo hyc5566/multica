@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/multica-ai/multica/server/pkg/agent"
 	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
@@ -61,5 +62,38 @@ func TestCCXRayLaunchSkipsUnsupportedAndCustomRuntimes(t *testing.T) {
 		if enabled || path != "/bin/provider" {
 			t.Fatalf("ccxrayLaunch(%q, custom=%v) unexpectedly wrapped", tc.provider, tc.custom)
 		}
+	}
+}
+
+func TestShouldFailOpenCCXRayOnlyBeforeSessionOrTools(t *testing.T) {
+	handshakeFailure := agent.Result{
+		Status: "failed",
+		Error:  agent.CodexHandshakeTimeoutMarker + ": initialize did not respond",
+	}
+	processFailure := agent.Result{Status: "failed", Error: "codex initialize failed: codex process exited: exit status 1"}
+
+	for _, tc := range []struct {
+		name       string
+		enabled    bool
+		provider   string
+		result     agent.Result
+		tools      int32
+		executeErr error
+		want       bool
+	}{
+		{name: "handshake timeout", enabled: true, provider: "codex", result: handshakeFailure, want: true},
+		{name: "wrapper process exit", enabled: true, provider: "codex", result: processFailure, want: true},
+		{name: "wrapper launch error", enabled: true, provider: "codex", executeErr: errors.New("exec ccxray"), want: true},
+		{name: "session already established", enabled: true, provider: "codex", result: agent.Result{Status: "failed", Error: handshakeFailure.Error, SessionID: "thread-1"}},
+		{name: "tool already ran", enabled: true, provider: "codex", result: handshakeFailure, tools: 1},
+		{name: "provider auth failure", enabled: true, provider: "codex", result: agent.Result{Status: "failed", Error: "HTTP 401 unauthorized"}},
+		{name: "claude remains unchanged", enabled: true, provider: "claude", result: handshakeFailure},
+		{name: "ccxray disabled", provider: "codex", result: handshakeFailure},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := shouldFailOpenCCXRay(tc.enabled, tc.provider, tc.result, tc.tools, tc.executeErr); got != tc.want {
+				t.Fatalf("shouldFailOpenCCXRay() = %v, want %v", got, tc.want)
+			}
+		})
 	}
 }

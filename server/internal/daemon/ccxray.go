@@ -1,8 +1,10 @@
 package daemon
 
 import (
+	"strings"
 	"time"
 
+	"github.com/multica-ai/multica/server/pkg/agent"
 	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
@@ -69,4 +71,19 @@ func ccxraySupportsProvider(provider string) bool {
 	default:
 		return false
 	}
+}
+
+// shouldFailOpenCCXRay permits one direct Codex retry only while the wrapper
+// is still infrastructure: no provider session exists and no tool ran. Once a
+// session or tool exists, retrying could duplicate user-visible side effects.
+func shouldFailOpenCCXRay(enabled bool, provider string, result agent.Result, toolCount int32, executeErr error) bool {
+	if !enabled || provider != "codex" || result.SessionID != "" || toolCount != 0 {
+		return false
+	}
+	if executeErr != nil {
+		return true
+	}
+	return result.Status == "failed" &&
+		(strings.Contains(result.Error, agent.CodexHandshakeTimeoutMarker) ||
+			strings.Contains(result.Error, "codex process exited"))
 }

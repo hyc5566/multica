@@ -8010,12 +8010,14 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	// families go through New. This is the single production boundary — the
 	// daemon never calls agent.New or agent.NewRuntime directly, so the two
 	// factories stay meaning exactly one thing each.
+	directExecutablePath := entry.Path
+	directProfileFixedArgs := append([]string(nil), profileFixedArgs...)
 	executablePath, profileFixedArgs, ccxrayEnabled := ccxrayLaunch(
 		d.cfg.CCXRayEnabled, usesCustomProfileCommand, provider, entry.Path, profileFixedArgs)
 	if d.cfg.CCXRayEnabled && !ccxrayEnabled && !usesCustomProfileCommand && (provider == "claude" || provider == "codex") {
 		taskLog.Warn("ccxray requested but executable was not found; launching provider directly")
 	}
-	backend, err := agent.ResolveBackend(provider, agent.Config{
+	backendConfig := agent.Config{
 		ExecutablePath: executablePath,
 		LaunchPrefix:   profileFixedArgs,
 		CLIVersion:     resolvedVersion,
@@ -8026,7 +8028,8 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 		DaemonVersion:  d.cfg.CLIVersion,
 		CodexVersion:   codexVersion,
 		BuiltinRuntime: !usesCustomProfileCommand,
-	})
+	}
+	backend, err := agent.ResolveBackend(provider, backendConfig)
 	if err != nil {
 		return TaskResult{}, fmt.Errorf("create agent backend: %w", err)
 	}
@@ -8202,6 +8205,27 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	// keep ascending seq values for the same task.
 	var msgSeq atomic.Int32
 	result, tools, err := d.executeAndDrain(ctx, backend, prompt, execOpts, taskLog, task.ID, env.CodexHome, &msgSeq)
+	if ctx.Err() == nil && shouldFailOpenCCXRay(ccxrayEnabled, provider, result, tools, err) {
+		taskLog.Warn("ccxray failed before Codex established a session; retrying once without observability",
+			"status", result.Status,
+			"execute_error", err != nil,
+		)
+		directConfig := backendConfig
+		directConfig.ExecutablePath = directExecutablePath
+		directConfig.LaunchPrefix = directProfileFixedArgs
+		directBackend, resolveErr := agent.ResolveBackend(provider, directConfig)
+		if resolveErr != nil {
+			taskLog.Error("create direct agent backend after ccxray failure", "error", resolveErr)
+		} else {
+			directResult, directTools, directErr := d.executeAndDrain(ctx, directBackend, prompt, execOpts, taskLog, task.ID, env.CodexHome, &msgSeq)
+			if directErr != nil {
+				taskLog.Error("direct agent fallback after ccxray failure also failed", "error", directErr)
+			} else {
+				directResult.Usage = mergeUsage(result.Usage, directResult.Usage)
+				result, tools, err = directResult, directTools, nil
+			}
+		}
+	}
 	if err != nil {
 		return TaskResult{}, err
 	}
