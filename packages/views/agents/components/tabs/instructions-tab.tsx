@@ -187,6 +187,14 @@ export function InstructionsTab({
     }
   };
 
+  const handleDiscard = () => {
+    const persisted = persistedRef.current;
+    setValue(persisted.instructions);
+    setConversationStarters(
+      JSON.parse(persisted.conversationStartersKey) as AgentConversationStarter[],
+    );
+  };
+
   return (
     <div className="space-y-5">
       <p className="max-w-2xl text-pretty text-body leading-6 text-muted-foreground">
@@ -270,6 +278,16 @@ export function InstructionsTab({
             {t(($) => $.tab_body.common.unsaved_changes)}
           </span>
         )}
+        {isDirty && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleDiscard}
+            disabled={saving}
+          >
+            {t(($) => $.tab_body.common.discard_changes)}
+          </Button>
+        )}
         <Button
           size="sm"
           onClick={handleSave}
@@ -283,7 +301,7 @@ export function InstructionsTab({
           ) : (
             <Save className="h-3.5 w-3.5" aria-hidden="true" />
           )}
-          {t(($) => $.tab_body.common.save)}
+          {t(($) => $.tab_body.common.save_changes)}
         </Button>
       </div>
     </div>
