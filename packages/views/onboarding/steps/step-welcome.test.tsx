@@ -21,8 +21,8 @@ describe("StepWelcome status labels", () => {
   it("localizes them rather than rendering the English seed", () => {
     renderWithI18n(<StepWelcome onNext={vi.fn()} />, { locale: "zh-Hans" });
 
-    expect(screen.getByText("进行中")).toBeInTheDocument();
-    expect(screen.getByText("审核中")).toBeInTheDocument();
+    expect(screen.getByText("進行中")).toBeInTheDocument();
+    expect(screen.getByText("稽核中")).toBeInTheDocument();
     expect(screen.getAllByText("已完成")).toHaveLength(2);
     expect(screen.queryByText("In Progress")).not.toBeInTheDocument();
   });
