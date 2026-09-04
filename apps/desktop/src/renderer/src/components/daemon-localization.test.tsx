@@ -36,7 +36,7 @@ function installDaemonAPI(status: DaemonStatus) {
   });
 }
 
-function renderInSimplifiedChinese(element: ReactNode) {
+function renderInTaiwanChinese(element: ReactNode) {
   return render(
     <I18nProvider locale="zh-Hans" resources={RESOURCES}>
       {element}
@@ -52,11 +52,11 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
   it("lets the locale own the externally managed sentence ending", async () => {
     installDaemonAPI({ state: "running", externallyManaged: true });
 
-    renderInSimplifiedChinese(<DaemonSettingsTab />);
+    renderInTaiwanChinese(<DaemonSettingsTab />);
 
     expect(
       await screen.findByText(
-        "登录时启动守护进程。应用打开期间，它会同时监控自动启动和手动启动的守护进程。",
+        "登入時啟動守護程序。應用開啟期間，它會同時監控自動啟動和手動啟動的守護程序。",
       ),
     ).toBeInTheDocument();
     const command = screen.getByText("multica daemon stop");
@@ -65,7 +65,7 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
 
   it("renders repeated log messages with straight double quotes", async () => {
     installDaemonAPI({ state: "running" });
-    renderInSimplifiedChinese(
+    renderInTaiwanChinese(
       <DaemonPanel
         open
         onOpenChange={vi.fn()}
@@ -80,7 +80,7 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
     });
 
     expect(
-      await screen.findByText('另有 1 条"poll complete"——点击展开'),
+      await screen.findByText('另有 1 條"poll complete"——點選展開'),
     ).toBeInTheDocument();
   });
 });
