@@ -219,6 +219,7 @@ vi.mock("../../editor", async () => ({
       blur: () => {},
       // Read by the submit-time upload gate; no uploads are exercised here.
       hasActiveUploads: () => false,
+      flushPendingUpdate: () => null,
       // Placeholder rebuild contract: the real handle draws a card for an
       // upload the document is not showing and reports whether it landed.
       // Mocks track ids only — no document to draw into.
@@ -915,17 +916,13 @@ describe("IssueDetail (shared)", () => {
     expect(mockApiObj.getIssue).toHaveBeenCalledWith("issue-1");
   });
 
-  it("opts the description editor into the unmount flush", async () => {
-    // Closing the issue modal must save the description the user last saw —
-    // ContentEditor drops pending debounced updates on unmount by default
-    // (so cancelled comment drafts aren't resurrected), and only this
-    // explicit opt-in keeps a paste-then-close from losing the image
-    // markdown and its attachment_ids bind (MUL-3254). The flush behavior
-    // itself is covered in content-editor.test.tsx; this pins the wiring.
+  it("does not persist a description draft on unmount", async () => {
     renderIssueDetail();
 
     const description = await screen.findByDisplayValue("Add JWT auth to the backend");
-    expect(description).toHaveAttribute("data-flush-on-unmount", "true");
+    fireEvent.change(description, { target: { value: "Local only" } });
+    expect(description).not.toHaveAttribute("data-flush-on-unmount");
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
   });
 
   it("remounts the eager description on issue switch without carrying stale content", async () => {
@@ -1886,6 +1883,8 @@ describe("IssueDetail (shared)", () => {
 
     const editor = await screen.findByDisplayValue("Add JWT auth to the backend");
     fireEvent.change(editor, { target: { value: "" } });
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
 
     await waitFor(() => {
       expect(mockApiObj.updateIssue).toHaveBeenCalledWith(
@@ -1896,6 +1895,20 @@ describe("IssueDetail (shared)", () => {
         }),
       );
     });
+  });
+
+  it("discards a description draft without writing it", async () => {
+    renderIssueDetail();
+
+    const editor = await screen.findByDisplayValue("Add JWT auth to the backend");
+    fireEvent.change(editor, { target: { value: "Temporary description" } });
+
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
+
+    expect(editor).toHaveValue("Add JWT auth to the backend");
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
+    expect(screen.queryByRole("button", { name: "Discard changes" })).toBeNull();
   });
 
   // Descriptions are last-write-wins (MUL-6971). The baseline still ships as
@@ -1912,6 +1925,8 @@ describe("IssueDetail (shared)", () => {
     const editor = await screen.findByDisplayValue("Add JWT auth to the backend");
     fireEvent.focus(editor);
     fireEvent.change(editor, { target: { value: "My local description" } });
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
 
     await waitFor(() =>
       expect(mockApiObj.updateIssue).toHaveBeenCalledWith(
@@ -1934,6 +1949,7 @@ describe("IssueDetail (shared)", () => {
 
     // The save gate reopened: the next edit still reaches the server.
     fireEvent.change(editor, { target: { value: "My next description" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() =>
       expect(mockApiObj.updateIssue).toHaveBeenLastCalledWith(
         "issue-1",
@@ -1942,7 +1958,7 @@ describe("IssueDetail (shared)", () => {
     );
   });
 
-  it("serializes description saves and rebases the queued draft on submitted content", async () => {
+  it("requires another explicit save for edits made during an in-flight save", async () => {
     let resolveFirst!: (issue: Issue) => void;
     const firstSave = new Promise<Issue>((resolve) => {
       resolveFirst = resolve;
@@ -1959,6 +1975,7 @@ describe("IssueDetail (shared)", () => {
     const editor = await screen.findByDisplayValue("Add JWT auth to the backend");
     fireEvent.focus(editor);
     fireEvent.change(editor, { target: { value: "First local description" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(mockApiObj.updateIssue).toHaveBeenCalledTimes(1));
     fireEvent.change(editor, { target: { value: "Second local description" } });
     expect(mockApiObj.updateIssue).toHaveBeenCalledTimes(1);
@@ -1968,6 +1985,7 @@ describe("IssueDetail (shared)", () => {
       await firstSave;
     });
 
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(mockApiObj.updateIssue).toHaveBeenCalledTimes(2));
     expect(mockApiObj.updateIssue).toHaveBeenNthCalledWith(
       2,
@@ -2015,6 +2033,7 @@ describe("IssueDetail (shared)", () => {
     fireEvent.change(issueOneEditor, {
       target: { value: "Issue one draft" },
     });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(mockApiObj.updateIssue).toHaveBeenCalledTimes(1));
 
     rerender(ui("issue-2"));
@@ -2023,6 +2042,7 @@ describe("IssueDetail (shared)", () => {
     fireEvent.change(issueTwoEditor, {
       target: { value: "Issue two draft" },
     });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(() => expect(mockApiObj.updateIssue).toHaveBeenCalledTimes(2));
     expect(mockApiObj.updateIssue).toHaveBeenNthCalledWith(
       2,

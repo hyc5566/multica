@@ -229,6 +229,8 @@
     "rename_required": "Name is required",
     "edit_description_title": "Edit description",
     "description_placeholder": "What does this agent do?",
+    "discard_changes": "Discard changes",
+    "save_changes": "Save changes",
     "save": "Save",
     "cancel": "Cancel"
   },
@@ -496,6 +498,8 @@
   "tab_body": {
     "common": {
       "save": "Save",
+      "discard_changes": "Discard changes",
+      "save_changes": "Save changes",
       "add": "Add",
       "unsaved_changes": "Unsaved changes"
     },

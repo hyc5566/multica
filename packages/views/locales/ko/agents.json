@@ -220,6 +220,8 @@
     "rename_required": "이름은 필수입니다",
     "edit_description_title": "설명 수정",
     "description_placeholder": "이 에이전트는 무엇을 하나요?",
+    "discard_changes": "변경 취소",
+    "save_changes": "변경 저장",
     "save": "저장",
     "cancel": "취소"
   },
@@ -386,6 +388,8 @@
   "tab_body": {
     "common": {
       "save": "저장",
+      "discard_changes": "변경 취소",
+      "save_changes": "변경 저장",
       "add": "추가",
       "unsaved_changes": "저장하지 않은 변경사항"
     },

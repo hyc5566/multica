@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Agent } from "@multica/core/types";
 import { renderWithI18n } from "../../test/i18n";
 import { AgentDetailInspector } from "./agent-detail-inspector";
@@ -70,5 +71,39 @@ describe("AgentDetailInspector labels", () => {
 
     expect(screen.queryByTestId("resource-label-picker")).toBeNull();
     expect(screen.queryByText("Labels")).toBeNull();
+  });
+
+  it("waits for an explicit profile decision and can discard the draft", async () => {
+    const onUpdate = vi.fn(async () => {});
+    const user = userEvent.setup();
+    renderWithI18n(
+      <AgentDetailInspector
+        agent={agent}
+        runtime={null}
+        runtimes={[]}
+        members={[]}
+        currentUserId="user-1"
+        canEdit
+        onUpdate={onUpdate}
+      />,
+    );
+
+    const description = screen.getByLabelText("Description");
+    await user.clear(description);
+    await user.type(description, "Temporary profile");
+    expect(onUpdate).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Discard changes" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Discard changes" }));
+    expect(description).toHaveValue("Test agent");
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    await user.clear(description);
+    await user.type(description, "Saved profile");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(onUpdate).toHaveBeenCalledWith(agent.id, {
+      name: agent.name,
+      description: "Saved profile",
+    });
   });
 });
