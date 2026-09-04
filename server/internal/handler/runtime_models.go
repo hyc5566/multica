@@ -433,7 +433,7 @@ func (h *Handler) InitiateListModels(w http.ResponseWriter, r *http.Request) {
 // the public endpoint and response remain usage-specific.
 func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
-	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeAPI, runtimeID)
 	if !ok {
 		return
 	}
@@ -544,7 +544,7 @@ func (h *Handler) GetModelListRequest(w http.ResponseWriter, r *http.Request) {
 // surface that as unavailable rather than implying a zero balance.
 func (h *Handler) GetProviderUsageRequest(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
-	rt, _, ok := h.requireRuntimeReadAccess(w, r, runtimeID)
+	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeModelPoll, runtimeID)
 	if !ok {
 		return
 	}
