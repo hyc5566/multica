@@ -220,6 +220,8 @@
     "rename_required": "名稱必填",
     "edit_description_title": "編輯描述",
     "description_placeholder": "這個智能體做什麼？",
+    "discard_changes": "放棄變更",
+    "save_changes": "保留變更",
     "save": "儲存",
     "cancel": "取消"
   },
@@ -485,6 +487,8 @@
   "tab_body": {
     "common": {
       "save": "儲存",
+      "discard_changes": "放棄變更",
+      "save_changes": "保留變更",
       "add": "新增",
       "unsaved_changes": "未儲存的修改"
     },

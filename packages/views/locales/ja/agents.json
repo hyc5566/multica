@@ -212,6 +212,8 @@
     "rename_required": "名前は必須です",
     "edit_description_title": "説明を編集",
     "description_placeholder": "このエージェントは何をしますか？",
+    "discard_changes": "変更を破棄",
+    "save_changes": "変更を保存",
     "save": "保存",
     "cancel": "キャンセル"
   },
@@ -378,6 +380,8 @@
   "tab_body": {
     "common": {
       "save": "保存",
+      "discard_changes": "変更を破棄",
+      "save_changes": "変更を保存",
       "add": "追加",
       "unsaved_changes": "保存していない変更"
     },

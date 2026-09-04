@@ -359,6 +359,8 @@
     "back": "返回",
     "title_placeholder": "任務標題",
     "desc_placeholder": "新增描述...",
+    "discard_changes": "放棄變更",
+    "save_changes": "保留變更",
     "current_issue": "當前任務",
     "sub_issues_label": "子任務",
     "sub_issue_of": "屬於父任務",
