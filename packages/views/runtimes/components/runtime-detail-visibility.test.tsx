@@ -98,6 +98,9 @@ vi.mock("@multica/core/runtimes", async () => ({
 }));
 
 vi.mock("@multica/core/agents", () => ({
+  agentTaskSnapshotOptions: (wsId: string) => ({
+    queryKey: ["agent-task-snapshot", wsId],
+  }),
   useWorkspacePresenceMap: () => ({ byAgent: new Map() }),
 }));
 
@@ -132,6 +135,9 @@ vi.mock("@multica/core/runtimes/mutations", () => ({
 vi.mock("./provider-logo", () => ({ ProviderLogo: () => null }));
 vi.mock("./usage-section", () => ({
   UsageSection: () => <div data-testid="usage-section" />,
+}));
+vi.mock("./agent-usage-status-card", () => ({
+  AgentUsageStatusCard: () => <div data-testid="agent-usage-status-card" />,
 }));
 vi.mock("./shared", () => ({ HealthBadge: () => null }));
 vi.mock("../../agents/presence", () => ({
@@ -304,6 +310,9 @@ describe("RuntimeDetail visibility section", () => {
 
     expect(screen.queryByTestId("usage-section")).not.toBeInTheDocument();
     expect(
+      screen.queryByTestId("agent-usage-status-card"),
+    ).not.toBeInTheDocument();
+    expect(
       screen.getByRole("button", { name: /Delete runtime/i }),
     ).toBeInTheDocument();
   });
@@ -319,6 +328,7 @@ describe("RuntimeDetail visibility section", () => {
     );
 
     expect(screen.getByTestId("usage-section")).toBeInTheDocument();
+    expect(screen.getByTestId("agent-usage-status-card")).toBeInTheDocument();
   });
 
   // An ownerless runtime is unreadable server-side (the read gate reuses
@@ -330,6 +340,9 @@ describe("RuntimeDetail visibility section", () => {
     renderDetail(makeRuntime({ owner_id: null, visibility: "public" }));
 
     expect(screen.queryByTestId("usage-section")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("agent-usage-status-card"),
+    ).not.toBeInTheDocument();
   });
 
   // MUL-3352: an owner viewing an online local (self-healing) runtime

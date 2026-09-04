@@ -28,6 +28,7 @@ import {
 } from "@multica/core/runtimes";
 import {
   type AgentPresenceDetail,
+  agentTaskSnapshotOptions,
   useWorkspacePresenceMap,
 } from "@multica/core/agents";
 import { useWorkspacePaths } from "@multica/core/paths";
@@ -44,6 +45,7 @@ import { availabilityConfig, workloadConfig } from "../../agents/presence";
 import { HealthBadge } from "./shared";
 import { ProviderLogo } from "./provider-logo";
 import { UsageSection } from "./usage-section";
+import { AgentUsageStatusCard } from "./agent-usage-status-card";
 import { DeleteRuntimeDialog } from "./delete-runtime-dialog";
 import { DeleteRuntimeProfileDialog } from "./delete-runtime-profile-dialog";
 import { runtimeRowLabel } from "./runtime-machines";
@@ -103,6 +105,7 @@ export function RuntimeDetail({
   const { data: agents = [] } = useQuery(agentListOptions(wsId));
   const { data: profiles = [] } = useQuery(runtimeProfileListOptions(wsId));
   const { byAgent: presenceMap } = useWorkspacePresenceMap(wsId);
+  const { data: taskSnapshot = [] } = useQuery(agentTaskSnapshotOptions(wsId));
   const now = useNowTick();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -196,6 +199,16 @@ export function RuntimeDetail({
               daemonShort={daemonShort}
             />
             {canReadRuntime && <UsageSection runtime={runtime} />}
+            {canReadRuntime && (
+              <AgentUsageStatusCard
+                runtime={runtime}
+                agents={servingAgents}
+                presenceMap={presenceMap}
+                tasks={taskSnapshot.filter((task) => task.runtime_id === runtime.id)}
+                agentHref={(id) => paths.agentDetail(id)}
+                issueHref={(id) => paths.issueDetail(id)}
+              />
+            )}
           </div>
 
           {/* Right rail: serving agents + diagnostics */}

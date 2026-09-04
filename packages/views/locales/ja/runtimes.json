@@ -181,6 +181,23 @@
     "running_chip_other": "· 実行中 {{count}} 件",
     "queued_chip_other": "· キュー待ち {{count}} 件"
   },
+  "agent_usage": {
+    "title": "Agent 使用状況",
+    "today_caption": "稼働対象の全 Agent の本日のネイティブ使用量を表示します。",
+    "status": {
+      "running": "実行中",
+      "waiting": "待機中",
+      "idle": "アイドル",
+      "stale": "データ期限切れ"
+    },
+    "issue_ref": "Issue {{id}}",
+    "task_ref": "Task {{id}}",
+    "input": "入力",
+    "output": "出力",
+    "cache": "キャッシュ",
+    "cost": "コスト",
+    "never_observed": "イベントなし"
+  },
   "detail_page": {
     "not_found_title": "ランタイムが見つかりません",
     "not_found_hint": "削除されたか、アクセス権がない可能性があります。"
