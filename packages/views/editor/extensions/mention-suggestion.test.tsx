@@ -757,8 +757,8 @@ describe("createMentionSuggestion", () => {
       </ZhI18nWrapper>,
     );
 
-    expect(screen.getByText("智能体")).toBeInTheDocument();
-    expect(screen.getByText("小队")).toBeInTheDocument();
+    expect(screen.getByText("智慧體")).toBeInTheDocument();
+    expect(screen.getByText("小隊")).toBeInTheDocument();
     expect(screen.queryByText("Agent")).not.toBeInTheDocument();
     expect(screen.queryByText("Squad")).not.toBeInTheDocument();
   });
