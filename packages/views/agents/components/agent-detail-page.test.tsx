@@ -118,6 +118,15 @@ vi.mock("@multica/core/runtimes", () => ({
     queryKey: ["runtimes", wsId],
     queryFn: () => Promise.resolve([]),
   }),
+  runtimeProviderUsageOptions: (runtimeId: string | null) => ({
+    queryKey: ["runtime-provider-usage", runtimeId],
+    queryFn: () => Promise.resolve(null),
+    enabled: false,
+  }),
+  runtimeUsageByAgentOptions: (runtimeId: string) => ({
+    queryKey: ["runtime-usage-by-agent", runtimeId],
+    queryFn: () => Promise.resolve([]),
+  }),
 }));
 vi.mock("@multica/core/auth", () => {
   type AuthState = { user: { id: string } | null };
