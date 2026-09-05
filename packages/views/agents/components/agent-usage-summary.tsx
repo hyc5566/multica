@@ -77,6 +77,15 @@ export function AgentUsageSummary({
     !online ||
     providerQuery.isError ||
     (usage && !["available", "partial"].includes(usage.status));
+  const quotaWindows = useMemo(
+    () =>
+      prioritizeUsageWindows(
+        usage?.windows ?? [],
+        agent.model,
+        usage?.provider ?? runtime?.provider,
+      ),
+    [agent.model, runtime?.provider, usage?.provider, usage?.windows],
+  );
 
   return (
     <section
@@ -110,10 +119,17 @@ export function AgentUsageSummary({
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-baseline justify-between gap-1">
-            <p className="text-caption font-medium">
-              {runtime?.provider ?? t(($) => $.detail.usage.provider_quota)}
-            </p>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="text-caption font-medium">
+                {runtime?.provider ?? t(($) => $.detail.usage.provider_quota)}
+              </p>
+              <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 text-[11px] font-medium text-brand">
+                {t(($) => $.detail.usage.model, {
+                  model: agent.model || t(($) => $.detail.usage.model_default),
+                })}
+              </span>
+            </div>
             {usage?.observed_at && observedLabel ? (
               <time
                 dateTime={usage.observed_at}
@@ -149,9 +165,19 @@ export function AgentUsageSummary({
               }
             />
           ) : (
-            <div className="mt-2 grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
-              {(usage?.windows ?? []).map((window) => (
-                <QuotaWindow key={window.id} window={window} locale={locale} tz={tz} />
+            <div
+              data-provider-quota-scroll
+              className="mt-2 flex gap-2 overflow-x-auto pb-1"
+            >
+              {quotaWindows.map(({ window, current, displayLabel }) => (
+                <QuotaWindow
+                  key={`${window.id}:${window.resets_at ?? window.label}`}
+                  window={window}
+                  current={current}
+                  displayLabel={displayLabel}
+                  locale={locale}
+                  tz={tz}
+                />
               ))}
               {(usage?.windows ?? []).length === 0 ? (
                 <UnavailableState message={usage?.message || t(($) => $.detail.usage.unavailable)} />
@@ -184,10 +210,14 @@ export function AgentUsageSummary({
 
 function QuotaWindow({
   window,
+  current,
+  displayLabel,
   locale,
   tz,
 }: {
   window: RuntimeProviderUsageWindow;
+  current: boolean;
+  displayLabel: string;
   locale: string;
   tz: string;
 }) {
@@ -207,10 +237,28 @@ function QuotaWindow({
         ? t(($) => $.detail.usage.window_weekly)
         : window.label;
   return (
-    <div className="rounded-md border bg-background px-2.5 py-2">
-      <p className="truncate text-[11px] text-muted-foreground" title={[window.group, windowLabel].filter(Boolean).join(" · ")}>
-        {window.group ? `${window.group} · ` : ""}{windowLabel}
-      </p>
+    <div
+      data-current-model-usage={current ? "true" : "false"}
+      className={cn(
+        "w-[220px] shrink-0 rounded-md border px-2.5 py-2",
+        current
+          ? "border-brand/50 bg-brand/10 ring-1 ring-brand/20"
+          : "bg-background",
+      )}
+    >
+      <div className="flex min-w-0 items-center gap-1.5">
+        <p
+          className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground"
+          title={[displayLabel, windowLabel].filter(Boolean).join(" · ")}
+        >
+          {displayLabel ? `${displayLabel} · ` : ""}{windowLabel}
+        </p>
+        {current ? (
+          <span className="shrink-0 rounded-full bg-brand/15 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
+            {t(($) => $.detail.usage.current_model)}
+          </span>
+        ) : null}
+      </div>
       <div className="mt-1 flex items-baseline justify-between gap-2">
         <span className="text-body font-semibold tabular-nums">
           {used == null
@@ -243,6 +291,156 @@ function QuotaWindow({
       </p>
     </div>
   );
+}
+
+export function prioritizeUsageWindows(
+  windows: RuntimeProviderUsageWindow[],
+  model: string | undefined,
+  provider: string | undefined,
+): Array<{
+  window: RuntimeProviderUsageWindow;
+  current: boolean;
+  displayLabel: string;
+}> {
+  if (windows.length === 0) return [];
+  const modelKey = normalizeUsageKey(model);
+  const providerKey = normalizeUsageKey(provider);
+
+  if (providerKey === "codex") {
+    return prioritizeCodexWindows(windows, model, modelKey);
+  }
+  if (providerKey === "antigravity") {
+    return prioritizeAntigravityWindows(windows, model, modelKey);
+  }
+  if (providerKey === "claude") {
+    return windows
+      .map((window, index) => ({ window, index }))
+      .sort(
+        (a, b) =>
+          usageWindowOrder(a.window) - usageWindowOrder(b.window) ||
+          a.index - b.index,
+      )
+      .map(({ window }) => ({
+        window,
+        current: true,
+        displayLabel: model?.trim() || "Claude Code",
+      }));
+  }
+
+  const rows = windows.map((window, index) => ({
+    window,
+    current: usageWindowMatchesModel(window, modelKey),
+    displayLabel: window.group || window.id,
+    index,
+  }));
+  if (!rows.some((row) => row.current) && rows[0]) {
+    rows[0].current = true;
+    if (model?.trim()) rows[0].displayLabel = model.trim();
+  }
+  return rows
+    .sort((a, b) => Number(b.current) - Number(a.current) || a.index - b.index)
+    .map(({ window, current, displayLabel }) => ({ window, current, displayLabel }));
+}
+
+function prioritizeCodexWindows(
+  windows: RuntimeProviderUsageWindow[],
+  model: string | undefined,
+  modelKey: string,
+) {
+  const visibleRows = windows
+    .map((window, index) => {
+      const key = normalizeUsageKey(`${window.id} ${window.group}`);
+      const codeReview = key.includes("codereview");
+      const sharedCodex = key.includes("codex") &&
+        !key.includes("spark") &&
+        !codeReview;
+      return {
+        window,
+        sharedCodex,
+        explicitModelMatch: !sharedCodex && usageWindowMatchesModel(window, modelKey),
+        index,
+        visible: !codeReview,
+      };
+    })
+    .filter((row) => row.visible);
+  const usesIndependentModelLimit = visibleRows.some(
+    (row) => row.explicitModelMatch,
+  );
+  return visibleRows
+    .map((row) => {
+      const current = usesIndependentModelLimit
+        ? row.explicitModelMatch
+        : row.sharedCodex;
+      return {
+        ...row,
+        current,
+        displayLabel:
+          current && model?.trim()
+            ? model.trim()
+            : row.window.group || row.window.id,
+      };
+    })
+    .sort(
+      (a, b) =>
+        Number(b.current) - Number(a.current) ||
+        usageWindowOrder(a.window) - usageWindowOrder(b.window) ||
+        a.index - b.index,
+    )
+    .map(({ window, current, displayLabel }) => ({ window, current, displayLabel }));
+}
+
+function prioritizeAntigravityWindows(
+  windows: RuntimeProviderUsageWindow[],
+  model: string | undefined,
+  modelKey: string,
+) {
+  const rows = windows
+    .filter((window) => {
+      const key = normalizeUsageKey(`${window.id} ${window.group}`);
+      return ["gemini", "claude", "gpt", "oss"].some((family) =>
+        key.includes(family),
+      );
+    })
+    .map((window, index) => ({
+      window,
+      current: usageWindowMatchesModel(window, modelKey),
+      displayLabel: window.group || window.id,
+      index,
+    }));
+  if (!rows.some((row) => row.current) && rows[0]) {
+    rows[0].current = true;
+  }
+  return rows
+    .sort((a, b) => Number(b.current) - Number(a.current) || a.index - b.index)
+    .map(({ window, current, displayLabel }) => ({
+      window,
+      current,
+      displayLabel: current && model?.trim() ? model.trim() : displayLabel,
+    }));
+}
+
+function usageWindowMatchesModel(
+  window: RuntimeProviderUsageWindow,
+  modelKey: string,
+) {
+  if (!modelKey) return false;
+  return [window.id, window.group, window.label].some((value) => {
+    const candidate = normalizeUsageKey(value);
+    return (
+      candidate.length > 0 &&
+      (candidate.includes(modelKey) || modelKey.includes(candidate))
+    );
+  });
+}
+
+function usageWindowOrder(window: RuntimeProviderUsageWindow) {
+  if (window.window_duration_mins === 300) return 0;
+  if (window.window_duration_mins === 10080) return 1;
+  return 2;
+}
+
+function normalizeUsageKey(value: string | undefined) {
+  return (value ?? "").toLocaleLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
 function UnavailableState({ message }: { message: string }) {
