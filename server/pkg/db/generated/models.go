@@ -1374,6 +1374,20 @@ type SearchIndexPruneMark struct {
 	PrunedThroughXid pgtype.Uint64 `json:"pruned_through_xid"`
 }
 
+type RuntimeProviderUsageSnapshot struct {
+	ProbeTarget   string             `json:"probe_target"`
+	RuntimeID     pgtype.UUID        `json:"runtime_id"`
+	WorkspaceID   pgtype.UUID        `json:"workspace_id"`
+	DaemonID      string             `json:"daemon_id"`
+	Provider      string             `json:"provider"`
+	ProfileID     pgtype.UUID        `json:"profile_id"`
+	Snapshot      []byte             `json:"snapshot"`
+	LastAttemptAt pgtype.Timestamptz `json:"last_attempt_at"`
+	LastSuccessAt pgtype.Timestamptz `json:"last_success_at"`
+	LastErrorCode pgtype.Text        `json:"last_error_code"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
 type SeatCapacityOutbox struct {
 	WorkspaceID    pgtype.UUID        `json:"workspace_id"`
 	OperationToken pgtype.UUID        `json:"operation_token"`
