@@ -21,7 +21,7 @@ import type { DaemonTranslator } from "../components/daemon-i18n";
 const translations = {
   desktop: {
     daemon: {
-      reconnect_failed: "无法重新连接守护进程",
+      reconnect_failed: "無法重新連線 daemon",
       try_again_moment: "请稍后重试。",
       try_again: "请重试。",
     },
@@ -80,7 +80,7 @@ describe("reauthenticateDaemon", () => {
     await reauthenticateDaemon(t);
 
     expect(logout).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith("无法重新连接守护进程", {
+    expect(toastError).toHaveBeenCalledWith("無法重新連線 daemon", {
       description: "mint PAT failed: 503 Service Unavailable",
     });
   });
@@ -92,7 +92,7 @@ describe("reauthenticateDaemon", () => {
     await reauthenticateDaemon(t);
 
     expect(logout).not.toHaveBeenCalled();
-    expect(toastError).toHaveBeenCalledWith("无法重新连接守护进程", {
+    expect(toastError).toHaveBeenCalledWith("無法重新連線 daemon", {
       description: "ipc boom",
     });
   });
