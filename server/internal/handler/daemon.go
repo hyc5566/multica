@@ -653,6 +653,15 @@ func (h *Handler) DaemonRegister(w http.ResponseWriter, r *http.Request) {
 			h.mergeLegacyRuntimes(r, registered, provider, req.LegacyDaemonIDs)
 		}
 
+		// A reconnect is the fastest useful refresh point for account quota. The
+		// durable five-minute reservation coalesces repeated workspace
+		// registrations and the regular scheduler tick, so this never fans out
+		// into one probe per registration request.
+		if _, _, err := h.EnqueueProviderUsageRuntime(r.Context(), registered, time.Now().UTC()); err != nil {
+			slog.Debug("provider usage reconnect refresh skipped",
+				"runtime_id", uuidToString(registered.ID), "error", err)
+		}
+
 		resp = append(resp, runtimeToResponse(registered))
 	}
 	for _, failed := range req.FailedProfiles {

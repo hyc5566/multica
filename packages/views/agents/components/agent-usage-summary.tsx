@@ -27,10 +27,9 @@ export function AgentUsageSummary({
 }) {
   const { t, i18n } = useT("agents");
   const tz = useViewingTimezone();
-  const online = runtime?.status === "online";
   const providerQuery = useQuery({
-    ...runtimeProviderUsageOptions(online ? runtime.id : null),
-    enabled: Boolean(runtime && online),
+    ...runtimeProviderUsageOptions(runtime?.id),
+    enabled: Boolean(runtime),
   });
   const multicaQuery = useQuery({
     ...runtimeUsageByAgentOptions(runtime?.id ?? "", 7, tz),
@@ -56,7 +55,7 @@ export function AgentUsageSummary({
   }, [agent.id, multicaQuery.data]);
 
   const refresh = () => {
-    if (online) void providerQuery.refetch();
+    if (runtime) void providerQuery.refetch();
     if (runtime) void multicaQuery.refetch();
   };
   const refreshing = providerQuery.isFetching || multicaQuery.isFetching;
@@ -74,7 +73,6 @@ export function AgentUsageSummary({
   });
   const providerUnavailable =
     !runtime ||
-    !online ||
     providerQuery.isError ||
     (usage && !["available", "partial"].includes(usage.status));
   const quotaWindows = useMemo(
@@ -143,7 +141,7 @@ export function AgentUsageSummary({
             ) : null}
           </div>
 
-          {providerQuery.isPending && online ? (
+          {providerQuery.isPending && runtime ? (
             <div className="mt-2 grid gap-2 sm:grid-cols-2">
               <Skeleton className="h-14 w-full" />
               <Skeleton className="h-14 w-full" />
@@ -153,7 +151,7 @@ export function AgentUsageSummary({
               message={
                 !runtime
                   ? t(($) => $.detail.usage.no_runtime)
-                  : !online
+                  : runtime.status !== "online" && !usage
                     ? t(($) => $.detail.usage.runtime_offline)
                     : usage?.status === "auth_required"
                       ? t(($) => $.detail.usage.auth_required)

@@ -3177,7 +3177,7 @@ const RuntimeProviderUsageWindowSchema = z.object({
   unit: z.string().default("percent"),
 }).loose();
 
-const RuntimeProviderUsageSchema = z.object({
+export const RuntimeProviderUsageSchema = z.object({
   provider: z.string().default(""),
   account_scope: z.string().optional(),
   status: z.enum([
@@ -3193,6 +3193,10 @@ const RuntimeProviderUsageSchema = z.object({
   observed_at: z.string().default(""),
   message: z.string().optional(),
   retry_after_seconds: z.number().int().positive().optional(),
+  last_attempt_at: z.string().optional(),
+  last_success_at: z.string().optional(),
+  last_error_code: z.string().optional(),
+  stale: z.boolean().optional(),
 }).loose();
 
 export const RuntimeModelListRequestSchema = z.object({
