@@ -83,9 +83,9 @@ describe("resolveEmergencyLocale", () => {
 
     const { onRecoverableError } = await hydrateGlobalError("ja-JP");
 
-    expect(document.documentElement.lang).toBe("zh-CN");
-    expect(document.body).toHaveTextContent("出现了问题");
-    expect(document.querySelector("button")).toHaveTextContent("重新加载");
+    expect(document.documentElement.lang).toBe("zh-TW");
+    expect(document.body).toHaveTextContent("發生問題");
+    expect(document.querySelector("button")).toHaveTextContent("重新載入");
     expect(document.body).not.toHaveTextContent("Something went wrong");
     expect(document.body).not.toHaveTextContent("問題が発生しました");
     expect(onRecoverableError).not.toHaveBeenCalled();

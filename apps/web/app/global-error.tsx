@@ -77,9 +77,9 @@ const EMERGENCY_COPY = {
     reload: "Reload",
   },
   "zh-Hans": {
-    title: "出现了问题",
-    description: "页面发生意外错误，请尝试重新加载。",
-    reload: "重新加载",
+    title: "發生問題",
+    description: "頁面發生未預期的錯誤，請嘗試重新載入。",
+    reload: "重新載入",
   },
   ja: {
     title: "問題が発生しました",
