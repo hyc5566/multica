@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX CONCURRENTLY runtime_provider_usage_snapshot_probe_target_key ON runtime_provider_usage_snapshot (probe_target);
