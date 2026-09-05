@@ -1,39 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { RuntimeProviderUsageRequest } from "../types";
 import { resolveRuntimeProviderUsage } from "./provider-usage";
 
-const initiateProviderUsage = vi.fn();
-const getProviderUsageResult = vi.fn();
+const getProviderUsageSnapshot = vi.fn();
 
 vi.mock("../api", () => ({
   api: {
-    initiateProviderUsage: (runtimeId: string) =>
-      initiateProviderUsage(runtimeId),
-    getProviderUsageResult: (runtimeId: string, requestId: string) =>
-      getProviderUsageResult(runtimeId, requestId),
+    getProviderUsageSnapshot: (runtimeId: string) =>
+      getProviderUsageSnapshot(runtimeId),
   },
 }));
 
-function request(
-  overrides: Partial<RuntimeProviderUsageRequest>,
-): RuntimeProviderUsageRequest {
-  return {
-    id: "req-usage",
-    runtime_id: "rt-1",
-    status: "pending",
-    created_at: "2026-08-27T00:00:00Z",
-    updated_at: "2026-08-27T00:00:00Z",
-    ...overrides,
-  };
-}
-
 beforeEach(() => {
-  initiateProviderUsage.mockReset();
-  getProviderUsageResult.mockReset();
+  getProviderUsageSnapshot.mockReset();
 });
 
 describe("resolveRuntimeProviderUsage", () => {
-  it("polls until a structured provider snapshot is available", async () => {
+  it("reads the durable server snapshot without initiating a probe", async () => {
     const snapshot = {
       provider: "codex",
       status: "available" as const,
@@ -49,13 +31,10 @@ describe("resolveRuntimeProviderUsage", () => {
         },
       ],
     };
-    initiateProviderUsage.mockResolvedValue(request({ status: "pending" }));
-    getProviderUsageResult.mockResolvedValue(
-      request({ status: "completed", provider_usage: snapshot }),
-    );
+    getProviderUsageSnapshot.mockResolvedValue(snapshot);
 
     await expect(resolveRuntimeProviderUsage("rt-1")).resolves.toEqual(snapshot);
-    expect(getProviderUsageResult).toHaveBeenCalledWith("rt-1", "req-usage");
+    expect(getProviderUsageSnapshot).toHaveBeenCalledWith("rt-1");
   });
 
   it("preserves unavailable as data instead of fabricating zero", async () => {
@@ -66,28 +45,15 @@ describe("resolveRuntimeProviderUsage", () => {
       observed_at: "2026-08-27T01:00:00Z",
       message: "No structured account quota source.",
     };
-    initiateProviderUsage.mockResolvedValue(
-      request({ status: "completed", provider_usage: snapshot }),
-    );
+    getProviderUsageSnapshot.mockResolvedValue(snapshot);
 
     const result = await resolveRuntimeProviderUsage("rt-1");
     expect(result).toEqual(snapshot);
     expect(result.windows).toBeUndefined();
   });
 
-  it("surfaces request and malformed-daemon failures", async () => {
-    initiateProviderUsage.mockResolvedValue(
-      request({ status: "failed", error: "runtime report failed" }),
-    );
-    await expect(resolveRuntimeProviderUsage("rt-1")).rejects.toThrow(
-      "runtime report failed",
-    );
-
-    initiateProviderUsage.mockResolvedValue(
-      request({ status: "completed", provider_usage: undefined }),
-    );
-    await expect(resolveRuntimeProviderUsage("rt-1")).rejects.toThrow(
-      /provider usage failed/,
-    );
+  it("surfaces cache read failures", async () => {
+    getProviderUsageSnapshot.mockRejectedValue(new Error("snapshot failed"));
+    await expect(resolveRuntimeProviderUsage("rt-1")).rejects.toThrow("snapshot failed");
   });
 });

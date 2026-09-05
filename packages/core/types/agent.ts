@@ -1238,6 +1238,10 @@ export interface RuntimeProviderUsage {
   observed_at: string;
   message?: string;
   retry_after_seconds?: number;
+  last_attempt_at?: string;
+  last_success_at?: string;
+  last_error_code?: string;
+  stale?: boolean;
 }
 
 export interface RuntimeProviderUsageRequest {

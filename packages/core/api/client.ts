@@ -76,6 +76,7 @@ import type {
   DashboardFailureByAgent,
   RuntimeUpdate,
   RuntimeModelListRequest,
+  RuntimeProviderUsage,
   RuntimeProviderUsageRequest,
   RuntimeLocalSkillListRequest,
   CreateRuntimeLocalSkillImportRequest,
@@ -415,6 +416,7 @@ import {
   RuntimeModelListRequestSchema,
   MALFORMED_RUNTIME_MODEL_LIST_REQUEST,
   RuntimeProviderUsageRequestSchema,
+  RuntimeProviderUsageSchema,
   MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
   SkillSchema,
   EMPTY_SKILL,
@@ -2330,6 +2332,26 @@ export class ApiClient {
       RuntimeProviderUsageRequestSchema,
       { ...MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST, runtime_id: runtimeId },
       { endpoint: "POST /api/runtimes/{id}/provider-usage" },
+    );
+  }
+
+  async getProviderUsageSnapshot(
+    runtimeId: string,
+  ): Promise<RuntimeProviderUsage> {
+    const raw = await this.fetch<unknown>(
+      `/api/runtimes/${runtimeId}/provider-usage`,
+    );
+    return parseWithFallback<RuntimeProviderUsage>(
+      raw,
+      RuntimeProviderUsageSchema,
+      {
+        provider: "",
+        status: "error",
+        source: "unavailable",
+        observed_at: "",
+        message: "invalid provider usage snapshot",
+      },
+      { endpoint: "GET /api/runtimes/{id}/provider-usage" },
     );
   }
 

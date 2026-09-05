@@ -98,6 +98,10 @@ type ProviderUsageSnapshot struct {
 	ObservedAt        time.Time             `json:"observed_at"`
 	Message           string                `json:"message,omitempty"`
 	RetryAfterSeconds *int64                `json:"retry_after_seconds,omitempty"`
+	LastAttemptAt     *time.Time            `json:"last_attempt_at,omitempty"`
+	LastSuccessAt     *time.Time            `json:"last_success_at,omitempty"`
+	LastErrorCode     string                `json:"last_error_code,omitempty"`
+	Stale             bool                  `json:"stale,omitempty"`
 }
 
 type ProviderUsageWindow struct {
@@ -427,11 +431,9 @@ func (h *Handler) InitiateListModels(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, req)
 }
 
-// InitiateProviderUsage requests a fresh account-quota snapshot from the
-// runtime machine. It intentionally bypasses the model catalog cache: quota is
-// time-sensitive, and a synthetic cache-hit request has no daemon report to
-// attach usage to. The shared model-list queue is an internal transport detail;
-// the public endpoint and response remain usage-specific.
+// InitiateProviderUsage is the compatibility/manual-refresh endpoint. It uses
+// the same five-minute reservation as the scheduler, so opening an older
+// Desktop build or repeatedly pressing refresh cannot create duplicate probes.
 func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
 	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeAPI, runtimeID)
@@ -442,13 +444,30 @@ func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) 
 		writeError(w, http.StatusServiceUnavailable, "runtime is offline")
 		return
 	}
-	resolvedRuntimeID := uuidToString(rt.ID)
-	req, err := h.ModelListStore.Create(r.Context(), resolvedRuntimeID, "provider_usage")
+	target, eligible := providerUsageTargetForRuntime(rt)
+	if !eligible {
+		writeError(w, http.StatusUnprocessableEntity, "runtime does not support provider usage refresh")
+		return
+	}
+	now := time.Now().UTC()
+	req, admitted, err := h.EnqueueProviderUsageTarget(r.Context(), target, now.Truncate(providerUsageCadence), now)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request: "+err.Error())
 		return
 	}
-	h.requestDaemonPendingWork(resolvedRuntimeID, protocol.PendingWorkKindModelList)
+	if !admitted {
+		snapshot, readErr := h.readProviderUsageSnapshot(r.Context(), target, now)
+		if readErr != nil {
+			writeError(w, http.StatusInternalServerError, "failed to load provider usage snapshot")
+			return
+		}
+		writeJSON(w, http.StatusOK, &ModelListRequest{
+			ID: randomID(), RuntimeID: target.RuntimeID, Purpose: "provider_usage",
+			Status: ModelListCompleted, ProviderUsage: snapshot, Supported: true,
+			CreatedAt: now, UpdatedAt: now,
+		})
+		return
+	}
 	writeJSON(w, http.StatusOK, req)
 }
 
@@ -577,7 +596,8 @@ func (h *Handler) GetProviderUsageRequest(w http.ResponseWriter, r *http.Request
 func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
 
-	if _, ok := h.requireDaemonRuntimeAccess(w, r, runtimeID); !ok {
+	rt, ok := h.requireDaemonRuntimeAccess(w, r, runtimeID)
+	if !ok {
 		return
 	}
 
@@ -619,6 +639,31 @@ func (h *Handler) ReportModelListResult(w http.ResponseWriter, r *http.Request) 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		writeError(w, http.StatusBadRequest, "invalid request body")
 		return
+	}
+
+	if existing.Purpose == "provider_usage" {
+		target, eligible := providerUsageTargetForRuntime(rt)
+		if !eligible {
+			writeError(w, http.StatusUnprocessableEntity, "runtime does not support provider usage reports")
+			return
+		}
+		if body.Status != "completed" && body.Status != "failed" {
+			writeError(w, http.StatusBadRequest, "invalid provider usage report status")
+			return
+		}
+		if body.Status == "completed" {
+			if err := validateProviderUsageSnapshot(body.ProviderUsage, rt.Provider); err != nil {
+				_ = h.ModelListStore.Fail(r.Context(), requestID, "invalid provider usage report")
+				_ = h.recordProviderUsageResult(r.Context(), target, nil, "failed", time.Now().UTC())
+				writeError(w, http.StatusBadRequest, "invalid provider usage report")
+				return
+			}
+		}
+		if err := h.recordProviderUsageResult(r.Context(), target, body.ProviderUsage, body.Status, time.Now().UTC()); err != nil {
+			slog.Error("provider usage snapshot persistence failed", "error", err, "runtime_id", runtimeID)
+			writeError(w, http.StatusInternalServerError, "failed to persist provider usage snapshot")
+			return
+		}
 	}
 
 	if body.Status == "completed" {

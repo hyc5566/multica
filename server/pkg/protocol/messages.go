@@ -149,6 +149,7 @@ type WorkspacesChangedPayload struct{}
 // newer server stays safe on an older daemon.
 const (
 	PendingWorkKindModelList        = "model_list"
+	PendingWorkKindProviderUsage    = "provider_usage"
 	PendingWorkKindLocalSkills      = "local_skills"
 	PendingWorkKindLocalSkillImport = "local_skill_import"
 )

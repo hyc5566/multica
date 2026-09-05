@@ -1300,6 +1300,13 @@ func (h *Handler) DeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 			run:  func() error { return qtx.DeleteWorkspaceAgents(ctx, requester.WorkspaceID) },
 		},
 		{
+			name: "delete provider usage snapshots",
+			run: func() error {
+				_, err := h.DB.Exec(ctx, `DELETE FROM runtime_provider_usage_snapshot WHERE workspace_id = $1`, requester.WorkspaceID)
+				return err
+			},
+		},
+		{
 			name: "delete runtimes and projects",
 			run:  func() error { return qtx.DeleteWorkspaceRuntimesAndProjects(ctx, requester.WorkspaceID) },
 		},
