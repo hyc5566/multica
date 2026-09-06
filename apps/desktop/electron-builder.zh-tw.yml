@@ -23,6 +23,9 @@ protocols:
 asarUnpack:
   - resources/**
 mac:
+  # Match the upstream package path explicitly so the Taiwan build always
+  # uses the corrected multi-resolution macOS asset.
+  icon: build/icon.icns
   entitlementsInherit: build/entitlements.mac.plist
   notarize: false
   extendInfo:
