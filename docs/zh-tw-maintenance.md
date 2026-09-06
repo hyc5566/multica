@@ -99,21 +99,15 @@ the runtime Dock override use `apps/desktop/resources/icon.png`; the 1024px
 visually aligned with them. Both electron-builder configurations pin the ICNS
 path explicitly so packaging cannot silently select a stale PNG instead.
 
-The September 2026 correction moves the artwork down without changing its size:
-6px at 1024px, 3px at 512px, 2px at 256px, and 1px at 128px. Smaller outputs
-stay unchanged because the proportional adjustment is below one physical pixel.
-The correction balances the transparent top and bottom safety area that was
-lost when an upstream asset-deduplication change replaced the previously
-centered runtime icon.
+The September 2026 correction aligns the artwork with Apple Human Interface Guidelines (HIG):
+in a 1024x1024 canvas, the standard squircle grid is 824x824 with 100px margins on all sides,
+centered precisely at (512, 512). This aligns Multica seamlessly with macOS system apps
+(Finder, System Settings, Safari, etc.) in Command-Tab, Dock, and Launchpad.
 
-To rebuild the complete PNG and ICNS set on macOS, install ImageMagick and
-Oxipng, then run the generator against the original 1024px brand export. Pass
-`6` only when that export still has artwork touching the top edge; pass `0`
-when the source is already aligned.
+To rebuild the complete PNG and ICNS set on macOS, run the generator with `--hig-standard`:
 
 ```bash
-brew install imagemagick oxipng
-scripts/generate-desktop-macos-icons.sh ./multica-icon-source.png 6
+scripts/generate-desktop-macos-icons.sh ./multica-icon-source.png --hig-standard
 ```
 
 The generator preserves the 1024px canvas, writes every standard and Retina
