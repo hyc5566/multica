@@ -36,6 +36,10 @@ protocols:
 asarUnpack:
   - resources/**
 mac:
+  # Keep macOS packaging pinned to the multi-resolution asset. The PNG is
+  # also bundled for the development/runtime Dock override, but letting the
+  # builder auto-select between them can hide an out-of-sync ICNS file.
+  icon: build/icon.icns
   entitlementsInherit: build/entitlements.mac.plist
   target:
     - dmg
