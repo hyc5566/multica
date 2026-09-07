@@ -68,6 +68,30 @@ and the Agent usage component. During a future rebuild, prefer adapting those
 small seams to the latest upstream contracts over copying old surrounding
 files.
 
+### Task quota checkpoint layer
+
+Replay the task checkpoint feature after the two provider-usage commits above:
+
+1. Add the append-only `provider_quota_observation`, `task_quota_checkpoint`,
+   and `provider_quota_rollup` migrations and their concurrent indexes.
+2. Reconnect the two narrow runner hooks around `runner.run`, the daemon
+   coordinator in `server/internal/daemon/task_quota.go`, and the daemon report
+   route. Probe timeout, cache and report failures are all fail-open; none may
+   alter the task result.
+3. Reconnect checkpoint hydration to the full issue task-history response and
+   the quota section in the issue usage dialog. The UI comparison helper is the
+   authority for same-observation, stale and reset-crossing semantics.
+4. Register the hourly maintenance job after migrations. It retains raw
+   observations for 180 days, hourly rollups for 13 months, and daily rollups
+   plus task checkpoint boundaries for 25 months.
+
+Task token rows are exact run accounting. Quota checkpoints are account-level
+observations and must never be labelled as the task's own consumption. Keep the
+overlap count and external-activity warning in every report/export. Model
+matching is exact only when the provider supplies a stable model identifier
+(currently Antigravity); Claude is account-shared and Codex named buckets stay
+`unknown` rather than being guessed from display text.
+
 ## Upstream update workflow
 
 ```bash

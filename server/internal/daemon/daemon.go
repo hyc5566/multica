@@ -526,6 +526,15 @@ type Daemon struct {
 	pendingWorkInflight map[string]struct{}  // runtime_id -> hint-driven heartbeat in flight
 	pendingWorkLastRun  map[string]time.Time // runtime_id -> when the last hint-driven heartbeat started
 
+	// taskQuota* coalesces account-level usage probes across concurrent tasks
+	// and retains a very short last-known-good cache. The provider helper has a
+	// local request limiter too, but coalescing here avoids paying for rejected
+	// subprocesses and gives short runs an explicit same-observation checkpoint.
+	taskQuotaMu       sync.Mutex
+	taskQuotaCache    map[string]taskQuotaCachedObservation
+	taskQuotaInflight map[string]*taskQuotaProbeCall
+	taskQuotaProbeFn  func(context.Context, string, agent.Command) agent.ProviderUsage
+
 	cancelFunc context.CancelFunc // set by Run(); called by triggerRestart
 	rootCtx    context.Context    // set by Run(); used by long-running recoveries that must survive per-runtime ctx cancellation
 	// restartMu guards restartBinary. Two goroutines can reach triggerRestart —
@@ -662,6 +671,9 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 		runtimeGoneInflight:       make(map[string]struct{}),
 		pendingWorkInflight:       make(map[string]struct{}),
 		pendingWorkLastRun:        make(map[string]time.Time),
+		taskQuotaCache:            make(map[string]taskQuotaCachedObservation),
+		taskQuotaInflight:         make(map[string]*taskQuotaProbeCall),
+		taskQuotaProbeFn:          agent.ProbeProviderUsage,
 		reregisterNextAttempt:     make(map[string]time.Time),
 		reregisterLastCompletedAt: make(map[string]time.Time),
 		cancelPollInterval:        5 * time.Second,
@@ -4362,11 +4374,11 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
 	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
 
-	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.Command{})
+	result := d.observeTaskQuota(ctx, rt, rt.Provider)
 	d.reportModelListResult(ctx, rt, requestID, map[string]any{
 		"status":         "completed",
 		"supported":      true,
-		"provider_usage": usage,
+		"provider_usage": result.reportSnapshot,
 	})
 }
 
@@ -5505,7 +5517,9 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		}
 	}()
 
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "before", taskLog)
 	result, err := d.runner.run(runCtx, task, provider, slot, taskLog)
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "after", taskLog)
 
 	// Report usage before any early return — the agent accumulates tokens
 	// whether the task completes, errors, or is cancelled mid-run by the poll

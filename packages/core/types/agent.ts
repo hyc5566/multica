@@ -416,6 +416,39 @@ export interface AgentTask {
    * reporting was not free, we just don't know what it cost.
    */
   usage?: TaskUsage[];
+  /**
+   * Account-level provider quota observations captured immediately before and
+   * after this run. They are evidence beside the run's exact token usage, not
+   * task-attributable billing: another run may share the same provider account.
+   */
+  quota_checkpoints?: TaskQuotaCheckpoint[];
+}
+
+export type TaskQuotaCheckpointPhase = "before" | "after";
+
+export type TaskQuotaCaptureState =
+  | "fresh"
+  | "cached"
+  | "stale_cache"
+  | "unsupported"
+  | "timeout"
+  | "auth_required"
+  | "rate_limited"
+  | "provider_error"
+  | "no_snapshot"
+  | "expired";
+
+export interface TaskQuotaCheckpoint {
+  phase: TaskQuotaCheckpointPhase;
+  boundary_at: string;
+  provider: string;
+  requested_model?: string;
+  capture_state: TaskQuotaCaptureState;
+  error_code?: string;
+  observation_age_ms?: number;
+  overlapping_task_count: number;
+  observation_id?: string;
+  snapshot?: RuntimeProviderUsage;
 }
 
 /**
@@ -1206,6 +1239,10 @@ export interface RuntimeProviderUsageWindow {
   /** Provider timestamp preserved as RFC3339 by the backend. */
   resets_at?: string;
   unit: string;
+  /** Task-report annotation; absent on generic runtime snapshots. */
+  scope?: "account" | "provider" | "model";
+  /** Exact is emitted only for a provider-stable model identifier. */
+  model_match?: "exact" | "shared" | "unknown";
 }
 
 export interface RuntimeProviderUsage {

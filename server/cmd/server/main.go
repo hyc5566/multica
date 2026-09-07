@@ -773,6 +773,9 @@ func main() {
 	if err := schedulerMgr.Register(providerUsageRefreshJob(h)); err != nil {
 		slog.Warn("scheduler: failed to register provider usage refresh job", "error", err)
 	}
+	if err := schedulerMgr.Register(providerQuotaMaintenanceJob(h)); err != nil {
+		slog.Warn("scheduler: failed to register provider quota maintenance job", "error", err)
+	}
 	go func() {
 		_ = schedulerMgr.Run(sweepCtx)
 	}()
