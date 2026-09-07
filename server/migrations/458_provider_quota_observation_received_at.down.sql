@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY IF EXISTS provider_quota_observation_received_at_idx;
