@@ -88,6 +88,20 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("IssueUsageDialog", () => {
+  it("keeps the quota report reachable when the dialog exceeds the viewport", () => {
+    open([
+      makeTask({
+        usage: [usage()],
+        quota_checkpoints: [quota("before", 10), quota("after", 13)],
+      }),
+    ]);
+
+    expect(screen.getByRole("dialog")).toHaveClass(
+      "!max-h-[calc(100svh-4rem)]",
+      "overflow-y-auto",
+    );
+  });
+
   it("floors the cache hit rate instead of rounding it up to 100%", () => {
     // 99.55% — rounding would print "100% hit rate" and claim every token came
     // from cache on an issue that plainly read some fresh input.

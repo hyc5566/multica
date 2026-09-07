@@ -108,7 +108,7 @@ export function IssueUsageDialog({
           5xl rather than 4xl because nine columns plus the token bar need
           ~920px: at 4xl the Cost column — the one people open this for —
           landed outside the scroll viewport. */}
-      <DialogContent className="!max-w-5xl !w-[calc(100vw-4rem)]">
+      <DialogContent className="!max-h-[calc(100svh-4rem)] !w-[calc(100vw-4rem)] !max-w-5xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{t(($) => $.usage_detail.title)}</DialogTitle>
           <DialogDescription>
