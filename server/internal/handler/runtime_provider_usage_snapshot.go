@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
 	"strings"
@@ -240,6 +241,11 @@ func validateProviderUsageSnapshot(snapshot *ProviderUsageSnapshot, provider str
 }
 
 func (h *Handler) recordProviderUsageResult(ctx context.Context, target ProviderUsageTarget, snapshot *ProviderUsageSnapshot, reportStatus string, now time.Time) error {
+	if snapshot != nil {
+		if _, err := storeProviderQuotaObservation(ctx, h.DB, target, snapshot, now); err != nil {
+			slog.Warn("store provider quota observation failed", "probe_target", target.ProbeTarget, "error", err)
+		}
+	}
 	good := snapshot != nil && (snapshot.Status == "available" || snapshot.Status == "partial")
 	var raw any
 	var lastSuccess any

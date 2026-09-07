@@ -113,6 +113,11 @@ type ProviderUsageWindow struct {
 	WindowDurationMins *int64     `json:"window_duration_mins,omitempty"`
 	ResetsAt           *time.Time `json:"resets_at,omitempty"`
 	Unit               string     `json:"unit"`
+	// Scope and ModelMatch are response-only annotations added when a window is
+	// attached to a task. They are not trusted provider payload fields and are
+	// omitted from generic runtime snapshots.
+	Scope      string `json:"scope,omitempty"`
+	ModelMatch string `json:"model_match,omitempty"`
 }
 
 // ModelEntry mirrors agent.Model for the wire. `Default` tags the

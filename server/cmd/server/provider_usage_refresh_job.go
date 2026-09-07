@@ -12,8 +12,9 @@ import (
 )
 
 const (
-	providerUsageRefreshJobName = "refresh_runtime_provider_usage"
-	providerUsageRefreshCadence = 5 * time.Minute
+	providerUsageRefreshJobName     = "refresh_runtime_provider_usage"
+	providerUsageRefreshCadence     = 5 * time.Minute
+	providerQuotaMaintenanceJobName = "maintain_provider_quota_history"
 )
 
 // providerUsageRefreshJob is the small platform adapter around the Taiwan-only
@@ -66,6 +67,36 @@ func providerUsageRefreshJob(h *handler.Handler) scheduler.JobSpec {
 			return scheduler.HandlerResult{
 				RowsAffected: rows,
 				Result:       map[string]any{"status": status, "provider": target.Provider},
+			}, nil
+		},
+	}
+}
+
+func providerQuotaMaintenanceJob(h *handler.Handler) scheduler.JobSpec {
+	return scheduler.JobSpec{
+		Name:              providerQuotaMaintenanceJobName,
+		Cadence:           time.Hour,
+		CatchUpMode:       scheduler.CatchUpLatestOnly,
+		CatchUpWindow:     24 * time.Hour,
+		RunTimeout:        5 * time.Minute,
+		StaleTimeout:      10 * time.Minute,
+		HeartbeatInterval: 30 * time.Second,
+		AllowStaleReentry: true,
+		MaxAttempts:       3,
+		RetryBackoff:      []time.Duration{time.Minute, 5 * time.Minute, 15 * time.Minute},
+		Scopes:            scheduler.StaticScopes(scheduler.ScopeGlobal),
+		Handler: func(ctx context.Context, in scheduler.HandlerInput) (scheduler.HandlerResult, error) {
+			rows, err := h.MaintainProviderQuotaHistory(ctx, in.PlanTime.UTC())
+			if err != nil {
+				return scheduler.HandlerResult{}, err
+			}
+			return scheduler.HandlerResult{
+				RowsAffected: rows,
+				Result: map[string]any{
+					"observation_retention_days": 180,
+					"hourly_retention_months":    13,
+					"daily_retention_months":     25,
+				},
 			}, nil
 		},
 	}

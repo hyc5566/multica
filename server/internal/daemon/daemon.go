@@ -582,6 +582,15 @@ type Daemon struct {
 	pendingWorkInflight map[string]struct{}  // runtime_id -> hint-driven heartbeat in flight
 	pendingWorkLastRun  map[string]time.Time // runtime_id -> when the last hint-driven heartbeat started
 
+	// taskQuota* coalesces account-level usage probes across concurrent tasks
+	// and retains a very short last-known-good cache. The provider helper has a
+	// local request limiter too, but coalescing here avoids paying for rejected
+	// subprocesses and gives short runs an explicit same-observation checkpoint.
+	taskQuotaMu       sync.Mutex
+	taskQuotaCache    map[string]taskQuotaCachedObservation
+	taskQuotaInflight map[string]*taskQuotaProbeCall
+	taskQuotaProbeFn  func(context.Context, string, agent.Command) agent.ProviderUsage
+
 	cancelFunc context.CancelFunc // set by Run(); called by triggerRestart
 	rootCtx    context.Context    // set by Run(); used by long-running recoveries that must survive per-runtime ctx cancellation
 	// restartMu guards restartBinary. Two goroutines can reach triggerRestart —
@@ -710,6 +719,7 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 	// server can split logs/metrics by client version (parallel to the CLI).
 	client.SetVersion(cfg.CLIVersion)
 	d := &Daemon{
+<<<<<<< HEAD
 		cfg:                         cfg,
 		client:                      client,
 		repoCache:                   repocache.New(cacheRoot, logger),
@@ -748,6 +758,9 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 		reconcile:                   newReconcileBroadcaster(),
 		workspaceChanges:            newWorkspaceChangeSignal(),
 		wsRPC:                       newWSRPCClient(wsRPCResponseGrace),
+		taskQuotaCache:              make(map[string]taskQuotaCachedObservation),
+		taskQuotaInflight:           make(map[string]*taskQuotaProbeCall),
+		taskQuotaProbeFn:            agent.ProbeProviderUsage,
 	}
 	d.activeEnvRootsCond = sync.NewCond(&d.activeEnvRootsMu)
 	d.activeStoresCond = sync.NewCond(&d.activeStoresMu)
@@ -4709,11 +4722,11 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
 	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
 
-	usage := agent.ProbeProviderUsage(ctx, rt.Provider, agent.Command{})
+	result := d.observeTaskQuota(ctx, rt, rt.Provider)
 	d.reportModelListResult(ctx, rt, requestID, map[string]any{
 		"status":         "completed",
 		"supported":      true,
-		"provider_usage": usage,
+		"provider_usage": result.reportSnapshot,
 	})
 }
 
@@ -5860,6 +5873,7 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		}
 	}()
 
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "before", taskLog)
 	result, err := d.runner.run(runCtx, task, provider, slot, taskLog)
 	if errors.Is(err, errStartClaimRejected) {
 		// The row belongs to another claim (or is terminal). A task-id-only
@@ -5867,6 +5881,7 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		taskLog.Info("discarding rejected start claim", "error", err)
 		return
 	}
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "after", taskLog)
 
 	// Report usage before any early return — the agent accumulates tokens
 	// whether the task completes, errors, or is cancelled mid-run by the poll

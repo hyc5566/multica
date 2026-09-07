@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY IF EXISTS task_quota_checkpoint_workspace_time_idx;
