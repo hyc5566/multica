@@ -2,7 +2,7 @@
 
 import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AgentTask } from "@multica/core/types";
+import type { AgentTask, TaskQuotaCheckpoint } from "@multica/core/types";
 import { renderWithI18n } from "../../test/i18n";
 
 const mockState = vi.hoisted(() => ({
@@ -273,6 +273,40 @@ function usageSlice(overrides: Partial<TaskUsage> = {}): TaskUsage {
   };
 }
 
+function quota(
+  phase: "before" | "after",
+  used: number,
+): TaskQuotaCheckpoint {
+  return {
+    phase,
+    boundary_at:
+      phase === "before" ? "2026-06-08T08:00:00Z" : "2026-06-08T08:04:00Z",
+    provider: "codex",
+    requested_model: "gpt-5.6-sol",
+    capture_state: "fresh",
+    observation_id: phase,
+    overlapping_task_count: 1,
+    snapshot: {
+      provider: "codex",
+      status: "available",
+      source: "official",
+      observed_at:
+        phase === "before" ? "2026-06-08T08:00:00Z" : "2026-06-08T08:04:00Z",
+      windows: [
+        {
+          id: "weekly",
+          label: "Codex weekly",
+          used_percent: used,
+          resets_at: "2026-06-14T00:00:00Z",
+          unit: "percent",
+          scope: "account",
+          model_match: "shared",
+        },
+      ],
+    },
+  };
+}
+
 describe("per-run token usage", () => {
   // An active row shows only its timer. The daemon reports usage once, after
   // the run returns, and that write publishes no realtime event — so no
@@ -377,6 +411,33 @@ describe("execution log header geometry", () => {
     expect(header.getByText("892K").className).toContain(
       "@max-[16rem]/execution-log:hidden",
     );
+  });
+
+  it("opens usage details with provider quota checkpoints from the header total", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    queryClient.setQueryData(issueKeys.tasks("issue-1"), [
+      makeTask({
+        status: "completed",
+        completed_at: "2026-06-08T08:04:00Z",
+        usage: [usageSlice()],
+        quota_checkpoints: [quota("before", 15), quota("after", 17)],
+      }),
+    ]);
+    renderWithI18n(
+      <QueryClientProvider client={queryClient}>
+        <ExecutionLogSection issueId="issue-1" identifier="HYCLV-30" />
+      </QueryClientProvider>,
+      { locale: "zh-Hans" },
+    );
+
+    fireEvent.click(screen.getByText("$2.00").closest("button")!);
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("用量明細")).toBeInTheDocument();
+    expect(screen.getByText("供應商額度快照")).toBeInTheDocument();
+    expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
   });
 });
 
