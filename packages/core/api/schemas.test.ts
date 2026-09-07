@@ -681,6 +681,47 @@ describe("AgentTaskListSchema", () => {
     expect(parsed[0]?.relative_durable_work_dir).toBeUndefined();
     expect(parsed[0]?.branch_name).toBeUndefined();
   });
+
+  it("preserves normalized task quota checkpoints", () => {
+    const parsed = AgentTaskListSchema.parse([{
+      ...task,
+      quota_checkpoints: [{
+        phase: "before",
+        boundary_at: "2026-09-07T01:00:01Z",
+        provider: "codex",
+        capture_state: "fresh",
+        observation_age_ms: 1000,
+        overlapping_task_count: 1,
+        observation_id: "observation-1",
+        snapshot: {
+          provider: "codex",
+          status: "available",
+          source: "official",
+          observed_at: "2026-09-07T01:00:00Z",
+          windows: [{
+            id: "codex-primary",
+            label: "5 hour limit",
+            used_percent: 12,
+            unit: "percent",
+            scope: "provider",
+            model_match: "shared",
+          }],
+        },
+      }],
+    }]);
+
+    expect(parsed[0]?.quota_checkpoints?.[0]).toMatchObject({
+      phase: "before",
+      observation_id: "observation-1",
+      snapshot: { windows: [{ scope: "provider", model_match: "shared" }] },
+    });
+  });
+
+  it("degrades malformed quota metadata without dropping the task row", () => {
+    const parsed = AgentTaskListSchema.parse([{ ...task, quota_checkpoints: [{ phase: "during" }] }]);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]?.quota_checkpoints).toBeUndefined();
+  });
 });
 
 describe("ChatDraftRestoresResponseSchema", () => {

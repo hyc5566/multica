@@ -157,7 +157,37 @@
     "runtime_required_toast": "請先繫結執行環境，再執行該智能體。",
     "assign_work": "分配工作",
     "more_actions_aria": "智能體操作",
-    "updated": "{{when}}更新"
+    "updated": "{{when}}更新",
+    "usage": {
+      "title": "用量與額度",
+      "source": "來源：{{source}}",
+      "source_official": "官方",
+      "source_derived": "可靠推導",
+      "source_unavailable": "無法取得",
+      "refresh": "重新整理用量",
+      "provider_quota": "供應商帳號額度",
+      "model": "模型：{{model}}",
+      "model_default": "執行環境預設模型",
+      "current_model": "目前模型",
+      "updated_at": "更新於 {{when}}",
+      "no_runtime": "請先綁定執行環境，才能讀取供應商用量。",
+      "runtime_offline": "執行環境目前離線，無法重新整理用量。",
+      "unavailable": "供應商未回傳可供程式讀取的額度資料。",
+      "auth_required": "請在此執行環境登入供應商 CLI，然後重新整理。",
+      "claude_unavailable": "目前還沒有 Claude Code 額度快照。請使用相容的 Multica 守護進程執行一次 Claude task，再回來重新整理。",
+      "probe_error": "執行環境的 CLI 無法提供帳號額度快照。",
+      "multica_7d": "此智能體在 Multica · 近 7 天",
+      "tokens": "tokens",
+      "runs": "執行次數",
+      "multica_scope_hint": "僅統計 Multica 執行的任務；這是使用量，不是供應商帳號額度。",
+      "remaining_unknown": "剩餘 —",
+      "used": "已用 {{value}}%",
+      "remaining": "剩餘 {{value}}%",
+      "window_5h": "5 小時額度",
+      "window_weekly": "每週額度",
+      "resets": "{{when}} 重置",
+      "reset_unknown": "無法取得重置時間"
+    }
   },
   "inspector": {
     "section_profile": "資料",
@@ -193,6 +223,8 @@
     "rename_required": "名稱必填",
     "edit_description_title": "編輯描述",
     "description_placeholder": "這個智能體做什麼？",
+    "discard_changes": "放棄變更",
+    "save_changes": "保留變更",
     "save": "儲存",
     "cancel": "取消"
   },
@@ -458,6 +490,8 @@
   "tab_body": {
     "common": {
       "save": "儲存",
+      "discard_changes": "放棄變更",
+      "save_changes": "保留變更",
       "add": "新增",
       "unsaved_changes": "未儲存的修改"
     },

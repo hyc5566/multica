@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import { Download } from "lucide-react";
 import type { AgentTask } from "@multica/core/types";
 import {
   Dialog,
@@ -9,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@multica/ui/components/ui/dialog";
+import { Button } from "@multica/ui/components/ui/button";
 import { useActorName } from "@multica/core/workspace/hooks";
 import { useCustomPricingStore } from "@multica/core/runtimes/custom-pricing-store";
 import { ActorAvatar } from "../../common/actor-avatar";
@@ -25,6 +27,7 @@ import {
 import { KpiCard } from "../../runtimes/components/shared";
 import { useStatusLabel, useTriggerText } from "./task-run-labels";
 import { TaskStatusIcon } from "./task-status-icon";
+import { compareTaskQuotaCheckpoints } from "./task-quota-comparison";
 
 // Per-run cost breakdown for one issue — the surface the execution log's
 // header total opens.
@@ -65,6 +68,10 @@ export function IssueUsageDialog({
     [tasks],
   );
   const unpricedCount = tasks.length - priced.length;
+  const quotaTasks = useMemo(
+    () => tasks.filter((task) => (task.quota_checkpoints?.length ?? 0) > 0),
+    [tasks],
+  );
 
   const total = useMemo(
     () => summarizeTaskUsageAcross(priced.map((task) => task.usage)),
@@ -112,10 +119,12 @@ export function IssueUsageDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {total == null ? (
+        {total == null && quotaTasks.length === 0 ? (
           <p className="py-8 text-center text-body text-muted-foreground">
             {t(($) => $.usage_detail.empty)}
           </p>
+        ) : total == null ? (
+          <QuotaReport tasks={tasks} identifier={identifier} />
         ) : (
           /* `min-w-0`: DialogContent is a grid, and a grid item defaults to
              `min-width: auto` — it sizes to its content's minimum rather than
@@ -155,6 +164,10 @@ export function IssueUsageDialog({
 
             <RunTable tasks={priced} total={total} />
 
+            {quotaTasks.length > 0 && (
+              <QuotaReport tasks={tasks} identifier={identifier} />
+            )}
+
             <div className="space-y-1 text-micro text-muted-foreground">
               {unpricedCount > 0 && (
                 <p>{t(($) => $.usage_detail.note_unpriced, { count: unpricedCount })}</p>
@@ -170,6 +183,228 @@ export function IssueUsageDialog({
         )}
       </DialogContent>
     </Dialog>
+  );
+}
+
+function downloadText(filename: string, content: string, type: string) {
+  const href = URL.createObjectURL(new Blob([content], { type }));
+  const link = document.createElement("a");
+  link.href = href;
+  link.download = filename;
+  link.rel = "noopener";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  // Safari aborts the download if the object URL is revoked in the same task.
+  setTimeout(() => URL.revokeObjectURL(href), 0);
+}
+
+function csvCell(value: unknown): string {
+  let text = value == null ? "" : String(value);
+  // Spreadsheet programs execute leading formula characters when a CSV is
+  // opened. Provider/model/window labels are external strings, so neutralize
+  // them before quoting the field.
+  if (/^[=+\-@]/.test(text)) text = `'${text}`;
+  return `"${text.replaceAll('"', '""')}"`;
+}
+
+function runsCSV(tasks: AgentTask[]): string {
+  const rows: unknown[][] = [[
+    "task_id", "provider", "model", "status", "started_at_utc", "completed_at_utc",
+    "timezone", "input_tokens", "output_tokens", "cache_read_tokens", "cache_write_tokens",
+  ]];
+  for (const task of tasks) {
+    for (const usage of task.usage ?? []) {
+      rows.push([
+        task.id, usage.provider, usage.model, task.status, task.started_at,
+        task.completed_at, "UTC", usage.input_tokens, usage.output_tokens,
+        usage.cache_read_tokens, usage.cache_write_tokens,
+      ]);
+    }
+  }
+  return rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+}
+
+function quotaCheckpointCSV(tasks: AgentTask[]): string {
+  const rows: unknown[][] = [[
+    "task_id", "phase", "provider", "requested_model", "window_id", "window",
+    "scope", "model_match", "used_percent", "remaining_percent", "boundary_at_utc",
+    "observed_at_utc", "resets_at_utc", "timezone", "capture_state", "error_code",
+    "observation_age_ms", "overlapping_tasks", "observation_id",
+  ]];
+  for (const task of tasks) {
+    for (const checkpoint of task.quota_checkpoints ?? []) {
+      const windows = checkpoint.snapshot?.windows ?? [];
+      if (windows.length === 0) {
+        rows.push([
+          task.id, checkpoint.phase, checkpoint.provider, checkpoint.requested_model,
+          "", "", "", "", "", "", checkpoint.boundary_at, checkpoint.snapshot?.observed_at,
+          "", "UTC", checkpoint.capture_state, checkpoint.error_code,
+          checkpoint.observation_age_ms, checkpoint.overlapping_task_count, checkpoint.observation_id,
+        ]);
+      }
+      for (const window of windows) {
+        rows.push([
+          task.id, checkpoint.phase, checkpoint.provider, checkpoint.requested_model,
+          window.id, window.label, window.scope, window.model_match, window.used_percent,
+          window.remaining_percent, checkpoint.boundary_at, checkpoint.snapshot?.observed_at,
+          window.resets_at, "UTC", checkpoint.capture_state, checkpoint.error_code,
+          checkpoint.observation_age_ms, checkpoint.overlapping_task_count, checkpoint.observation_id,
+        ]);
+      }
+    }
+  }
+  return rows.map((row) => row.map(csvCell).join(",")).join("\r\n");
+}
+
+function QuotaReport({ tasks, identifier }: { tasks: AgentTask[]; identifier: string }) {
+  const { t } = useT("issues");
+  const [showAll, setShowAll] = useState(false);
+  const rows = tasks.flatMap((task) =>
+    compareTaskQuotaCheckpoints(task.quota_checkpoints).map((window) => ({ task, window })),
+  );
+  const visibleRows = showAll
+    ? rows
+    : rows.filter(({ window }) => window.modelMatch === "exact" || window.modelMatch === "shared" || window.scope !== "model");
+  const hiddenCount = rows.length - visibleRows.length;
+  return (
+    <section className="space-y-2" aria-labelledby="task-quota-heading">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 id="task-quota-heading" className="text-caption font-medium">
+            {t(($) => $.usage_detail.quota_title)}
+          </h3>
+          <p className="text-micro text-muted-foreground">
+            {t(($) => $.usage_detail.quota_attribution_note)}
+          </p>
+          {!showAll && hiddenCount > 0 && (
+            <button
+              type="button"
+              className="text-micro text-link hover:underline"
+              onClick={() => setShowAll(true)}
+            >
+              {t(($) => $.usage_detail.quota_show_all, { count: hiddenCount })}
+            </button>
+          )}
+        </div>
+        <div className="flex shrink-0 gap-1.5">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => downloadText(
+              `${identifier}-quota.json`,
+              JSON.stringify(tasks.map(({ id, usage, quota_checkpoints }) => ({ id, usage, quota_checkpoints })), null, 2),
+              "application/json;charset=utf-8",
+            )}
+          >
+            <Download className="mr-1 size-3.5" aria-hidden />JSON
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => downloadText(
+              `${identifier}-runs.csv`, runsCSV(tasks), "text/csv;charset=utf-8",
+            )}
+          >
+            <Download className="mr-1 size-3.5" aria-hidden />
+            {t(($) => $.usage_detail.export_runs_csv)}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => downloadText(
+              `${identifier}-quota-checkpoints.csv`, quotaCheckpointCSV(tasks), "text/csv;charset=utf-8",
+            )}
+          >
+            <Download className="mr-1 size-3.5" aria-hidden />
+            {t(($) => $.usage_detail.export_quota_csv)}
+          </Button>
+        </div>
+      </div>
+      <div className="max-h-[32vh] min-w-0 overflow-auto rounded-md border">
+        <table className="w-full min-w-[68rem]">
+          <thead className="sticky top-0 bg-popover">
+            <tr className="text-micro text-muted-foreground [&>th]:whitespace-nowrap [&>th]:px-2 [&>th]:py-1.5 [&>th]:text-right [&>th]:font-normal">
+              <th className="!text-left">{t(($) => $.usage_detail.col_run)}</th>
+              <th className="!text-left">{t(($) => $.usage_detail.quota_window)}</th>
+              <th>{t(($) => $.usage_detail.quota_before)}</th>
+              <th>{t(($) => $.usage_detail.quota_after)}</th>
+              <th>{t(($) => $.usage_detail.quota_delta)}</th>
+              <th className="!text-left">{t(($) => $.usage_detail.quota_observed)}</th>
+              <th className="!text-left">{t(($) => $.usage_detail.quota_reset)}</th>
+              <th className="!text-left">{t(($) => $.usage_detail.quota_state)}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map(({ task, window }) => (
+              <QuotaRow key={`${task.id}:${window.id}`} task={task} window={window} />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+}
+
+function QuotaRow({
+  task,
+  window,
+}: {
+  task: AgentTask;
+  window: ReturnType<typeof compareTaskQuotaCheckpoints>[number];
+}) {
+  const { t } = useT("issues");
+  const trigger = useTriggerText(task);
+  const state = {
+    comparable: t(($) => $.usage_detail.quota_state_comparable),
+    same_observation: t(($) => $.usage_detail.quota_state_same_observation),
+    reset_crossed: t(($) => $.usage_detail.quota_state_reset_crossed),
+    stale: t(($) => $.usage_detail.quota_state_stale),
+    unavailable: t(($) => $.usage_detail.quota_state_unavailable),
+    missing: t(($) => $.usage_detail.quota_state_missing),
+  }[window.state];
+  const pct = (value: number | undefined) => value == null ? "—" : `${value.toFixed(1)}%`;
+  const before = task.quota_checkpoints?.find((checkpoint) => checkpoint.phase === "before");
+  const after = task.quota_checkpoints?.find((checkpoint) => checkpoint.phase === "after");
+  const overlap = Math.max(
+    0,
+    ...(task.quota_checkpoints ?? []).map((checkpoint) => checkpoint.overlapping_task_count),
+  );
+  const shortTime = (value: string | undefined) => value
+    ? new Intl.DateTimeFormat(undefined, { dateStyle: "short", timeStyle: "short" }).format(new Date(value))
+    : "—";
+  return (
+    <tr className="text-caption [&>td]:border-t [&>td]:px-2 [&>td]:py-1.5 [&>td]:text-right">
+      <td className="max-w-[14rem] !text-left"><span className="block truncate">{trigger}</span></td>
+      <td className="!text-left">
+        {window.label}
+        {window.modelMatch === "exact" && (
+          <span className="ml-1 rounded bg-info/10 px-1 py-0.5 text-micro text-info">
+            {t(($) => $.usage_detail.quota_requested_model)}
+          </span>
+        )}
+      </td>
+      <td className="tabular-nums">{pct(window.before)}</td>
+      <td className="tabular-nums">{pct(window.after)}</td>
+      <td className="tabular-nums">
+        {window.delta == null ? "—" : `${window.delta >= 0 ? "+" : ""}${window.delta.toFixed(1)} pp`}
+      </td>
+      <td className="!text-left text-micro text-muted-foreground">
+        {shortTime(before?.snapshot?.observed_at)} → {shortTime(after?.snapshot?.observed_at)}
+      </td>
+      <td className="!text-left text-micro text-muted-foreground">{shortTime(window.resetsAt)}</td>
+      <td className="!text-left text-muted-foreground">
+        {state}
+        {overlap > 0 && (
+          <span className="ml-1 text-warning">
+            · {t(($) => $.usage_detail.quota_overlap, { count: overlap })}
+          </span>
+        )}
+      </td>
+    </tr>
   );
 }
 

@@ -416,6 +416,39 @@ export interface AgentTask {
    * reporting was not free, we just don't know what it cost.
    */
   usage?: TaskUsage[];
+  /**
+   * Account-level provider quota observations captured immediately before and
+   * after this run. They are evidence beside the run's exact token usage, not
+   * task-attributable billing: another run may share the same provider account.
+   */
+  quota_checkpoints?: TaskQuotaCheckpoint[];
+}
+
+export type TaskQuotaCheckpointPhase = "before" | "after";
+
+export type TaskQuotaCaptureState =
+  | "fresh"
+  | "cached"
+  | "stale_cache"
+  | "unsupported"
+  | "timeout"
+  | "auth_required"
+  | "rate_limited"
+  | "provider_error"
+  | "no_snapshot"
+  | "expired";
+
+export interface TaskQuotaCheckpoint {
+  phase: TaskQuotaCheckpointPhase;
+  boundary_at: string;
+  provider: string;
+  requested_model?: string;
+  capture_state: TaskQuotaCaptureState;
+  error_code?: string;
+  observation_age_ms?: number;
+  overlapping_task_count: number;
+  observation_id?: string;
+  snapshot?: RuntimeProviderUsage;
 }
 
 /**
@@ -1162,10 +1195,12 @@ export type RuntimeModelListStatus =
 export interface RuntimeModelListRequest {
   id: string;
   runtime_id: string;
+  purpose?: string;
   status: RuntimeModelListStatus;
   models?: RuntimeModel[];
   /** Advisory rows the runtime cannot run; never selectable. */
   unavailable_models?: RuntimeUnavailableModel[];
+  provider_usage?: RuntimeProviderUsage;
   supported: boolean;
   error?: string;
   created_at: string;
@@ -1179,6 +1214,60 @@ export interface RuntimeModelListRequest {
    */
   cached?: boolean;
   cached_at?: string;
+}
+
+export type RuntimeProviderUsageStatus =
+  | "available"
+  | "partial"
+  | "unavailable"
+  | "auth_required"
+  | "rate_limited"
+  | "error";
+
+export type RuntimeProviderUsageSource =
+  | "official"
+  | "derived"
+  | "unavailable";
+
+export interface RuntimeProviderUsageWindow {
+  id: string;
+  group?: string;
+  label: string;
+  used_percent?: number;
+  remaining_percent?: number;
+  window_duration_mins?: number;
+  /** Provider timestamp preserved as RFC3339 by the backend. */
+  resets_at?: string;
+  unit: string;
+  /** Task-report annotation; absent on generic runtime snapshots. */
+  scope?: "account" | "provider" | "model";
+  /** Exact is emitted only for a provider-stable model identifier. */
+  model_match?: "exact" | "shared" | "unknown";
+}
+
+export interface RuntimeProviderUsage {
+  provider: string;
+  account_scope?: string;
+  status: RuntimeProviderUsageStatus;
+  source: RuntimeProviderUsageSource;
+  windows?: RuntimeProviderUsageWindow[];
+  observed_at: string;
+  message?: string;
+  retry_after_seconds?: number;
+  last_attempt_at?: string;
+  last_success_at?: string;
+  last_error_code?: string;
+  stale?: boolean;
+}
+
+export interface RuntimeProviderUsageRequest {
+  id: string;
+  runtime_id: string;
+  status: RuntimeModelListStatus;
+  provider_usage?: RuntimeProviderUsage;
+  error?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 // Result shape returned by resolveRuntimeModels — includes the

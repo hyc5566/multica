@@ -242,6 +242,10 @@ func (b *claudeBackend) Execute(ctx context.Context, prompt string, opts ExecOpt
 					sessionID = msg.SessionID
 				}
 				trySend(msgCh, Message{Type: MessageStatus, Status: "running", SessionID: sessionID})
+			case "rate_limit_event":
+				// Account quota is fetched independently by the deterministic OAuth
+				// probe. Do not persist turn-derived rate-limit events as a second,
+				// potentially stale source of truth.
 			case "result":
 				sawResult = true
 				finalResultText = msg.ResultText

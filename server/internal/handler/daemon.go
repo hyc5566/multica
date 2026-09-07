@@ -641,6 +641,15 @@ func (h *Handler) DaemonRegister(w http.ResponseWriter, r *http.Request) {
 			h.mergeLegacyRuntimes(r, registered, provider, req.LegacyDaemonIDs)
 		}
 
+		// A reconnect is the fastest useful refresh point for account quota. The
+		// durable five-minute reservation coalesces repeated workspace
+		// registrations and the regular scheduler tick, so this never fans out
+		// into one probe per registration request.
+		if _, _, err := h.EnqueueProviderUsageRuntime(r.Context(), registered, time.Now().UTC()); err != nil {
+			slog.Debug("provider usage reconnect refresh skipped",
+				"runtime_id", uuidToString(registered.ID), "error", err)
+		}
+
 		resp = append(resp, runtimeToResponse(registered))
 	}
 	for _, failed := range req.FailedProfiles {
@@ -1384,7 +1393,7 @@ func (h *Handler) processHeartbeat(ctx context.Context, runtimeID string, suppor
 		if popErr != nil {
 			slog.Warn("model list PopPending failed", "error", popErr, "runtime_id", runtimeID)
 		} else if pendingModel != nil {
-			ack.PendingModelList = &protocol.DaemonHeartbeatPendingModelList{ID: pendingModel.ID}
+			ack.PendingModelList = &protocol.DaemonHeartbeatPendingModelList{ID: pendingModel.ID, Purpose: pendingModel.Purpose}
 		}
 	case probeModelErr != nil:
 		if errors.Is(probeModelErr, context.DeadlineExceeded) || errors.Is(probeModelErr, context.Canceled) {
@@ -5130,6 +5139,7 @@ func (h *Handler) ListTasksByIssue(w http.ResponseWriter, r *http.Request) {
 	// for a column that is near-empty on runs that have not finished.
 	if !activeOnly {
 		h.hydrateTaskUsage(r.Context(), issue.ID, resp)
+		h.hydrateTaskQuotaCheckpoints(r.Context(), issue.ID, resp)
 	}
 
 	writeJSON(w, http.StatusOK, resp)

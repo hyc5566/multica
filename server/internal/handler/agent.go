@@ -524,6 +524,11 @@ type AgentTaskResponse struct {
 	// model call, genuinely has no number, and showing 0 would assert it was
 	// free. omitempty keeps both off the wire.
 	Usage []TaskUsageData `json:"usage,omitempty"`
+	// QuotaCheckpoints are the account-level provider observations captured at
+	// this run's boundaries. They are deliberately separate from Usage: token
+	// counts belong to this run, while quota percentages may include concurrent
+	// or external account activity.
+	QuotaCheckpoints []TaskQuotaCheckpointData `json:"quota_checkpoints,omitempty"`
 	// AuthToken is the task-scoped `mat_` token the daemon must inject as
 	// MULTICA_TOKEN in the agent process environment. The server binds it to
 	// this (agent_id, task_id) pair at claim time and treats any request

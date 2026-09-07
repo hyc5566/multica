@@ -31,6 +31,67 @@ Do not fold unrelated local product features into the localization commits.
 Develop each feature from `zh-tw` on its own branch, review it through a PR, and
 merge it back into `zh-tw` only after verification.
 
+## Provider usage feature layer
+
+Provider quota display is a Taiwan-edition feature, not part of the locale
+patch. Rebuild it as two small commits after the localization layers:
+
+1. Direct daemon probes: replay the self-contained provider probe files under
+   `server/pkg/agent/`, the narrow daemon dispatch hook, and their fixture-only
+   tests. The probe reads local OAuth credentials and calls fixed Codex,
+   Claude, or Antigravity endpoints without starting an agent task. See
+   `server/pkg/agent/provider_usage_probe.md` for the credential and rate-limit
+   boundary.
+2. Refresh coordinator and presentation: add the provider-usage snapshot
+   migrations, `server/internal/handler/runtime_provider_usage_snapshot.go`,
+   `server/cmd/server/provider_usage_refresh_job.go`, the one pending-work
+   protocol value, the cache-only GET route, and the Agent usage component.
+
+Keep these invariants when replaying onto a newer upstream:
+
+- a daemon reconnect and the five-minute Server scheduler may request a probe,
+  but both pass through the same database bucket reservation;
+- one built-in provider account is keyed by daemon plus provider, while a
+  custom runtime profile has its own key;
+- provider failures update attempt/error metadata but never replace the last
+  successful snapshot;
+- opening or refreshing an Agent page reads the Server snapshot only and never
+  calls a provider or creates an agent task;
+- the page can show the last successful snapshot while a runtime is offline;
+- all provider payloads are normalized and validated before persistence, and
+  no OAuth material is sent to the Server.
+
+The handwritten coordinator queries are intentionally kept in the Taiwan-only
+handler file. Upstream integration points are limited to scheduler
+registration, reconnect notification, route registration, one protocol kind,
+and the Agent usage component. During a future rebuild, prefer adapting those
+small seams to the latest upstream contracts over copying old surrounding
+files.
+
+### Task quota checkpoint layer
+
+Replay the task checkpoint feature after the two provider-usage commits above:
+
+1. Add the append-only `provider_quota_observation`, `task_quota_checkpoint`,
+   and `provider_quota_rollup` migrations and their concurrent indexes.
+2. Reconnect the two narrow runner hooks around `runner.run`, the daemon
+   coordinator in `server/internal/daemon/task_quota.go`, and the daemon report
+   route. Probe timeout, cache and report failures are all fail-open; none may
+   alter the task result.
+3. Reconnect checkpoint hydration to the full issue task-history response and
+   the quota section in the issue usage dialog. The UI comparison helper is the
+   authority for same-observation, stale and reset-crossing semantics.
+4. Register the hourly maintenance job after migrations. It retains raw
+   observations for 180 days, hourly rollups for 13 months, and daily rollups
+   plus task checkpoint boundaries for 25 months.
+
+Task token rows are exact run accounting. Quota checkpoints are account-level
+observations and must never be labelled as the task's own consumption. Keep the
+overlap count and external-activity warning in every report/export. Model
+matching is exact only when the provider supplies a stable model identifier
+(currently Antigravity); Claude is account-shared and Codex named buckets stay
+`unknown` rather than being guessed from display text.
+
 ## Upstream update workflow
 
 ```bash

@@ -2,7 +2,7 @@
 
 import { cleanup, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AgentTask, TaskUsage } from "@multica/core/types";
+import type { AgentTask, TaskQuotaCheckpoint, TaskUsage } from "@multica/core/types";
 import { renderWithI18n } from "../../test/i18n";
 
 vi.mock("../../common/actor-avatar", () => ({
@@ -38,6 +38,38 @@ function usage(overrides: Partial<TaskUsage> = {}): TaskUsage {
     output_tokens: 1_000,
     cache_read_tokens: 1_000,
     cache_write_tokens: 0,
+    ...overrides,
+  };
+}
+
+function quota(
+  phase: "before" | "after",
+  used: number,
+  overrides: Partial<TaskQuotaCheckpoint> = {},
+): TaskQuotaCheckpoint {
+  return {
+    phase,
+    boundary_at: phase === "before" ? "2026-08-05T08:00:00Z" : "2026-08-05T08:11:00Z",
+    provider: "antigravity",
+    requested_model: "gemini-2.5-pro",
+    capture_state: "fresh",
+    observation_id: phase,
+    overlapping_task_count: 1,
+    snapshot: {
+      provider: "antigravity",
+      status: "available",
+      source: "official",
+      observed_at: phase === "before" ? "2026-08-05T08:00:00Z" : "2026-08-05T08:11:00Z",
+      windows: [{
+        id: "gemini-2.5-pro",
+        label: "Gemini 2.5 Pro",
+        used_percent: used,
+        resets_at: "2026-08-06T00:00:00Z",
+        unit: "percent",
+        scope: "model",
+        model_match: "exact",
+      }],
+    },
     ...overrides,
   };
 }
@@ -104,5 +136,27 @@ describe("IssueUsageDialog", () => {
 
     expect(screen.getByText("Completed")).toBeInTheDocument();
     expect(screen.getByText("Failed")).toBeInTheDocument();
+  });
+
+  it("shows quota-only runs with exact-model and non-attribution context", () => {
+    open([makeTask({ usage: undefined, quota_checkpoints: [quota("before", 10), quota("after", 13)] })]);
+
+    expect(screen.getByText("Provider quota checkpoints")).toBeInTheDocument();
+    expect(screen.getByText("Requested model")).toBeInTheDocument();
+    expect(screen.getByText("+3.0 pp")).toBeInTheDocument();
+    expect(screen.getByText(/Account-level observations/)).toBeInTheDocument();
+    expect(screen.getByText(/1 concurrent run/)).toBeInTheDocument();
+  });
+
+  it("does not render the same cached observation as a zero-percent change", () => {
+    open([makeTask({
+      quota_checkpoints: [
+        quota("before", 10, { observation_id: "same" }),
+        quota("after", 10, { observation_id: "same", capture_state: "cached" }),
+      ],
+    })]);
+
+    expect(screen.getByText("Same observation")).toBeInTheDocument();
+    expect(screen.queryByText("+0.0 pp")).not.toBeInTheDocument();
   });
 });
