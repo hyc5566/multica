@@ -554,6 +554,13 @@ func (c *Client) ReportTaskUsage(ctx context.Context, taskID string, usage []Tas
 	}, nil)
 }
 
+func (c *Client) ReportTaskQuotaCheckpoint(ctx context.Context, taskID, phase, requestedModel, captureState, errorCode string, boundaryAt time.Time, snapshot agent.ProviderUsage) error {
+	return c.postJSON(ctx, fmt.Sprintf("/api/daemon/tasks/%s/quota-checkpoint", taskID), map[string]any{
+		"phase": phase, "boundary_at": boundaryAt.UTC(), "requested_model": requestedModel,
+		"capture_state": captureState, "error_code": errorCode, "snapshot": snapshot,
+	}, nil)
+}
+
 func (c *Client) FailTask(ctx context.Context, taskID, errMsg, sessionID, workDir, branchName, failureReason string, sessionRolloutMissing bool, retiredSessionID, durableWorkDir string) error {
 	body := map[string]any{"error": errMsg}
 	if sessionID != "" {

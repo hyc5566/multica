@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronRight, Loader2, RotateCcw, Square } from "lucide-react";
+import { ChevronRight, Loader2, Percent, RotateCcw, Square } from "lucide-react";
 import { toast } from "sonner";
 import { api, dispatchReasonCode } from "@multica/core/api";
 import { issueKeys } from "@multica/core/issues/queries";
@@ -249,7 +249,21 @@ export function IssueUsageTotal({
     () => summarizeTaskUsageAcross(tasks.map((task) => task.usage)),
     [tasks, pricings],
   );
-  if (!total) return null;
+  if (!total) {
+    if (!tasks.some((task) => (task.quota_checkpoints?.length ?? 0) > 0)) return null;
+    return (
+      <Tooltip>
+        <TooltipTrigger
+          render={<button type="button" onClick={onOpen} />}
+          className={`flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-caption text-muted-foreground transition-colors hover:bg-accent/70 ${alone ? "ml-auto" : ""}`}
+        >
+          <Percent className="size-3.5" aria-hidden />
+          {t(($) => $.usage_detail.quota_title)}
+        </TooltipTrigger>
+        <TooltipContent>{t(($) => $.execution_log.usage_total_tooltip)}</TooltipContent>
+      </Tooltip>
+    );
+  }
 
   // Two thresholds because the header has two shapes, and the tier should cost
   // the reader a figure only where the row genuinely runs out: beside the
