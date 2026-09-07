@@ -81,3 +81,18 @@ python3 -m unittest server/pkg/agent/provider_usage_probe_test.py
 
 The script also exposes `--normalize <provider>` for fixture-driven parsing on
 stdin. The daemon never uses that mode.
+
+## Task checkpoint consumers
+
+The daemon may call this probe immediately before and after an agent backend
+run. Those callers coalesce requests by provider account, reuse a successful
+observation for at most 30 seconds, and impose a shorter outer deadline than
+the probe's standalone deadline. A timeout, authentication failure, local rate
+limit, schema mismatch, or report failure is observation metadata only and must
+not prevent the task from starting or reaching its original terminal state.
+
+The Server persists only this normalized structure. It does not persist the
+credential file path, OAuth material, provider account identifiers, raw
+responses, or raw error bodies. Task reports may annotate normalized windows
+with `scope` and `model_match`; those annotations are derived locally and are
+never treated as provider payload fields.

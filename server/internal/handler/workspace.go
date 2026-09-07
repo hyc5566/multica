@@ -1172,6 +1172,13 @@ func (h *Handler) DeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 			run:  func() error { return qtx.PrepareWorkspaceDeletionLinks(ctx, requester.WorkspaceID) },
 		},
 		{
+			name: "delete task quota checkpoints",
+			run: func() error {
+				_, err := tx.Exec(ctx, `DELETE FROM task_quota_checkpoint WHERE workspace_id = $1`, requester.WorkspaceID)
+				return err
+			},
+		},
+		{
 			// These FK-free intents deliberately survive the transaction so the
 			// worker can release every invitation/member seat after local rows
 			// disappear. Skipped for self-hosted/unmanaged deployments.
@@ -1302,7 +1309,13 @@ func (h *Handler) DeleteWorkspace(w http.ResponseWriter, r *http.Request) {
 		{
 			name: "delete provider usage snapshots",
 			run: func() error {
-				_, err := h.DB.Exec(ctx, `DELETE FROM runtime_provider_usage_snapshot WHERE workspace_id = $1`, requester.WorkspaceID)
+				if _, err := tx.Exec(ctx, `DELETE FROM provider_quota_rollup WHERE workspace_id = $1`, requester.WorkspaceID); err != nil {
+					return err
+				}
+				if _, err := tx.Exec(ctx, `DELETE FROM provider_quota_observation WHERE workspace_id = $1`, requester.WorkspaceID); err != nil {
+					return err
+				}
+				_, err := tx.Exec(ctx, `DELETE FROM runtime_provider_usage_snapshot WHERE workspace_id = $1`, requester.WorkspaceID)
 				return err
 			},
 		},

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX CONCURRENTLY provider_quota_observation_target_time_key ON provider_quota_observation (probe_target, workspace_id, observed_at);

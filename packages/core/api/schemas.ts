@@ -1759,6 +1759,57 @@ const TaskUsageSchema = z.object({
   cost_usd_ticks: z.number().optional(),
 }).loose();
 
+// Kept local to AgentTaskSchema because RuntimeProviderUsageSchema is declared
+// later in this module. This is additive run metadata, so mixed-version or
+// malformed checkpoint payloads degrade independently from the execution row.
+const TaskQuotaSnapshotSchema = z.object({
+  provider: z.string().default(""),
+  status: z.enum([
+    "available",
+    "partial",
+    "unavailable",
+    "auth_required",
+    "rate_limited",
+    "error",
+  ]),
+  source: z.enum(["official", "derived", "unavailable"]),
+  windows: z.array(z.object({
+    id: z.string(),
+    group: z.string().optional(),
+    label: z.string().default(""),
+    used_percent: z.number().min(0).max(100).optional(),
+    remaining_percent: z.number().min(0).max(100).optional(),
+    window_duration_mins: z.number().int().positive().optional(),
+    resets_at: z.string().optional(),
+    unit: z.string().default("percent"),
+    scope: z.enum(["account", "provider", "model"]).optional(),
+    model_match: z.enum(["exact", "shared", "unknown"]).optional(),
+  }).loose()).optional(),
+  observed_at: z.string().default(""),
+  message: z.string().optional(),
+  retry_after_seconds: z.number().int().positive().optional(),
+  last_attempt_at: z.string().optional(),
+  last_success_at: z.string().optional(),
+  last_error_code: z.string().optional(),
+  stale: z.boolean().optional(),
+}).loose();
+
+const TaskQuotaCheckpointSchema = z.object({
+  phase: z.enum(["before", "after"]),
+  boundary_at: z.string(),
+  provider: z.string().default(""),
+  requested_model: z.string().optional(),
+  capture_state: z.enum([
+    "fresh", "cached", "stale_cache", "unsupported", "timeout",
+    "auth_required", "rate_limited", "provider_error", "no_snapshot", "expired",
+  ]),
+  error_code: z.string().optional(),
+  observation_age_ms: z.number().int().nonnegative().optional(),
+  overlapping_task_count: z.number().int().nonnegative().default(0),
+  observation_id: z.string().optional(),
+  snapshot: TaskQuotaSnapshotSchema.optional(),
+}).loose();
+
 export const AgentTaskSchema = z.object({
   cancelled_by_comment_change: z.boolean().optional().catch(undefined),
   cancelled_by: TaskCancellationActorSchema.optional().catch(undefined),
@@ -1799,6 +1850,7 @@ export const AgentTaskSchema = z.object({
   // `.catch(undefined)` collapses a bad array to "no usage recorded", which
   // the UI already renders as an em dash.
   usage: z.array(TaskUsageSchema).optional().catch(undefined),
+  quota_checkpoints: z.array(TaskQuotaCheckpointSchema).optional().catch(undefined),
 }).loose();
 
 export const AgentTaskListSchema = z.array(AgentTaskSchema);
@@ -3009,6 +3061,8 @@ const RuntimeProviderUsageWindowSchema = z.object({
   window_duration_mins: z.number().int().positive().optional(),
   resets_at: z.string().optional(),
   unit: z.string().default("percent"),
+  scope: z.enum(["account", "provider", "model"]).optional(),
+  model_match: z.enum(["exact", "shared", "unknown"]).optional(),
 }).loose();
 
 export const RuntimeProviderUsageSchema = z.object({
