@@ -163,11 +163,11 @@
       "title": "固定評論欄",
       "hint": "滾動任務頁面時，評論欄始終固定在底部。"
     },
-    "description": "调整你在 Multica 中的使用偏好。",
-    "issue_title": "任务创建",
-    "comments_title": "评论",
-    "device_hint": "保存在当前设备上。",
-    "issue_scope": "这些偏好仅对当前设备上的当前工作区生效，只影响创建任务时显示的字段。"
+    "description": "調整你在 Multica 中的使用偏好。",
+    "issue_title": "任務建立",
+    "comments_title": "評論",
+    "device_hint": "儲存在目前裝置上。",
+    "issue_scope": "這些偏好只對目前裝置上的目前工作區生效，只影響建立任務時顯示的欄位。"
   },
   "shortcuts": {
     "title": "快捷鍵",
@@ -381,14 +381,14 @@
       "billing": "賬單與套餐"
     },
     "groups": {
-      "personal": "个人设置",
-      "workspace": "工作区管理",
-      "issues": "任务配置",
-      "connections": "连接与扩展",
-      "device": "桌面应用"
+      "personal": "個人設定",
+      "workspace": "工作區管理",
+      "issues": "任務設定",
+      "connections": "連線與擴充",
+      "device": "桌面應用程式"
     },
-    "navigate": "前往设置页面",
-    "device_scope": "当前设备"
+    "navigate": "前往設定頁面",
+    "device_scope": "目前裝置"
   },
   "plugins": {
     "title": "Plugins",
@@ -1351,19 +1351,19 @@
     "expiry_never": "永久有效"
   },
   "integrations": {
-    "description": "连接常用工具，分别管理每项集成。",
-    "code_title": "代码与仓库",
-    "messaging_title": "消息渠道",
-    "apps_title": "我的应用连接",
-    "apps_scope": "这些应用连接属于你的账号。工作区的消息渠道连接在上方管理。",
-    "github_hint": "连接 GitHub，配置拉取请求关联。",
-    "vcs_hint": "连接 GitLab、Gitea 或 Forgejo。",
-    "apps_hint": "通过 Composio 为智能体授权应用。",
-    "back": "全部集成",
-    "status_connected": "已连接",
-    "status_not_connected": "未连接",
-    "status_loading": "正在检查...",
-    "status_unknown": "状态暂不可用",
-    "channel_hint": "在 {{channel}} 中与智能体对话、创建任务。"
+    "description": "連線常用工具，分別管理每項整合。",
+    "code_title": "程式碼與儲存庫",
+    "messaging_title": "訊息頻道",
+    "apps_title": "我的應用程式連線",
+    "apps_scope": "這些應用程式連線屬於你的帳號。工作區的訊息頻道連線在上方管理。",
+    "github_hint": "連線 GitHub，設定拉取請求關聯。",
+    "vcs_hint": "連線 GitLab、Gitea 或 Forgejo。",
+    "apps_hint": "透過 Composio 授權智慧體使用應用程式。",
+    "back": "所有整合",
+    "status_connected": "已連線",
+    "status_not_connected": "未連線",
+    "status_loading": "正在檢查...",
+    "status_unknown": "暫時無法取得狀態",
+    "channel_hint": "在 {{channel}} 中與智慧體對話、建立任務。"
   }
 }
