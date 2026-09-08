@@ -599,6 +599,7 @@ function AssistantMessage({
           elapsedMs={message.elapsed_ms}
         />
         <ChatTaskQuota
+          usage={message.usage}
           checkpoints={message.quota_checkpoints}
           showWhenMissing={Boolean(message.task_id)}
         />
@@ -654,6 +655,7 @@ function AssistantMessage({
             transformContent={transformContent}
           />
           <ChatTaskQuota
+            usage={message.usage}
             checkpoints={message.quota_checkpoints}
             showWhenMissing={Boolean(message.task_id)}
           />

@@ -1,4 +1,4 @@
-import type { AgentTask, TaskQuotaCheckpoint } from "./agent";
+import type { AgentTask, TaskQuotaCheckpoint, TaskUsage } from "./agent";
 
 /** A user's pinned "quick agent" for the Chat list top bar. */
 export interface ChatPinnedAgent {
@@ -176,6 +176,8 @@ export interface ChatMessage {
   quick_actions?: ChatQuickAction[];
   /** Account-level provider observations captured around this message's run. */
   quota_checkpoints?: TaskQuotaCheckpoint[];
+  /** Token usage attributed to this reply's task, grouped by provider/model. */
+  usage?: TaskUsage[];
 }
 
 export interface ChatMessagesCursor {

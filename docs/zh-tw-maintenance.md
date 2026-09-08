@@ -158,6 +158,19 @@ LaunchAgent identity, and rollback artifact in the deployment record.
 
 ## Deployment boundaries
 
+### Chat per-run usage (HYCLV-27)
+
+Chat message list and pagination endpoints hydrate each assistant reply with
+its task's `usage` and `quota_checkpoints` after session authorization.
+Reuse `hydrateAgentTaskUsage` for batched provider/model token rows and
+`summarizeTaskUsage` for totals, including input, output, cache read and cache
+write tokens. Missing usage stays unknown rather than zero.
+`ChatTaskQuota` in shared Views renders token details alongside the existing
+account-level quota comparison. Chat completion already refetches message
+queries; session quota summaries also need their detail query invalidated.
+This requires updated Server and Web/Desktop builds; no new daemon probe,
+dependency or database migration is needed.
+
 - Linux server binaries and the running development/self-host environment are
   separate from the Apple-Silicon desktop artifact.
 - The desktop app bundles its matching `multica` CLI/daemon binary; keep their

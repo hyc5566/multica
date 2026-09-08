@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Download, Gauge, ChevronDown } from "lucide-react";
-import type { TaskQuotaCheckpoint } from "@multica/core/types";
+import type { TaskQuotaCheckpoint, TaskUsage } from "@multica/core/types";
 import { Button } from "@multica/ui/components/ui/button";
 import {
   Collapsible,
@@ -18,6 +18,7 @@ import {
 } from "@multica/ui/components/ui/dialog";
 import { compareTaskQuotaCheckpoints } from "../../issues/components/task-quota-comparison";
 import { useT } from "../../i18n";
+import { formatTokens, summarizeTaskUsage } from "../../runtimes/utils";
 
 function shortTime(value: string | undefined): string {
   return value
@@ -31,23 +32,46 @@ function pct(value: number | undefined): string {
 
 export function ChatTaskQuota({
   checkpoints,
+  usage,
   showWhenMissing = false,
 }: {
   checkpoints?: TaskQuotaCheckpoint[];
+  usage?: TaskUsage[];
   showWhenMissing?: boolean;
 }) {
   const { t } = useT("chat");
+  const { t: ti } = useT("issues");
   const [open, setOpen] = useState(false);
-  if (!showWhenMissing && !checkpoints?.length) return null;
+  const summary = summarizeTaskUsage(usage);
+  if (!showWhenMissing && !checkpoints?.length && !summary) return null;
 
   return (
     <Collapsible open={open} onOpenChange={setOpen}>
       <CollapsibleTrigger className="flex items-center gap-1 text-caption text-muted-foreground hover:text-foreground">
         <Gauge className="size-3.5" aria-hidden />
         {t(($) => $.message_list.quota_title)}
+        <span className="tabular-nums"> · {t(($) => $.message_list.token_count, { value: summary ? formatTokens(summary.tokens) : "—" })}</span>
         <ChevronDown className={`size-3 transition-transform ${open ? "rotate-180" : ""}`} aria-hidden />
       </CollapsibleTrigger>
       <CollapsibleContent className="mt-1.5">
+        <div className="mb-2 space-y-1 rounded-md border p-2 text-caption">
+          {summary ? (
+            <>
+              <p className="font-medium">{ti(($) => $.usage_detail.kpi_tokens)}: {summary.tokens.toLocaleString()}</p>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
+                <dt>{ti(($) => $.usage_detail.col_input)}</dt><dd>{summary.input.toLocaleString()}</dd>
+                <dt>{ti(($) => $.usage_detail.col_output)}</dt><dd>{summary.output.toLocaleString()}</dd>
+                <dt>{ti(($) => $.usage_detail.col_cache_read)}</dt><dd>{summary.cacheRead.toLocaleString()}</dd>
+                <dt>{ti(($) => $.usage_detail.col_cache_write)}</dt><dd>{summary.cacheWrite.toLocaleString()}</dd>
+              </dl>
+              {usage?.map((slice, index) => (
+                <p key={index} className="break-words text-muted-foreground">
+                  {slice.provider} / {slice.model}: {t(($) => $.message_list.token_count, { value: summarizeTaskUsage([slice])?.tokens.toLocaleString() })}
+                </p>
+              ))}
+            </>
+          ) : <p className="text-muted-foreground">{t(($) => $.message_list.usage_missing)}</p>}
+        </div>
         <QuotaDetails checkpoints={checkpoints ?? []} />
       </CollapsibleContent>
     </Collapsible>
