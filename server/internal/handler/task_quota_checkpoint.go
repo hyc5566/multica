@@ -29,6 +29,7 @@ var taskQuotaErrorCodes = map[string]struct{}{
 // TaskQuotaCheckpointData is one boundary observation attached to a run.
 // Snapshot is normalized provider usage, never a raw provider response.
 type TaskQuotaCheckpointData struct {
+	TaskID               string                 `json:"task_id,omitempty"`
 	Phase                string                 `json:"phase"`
 	BoundaryAt           time.Time              `json:"boundary_at"`
 	Provider             string                 `json:"provider"`
@@ -189,22 +190,41 @@ func (h *Handler) hydrateTaskQuotaCheckpoints(ctx context.Context, issueID pgtyp
 	if len(resp) == 0 || h.DB == nil {
 		return
 	}
+	taskIDs := make([]pgtype.UUID, 0, len(resp))
+	for _, task := range resp {
+		taskIDs = append(taskIDs, parseUUID(task.ID))
+	}
+	byTask, err := h.loadTaskQuotaCheckpoints(ctx, taskIDs)
+	if err != nil {
+		slog.Warn("hydrate task quota checkpoints failed", "issue_id", uuidToString(issueID), "error", err)
+		return
+	}
+	for i := range resp {
+		resp[i].QuotaCheckpoints = byTask[resp[i].ID]
+	}
+}
+
+// loadTaskQuotaCheckpoints is the shared, bounded hydration path for issue and
+// Chat projections. Callers authorize the parent resource before passing its
+// task ids; an empty or failed result leaves that parent usable.
+func (h *Handler) loadTaskQuotaCheckpoints(ctx context.Context, taskIDs []pgtype.UUID) (map[string][]TaskQuotaCheckpointData, error) {
+	byTask := make(map[string][]TaskQuotaCheckpointData, len(taskIDs))
+	if len(taskIDs) == 0 || h.DB == nil {
+		return byTask, nil
+	}
 	rows, err := h.DB.Query(ctx, `
 		SELECT c.task_id, c.phase, c.boundary_at, c.provider, c.requested_model,
 		       c.capture_state, c.error_code, c.observation_age_ms,
 		       c.overlapping_task_count, c.observation_id, o.snapshot
 		  FROM task_quota_checkpoint c
-		  JOIN agent_task_queue q ON q.id = c.task_id
 		  LEFT JOIN provider_quota_observation o ON o.id = c.observation_id
-		 WHERE q.issue_id = $1
+		 WHERE c.task_id = ANY($1::uuid[])
 		 ORDER BY c.task_id, c.boundary_at
-	`, issueID)
+	`, taskIDs)
 	if err != nil {
-		slog.Warn("hydrate task quota checkpoints failed", "issue_id", uuidToString(issueID), "error", err)
-		return
+		return byTask, err
 	}
 	defer rows.Close()
-	byTask := make(map[string][]TaskQuotaCheckpointData, len(resp))
 	for rows.Next() {
 		var taskUUID pgtype.UUID
 		var row TaskQuotaCheckpointData
@@ -215,7 +235,7 @@ func (h *Handler) hydrateTaskQuotaCheckpoints(ctx context.Context, issueID pgtyp
 		if err := rows.Scan(&taskUUID, &row.Phase, &row.BoundaryAt, &row.Provider,
 			&row.RequestedModel, &row.CaptureState, &errorCode, &age,
 			&row.OverlappingTaskCount, &observationID, &raw); err != nil {
-			return
+			return byTask, err
 		}
 		if errorCode.Valid {
 			row.ErrorCode = errorCode.String
@@ -238,11 +258,10 @@ func (h *Handler) hydrateTaskQuotaCheckpoints(ctx context.Context, issueID pgtyp
 			}
 		}
 		key := uuidToString(taskUUID)
+		row.TaskID = key
 		byTask[key] = append(byTask[key], row)
 	}
-	for i := range resp {
-		resp[i].QuotaCheckpoints = byTask[resp[i].ID]
-	}
+	return byTask, rows.Err()
 }
 
 // MaintainProviderQuotaHistory builds bounded trend data before pruning raw

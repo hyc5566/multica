@@ -32,6 +32,7 @@ import { isImeComposing } from "@multica/core/utils";
 import { ActorAvatar } from "../../common/actor-avatar";
 import { AppLink } from "../../navigation";
 import { useT } from "../../i18n";
+import { ChatSessionQuotaButton } from "./chat-quota";
 
 /**
  * Per-session header for the conversation pane: agent avatar + editable chat
@@ -43,6 +44,7 @@ export function ChatSessionHeader({
   session,
   agent,
   onArchive,
+  quotaCheckpoints,
 }: {
   session: ChatSession;
   agent: Agent | null;
@@ -50,6 +52,7 @@ export function ChatSessionHeader({
   // next chat on desktop, back to the list on mobile), so the parent owns it —
   // see ChatPage.handleArchive. Falls back to a plain status flip if unwired.
   onArchive?: (session: ChatSession) => void;
+  quotaCheckpoints?: ChatSession["quota_checkpoints"];
 }) {
   const { t } = useT("chat");
   const wsPaths = useWorkspacePaths();
@@ -206,6 +209,8 @@ export function ChatSessionHeader({
           </div>
         )}
       </div>
+
+      <ChatSessionQuotaButton title={title} checkpoints={quotaCheckpoints} />
 
       <DropdownMenu>
         <DropdownMenuTrigger
