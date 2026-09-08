@@ -6,11 +6,12 @@ directories:
 files:
   - "!**/.vscode/*"
   - "!src/*"
-  - "!electron.vite.config.*"
+  - "!electron*.{yml,config.*}"
   - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
   - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
-  - "!dist/**"
-  - "!dist-zh-tw*/**"
+  - "!{.env*,eslint.config.*,vitest.config.*}"
+  - "!{scripts,test}/**"
+  - "!dist*/**"
 extraResources:
   - from: ../../LICENSE
     to: LICENSE
