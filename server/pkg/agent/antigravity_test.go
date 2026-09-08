@@ -30,6 +30,7 @@ func TestBuildAntigravityArgsBasic(t *testing.T) {
 	want := []string{
 		"-p", "hello",
 		"--dangerously-skip-permissions",
+		"--output-format", "stream-json",
 		"--print-timeout", "20m0s",
 		"--log-file", "/tmp/agy.log",
 		"--add-dir", "/work",
@@ -56,6 +57,7 @@ func TestBuildAntigravityArgsModel(t *testing.T) {
 	want := []string{
 		"-p", "hello",
 		"--dangerously-skip-permissions",
+		"--output-format", "stream-json",
 		"--model", "Claude Opus 4.6 (Thinking)",
 		"--print-timeout", "20m0s",
 		"--log-file", "/tmp/agy.log",
@@ -91,6 +93,7 @@ func TestBuildAntigravityArgsNoCapUsesLargePrintTimeout(t *testing.T) {
 	want := []string{
 		"-p", "hello",
 		"--dangerously-skip-permissions",
+		"--output-format", "stream-json",
 		"--print-timeout", antigravityFormatTimeout(antigravityNoCapPrintTimeout),
 		"--log-file", "/tmp/agy.log",
 		"--add-dir", "/work",
@@ -229,6 +232,8 @@ func TestBuildAntigravityArgsFiltersBlockedCustomArgs(t *testing.T) {
 				"-c",
 				"--conversation", "bad-id",
 				"--model", "sneaky-model", // managed via ExecOptions.Model
+				"--output-format", "text",
+				"--input-format=stream-json",
 				"--dangerously-skip-permissions",
 				"--print-timeout", "1h",
 				"--log-file", "/elsewhere.log",

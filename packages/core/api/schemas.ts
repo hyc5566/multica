@@ -1873,6 +1873,7 @@ const ChatChannelSourceSchema = z.object({
 }).loose();
 
 export const ChatSessionSchema: z.ZodType<ChatSession> = z.object({
+  task_usage: z.array(z.object({ task_id: z.string(), usage: z.array(TaskUsageSchema).optional() })).optional().catch(undefined),
   id: z.string(),
   workspace_id: z.string().default(""),
   agent_id: z.string().default(""),

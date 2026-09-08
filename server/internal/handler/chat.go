@@ -1935,6 +1935,12 @@ type ChatSessionResponse struct {
 	// QuotaCheckpoints is populated only by the single-session endpoint. List
 	// rows stay small; the detail response is the session-level export source.
 	QuotaCheckpoints []TaskQuotaCheckpointData `json:"quota_checkpoints,omitempty"`
+	TaskUsage        []ChatTaskUsageResponse   `json:"task_usage,omitempty"`
+}
+
+type ChatTaskUsageResponse struct {
+	TaskID string          `json:"task_id"`
+	Usage  []TaskUsageData `json:"usage,omitempty"`
 }
 
 type ChatSessionChannelSourceResponse struct {
@@ -2103,6 +2109,16 @@ func (h *Handler) hydrateChatSessionQuotaCheckpoints(ctx context.Context, sessio
 		return
 	}
 	rows.Close()
+	tasks := make([]AgentTaskResponse, len(taskIDs))
+	for i, id := range taskIDs {
+		tasks[i].ID = uuidToString(id)
+	}
+	if err := h.hydrateAgentTaskUsage(ctx, parseUUID(session.AgentID), taskIDs, tasks); err != nil {
+		slog.Warn("hydrate chat session token usage failed", "error", err)
+	}
+	for _, task := range tasks {
+		session.TaskUsage = append(session.TaskUsage, ChatTaskUsageResponse{TaskID: task.ID, Usage: task.Usage})
+	}
 	byTask, err := h.loadTaskQuotaCheckpoints(ctx, taskIDs)
 	if err != nil {
 		slog.Warn("hydrate chat session quota checkpoints failed", "session_id", uuidToString(sessionID), "error", err)

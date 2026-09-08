@@ -17,11 +17,8 @@ import (
 // with a one-shot prompt (`agy -p <prompt>`). Despite the upstream flag name,
 // current agy print mode is still capable of running Antigravity tools; it is
 // the daemon-compatible mode because `agy -i` requires an attached TTY. Unlike
-// Claude / Codex / Cursor / Gemini, the Antigravity CLI does not expose a
-// structured event stream — stdout is plain assistant text (intermediate "I
-// will run X" lines and the final reply, all interleaved). The backend
-// therefore streams stdout line-by-line as `MessageText` events and accumulates
-// the same text as the final `Result.Output`.
+// earlier releases, agy >= 1.1.8 exposes stream-json with incremental text
+// and a terminal result containing authoritative per-turn token usage.
 //
 // agy 1.0.14's print mode regressed this stdout contract: a turn can run tools
 // and produce a final reply while emitting ZERO bytes to stdout (the log shows
@@ -32,9 +29,9 @@ import (
 // therefore recovers the assistant text agy durably wrote to its per-
 // conversation transcript (see readAntigravityTranscriptOutput).
 //
-// Session resumption uses `--conversation <id>`. The conversation id is not
-// emitted on stdout; we capture it by routing `--log-file` to a temp file and
-// scanning its glog-formatted lines for the `conversation=<uuid>` token that
+// Session resumption uses `--conversation <id>`. The terminal result carries
+// the ID; as a fallback we route `--log-file` to a temp file and scan its
+// glog-formatted lines for the `conversation=<uuid>` token that
 // printmode.go logs at message-send time.
 type antigravityBackend struct {
 	cfg Config
@@ -123,6 +120,8 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 		var output strings.Builder
 		finalStatus := "completed"
 		var finalError string
+		var terminal *antigravityResult
+		model := opts.Model
 
 		scanner := newAgentStreamScanner(stdout)
 
@@ -130,6 +129,25 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 
 		for scanner.Scan() {
 			line := scanner.Text()
+			var event antigravityEvent
+			if json.Unmarshal([]byte(line), &event) == nil && event.Event != "" {
+				switch event.Event {
+				case "init":
+					if event.Init.Model != "" {
+						model = event.Init.Model
+					}
+				case "step_update":
+					// Tool/checkpoint transitions are activity even without text.
+					trySend(msgCh, Message{Type: MessageStatus, Status: "running"})
+					if text := event.StepUpdate.TextDelta; text != "" {
+						output.WriteString(text)
+						trySend(msgCh, Message{Type: MessageText, Content: text})
+					}
+				case "result":
+					terminal = event.Result
+				}
+				continue
+			}
 			// The daemon concatenates streamed MessageText with no separator
 			// (pendingText.WriteString), so the streamed text must carry the
 			// line breaks itself. Mirror output's construction — prefix the
@@ -157,6 +175,24 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 		duration := time.Since(startTime)
 
 		sessionID := readAntigravityConversationID(logPath)
+		usage := map[string]TokenUsage{}
+		if terminal != nil {
+			if terminal.ConversationID != "" {
+				sessionID = terminal.ConversationID
+			}
+			if terminal.Status != "SUCCESS" {
+				finalStatus, finalError = "failed", terminal.Error
+				if finalError == "" {
+					finalError = "agy returned " + terminal.Status
+				}
+			}
+			if terminal.Usage != nil {
+				if model == "" {
+					model = "unknown"
+				}
+				usage[model] = terminal.Usage.tokenUsage()
+			}
+		}
 
 		if runCtx.Err() == context.DeadlineExceeded {
 			finalStatus = "timeout"
@@ -190,6 +226,12 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 		}
 
 		finalOutput := output.String()
+		if terminal != nil && terminal.Response != "" {
+			finalOutput = terminal.Response
+			if output.Len() == 0 {
+				trySend(msgCh, Message{Type: MessageText, Content: finalOutput})
+			}
+		}
 		if finalStatus == "completed" && strings.TrimSpace(finalOutput) == "" {
 			// agy 1.0.14 print mode can finish a turn (tools executed, reply
 			// produced) without writing anything to stdout, leaving a blank but
@@ -214,14 +256,45 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 			Error:      finalError,
 			DurationMs: duration.Milliseconds(),
 			SessionID:  sessionID,
-			// The Antigravity CLI doesn't surface per-turn token usage today;
-			// leave Usage empty rather than report misleading zeros under a
-			// guessed model name.
-			Usage: map[string]TokenUsage{},
+			Usage:      usage,
 		}
 	}()
 
 	return &Session{Messages: msgCh, Result: resCh}, nil
+}
+
+// https://www.antigravity.google/docs/cli/headless/
+// Only terminal usage is counted: step updates are not additive to the result.
+type antigravityEvent struct {
+	Event string `json:"event"`
+	Init  struct {
+		Model string `json:"model"`
+	} `json:"init"`
+	StepUpdate struct {
+		TextDelta string `json:"text_delta"`
+	} `json:"step_update"`
+	Result *antigravityResult `json:"result"`
+}
+
+type antigravityResult struct {
+	ConversationID string            `json:"conversation_id"`
+	Status         string            `json:"status"`
+	Response       string            `json:"response"`
+	Error          string            `json:"error"`
+	Usage          *antigravityUsage `json:"usage"`
+}
+
+type antigravityUsage struct {
+	InputTokens     int64 `json:"input_tokens"`
+	OutputTokens    int64 `json:"output_tokens"`
+	CacheReadTokens int64 `json:"cache_read_tokens"`
+}
+
+func (u antigravityUsage) tokenUsage() TokenUsage {
+	// agy includes cached input in input_tokens and thinking in output_tokens.
+	// Multica stores disjoint input/cache categories, just as for Codex.
+	cache := min(max(u.CacheReadTokens, 0), max(u.InputTokens, 0))
+	return TokenUsage{InputTokens: max(u.InputTokens-cache, 0), OutputTokens: max(u.OutputTokens, 0), CacheReadTokens: cache}
 }
 
 // antigravityConversationIDRe matches the glog line printmode.go writes when
@@ -416,6 +489,8 @@ func readAntigravityAppDataDir(logPath string) string {
 // overridden by user-configured custom_args. Overriding these would break
 // non-interactive operation or the daemon's session-resume bookkeeping.
 var antigravityBlockedArgs = map[string]blockedArgMode{
+	"--output-format":                blockedWithValue,
+	"--input-format":                 blockedWithValue,
 	"-p":                             blockedWithValue,
 	"--print":                        blockedWithValue,
 	"--prompt":                       blockedWithValue,
@@ -455,6 +530,7 @@ func buildAntigravityArgs(prompt, logPath string, timeout time.Duration, opts Ex
 	args := []string{
 		"-p", prompt,
 		"--dangerously-skip-permissions",
+		"--output-format", "stream-json",
 	}
 	if opts.Model != "" {
 		args = append(args, "--model", opts.Model)
