@@ -45,6 +45,7 @@ export function ChatSessionHeader({
   agent,
   onArchive,
   quotaCheckpoints,
+  taskUsage,
 }: {
   session: ChatSession;
   agent: Agent | null;
@@ -53,6 +54,7 @@ export function ChatSessionHeader({
   // see ChatPage.handleArchive. Falls back to a plain status flip if unwired.
   onArchive?: (session: ChatSession) => void;
   quotaCheckpoints?: ChatSession["quota_checkpoints"];
+  taskUsage?: ChatSession["task_usage"];
 }) {
   const { t } = useT("chat");
   const wsPaths = useWorkspacePaths();
@@ -210,7 +212,7 @@ export function ChatSessionHeader({
         )}
       </div>
 
-      <ChatSessionQuotaButton title={title} checkpoints={quotaCheckpoints} />
+      <ChatSessionQuotaButton title={title} checkpoints={quotaCheckpoints} taskUsage={taskUsage} />
 
       <DropdownMenu>
         <DropdownMenuTrigger

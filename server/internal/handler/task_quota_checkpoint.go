@@ -254,6 +254,7 @@ func (h *Handler) loadTaskQuotaCheckpoints(ctx context.Context, taskIDs []pgtype
 			var snapshot ProviderUsageSnapshot
 			if json.Unmarshal(raw, &snapshot) == nil {
 				annotateTaskQuotaWindows(&snapshot, row.Provider, row.RequestedModel)
+				selectTaskQuotaWindows(&snapshot, row.Provider, row.RequestedModel)
 				row.Snapshot = &snapshot
 			}
 		}
@@ -371,6 +372,44 @@ func (h *Handler) MaintainProviderQuotaHistory(ctx context.Context, now time.Tim
 		return 0, err
 	}
 	return tag.RowsAffected(), nil
+}
+
+// Keep the shared observation intact; project only the run's recorded model
+// into task/chat responses (including historical checkpoints and exports).
+func selectTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requestedModel string) {
+	if !strings.EqualFold(strings.TrimSpace(provider), "antigravity") {
+		return
+	}
+	model := strings.TrimSpace(requestedModel)
+	for _, w := range snapshot.Windows {
+		if model != "" && w.ID == model {
+			w.Label = w.Group
+			if w.Label == "" {
+				w.Label = w.ID
+			}
+			snapshot.Windows = []ProviderUsageWindow{w}
+			return
+		}
+	}
+	// Newer Gemini effort variants share a provider-advertised tiered bucket.
+	// Never use equal percentages or fuzzy display names as model identity.
+	if strings.HasPrefix(model, "gemini-") {
+		for _, effort := range []string{"-high", "-medium", "-low", "-minimal"} {
+			if !strings.HasSuffix(model, effort) {
+				continue
+			}
+			bucket := strings.TrimSuffix(model, effort) + "-tiered"
+			for _, w := range snapshot.Windows {
+				if w.ID == bucket {
+					w.Label, w.Scope, w.ModelMatch = model, "model", "shared"
+					snapshot.Windows = []ProviderUsageWindow{w}
+					return
+				}
+			}
+		}
+	}
+	// Unknown/default model is not permission to display every account window.
+	snapshot.Windows = []ProviderUsageWindow{}
 }
 
 func annotateTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requestedModel string) {
