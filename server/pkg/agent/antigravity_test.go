@@ -234,6 +234,7 @@ func TestBuildAntigravityArgsFiltersBlockedCustomArgs(t *testing.T) {
 				"--conversation", "bad-id",
 				"--model", "sneaky-model", // managed via ExecOptions.Model
 				"--output-format", "text",
+				"--input-format=stream-json",
 				"--dangerously-skip-permissions",
 				"--print-timeout", "1h",
 				"--log-file", "/elsewhere.log",
@@ -267,6 +268,9 @@ func TestBuildAntigravityArgsFiltersBlockedCustomArgs(t *testing.T) {
 	}
 	if strings.Contains(joined, "sneaky-model") {
 		t.Errorf("custom --model value leaked through filter: %v", args)
+	}
+	if strings.Contains(joined, "--input-format") {
+		t.Errorf("custom --input-format leaked through filter: %v", args)
 	}
 	if strings.Contains(joined, "--output-format text") {
 		t.Errorf("custom --output-format value leaked through filter: %v", args)
@@ -883,10 +887,18 @@ func TestAntigravityBackendStreamJSONCapturesUsage(t *testing.T) {
 	}
 
 	var streamed strings.Builder
+	runningUpdates := 0
 	for msg := range session.Messages {
+		if msg.Type == MessageStatus && msg.Status == "running" {
+			runningUpdates++
+		}
 		if msg.Type == MessageText {
 			streamed.WriteString(msg.Content)
 		}
+	}
+	// Initial activity plus all three steps, including the textless checkpoint.
+	if runningUpdates != 4 {
+		t.Fatalf("running activity updates = %d, want 4", runningUpdates)
 	}
 	result, ok := <-session.Result
 	if !ok {

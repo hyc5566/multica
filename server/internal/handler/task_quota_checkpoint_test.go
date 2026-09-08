@@ -24,6 +24,35 @@ func TestAnnotateTaskQuotaWindowsUsesOnlyStableModelIdentity(t *testing.T) {
 	}
 }
 
+func TestSelectAntigravityTaskQuota(t *testing.T) {
+	for _, tc := range []struct{ model, want, match string }{
+		{"gemini-3.6-flash-high", "gemini-3.6-flash-high", "exact"},
+		{"gemini-3.8-flash-high", "gemini-3.8-flash-tiered", "shared"},
+		{"gemini-unknown", "", ""},
+		{"", "", ""},
+	} {
+		t.Run(tc.model, func(t *testing.T) {
+			snapshot := ProviderUsageSnapshot{Windows: []ProviderUsageWindow{
+				{ID: "gemini-3.6-flash-high", Group: "Gemini 3.6 Flash (High)"},
+				{ID: "gemini-3.6-flash-tiered"},
+				{ID: "gemini-3.8-flash-tiered"},
+				{ID: "claude-opus-4-6-thinking"},
+			}}
+			annotateTaskQuotaWindows(&snapshot, "antigravity", tc.model)
+			selectTaskQuotaWindows(&snapshot, "antigravity", tc.model)
+			if tc.want == "" {
+				if len(snapshot.Windows) != 0 {
+					t.Fatal(snapshot.Windows)
+				}
+				return
+			}
+			if len(snapshot.Windows) != 1 || snapshot.Windows[0].ID != tc.want || snapshot.Windows[0].ModelMatch != tc.match || snapshot.Windows[0].Label == "" {
+				t.Fatal(snapshot.Windows)
+			}
+		})
+	}
+}
+
 func TestAnnotateTaskQuotaWindowsMarksSharedAccountWindows(t *testing.T) {
 	snapshot := ProviderUsageSnapshot{Windows: []ProviderUsageWindow{{ID: "five_hour", Label: "5 hour"}}}
 	annotateTaskQuotaWindows(&snapshot, "claude", "claude-opus")
@@ -126,5 +155,8 @@ func TestChatQuotaCheckpointHydration(t *testing.T) {
 	}
 	if len(session.QuotaCheckpoints) != 2 || session.QuotaCheckpoints[0].TaskID != taskID {
 		t.Fatalf("session checkpoints = %+v, want task %s", session.QuotaCheckpoints, taskID)
+	}
+	if len(session.TaskUsage) != 1 || session.TaskUsage[0].TaskID != taskID || len(session.TaskUsage[0].Usage) != 1 || session.TaskUsage[0].Usage[0].InputTokens != 100 {
+		t.Fatalf("session usage = %+v", session.TaskUsage)
 	}
 }

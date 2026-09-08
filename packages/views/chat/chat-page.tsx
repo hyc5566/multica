@@ -253,6 +253,7 @@ export function ChatPage() {
           agent={c.activeAgent}
           onArchive={handleArchive}
           quotaCheckpoints={sessionDetail?.quota_checkpoints}
+          taskUsage={sessionDetail?.task_usage}
         />
       )}
       {c.showSkeleton ? (

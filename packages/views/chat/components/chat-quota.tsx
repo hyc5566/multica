@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { Download, Gauge, ChevronDown } from "lucide-react";
-import type { TaskQuotaCheckpoint, TaskUsage } from "@multica/core/types";
+import type { ChatSession, TaskQuotaCheckpoint, TaskUsage } from "@multica/core/types";
 import { Button } from "@multica/ui/components/ui/button";
 import {
   Collapsible,
@@ -34,14 +34,16 @@ export function ChatTaskQuota({
   checkpoints,
   usage,
   showWhenMissing = false,
+  defaultOpen = false,
 }: {
   checkpoints?: TaskQuotaCheckpoint[];
   usage?: TaskUsage[];
   showWhenMissing?: boolean;
+  defaultOpen?: boolean;
 }) {
   const { t } = useT("chat");
   const { t: ti } = useT("issues");
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const summary = summarizeTaskUsage(usage);
   if (!showWhenMissing && !checkpoints?.length && !summary) return null;
 
@@ -171,20 +173,23 @@ export function quotaCheckpointsCSV(checkpoints: TaskQuotaCheckpoint[]): string 
 export function ChatSessionQuotaButton({
   title,
   checkpoints,
+  taskUsage,
 }: {
   title: string;
   checkpoints?: TaskQuotaCheckpoint[];
+  taskUsage?: ChatSession["task_usage"];
 }) {
   const { t } = useT("chat");
   const [open, setOpen] = useState(false);
   const groups = useMemo(() => {
     const grouped = new Map<string, TaskQuotaCheckpoint[]>();
+    for (const run of taskUsage ?? []) grouped.set(run.task_id, []);
     for (const checkpoint of checkpoints ?? []) {
       const id = checkpoint.task_id || "unknown";
       grouped.set(id, [...(grouped.get(id) ?? []), checkpoint]);
     }
     return Array.from(grouped.entries());
-  }, [checkpoints]);
+  }, [checkpoints, taskUsage]);
 
   return (
     <>
@@ -207,7 +212,7 @@ export function ChatSessionQuotaButton({
               {t(($) => $.header.quota_summary_description, { title })}
             </DialogDescription>
           </DialogHeader>
-          {!checkpoints?.length ? (
+          {!groups.length ? (
             <p className="py-8 text-center text-body text-muted-foreground">
               {t(($) => $.header.quota_empty)}
             </p>
@@ -227,7 +232,7 @@ export function ChatSessionQuotaButton({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => downloadText(`${title}-quota.csv`, quotaCheckpointsCSV(checkpoints), "text/csv;charset=utf-8")}
+                  onClick={() => downloadText(`${title}-quota.csv`, quotaCheckpointsCSV(checkpoints ?? []), "text/csv;charset=utf-8")}
                 >
                   <Download className="mr-1 size-3.5" aria-hidden />
                   {t(($) => $.header.export_csv)}
@@ -239,7 +244,7 @@ export function ChatSessionQuotaButton({
                     <h3 className="text-caption font-medium">
                       {t(($) => $.header.run)} {index + 1}
                     </h3>
-                    <QuotaDetails checkpoints={taskCheckpoints} />
+                    <ChatTaskQuota checkpoints={taskCheckpoints} usage={taskUsage?.find((run) => run.task_id === taskID)?.usage} showWhenMissing defaultOpen />
                   </section>
                 ))}
               </div>

@@ -168,8 +168,22 @@ write tokens. Missing usage stays unknown rather than zero.
 `ChatTaskQuota` in shared Views renders token details alongside the existing
 account-level quota comparison. Chat completion already refetches message
 queries; session quota summaries also need their detail query invalidated.
-This requires updated Server and Web/Desktop builds; no new daemon probe,
-dependency or database migration is needed.
+Session detail also exposes chronological `task_usage` entries so the summary
+reuses `ChatTaskQuota`, including runs with missing usage or checkpoints.
+Antigravity task/chat checkpoint projections select only the recorded
+`requested_model`: exact IDs first, then Gemini effort variants' advertised
+`-tiered` bucket (marked shared). Missing identities produce no model window;
+do not guess from equal percentages. Shared account observations stay intact.
+
+Antigravity requires an updated daemon and agy >= 1.1.8: the adapter requests
+`--output-format stream-json`, streams `step_update.text_delta`, and records
+only terminal `result.usage`. Input includes cached input, so subtract cache
+reads when mapping into Multica's disjoint counters; output already includes
+thinking. Never add step usage or thinking a second time. See the
+[official headless contract](https://www.antigravity.google/docs/cli/headless/).
+Earlier plain-text daemon runs have no persisted token usage and cannot be
+backfilled from quota percentages. Server and Web/Desktop must also be updated;
+there is no new dependency or database migration.
 
 - Linux server binaries and the running development/self-host environment are
   separate from the Apple-Silicon desktop artifact.

@@ -923,6 +923,7 @@ describe("Chat quota checkpoint schemas", () => {
     const session = ChatSessionSchema.parse({
       id: "session-1",
       quota_checkpoints: [chatQuotaCheckpoint],
+      task_usage: [{ task_id: "task-1", usage: [{ provider: "antigravity", model: "gemini-3.8-flash-high", input_tokens: 2302, output_tokens: 657, cache_read_tokens: 8113 }] }, { task_id: "legacy-task" }],
     });
 
     expect(message.quota_checkpoints?.[0]).toMatchObject({
@@ -931,6 +932,8 @@ describe("Chat quota checkpoint schemas", () => {
       snapshot: { windows: [{ used_percent: 12 }] },
     });
     expect(session.quota_checkpoints?.[0]?.observation_id).toBe("observation-1");
+    expect(session.task_usage?.[0]?.usage?.[0]?.input_tokens).toBe(2302);
+    expect(session.task_usage?.[1]?.usage).toBeUndefined();
   });
 
   it("drops malformed additive checkpoint metadata without dropping its parent", () => {
@@ -943,7 +946,10 @@ describe("Chat quota checkpoint schemas", () => {
     const session = ChatSessionSchema.parse({
       id: "session-1",
       quota_checkpoints: [{ phase: "during" }],
+      task_usage: [{ task_id: 123, usage: "bad" }],
     });
+
+    expect(session.task_usage).toBeUndefined();
 
     expect(message.id).toBe("message-1");
     expect(message.quota_checkpoints).toBeUndefined();

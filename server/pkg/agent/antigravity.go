@@ -31,9 +31,9 @@ import (
 // therefore recovers the assistant text agy durably wrote to its per-
 // conversation transcript (see readAntigravityTranscriptOutput).
 //
-// Session resumption uses `--conversation <id>`. The conversation id is not
-// emitted on stdout; we capture it by routing `--log-file` to a temp file and
-// scanning its glog-formatted lines for the `conversation=<uuid>` token that
+// Session resumption uses `--conversation <id>`. Structured events carry the
+// ID; as a fallback we route `--log-file` to a temp file and scan its
+// glog-formatted lines for the `conversation=<uuid>` token that
 // printmode.go logs at message-send time.
 type antigravityBackend struct {
 	cfg Config
@@ -258,6 +258,8 @@ func (b *antigravityBackend) Execute(ctx context.Context, prompt string, opts Ex
 					if event.StepUpdate == nil {
 						continue
 					}
+					// Tool/checkpoint transitions are activity even without text.
+					trySend(msgCh, Message{Type: MessageStatus, Status: "running"})
 					if event.StepUpdate.ConversationID != "" {
 						streamSessionID = event.StepUpdate.ConversationID
 					}
@@ -619,6 +621,7 @@ func readAntigravityAppDataDir(logPath string) string {
 // overridden by user-configured custom_args. Overriding these would break
 // non-interactive operation or the daemon's session-resume bookkeeping.
 var antigravityBlockedArgs = map[string]blockedArgMode{
+	"--input-format":                 blockedWithValue, // daemon passes a plain-text prompt
 	"-p":                             blockedWithValue,
 	"--print":                        blockedWithValue,
 	"--prompt":                       blockedWithValue,
