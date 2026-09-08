@@ -81,7 +81,19 @@
     "quick_actions_heading": "後續提問",
     "quick_actions_aria": "後續提問建議",
     "quick_actions_regenerate": "重新生成建議",
-    "quick_actions_regenerate_failed": "無法重新生成建議，請重試。"
+    "quick_actions_regenerate_failed": "無法重新生成建議，請重試。",
+    "quota_title": "Provider 額度",
+    "quota_attribution_note": "這是帳號層級快照，變化可能包含其他執行。",
+    "quota_no_window": "沒有可比較的額度區間（執行前：{{before}}，執行後：{{after}}）。",
+    "quota_overlap": "觀測期間另有 {{count}} 次執行重疊。",
+    "quota_state": {
+      "comparable": "可比較",
+      "same_observation": "同一次觀測",
+      "reset_crossed": "跨越額度重置",
+      "stale": "資料已過期",
+      "unavailable": "無法取得",
+      "missing": "缺少 checkpoint"
+    }
   },
   "session_history": {
     "untitled": "無標題",
@@ -242,6 +254,12 @@
     "rename": "重新命名會話",
     "delete": "刪除會話",
     "archive": "歸檔會話",
-    "unarchive": "取消歸檔"
+    "unarchive": "取消歸檔",
+    "quota_summary": "會話額度摘要",
+    "quota_summary_description": "「{{title}}」的 Provider 額度 checkpoint。",
+    "quota_empty": "此會話沒有 Provider 額度 checkpoint。",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "執行"
   }
 }

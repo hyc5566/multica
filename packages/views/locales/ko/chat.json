@@ -81,7 +81,19 @@
     "quick_actions_heading": "후속 질문",
     "quick_actions_aria": "추천 후속 질문",
     "quick_actions_regenerate": "제안 다시 생성",
-    "quick_actions_regenerate_failed": "제안을 다시 생성하지 못했습니다. 다시 시도해 주세요."
+    "quick_actions_regenerate_failed": "제안을 다시 생성하지 못했습니다. 다시 시도해 주세요.",
+    "quota_title": "제공자 할당량",
+    "quota_attribution_note": "계정 수준 스냅샷이며 변경량에 다른 실행이 포함될 수 있습니다.",
+    "quota_no_window": "비교할 수 있는 할당량 구간이 없습니다(전: {{before}}, 후: {{after}}).",
+    "quota_overlap": "관측 중 다른 실행 {{count}}개가 겹쳤습니다.",
+    "quota_state": {
+      "comparable": "비교 가능",
+      "same_observation": "동일 관측",
+      "reset_crossed": "할당량 재설정 통과",
+      "stale": "오래된 데이터",
+      "unavailable": "사용 불가",
+      "missing": "체크포인트 없음"
+    }
   },
   "session_history": {
     "untitled": "제목 없음",
@@ -242,6 +254,12 @@
     "rename": "이름 변경",
     "delete": "채팅 삭제",
     "archive": "채팅 보관",
-    "unarchive": "채팅 보관 해제"
+    "unarchive": "채팅 보관 해제",
+    "quota_summary": "세션 할당량 요약",
+    "quota_summary_description": "“{{title}}”의 제공자 할당량 체크포인트입니다.",
+    "quota_empty": "이 세션에는 제공자 할당량 체크포인트가 없습니다.",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "실행"
   }
 }

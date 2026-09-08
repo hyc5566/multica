@@ -29,6 +29,7 @@ import {
   ChatPendingTaskSchema,
   ChatSessionListSchema,
   ChatSessionSchema,
+  ChatMessageSchema,
   PrioritizeQueuedChatTaskResponseSchema,
   CreateFeedbackResponseSchema,
   DuplicateIssueErrorBodySchema,
@@ -66,6 +67,7 @@ import {
   EMPTY_PLUGIN_INSTALLATION_LIST,
   EMPTY_PLUGIN_PREVIEW,
 } from "./schemas";
+
 import { IssueViewSchema, IssueViewListSchema } from "./schemas";
 import {
   ListIssueStatusesResponseSchema,
@@ -74,6 +76,23 @@ import {
   EMPTY_ISSUE_STATUS_ENTRY,
 } from "./schemas";
 import { parseWithFallback } from "./schema";
+
+const chatQuotaCheckpoint = {
+  task_id: "task-1",
+  phase: "before",
+  boundary_at: "2026-09-08T01:00:01Z",
+  provider: "codex",
+  capture_state: "fresh",
+  overlapping_task_count: 0,
+  observation_id: "observation-1",
+  snapshot: {
+    provider: "codex",
+    status: "available",
+    source: "official",
+    observed_at: "2026-09-08T01:00:00Z",
+    windows: [{ id: "five-hour", label: "5 hour", used_percent: 12, unit: "percent" }],
+  },
+};
 
 const baseIssue = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -882,6 +901,47 @@ describe("ChatPendingTaskSchema", () => {
       task_id: "task-active",
       queued_tasks: [],
     });
+  });
+});
+
+describe("Chat quota checkpoint schemas", () => {
+  it("preserves checkpoint metadata on messages and session summaries", () => {
+    const message = ChatMessageSchema.parse({
+      id: "message-1",
+      chat_session_id: "session-1",
+      role: "assistant",
+      task_id: "task-1",
+      quota_checkpoints: [chatQuotaCheckpoint],
+    });
+    const session = ChatSessionSchema.parse({
+      id: "session-1",
+      quota_checkpoints: [chatQuotaCheckpoint],
+    });
+
+    expect(message.quota_checkpoints?.[0]).toMatchObject({
+      task_id: "task-1",
+      phase: "before",
+      snapshot: { windows: [{ used_percent: 12 }] },
+    });
+    expect(session.quota_checkpoints?.[0]?.observation_id).toBe("observation-1");
+  });
+
+  it("drops malformed additive checkpoint metadata without dropping its parent", () => {
+    const message = ChatMessageSchema.parse({
+      id: "message-1",
+      chat_session_id: "session-1",
+      role: "assistant",
+      quota_checkpoints: [{ phase: "during" }],
+    });
+    const session = ChatSessionSchema.parse({
+      id: "session-1",
+      quota_checkpoints: [{ phase: "during" }],
+    });
+
+    expect(message.id).toBe("message-1");
+    expect(message.quota_checkpoints).toBeUndefined();
+    expect(session.id).toBe("session-1");
+    expect(session.quota_checkpoints).toBeUndefined();
   });
 });
 

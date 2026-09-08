@@ -81,7 +81,19 @@
     "quick_actions_heading": "フォローアップ質問",
     "quick_actions_aria": "フォローアップの候補",
     "quick_actions_regenerate": "候補を再生成",
-    "quick_actions_regenerate_failed": "候補を再生成できませんでした。もう一度お試しください。"
+    "quick_actions_regenerate_failed": "候補を再生成できませんでした。もう一度お試しください。",
+    "quota_title": "プロバイダー利用枠",
+    "quota_attribution_note": "アカウント単位のスナップショットです。変化には他の実行が含まれる場合があります。",
+    "quota_no_window": "比較できる利用枠がありません（前：{{before}}、後：{{after}}）。",
+    "quota_overlap": "観測中に他の実行が {{count}} 件重複しました。",
+    "quota_state": {
+      "comparable": "比較可能",
+      "same_observation": "同じ観測",
+      "reset_crossed": "利用枠のリセットを通過",
+      "stale": "古いデータ",
+      "unavailable": "取得不可",
+      "missing": "チェックポイントなし"
+    }
   },
   "session_history": {
     "untitled": "無題",
@@ -242,6 +254,12 @@
     "rename": "名前を変更",
     "delete": "チャットを削除",
     "archive": "チャットをアーカイブ",
-    "unarchive": "アーカイブを解除"
+    "unarchive": "アーカイブを解除",
+    "quota_summary": "セッション利用枠の概要",
+    "quota_summary_description": "「{{title}}」のプロバイダー利用枠チェックポイント。",
+    "quota_empty": "このセッションには利用枠チェックポイントがありません。",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "実行"
   }
 }

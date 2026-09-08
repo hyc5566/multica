@@ -47,6 +47,7 @@ import type { ChatTimelineItem } from "@multica/core/chat";
 import { buildTimeline } from "../../common/task-transcript";
 import { OnboardingStarterCards } from "./onboarding-starter-cards";
 import { TaskStatusPill } from "./task-status-pill";
+import { ChatTaskQuota } from "./chat-quota";
 import { CHAT_COLUMN, CHAT_GUTTER } from "./chat-column";
 import { FOLLOW_EDGE_THRESHOLD } from "../../common/task-transcript/transcript-follow";
 import { LIVE_END_ROW_ATTR, useStickToBottom } from "./stick-to-bottom";
@@ -586,12 +587,18 @@ function AssistantMessage({
   // so the user can see exactly where the run broke.
   if (message?.failure_reason) {
     return (
-      <FailureBubble
-        reason={message.failure_reason}
-        rawError={message.content}
-        timeline={timeline}
-        elapsedMs={message.elapsed_ms}
-      />
+      <div className="w-full space-y-1.5">
+        <FailureBubble
+          reason={message.failure_reason}
+          rawError={message.content}
+          timeline={timeline}
+          elapsedMs={message.elapsed_ms}
+        />
+        <ChatTaskQuota
+          checkpoints={message.quota_checkpoints}
+          showWhenMissing={Boolean(message.task_id)}
+        />
+      </div>
     );
   }
 
@@ -631,6 +638,10 @@ function AssistantMessage({
             message={message}
             timeline={timeline}
             isPending={isPending}
+          />
+          <ChatTaskQuota
+            checkpoints={message.quota_checkpoints}
+            showWhenMissing={Boolean(message.task_id)}
           />
           {onQuickAction && showStarterCards ? (
             // The opening's starter cards own this turn's suggestion strip
