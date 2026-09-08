@@ -10,6 +10,17 @@ export default [
       globals: { ...globals.node },
     },
   },
+  // Renderer and preload imports are bundled into out/ before packaging, so
+  // they are build dependencies rather than Electron runtime dependencies.
+  {
+    files: ["src/{preload,renderer}/**/*.{ts,tsx}"],
+    rules: {
+      "import-x/no-extraneous-dependencies": [
+        "error",
+        { devDependencies: true },
+      ],
+    },
+  },
   // Security: every renderer-controlled URL that reaches the OS shell or the
   // native download system must flow through the safe wrappers in
   // src/main/external-url.ts (scheme allowlist). Enforce it statically so
