@@ -111,6 +111,8 @@ export interface ChatSession {
   is_current_channel_route?: boolean;
   /** Account-level checkpoints for every run in this session. Detail API only. */
   quota_checkpoints?: TaskQuotaCheckpoint[];
+  /** Chronological run usage, including runs whose provider reported no usage. */
+  task_usage?: { task_id: string; usage?: TaskUsage[] }[];
   created_at: string;
   updated_at: string;
 }
