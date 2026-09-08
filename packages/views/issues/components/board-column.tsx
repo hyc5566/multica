@@ -1,5 +1,7 @@
 "use client";
 
+import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
+
 import { memo, useCallback, useMemo, useState, type ReactNode } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { EyeOff, FolderMinus, MoreHorizontal, Plus, UserMinus } from "lucide-react";
@@ -19,7 +21,7 @@ import {
   DropdownMenuItem,
 } from "@multica/ui/components/ui/dropdown-menu";
 import { STATUS_CONFIG } from "@multica/core/issues/config";
-import { useViewStoreApi } from "@multica/core/issues/stores/view-store-context";
+import { useViewStore, useViewStoreApi } from "@multica/core/issues/stores/view-store-context";
 import { useViewBaseline } from "../surface/view-baseline-context";
 import { StatusHeading } from "./status-heading";
 import { DraggableBoardCard } from "./board-card";
@@ -37,9 +39,6 @@ import type { IssueCreateDefaults } from "../surface/types";
 // ORDER BY uses PostgreSQL's en_US.utf8 collation (glibc), which
 // cannot be faithfully replicated in JavaScript (ICU/V8). Showing an
 // inaccurate indicator is worse than showing none.
-
-export const BOARD_COL_WIDTH = 280;
-export const BOARD_CARD_WIDTH = BOARD_COL_WIDTH - 16 - 8; // col(280) - col p-2(16) - droppable p-1(8)
 
 // Board cards are ~90-140px tall, so ~10 fill a column viewport — unlike the
 // generic VIRTUOSO_SEED_COUNT (30, sized for 36px list rows). The seed mounts
@@ -118,6 +117,7 @@ export const BoardColumn = memo(function BoardColumn({
   onCreateIssue?: (defaults: IssueCreateDefaults) => void;
   sortLabel?: string | null;
 }) {
+  const columnWidth = useViewStore((s) => BOARD_COLUMN_WIDTHS[s.boardLayout ?? "default"]);
   const status = group.status;
   const cfg = status ? STATUS_CONFIG[status] : null;
   const { setNodeRef, isOver } = useDroppable({ id: group.id });
@@ -186,7 +186,7 @@ export const BoardColumn = memo(function BoardColumn({
   );
 
   return (
-    <div style={{ width: BOARD_COL_WIDTH }} className={`flex shrink-0 flex-col rounded-xl ${cfg?.columnBg ?? "bg-muted/40"} p-2`}>
+    <div style={{ width: columnWidth }} className={`flex shrink-0 flex-col rounded-xl ${cfg?.columnBg ?? "bg-muted/40"} p-2`}>
       <div className="mb-2 flex items-center justify-between px-1.5">
         <BoardGroupHeading group={group} count={totalCount ?? issueIds.length} />
 

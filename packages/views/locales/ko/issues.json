@@ -152,6 +152,9 @@
     "chip_save_as": "다른 이름으로 저장"
   },
   "display": {
+    "layout_section": "레이아웃",
+    "layout_compact": "좁게",
+    "layout_default": "기본",
     "tooltip": "보기 설정",
     "button": "보기",
     "grouping_section": "그룹화",

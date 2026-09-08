@@ -168,3 +168,28 @@ LaunchAgent identity, and rollback artifact in the deployment record.
   requires a conventional location.
 - Never overwrite a running deployment without first recording its executable,
   process identity, version, and rollback path.
+
+## Uniform board layout layer (HYCLV-43)
+
+To rebuild this optional Taiwan-edition UI feature on a fresh upstream:
+
+1. Add `boardLayout: "compact" | "default"` (default: `"default"`) and its setter
+   to `packages/core/issues/stores/view-store.ts`. Persist it through the existing
+   view-store partializer; restore missing or invalid values as `"default"`.
+   The existing surface registry isolates the preference by workspace and view.
+2. Keep the shared width mapping in that store: compact 220px, default 280px.
+   220px is the compact preset's lower bound; there is no per-column resizing.
+3. Add the two pressed-state buttons under Display in `issues-header.tsx`, only
+   for board and swimlane. Localize `display.layout_*` in all four issue bundles;
+   the Taiwan edition's `zh-Hans` bundle reads `版面`, `緊緻`, `預設`.
+4. Use the width in `board-column.tsx`, the board drag overlay (subtract 24px for
+   existing column/card padding), and `swimlane-view.tsx` (grid, track and overlay).
+   Keep all columns equal, even when grouping by assignee/project/property.
+
+This changes only shared Web/Desktop presentation. It does not change table/list
+widths, server data, filters, migrations or deployment configuration. The hidden
+columns panel is a separate control and keeps its existing width. Revert the
+feature commit to remove it; stale persisted layout values are harmless to older
+clients. Validate with the layout/store, board interaction and swimlane suites,
+locale parity, and `pnpm typecheck`. Before release, visually check long titles,
+large counts, horizontal scrolling and drag/drop at both widths.

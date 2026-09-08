@@ -155,6 +155,9 @@
     "chip_save_as": "Save as"
   },
   "display": {
+    "layout_section": "Layout",
+    "layout_compact": "Compact",
+    "layout_default": "Default",
     "tooltip": "Display settings",
     "button": "Display",
     "grouping_section": "Grouping",

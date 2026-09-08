@@ -9,6 +9,8 @@ import { createWorkspaceAwareStorage, registerForWorkspaceRehydration } from "..
 import { defaultStorage } from "../../platform/storage";
 
 export type ViewMode = "board" | "list" | "table" | "gantt" | "swimlane";
+export type BoardLayout = "compact" | "default";
+export const BOARD_COLUMN_WIDTHS: Record<BoardLayout, number> = { compact: 220, default: 280 };
 export type GanttZoom = "day" | "week" | "month";
 /**
  * Board grouping. Besides the three built-ins, a select-type custom property
@@ -180,6 +182,7 @@ export const CARD_PROPERTY_OPTIONS: { key: keyof CardProperties; label: string }
 
 export interface IssueViewState {
   viewMode: ViewMode;
+  boardLayout: BoardLayout;
   grouping: IssueGrouping;
   statusFilters: IssueStatus[];
   priorityFilters: IssuePriority[];
@@ -245,6 +248,7 @@ export interface IssueViewState {
   tableHierarchy: boolean;
   tableCalculation: TableCalculation;
   setViewMode: (mode: ViewMode) => void;
+  setBoardLayout: (layout: BoardLayout) => void;
   setGanttZoom: (zoom: GanttZoom) => void;
   toggleGanttShowCompleted: () => void;
   setGrouping: (grouping: IssueGrouping) => void;
@@ -295,6 +299,7 @@ export interface IssueViewState {
 
 export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): IssueViewState => ({
   viewMode: "board",
+  boardLayout: "default",
   grouping: "status",
   statusFilters: [],
   priorityFilters: [],
@@ -336,6 +341,7 @@ export const viewStoreSlice = (set: StoreApi<IssueViewState>["setState"]): Issue
   tableCalculation: "none",
 
   setViewMode: (mode) => set({ viewMode: mode }),
+  setBoardLayout: (boardLayout) => set({ boardLayout }),
   setGanttZoom: (zoom) => set({ ganttZoom: zoom }),
   toggleGanttShowCompleted: () =>
     set((state) => ({ ganttShowCompleted: !state.ganttShowCompleted })),
@@ -565,6 +571,7 @@ export const viewStorePersistOptions = (name: string) => ({
     // `dateFilter` is also intentionally not persisted: relative presets such
     // as Today would otherwise become stale after a calendar-day rollover.
     viewMode: state.viewMode,
+    boardLayout: state.boardLayout,
     grouping: state.grouping,
     statusFilters: state.statusFilters,
     priorityFilters: state.priorityFilters,
@@ -636,6 +643,7 @@ export function mergeViewStatePersisted<T extends IssueViewState>(
   return {
     ...current,
     ...p,
+    boardLayout: p.boardLayout === "compact" ? "compact" : "default",
     cardProperties: {
       ...current.cardProperties,
       ...(p.cardProperties ?? {}),
