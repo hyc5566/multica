@@ -824,6 +824,7 @@ export const ChatMessageSchema = z.object({
   // Optional additive data degrades independently: a malformed suggestion
   // must not hide the assistant reply that contains it.
   quick_actions: z.array(ChatQuickActionSchema).catch([]).optional().default([]),
+  quota_checkpoints: z.array(z.lazy(() => TaskQuotaCheckpointSchema)).optional().catch(undefined),
 }).loose();
 
 export const ChatMessageListSchema = z.array(ChatMessageSchema).default([]);
@@ -1774,6 +1775,7 @@ const TaskQuotaSnapshotSchema = z.object({
 }).loose();
 
 const TaskQuotaCheckpointSchema = z.object({
+  task_id: z.string().optional(),
   phase: z.enum(["before", "after"]),
   boundary_at: z.string(),
   provider: z.string().default(""),
@@ -1883,6 +1885,7 @@ export const ChatSessionSchema: z.ZodType<ChatSession> = z.object({
   pinned: z.boolean().optional(),
   channel_source: ChatChannelSourceSchema.optional().catch(undefined),
   is_current_channel_route: z.boolean().optional().catch(undefined),
+  quota_checkpoints: z.array(z.lazy(() => TaskQuotaCheckpointSchema)).optional().catch(undefined),
   created_at: z.string().default(""),
   updated_at: z.string().default(""),
 }).loose();

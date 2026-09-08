@@ -85,7 +85,19 @@
     "quick_actions_heading": "Follow-up questions",
     "quick_actions_aria": "Suggested follow-ups",
     "quick_actions_regenerate": "Regenerate suggestions",
-    "quick_actions_regenerate_failed": "Couldn't refresh suggestions. Please try again."
+    "quick_actions_regenerate_failed": "Couldn't refresh suggestions. Please try again.",
+    "quota_title": "Provider quota",
+    "quota_attribution_note": "Account-level snapshots; changes may include other runs.",
+    "quota_no_window": "No comparable quota window (before: {{before}}, after: {{after}}).",
+    "quota_overlap": "{{count}} other run(s) overlapped these observations.",
+    "quota_state": {
+      "comparable": "Comparable",
+      "same_observation": "Same observation",
+      "reset_crossed": "Quota reset crossed",
+      "stale": "Stale data",
+      "unavailable": "Unavailable",
+      "missing": "Missing checkpoint"
+    }
   },
   "session_history": {
     "untitled": "Untitled",
@@ -246,6 +258,12 @@
     "rename": "Rename chat",
     "archive": "Archive chat",
     "unarchive": "Unarchive chat",
-    "delete": "Delete chat"
+    "delete": "Delete chat",
+    "quota_summary": "Session quota summary",
+    "quota_summary_description": "Provider quota checkpoints for “{{title}}”.",
+    "quota_empty": "No provider quota checkpoints were recorded for this session.",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "Run"
   }
 }

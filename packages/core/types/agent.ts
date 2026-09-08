@@ -439,6 +439,8 @@ export type TaskQuotaCaptureState =
   | "expired";
 
 export interface TaskQuotaCheckpoint {
+  /** Present on session-level summaries; message/run projections already carry it. */
+  task_id?: string;
   phase: TaskQuotaCheckpointPhase;
   boundary_at: string;
   provider: string;

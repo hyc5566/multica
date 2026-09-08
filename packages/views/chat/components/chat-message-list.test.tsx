@@ -613,6 +613,125 @@ describe("ChatMessageList failure copy (MUL-5370 regression)", () => {
   });
 });
 
+describe("ChatMessageList provider quota", () => {
+  it("shows an explicit missing state for a task without checkpoints", async () => {
+    render(
+      <I18nProvider locale="en" resources={TEST_RESOURCES}>
+        <QueryClientProvider client={new QueryClient()}>
+          <ChatMessageList
+            messages={[{
+              id: "quota-missing",
+              chat_session_id: "session-1",
+              role: "assistant",
+              content: "Done.",
+              task_id: TASK_ID,
+              created_at: "2026-09-08T01:01:00Z",
+            }]}
+            pendingTask={null}
+            availability="online"
+          />
+        </QueryClientProvider>
+      </I18nProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Provider quota/ }));
+    expect(screen.getByText("No comparable quota window (before: missing, after: missing)."))
+      .toBeInTheDocument();
+  });
+
+  it("shows before/after percentages, observation state, and account-level caveat", async () => {
+    render(
+      <I18nProvider locale="en" resources={TEST_RESOURCES}>
+        <QueryClientProvider client={new QueryClient()}>
+          <ChatMessageList
+            messages={[{
+              id: "quota-reply",
+              chat_session_id: "session-1",
+              role: "assistant",
+              content: "Done.",
+              task_id: TASK_ID,
+              created_at: "2026-09-08T01:01:00Z",
+              quota_checkpoints: [
+                {
+                  phase: "before",
+                  boundary_at: "2026-09-08T01:00:01Z",
+                  provider: "codex",
+                  capture_state: "fresh",
+                  overlapping_task_count: 0,
+                  observation_id: "observation-before",
+                  snapshot: {
+                    provider: "codex",
+                    status: "available",
+                    source: "official",
+                    observed_at: "2026-09-08T01:00:00Z",
+                    windows: [{ id: "five-hour", label: "5 hour", used_percent: 12, unit: "percent" }],
+                  },
+                },
+                {
+                  phase: "after",
+                  boundary_at: "2026-09-08T01:01:01Z",
+                  provider: "codex",
+                  capture_state: "fresh",
+                  overlapping_task_count: 0,
+                  observation_id: "observation-after",
+                  snapshot: {
+                    provider: "codex",
+                    status: "available",
+                    source: "official",
+                    observed_at: "2026-09-08T01:01:00Z",
+                    windows: [{ id: "five-hour", label: "5 hour", used_percent: 15, unit: "percent" }],
+                  },
+                },
+              ],
+            }]}
+            pendingTask={null}
+            availability="online"
+          />
+        </QueryClientProvider>
+      </I18nProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Provider quota/ }));
+    expect(screen.getByText("12.0% → 15.0% (+3.0 pp)")).toBeInTheDocument();
+    expect(screen.getByText("Comparable")).toBeInTheDocument();
+    expect(screen.getByText(/Account-level snapshots/)).toBeInTheDocument();
+  });
+
+  it("keeps capture failures explicit when no quota window exists", async () => {
+    render(
+      <I18nProvider locale="en" resources={TEST_RESOURCES}>
+        <QueryClientProvider client={new QueryClient()}>
+          <ChatMessageList
+            messages={[{
+              id: "quota-failure",
+              chat_session_id: "session-1",
+              role: "assistant",
+              content: "Could not finish.",
+              task_id: TASK_ID,
+              created_at: "2026-09-08T01:01:00Z",
+              failure_reason: "timeout",
+              quota_checkpoints: [{
+                phase: "before",
+                boundary_at: "2026-09-08T01:00:01Z",
+                provider: "codex",
+                capture_state: "timeout",
+                error_code: "timeout",
+                overlapping_task_count: 0,
+              }],
+            }]}
+            pendingTask={null}
+            availability="online"
+          />
+        </QueryClientProvider>
+      </I18nProvider>,
+    );
+
+    fireEvent.click(await screen.findByRole("button", { name: /Provider quota/ }));
+    expect(screen.getByText("No comparable quota window (before: timeout, after: missing)."))
+      .toBeInTheDocument();
+  });
+});
+
 describe("ChatMessageList onboarding starter cards", () => {
   // The opening self-describes: the completion path stamps Mika's reply to the
   // hidden kickoff with message_kind "onboarding_opening" (the kickoff row
