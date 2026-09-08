@@ -168,3 +168,18 @@ LaunchAgent identity, and rollback artifact in the deployment record.
   requires a conventional location.
 - Never overwrite a running deployment without first recording its executable,
   process identity, version, and rollback path.
+
+### Desktop artifact retention
+
+- Keep exactly two installable Desktop archives in the controlled checkout's
+  `artifacts/` directory: the current build and its immediate predecessor.
+  `scripts/build-desktop-zh-tw-macos.sh` enforces this only after a new archive
+  passes build and codesign verification.
+- Keep one installed app at `/Applications/Multica 繁中版.app` and one previous
+  app in the controlled rollback directory. Do not also retain a second copy of
+  the installed app in rollback.
+- Remove completed staging checkouts and their `node_modules`/`dist-zh-tw`
+  directories after deployment verification. Dependency caches are
+  reproducible and may be pruned when no build is running; never remove daemon
+  workspaces, profiles, logs, databases, or the one retained rollback app as
+  cache cleanup.
