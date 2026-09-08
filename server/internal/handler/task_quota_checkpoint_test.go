@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	db "github.com/multica-ai/multica/server/pkg/db/generated"
 )
 
 func TestAnnotateTaskQuotaWindowsUsesOnlyStableModelIdentity(t *testing.T) {
@@ -77,10 +79,18 @@ func TestChatQuotaCheckpointHydration(t *testing.T) {
 		t.Fatalf("insert quota checkpoint fixtures: %v", err)
 	}
 	t.Cleanup(func() {
+		testPool.Exec(ctx, `DELETE FROM task_usage WHERE task_id = $1`, taskID)
 		testPool.Exec(ctx, `DELETE FROM task_quota_checkpoint WHERE task_id = $1`, taskID)
 		testPool.Exec(ctx, `DELETE FROM chat_message WHERE task_id = $1`, taskID)
 		testPool.Exec(ctx, `DELETE FROM agent_task_queue WHERE id = $1`, taskID)
 	})
+
+	if err := testHandler.Queries.UpsertTaskUsage(ctx, db.UpsertTaskUsageParams{
+		TaskID: parseUUID(taskID), Provider: "codex", Model: "gpt-6-astra",
+		InputTokens: 100, OutputTokens: 20, CacheReadTokens: 30, CacheWriteTokens: 5,
+	}); err != nil {
+		t.Fatal(err)
+	}
 
 	pageReq := withURLParam(newRequest(http.MethodGet, "/api/chat/sessions/"+sessionID+"/messages/page", nil), "sessionId", sessionID)
 	pageReq = withChatTestWorkspaceCtx(t, pageReq)
@@ -95,6 +105,9 @@ func TestChatQuotaCheckpointHydration(t *testing.T) {
 	}
 	if len(page.Messages) != 1 || len(page.Messages[0].QuotaCheckpoints) != 2 {
 		t.Fatalf("message checkpoints = %+v, want two", page.Messages)
+	}
+	if usage := page.Messages[0].Usage; len(usage) != 1 || usage[0].InputTokens != 100 || usage[0].OutputTokens != 20 || usage[0].CacheReadTokens != 30 || usage[0].CacheWriteTokens != 5 {
+		t.Fatalf("message token usage = %+v", usage)
 	}
 	if page.Messages[0].QuotaCheckpoints[0].TaskID != taskID || page.Messages[0].QuotaCheckpoints[1].OverlappingTaskCount != 1 {
 		t.Fatalf("message checkpoint metadata = %+v", page.Messages[0].QuotaCheckpoints)
