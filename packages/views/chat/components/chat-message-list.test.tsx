@@ -646,6 +646,7 @@ describe("ChatMessageList provider quota", () => {
           <ChatMessageList
             messages={[{
               id: "quota-reply",
+              usage: [{ provider: "codex", model: "gpt-6-astra", input_tokens: 100, output_tokens: 20, cache_read_tokens: 30, cache_write_tokens: 5 }],
               chat_session_id: "session-1",
               role: "assistant",
               content: "Done.",
@@ -693,6 +694,7 @@ describe("ChatMessageList provider quota", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /Provider quota/ }));
     expect(screen.getByText("12.0% → 15.0% (+3.0 pp)")).toBeInTheDocument();
+    expect(screen.getByText("codex / gpt-6-astra: 155 tokens")).toBeInTheDocument();
     expect(screen.getByText("Comparable")).toBeInTheDocument();
     expect(screen.getByText(/Account-level snapshots/)).toBeInTheDocument();
   });

@@ -86,6 +86,8 @@
     "quota_attribution_note": "アカウント単位のスナップショットです。変化には他の実行が含まれる場合があります。",
     "quota_no_window": "比較できる利用枠がありません（前：{{before}}、後：{{after}}）。",
     "quota_overlap": "観測中に他の実行が {{count}} 件重複しました。",
+    "usage_missing": "この実行のトークン使用量は記録されていません。",
+    "token_count": "{{value}} tokens",
     "quota_state": {
       "comparable": "比較可能",
       "same_observation": "同じ観測",

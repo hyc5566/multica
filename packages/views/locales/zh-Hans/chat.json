@@ -86,6 +86,8 @@
     "quota_attribution_note": "這是帳號層級快照，變化可能包含其他執行。",
     "quota_no_window": "沒有可比較的額度區間（執行前：{{before}}，執行後：{{after}}）。",
     "quota_overlap": "觀測期間另有 {{count}} 次執行重疊。",
+    "usage_missing": "這次執行尚無 token 用量紀錄。",
+    "token_count": "{{value}} tokens",
     "quota_state": {
       "comparable": "可比較",
       "same_observation": "同一次觀測",

@@ -90,6 +90,8 @@
     "quota_attribution_note": "Account-level snapshots; changes may include other runs.",
     "quota_no_window": "No comparable quota window (before: {{before}}, after: {{after}}).",
     "quota_overlap": "{{count}} other run(s) overlapped these observations.",
+    "usage_missing": "No token usage recorded for this run.",
+    "token_count": "{{value}} tokens",
     "quota_state": {
       "comparable": "Comparable",
       "same_observation": "Same observation",

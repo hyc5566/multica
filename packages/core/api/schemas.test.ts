@@ -853,6 +853,13 @@ describe("ChatPendingTaskSchema", () => {
 });
 
 describe("Chat quota checkpoint schemas", () => {
+  it("preserves per-run tokens and drops malformed usage independently", () => {
+    const message = { id: "m", chat_session_id: "s", role: "assistant", content: "Done" };
+    expect(ChatMessageSchema.parse({ ...message, usage: [{ model: "gpt-6-astra", input_tokens: 100 }] }).usage?.[0]?.input_tokens).toBe(100);
+    const parsed = ChatMessageSchema.parse({ ...message, usage: [{ input_tokens: "bad" }] });
+    expect(parsed.content).toBe("Done");
+    expect(parsed.usage).toBeUndefined();
+  });
   it("preserves checkpoint metadata on messages and session summaries", () => {
     const message = ChatMessageSchema.parse({
       id: "message-1",
