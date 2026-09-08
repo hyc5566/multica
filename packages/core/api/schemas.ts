@@ -831,6 +831,7 @@ export const ChatMessageSchema = z.object({
   // must not hide the assistant reply that contains it.
   quick_actions: z.array(ChatQuickActionSchema).catch([]).optional().default([]),
   quota_checkpoints: z.array(z.lazy(() => TaskQuotaCheckpointSchema)).optional().catch(undefined),
+  usage: z.array(z.lazy(() => TaskUsageSchema)).optional().catch(undefined),
 }).loose();
 
 export const ChatMessageListSchema = z.array(ChatMessageSchema).default([]);

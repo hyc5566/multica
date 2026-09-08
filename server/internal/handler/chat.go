@@ -1202,7 +1202,7 @@ func (h *Handler) ListChatMessages(w http.ResponseWriter, r *http.Request) {
 	for i, m := range messages {
 		resp[i] = chatMessageToResponse(m, groupedAtt[uuidToString(m.ID)])
 	}
-	h.hydrateChatMessageQuotaCheckpoints(r.Context(), resp)
+	h.hydrateChatMessageUsage(r.Context(), session.AgentID, resp)
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -1268,7 +1268,7 @@ func (h *Handler) ListChatMessagesPage(w http.ResponseWriter, r *http.Request) {
 	for i, m := range messages {
 		resp[i] = chatMessageToResponse(m, groupedAtt[uuidToString(m.ID)])
 	}
-	h.hydrateChatMessageQuotaCheckpoints(r.Context(), resp)
+	h.hydrateChatMessageUsage(r.Context(), session.AgentID, resp)
 	writeJSON(w, http.StatusOK, ChatMessagesPageResponse{
 		Messages:   resp,
 		Limit:      limit,
@@ -2030,9 +2030,10 @@ type ChatMessageResponse struct {
 	// QuotaCheckpoints are account-level observations for this message's run.
 	// Their absence never blocks or hides the persisted Chat reply.
 	QuotaCheckpoints []TaskQuotaCheckpointData `json:"quota_checkpoints,omitempty"`
+	Usage            []TaskUsageData           `json:"usage,omitempty"`
 }
 
-func (h *Handler) hydrateChatMessageQuotaCheckpoints(ctx context.Context, messages []ChatMessageResponse) {
+func (h *Handler) hydrateChatMessageUsage(ctx context.Context, agentID pgtype.UUID, messages []ChatMessageResponse) {
 	taskIDs := make([]pgtype.UUID, 0, len(messages))
 	seen := make(map[string]struct{}, len(messages))
 	for _, message := range messages {
@@ -2044,6 +2045,22 @@ func (h *Handler) hydrateChatMessageQuotaCheckpoints(ctx context.Context, messag
 		}
 		seen[*message.TaskID] = struct{}{}
 		taskIDs = append(taskIDs, parseUUID(*message.TaskID))
+	}
+	tasks := make([]AgentTaskResponse, len(taskIDs))
+	for i, id := range taskIDs {
+		tasks[i].ID = uuidToString(id)
+	}
+	if err := h.hydrateAgentTaskUsage(ctx, agentID, taskIDs, tasks); err != nil {
+		slog.Warn("hydrate chat token usage failed", "error", err)
+	}
+	usageByTask := make(map[string][]TaskUsageData, len(tasks))
+	for _, task := range tasks {
+		usageByTask[task.ID] = task.Usage
+	}
+	for i := range messages {
+		if messages[i].TaskID != nil && messages[i].Role == "assistant" {
+			messages[i].Usage = usageByTask[*messages[i].TaskID]
+		}
 	}
 	byTask, err := h.loadTaskQuotaCheckpoints(ctx, taskIDs)
 	if err != nil {

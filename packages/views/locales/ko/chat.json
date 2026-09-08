@@ -86,6 +86,8 @@
     "quota_attribution_note": "계정 수준 스냅샷이며 변경량에 다른 실행이 포함될 수 있습니다.",
     "quota_no_window": "비교할 수 있는 할당량 구간이 없습니다(전: {{before}}, 후: {{after}}).",
     "quota_overlap": "관측 중 다른 실행 {{count}}개가 겹쳤습니다.",
+    "usage_missing": "이 실행의 토큰 사용량 기록이 없습니다.",
+    "token_count": "{{value}} tokens",
     "quota_state": {
       "comparable": "비교 가능",
       "same_observation": "동일 관측",
