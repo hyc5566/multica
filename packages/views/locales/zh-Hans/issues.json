@@ -152,6 +152,9 @@
     "chip_save_as": "另存"
   },
   "display": {
+    "layout_section": "版面",
+    "layout_compact": "緊緻",
+    "layout_default": "預設",
     "tooltip": "顯示設定",
     "button": "顯示",
     "grouping_section": "分組",
