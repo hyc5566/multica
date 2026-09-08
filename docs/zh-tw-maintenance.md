@@ -215,3 +215,29 @@ there is no new dependency or database migration.
 繁中介面中的 agent 一律保留英文 `Agent`，列表標題可用 `Agents`；不翻成「智能體」「智慧體」「助理」或「代理」。此規則包含 Web／Desktop 共用 locale、入口頁、內建上手引導、CLI 顯示文案及分支內相關說明文件；網路 proxy 的「代理」與使用者自行命名的內容不在替換範圍。
 
 未儲存語系偏好的 Web 新訪客預設繁體中文；明確選擇英文等既有語系時保留 cookie 偏好。入口頁和登入頁透過 `apps/web/lib/locale-routing.ts` 共用這項決策。相容性 key `zh-Hans` 仍載入繁中資源，不更動 API／資料庫語系 enum。重建時檢查首頁、登入頁、導航與 Agent 頁，並核對翻譯 key 和插值不變。
+
+## Uniform board layout layer (HYCLV-43)
+
+To rebuild this optional Taiwan-edition UI feature on a fresh upstream:
+
+1. Add `boardLayout: "compact" | "default"` (default: `"default"`) and its setter
+   to `packages/core/issues/stores/view-store.ts`. Persist it through the existing
+   view-store partializer; restore missing or invalid values as `"default"`.
+   The existing surface registry isolates the preference by workspace and view.
+2. Keep the shared width mapping in that store: compact 220px, default 280px.
+   220px is the compact preset's lower bound; there is no per-column resizing.
+3. Add the two pressed-state buttons under Display in `issues-header.tsx`, only
+   for board and swimlane. Localize `display.layout_*` in all four issue bundles;
+   the Taiwan edition's `zh-Hans` bundle reads `版面`, `緊緻`, `預設`.
+4. Use the width in `board-column.tsx`, the board drag overlay (subtract 24px for
+   existing column/card padding), and `swimlane-view.tsx` (grid, track and overlay).
+   Keep all columns equal, even when grouping by assignee/project/property.
+
+This changes only shared Web/Desktop presentation. It does not change table/list
+widths, server data, filters, migrations or deployment configuration. The hidden
+columns panel is a separate control and keeps its existing width. Revert the
+feature commit to remove it; stale persisted layout values are harmless to older
+clients. Validate with the layout/store, board interaction and swimlane suites,
+locale parity, and `pnpm typecheck`. Before release, visually check long titles,
+large counts, horizontal scrolling and drag/drop at both widths.
+
