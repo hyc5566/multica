@@ -179,6 +179,9 @@
     "chip_save_as": "別名で保存"
   },
   "display": {
+    "layout_section": "レイアウト",
+    "layout_compact": "コンパクト",
+    "layout_default": "標準",
     "tooltip": "表示設定",
     "button": "表示",
     "grouping_section": "グループ化",

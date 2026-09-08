@@ -3,6 +3,7 @@
 import {
   issueStatusCategory,
 } from "@multica/core/issues";
+import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
 import { memo, useState, useCallback, useMemo, useEffect, useRef } from "react";
 import {
   DndContext,
@@ -73,7 +74,6 @@ import type {
   IssueGroupPageState,
 } from "../surface/use-issue-group-branches";
 
-const COLUMN_WIDTH = 280;
 const COLUMN_GAP = 16;
 
 // A swimlane row (header + one row of card cells) is ~300px+ tall — a
@@ -645,6 +645,7 @@ function SwimLaneViewImpl({
 }) {
   const { t } = useT("issues");
   const paths = useWorkspacePaths();
+  const columnWidth = useViewStore((s) => BOARD_COLUMN_WIDTHS[s.boardLayout ?? "default"]);
   const viewStoreApi = useViewStoreApi();
   const viewBaseline = useViewBaseline();
   const sortBy = useViewStore((s) => s.sortBy);
@@ -1308,16 +1309,16 @@ function SwimLaneViewImpl({
     [cells, cellSet, laneByKey, laneGroups, onMoveIssue, swimlaneGrouping, viewStoreApi, entryOf],
   );
 
-  // Grid template: one column per status, fixed width COLUMN_WIDTH, gap COLUMN_GAP.
-  const trackWidth = sortedStatuses.length * COLUMN_WIDTH + Math.max(0, sortedStatuses.length - 1) * COLUMN_GAP;
+  // Grid template: one column per status, uniform column width, gap COLUMN_GAP.
+  const trackWidth = sortedStatuses.length * columnWidth + Math.max(0, sortedStatuses.length - 1) * COLUMN_GAP;
   const gridStyle = useMemo(
     () => ({
       display: "grid",
-      gridTemplateColumns: `repeat(${sortedStatuses.length}, ${COLUMN_WIDTH}px)`,
+      gridTemplateColumns: `repeat(${sortedStatuses.length}, ${columnWidth}px)`,
       columnGap: `${COLUMN_GAP}px`,
       width: `${trackWidth}px`,
     }) as const,
-    [sortedStatuses.length, trackWidth],
+    [sortedStatuses.length, trackWidth, columnWidth],
   );
 
   // Lanes render in one Virtuoso so only on-screen lanes stay mounted. Pinned
@@ -1524,7 +1525,7 @@ function SwimLaneViewImpl({
 
       <DragOverlay dropAnimation={null}>
         {activeIssue ? (
-          <div className="w-[280px] rotate-2 scale-105 cursor-grabbing opacity-90 shadow-lg shadow-black/10">
+          <div style={{ width: columnWidth }} className="rotate-2 scale-105 cursor-grabbing opacity-90 shadow-lg shadow-black/10">
             <BoardCardContent
               issue={activeIssue}
               childProgress={childProgressMap.get(activeIssue.id)}

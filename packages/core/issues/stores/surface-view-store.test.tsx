@@ -135,16 +135,19 @@ describe("issue surface view store registry", () => {
     const projectB = getIssueSurfaceViewStore("project:b");
 
     projectA.getState().setViewMode("list");
+    projectA.getState().setBoardLayout("compact");
     projectA.getState().togglePriorityFilter("high");
 
     expect(projectA.getState().viewMode).toBe("list");
     expect(projectB.getState().viewMode).toBe("board");
+    expect(projectB.getState().boardLayout).toBe("default");
     expect(projectB.getState().priorityFilters).toEqual([]);
 
     const raw = localStorage.getItem(`${ISSUE_SURFACE_VIEW_STORAGE_KEY}:acme`);
     expect(raw).not.toBeNull();
     const parsed = JSON.parse(raw as string);
     expect(parsed.state.surfaces["project:a"].state.viewMode).toBe("list");
+    expect(parsed.state.surfaces["project:a"].state.boardLayout).toBe("compact");
     expect(parsed.state.surfaces["project:a"].state.priorityFilters).toEqual([
       "high",
     ]);
