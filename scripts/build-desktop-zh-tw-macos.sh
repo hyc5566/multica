@@ -9,7 +9,7 @@ usage() {
 repo_dir=${1:-$(git rev-parse --show-toplevel 2>/dev/null || true)}
 requested_version=${2:-}
 
-if [[ -z "$repo_dir" || ! -d "$repo_dir/.git" ]]; then
+if [[ -z "$repo_dir" ]] || ! repo_dir=$(git -C "$repo_dir" rev-parse --show-toplevel 2>/dev/null); then
   usage
   echo "error: repo-dir must be a Multica Git checkout" >&2
   exit 2
@@ -70,6 +70,10 @@ fi
 echo "Building Multica Desktop zh-TW $requested_version from $repo_dir"
 echo "pnpm=$(pnpm --version) node=$(node --version)"
 
+# A completed package is preserved in artifacts; this directory is disposable
+# staging and must never accumulate output from older builds.
+rm -rf "$desktop_dir/dist-zh-tw"
+
 pnpm install --frozen-lockfile
 pnpm --filter @multica/desktop typecheck
 pnpm --filter @multica/desktop test
@@ -116,6 +120,20 @@ if [[ -e "$zip_path" ]]; then
 fi
 
 ditto -c -k --sequesterRsrc --keepParent "$built_app" "$zip_path"
+
+# Keep the current and immediately previous installable archives. The installed
+# app and the single rollback app are managed by the deployment procedure.
+desktop_artifacts=("$artifact_dir"/multica-desktop-*-mac-arm64.zip)
+if (( ${#desktop_artifacts[@]} > 2 )); then
+  artifact_number=0
+  while IFS= read -r artifact; do
+    ((artifact_number += 1))
+    if (( artifact_number > 2 )); then
+      rm -- "$artifact"
+      echo "Pruned old Desktop artifact: $artifact"
+    fi
+  done < <(ls -1t "${desktop_artifacts[@]}")
+fi
 
 echo "Build complete:"
 echo "  App: $built_app"

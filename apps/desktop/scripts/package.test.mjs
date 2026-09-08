@@ -435,10 +435,10 @@ describe("electron-builder.yml packaging config", () => {
   // dist/<platform>-<arch> in the same apps/desktop dir; electron-builder
   // only auto-excludes the *current* target's output dir, so without an
   // explicit `!dist/**` the earlier arch's dist/ was repacked into the next
-  // arch's app.asar. That inflated the Intel (x64) DMG until its Electron
-  // Framework binary was dropped and Intel Macs crashed on launch. Keep the
-  // exclusion pinned so a future edit to the files list cannot drop it
-  // unnoticed.
+  // arch's app.asar. Alternate staging names such as dist-size-test are the
+  // same hazard. That inflated the Intel (x64) DMG until its Electron Framework
+  // binary was dropped and Intel Macs crashed on launch. Keep the wildcard
+  // exclusion pinned so a future edit cannot drop it unnoticed.
   // Resolve electron-builder.yml relative to cwd, tolerating vitest running
   // from either the desktop package dir or the repo root — import.meta.url is
   // not a file:// URL under the test transform, so avoid fileURLToPath here.
@@ -471,6 +471,44 @@ describe("electron-builder.yml packaging config", () => {
     expect(configPath, "electron-builder.yml not found").toBeTruthy();
     const entries = readFilesBlock(readFileSync(configPath, "utf-8"));
     expect(entries.length).toBeGreaterThan(0);
-    expect(entries).toContain("!dist/**");
+    expect(entries).toContain("!dist*/**");
+  });
+
+  it("keeps build-only files out of upstream and Taiwan packages", () => {
+    const configPaths = [
+      resolve(process.cwd(), "electron-builder.yml"),
+      resolve(process.cwd(), "electron-builder.zh-tw.yml"),
+      resolve(process.cwd(), "apps/desktop/electron-builder.yml"),
+      resolve(process.cwd(), "apps/desktop/electron-builder.zh-tw.yml"),
+    ].filter((candidate) => existsSync(candidate));
+
+    expect(configPaths.length).toBeGreaterThanOrEqual(2);
+    for (const path of configPaths) {
+      const entries = readFilesBlock(readFileSync(path, "utf-8"));
+      expect(entries).toContain("!dist*/**");
+      expect(entries).toContain("!electron*.{yml,config.*}");
+      expect(entries).toContain("!{.env*,eslint.config.*,vitest.config.*}");
+      expect(entries).toContain("!{scripts,test}/**");
+    }
+  });
+});
+
+describe("desktop production dependencies", () => {
+  const packagePath = [
+    resolve(process.cwd(), "package.json"),
+    resolve(process.cwd(), "apps/desktop/package.json"),
+  ].find((candidate) => {
+    if (!existsSync(candidate)) return false;
+    return JSON.parse(readFileSync(candidate, "utf-8")).name === "@multica/desktop";
+  });
+
+  it("contains only packages reserved for the Electron main runtime", () => {
+    expect(packagePath, "desktop package.json not found").toBeTruthy();
+    const pkg = JSON.parse(readFileSync(packagePath, "utf-8"));
+    expect(Object.keys(pkg.dependencies).sort()).toEqual([
+      "@electron-toolkit/utils",
+      "electron-updater",
+      "fix-path",
+    ]);
   });
 });
