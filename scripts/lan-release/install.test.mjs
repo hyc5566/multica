@@ -32,6 +32,8 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     writeFileSync(installer, render(hash));
     const installed = spawnSync('bash', [installer], {env, encoding: 'utf8'});
     assert.equal(installed.status, 0, installed.stderr);
+    assert.match(installed.stdout, /config\nset\nworkspaces_root\n/);
+    assert.ok(installed.stdout.includes(`${env.HOME}/.multica/workspaces`));
     const wrapper = join(installRoot, 'bin/multica');
     const result = spawnSync(wrapper, ['version'], {env, encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
