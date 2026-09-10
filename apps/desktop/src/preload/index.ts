@@ -274,6 +274,10 @@ const daemonAPI = {
     ipcRenderer.invoke("daemon:sync-token", token, userId),
   clearToken: (): Promise<void> =>
     ipcRenderer.invoke("daemon:clear-token"),
+  getDesktopTokenId: (token: string, userId: string): Promise<string | null> =>
+    ipcRenderer.invoke("daemon:desktop-token-id", token, userId),
+  rotateDesktopToken: (token: string, userId: string, id: string): Promise<{ ok: boolean; message?: string }> =>
+    ipcRenderer.invoke("daemon:rotate-desktop-token", token, userId, id),
   reauthenticate: (
     token: string,
     userId: string,

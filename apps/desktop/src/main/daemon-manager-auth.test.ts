@@ -1,13 +1,14 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { files, handlers } = vi.hoisted(() => ({
+const { files, handlers, cliState } = vi.hoisted(() => ({
+  cliState: { running: true, pid: 100, failStart: false },
   files: new Map<string, string>(),
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
 }));
 
 vi.mock("electron", () => ({
-  app: { on: vi.fn() },
+  app: { on: vi.fn(), getAppPath: () => "/test-app" },
   ipcMain: {
     handle: (name: string, handler: (...args: unknown[]) => Promise<unknown>) =>
       handlers.set(name, handler),
@@ -16,6 +17,16 @@ vi.mock("electron", () => ({
   BrowserWindow: {},
   shell: {},
 }));
+vi.mock("fs", () => ({ existsSync: (path: string) => path === "/test-app/resources/bin/multica", watchFile: vi.fn(), unwatchFile: vi.fn() }));
+vi.mock("child_process", () => ({ execFile: (_bin: string, args: string[], _opts: unknown, callback: (error: Error | null, out: string) => void) => {
+  if (args[0] === "version") return callback(null, JSON.stringify({version:"test"}));
+  if (args[1] === "stop") cliState.running = false;
+  if (args[1] === "start") {
+    if (cliState.failStart) return callback(new Error("start failed"), "");
+    cliState.running = true; cliState.pid++;
+  }
+  callback(null, "");
+} }));
 vi.mock("os", () => ({ homedir: () => "/test-home", hostname: () => "test-host" }));
 vi.mock("fs/promises", () => ({
   readFile: vi.fn(async (path: string) => {
@@ -65,8 +76,68 @@ describe("Desktop daemon token synchronization", () => {
     await invoke("daemon:set-target-api-url", server);
   });
   afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+  });
+
+  it.each(["success", "mint failure", "restart failure", "revoke failure"])("rotation ordering: %s", async (scenario) => {
+    vi.useFakeTimers();
+    cliState.running = true; cliState.pid = 100; cliState.failStart = scenario === "restart failure";
+    const events: string[] = [];
+    fetchMock.mockImplementation(async (url: string, options?: {method?: string}) => {
+      if (url.endsWith("/api/tokens") && !options?.method) return {ok:true, json:async()=>[{id:"current",token_prefix:"mul_revo"}]};
+      if (options?.method === "POST") { events.push("mint"); return {ok:scenario !== "mint failure", status:503, statusText:"unavailable", text:async()=>"", json:async()=>({token:"mul_replacement"})}; }
+      if (options?.method === "DELETE") {
+        events.push("revoke");
+        expect(cliState.running).toBe(true);
+        expect(cliState.pid).toBe(101);
+        expect(cachedToken()).toBe("mul_replacement");
+        return {ok:scenario !== "revoke failure", status:503};
+      }
+      return {ok:cliState.running, json:async()=>({status:"running", pid:cliState.pid, active_task_count:0, os:process.platform, server_url:server})};
+    });
+    await invoke("daemon:stop");
+    cliState.running = true;
+    const result = await invoke("daemon:rotate-desktop-token", "session-jwt", "user-1", "current");
+    expect(result, JSON.stringify(result)).toMatchObject({ok:scenario === "success"});
+    expect(events).toEqual(scenario === "mint failure" || scenario === "restart failure" ? ["mint"] : ["mint", "revoke"]);
+    if (scenario === "mint failure") expect(cachedToken()).toBe("mul_revoked");
+  });
+
+  it("identifies the current token by prefix, not duplicate Desktop names", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => [
+      { id: "other", name: "Multica Desktop", token_prefix: "mul_other" },
+      { id: "current", name: "renamed", token_prefix: "mul_revo" },
+    ] });
+    expect(await invoke("daemon:desktop-token-id", "session-jwt", "user-1")).toBe("current");
+    expect(await invoke("daemon:desktop-token-id", "session-jwt", "another-user")).toBeNull();
+  });
+
+  it("rejects stale selection without minting or revoking", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => [{ id: "current", token_prefix: "mul_revo" }] });
+    const result = await invoke("daemon:rotate-desktop-token", "session-jwt", "user-1", "other");
+    expect(result).toMatchObject({ ok: false });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(cachedToken()).toBe("mul_revoked");
+  });
+
+  it("fails closed when prefixes are ambiguous", async () => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => [
+      { id: "a", token_prefix: "mul_revo" }, { id: "b", token_prefix: "mul_revo" },
+    ] });
+    await expect(invoke("daemon:desktop-token-id", "session-jwt", "user-1")).rejects.toThrow("ambiguous");
+  });
+
+  it("refuses rotation while tasks are active", async () => {
+    fetchMock.mockImplementation(async (url: string) => url.endsWith("/api/tokens")
+      ? { ok: true, json: async () => [{ id: "current", token_prefix: "mul_revo" }] }
+      : { ok: true, json: async () => ({ status: "running", pid: 100, active_task_count: 1, os: process.platform, server_url: server }) });
+    await invoke("daemon:stop");
+    expect(await invoke("daemon:rotate-desktop-token", "session-jwt", "user-1", "current")).toMatchObject({ ok: false, message: expect.stringContaining("running tasks") });
+    expect(fetchMock.mock.calls.every(call => !call[1]?.method)).toBe(true);
+    expect(cachedToken()).toBe("mul_revoked");
   });
 
   it("replaces a revoked PAT using the App session, then reuses the replacement", async () => {
