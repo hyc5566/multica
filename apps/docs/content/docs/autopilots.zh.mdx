@@ -1,21 +1,21 @@
 ---
 title: 自动化
-description: 按时间或 Webhook 自动把重复工作交给智能体。
+description: 按时间或 Webhook 自动把重复工作交给 Agent。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-自动化用来执行反复发生的工作，例如每天汇总进展、定期检查依赖，或在外部系统发来事件时启动智能体。
+自动化用来执行反复发生的工作，例如每天汇总进展、定期检查依赖，或在外部系统发来事件时启动 Agent。
 
-每条自动化保存一份 Runbook、一个执行方和一个或多个触发器。触发后，Multica 会创建任务或直接运行智能体，并保留每一次运行记录。
+每条自动化保存一份 Runbook、一个执行方和一个或多个触发器。触发后，Multica 会创建任务或直接运行 Agent，并保留每一次运行记录。
 
 ## 创建自动化
 
 在侧边栏打开**自动化**，选择模板或从空白开始，然后配置：
 
 - **名称**：说明这条自动化负责什么；
-- **Runbook**：智能体每次运行时读取的目标、背景、约束和步骤；
-- **执行方**：一个智能体或小队；
+- **Runbook**：Agent 每次运行时读取的目标、背景、约束和步骤；
+- **执行方**：一个 Agent 或小队；
 - **关联项目**：可选，让自动创建的任务进入指定项目；
 - **输出模式**：创建任务，或仅运行；
 - **订阅者**：自动创建任务后需要收到通知的成员；
@@ -67,7 +67,7 @@ curl -X POST "$MULTICA_WEBHOOK_URL" \
  -d '{"event":"build.completed","eventPayload":{"status":"success"}}'
 ```
 
-Payload 会保存在投递和运行记录中，并交给智能体。创建任务模式还会把事件内容附在任务描述中。
+Payload 会保存在投递和运行记录中，并交给 Agent。创建任务模式还会把事件内容附在任务描述中。
 
 Webhook 请求的约束：
 
@@ -138,7 +138,7 @@ Multica 会定期检查近期运行是否持续失败：过去 7 天内已完成
 - 创建者和工作区 owner/admin 可以编辑、运行、删除及管理触发器；
 - 创建者和 owner/admin 可以把协作者加入"管理访问"；
 - 协作者可以编辑、运行和管理触发器，但不能继续授予其他人权限；
-- 能管理自动化不代表一定能运行它使用的智能体，智能体 Access 仍然生效。
+- 能管理自动化不代表一定能运行它使用的 Agent，Agent Access 仍然生效。
 
 ## 使用 CLI
 
@@ -155,6 +155,6 @@ multica autopilot trigger-rotate-url <autopilot-id> <trigger-id>
 
 ## 接下来
 
-- [分配任务给智能体](/assigning-issues) — 分配与确认窗口。
+- [分配任务给 Agent](/assigning-issues) — 分配与确认窗口。
 - [收件箱与订阅](/inbox) — 运行通知的接收位置。
 - [运行](/tasks) — 执行状态与失败处理。

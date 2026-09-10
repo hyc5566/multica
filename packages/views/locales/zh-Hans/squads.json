@@ -20,7 +20,7 @@
     "archive_button": "歸檔"
   },
   "member_type": {
-    "agent": "智慧體",
+    "agent": "Agent",
     "member": "成員"
   },
   "archive_dialog": {
@@ -42,15 +42,15 @@
   },
   "add_member_dialog": {
     "title": "新增成員",
-    "description": "新增工作區成員或智能體到這個小隊。",
+    "description": "新增工作區成員或 Agent 到這個小隊。",
     "label_member": "成員",
     "label_role": "角色",
     "label_optional": "（可選）",
     "cancel": "取消",
-    "select_target": "選擇成員或智慧體",
-    "search_placeholder": "搜尋成員或智慧體...",
+    "select_target": "選擇成員或 Agent",
+    "search_placeholder": "搜尋成員或 Agent...",
     "members_section": "成員",
-    "agents_section": "智慧體",
+    "agents_section": "Agents",
     "role_placeholder": "例如：審查者、前端負責人",
     "add": "新增"
   },
@@ -75,9 +75,9 @@
     "section_title": "成員",
     "section_count_other": "該小隊有 {{count}} 名成員",
     "add_member_button": "新增成員",
-    "create_agent_button": "建立智能體",
+    "create_agent_button": "建立 Agent",
     "leader_chip": "隊長",
-    "view_agent_tooltip": "開啟智能體詳情",
+    "view_agent_tooltip": "開啟 Agent 詳情",
     "make_leader_tooltip": "設為小隊負責人",
     "remove_member_tooltip": "從小隊移除",
     "status_working": "工作中",
@@ -121,7 +121,7 @@
     "more_members_other": "還有 {{count}} 人"
   },
   "instructions_tab": {
-    "description": "小隊指引會在隊長智慧體處理分配給該小隊的任務時注入到它的 prompt 中。可用來給隊長提供貫穿全隊的指導、協作規範，或每次執行都應遵循的上下文。",
+    "description": "小隊指引會在隊長 Agent 處理分配給該小隊的任務時注入到它的 prompt 中。可用來給隊長提供貫穿全隊的指導、協作規範，或每次執行都應遵循的上下文。",
     "unsaved_changes": "有未儲存的修改",
     "save_button": "儲存",
     "placeholder": "例如：始終先編寫失敗測試。提交應保持小而獨立。"

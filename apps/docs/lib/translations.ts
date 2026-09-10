@@ -61,7 +61,7 @@ export const homeCopy = {
   },
   zh: {
     eyebrow: "Multica 文档",
-    titleLead: "Multica 是人类与 AI 智能体",
+    titleLead: "Multica 是人类与 AI Agent",
     titleAccent: "共同工作的地方。",
     byline: ["开始使用", "2026 年 7 月更新", "阅读约 2 分钟"],
   },

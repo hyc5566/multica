@@ -6,9 +6,9 @@
   },
   "card": {
     "unavailable": "成員資訊不可用",
-    "agents_section": "智能體（{{count}}）",
+    "agents_section": "Agent（{{count}}）",
     "detail_link": "詳情 →",
-    "more_agents_other": "另有 {{count}} 個智能體"
+    "more_agents_other": "另有 {{count}} 個 Agent"
   },
   "detail": {
     "workspace_fallback": "工作區",

@@ -147,7 +147,7 @@
       "plan": "工作區套餐",
       "plan_description": "這個工作區當前生效的 entitlement。",
       "members": "成員席位",
-      "members_description": "智能體和待接受的邀請不計入席位。",
+      "members_description": "Agent 和待接受的邀請不計入席位。",
       "member_count_other": "{{count}} 位成員",
       "billing_interval": "付款週期",
       "billing_interval_description": "當前訂閱儲存的付款週期。",
@@ -192,7 +192,7 @@
     },
     "seats": {
       "title": "席位",
-      "description": "已購席位用於當前成員和待接受邀請，智能體不佔席位。",
+      "description": "已購席位用於當前成員和待接受邀請，Agent 不佔席位。",
       "human_members": "已用席位",
       "human_members_description": "已確認佔用已購容量的工作區成員。成員變化後可重新整理對賬。",
       "billed": "已購席位",

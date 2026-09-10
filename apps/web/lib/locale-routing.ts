@@ -17,18 +17,10 @@ export function isSupportedLocale(
 
 export function resolveLocaleFromSignals({
   cookieLocale,
-  acceptLanguage,
 }: {
   cookieLocale?: string | null;
-  acceptLanguage?: string | null;
 }): SupportedLocale {
-  const candidates: string[] = [];
-  if (cookieLocale) candidates.push(cookieLocale);
-
-  for (const part of (acceptLanguage ?? "").split(",")) {
-    const tag = part.split(";")[0]?.trim();
-    if (tag) candidates.push(tag);
-  }
-
-  return matchLocale(candidates);
+  // The zh-tw build serves Traditional Chinese under the compatibility key.
+  // Only an explicit saved preference overrides the initial language.
+  return cookieLocale ? matchLocale([cookieLocale]) : "zh-Hans";
 }

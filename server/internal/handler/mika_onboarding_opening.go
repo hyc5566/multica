@@ -41,11 +41,11 @@ Here's how we begin: you name a goal, I turn it into an issue and start it with 
 
 Pick one below, or just tell me what you want to get done right now.`,
 
-	"zh": `你好，歡迎來到 %[1]s。Multica 是一個讓人和 AI 智能體透過任務一起完成工作的工作區。
+	"zh": `你好，歡迎來到 %[1]s。Multica 是一個讓人和 AI Agent 透過任務一起完成工作的工作區。
 
-我是 %[2]s，這裡的 Chief of Staff。我負責釐清事情、找到合適的智能體接手，也是你隨時可以開口的第一站。
+我是 %[2]s，這裡的 Chief of Staff。我負責釐清事情、找到合適的 Agent 接手，也是你隨時可以開口的第一站。
 
-接下來會這樣進行：你說一個目標，我把它變成一個任務，交給合適的智能體開始執行，你可以看著它推進。
+接下來會這樣進行：你說一個目標，我把它變成一個任務，交給合適的 Agent 開始執行，你可以看著它推進。
 
 從下方選一個開始，或直接告訴我你現在想完成什麼。`,
 

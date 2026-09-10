@@ -197,7 +197,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 
 ## 服务端 LLM
 
-这组配置用于服务端的辅助生成能力，例如对话标题；它不是智能体运行时使用的 AI 编程工具凭据。
+这组配置用于服务端的辅助生成能力，例如对话标题；它不是 Agent 运行时使用的 AI 编程工具凭据。
 
 | 变量 | 默认值 | 说明 |
 |---|---|---|
@@ -211,17 +211,17 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 有两个功能会使用这一层，它们都会把聊天内容发送到你配置的 endpoint：
 
 - **对话标题自动生成** —— 发送新对话中用户的第一条消息，原文发送。附件不会包含在内。
-- **后续提问建议**（智能体回复下方的按钮）—— 发送对话末尾的内容：最多 6 条消息，其中被追问的那条回复上限 3000 字符，更早的每条上限 800 字符。
+- **后续提问建议**（Agent 回复下方的按钮）—— 发送对话末尾的内容：最多 6 条消息，其中被追问的那条回复上限 3000 字符，更早的每条上限 800 字符。
 
 API key 与 base URL 都为空时，这一层关闭，不会发出任何上游请求——上面两个功能都不再发送内容。如果你的政策不允许这一层把聊天内容发到部署之外，这就是受支持的配置方式：对话继续使用客户端根据第一条消息生成的标题，后续提问按钮不再出现，其余功能不受影响。
 
 <Callout type="info">
-这只覆盖辅助生成这一层。智能体执行是另一条数据路径：智能体回复对话时，由你的守护进程调用该智能体的 AI 编程工具，用的是那个工具自己的凭据，守护进程不会把上面的 `MULTICA_LLM_*` 配置传给它。（智能体自身需要的运行级 Multica 连接变量由守护进程单独注入。）把上面的变量留空不影响这条路径——它由智能体的运行时配置决定。
+这只覆盖辅助生成这一层。Agent 执行是另一条数据路径：Agent 回复对话时，由你的守护进程调用该 Agent 的 AI 编程工具，用的是那个工具自己的凭据，守护进程不会把上面的 `MULTICA_LLM_*` 配置传给它。（Agent 自身需要的运行级 Multica 连接变量由守护进程单独注入。）把上面的变量留空不影响这条路径——它由 Agent 的运行时配置决定。
 </Callout>
 
 ## 守护进程配置
 
-下面的变量在运行智能体的电脑上读取，不是在 API 容器中读取。
+下面的变量在运行 Agent 的电脑上读取，不是在 API 容器中读取。
 
 | 变量 | 默认值 | 说明 |
 |---|---|---|
@@ -246,9 +246,9 @@ API key 与 base URL 都为空时，这一层关闭，不会发出任何上游�
 | `MULTICA_AGENT_TEMP_BASE` | `/tmp`（Linux/macOS） | 仅适用于 Linux/macOS。每次运行的私有临时目录的父目录；必须是现有、可写的绝对路径，无效值会使运行启动失败，不会回退到 `/tmp`。请选择较短的路径——子工具可能会在其中绑定 AF_UNIX socket；Linux 的 `sun_path` 上限为 108 字节，macOS 为 104 字节 |
 | `MULTICA_KEEP_ENV_AFTER_TASK` | `false` | 保留运行目录用于调试 |
 
-守护进程注入智能体 task 的内部上下文见 [Task 运行时环境](/daemon-runtimes#task-运行时环境)。
+守护进程注入 Agent task 的内部上下文见 [Task 运行时环境](/daemon-runtimes#task-运行时环境)。
 
-各 AI 编程工具可以使用 `MULTICA_<PROVIDER>_PATH` 覆盖命令路径；支持模型覆盖的工具还可以使用 `MULTICA_<PROVIDER>_MODEL`。QwenPaw 和 MiniMax Code 没有模型变量，因为 Multica 不会向它们传模型；MiniMax Code 的路径变量是 `MULTICA_MCODE_PATH`。详见 [AI 编程工具对比](/providers#模型来源)。DeepSeek Harness 支持 `MULTICA_DSH_PATH` 和 `MULTICA_DSH_MODEL`（取值为 dsh 模型目录中的模型 id，例如 `deepseek-official/deepseek-chat`）。ZeroClaw 支持 `MULTICA_ZEROCLAW_PATH`，但没有模型变量；模型由 ZeroClaw 的智能体配置管理。全机默认参数 `MULTICA_<PROVIDER>_ARGS` 目前支持 Claude Code、Codex、CodeBuddy、Qwen Code 和 QwenPaw 五款工具。对应变量是 `MULTICA_CLAUDE_ARGS`、`MULTICA_CODEX_ARGS`、`MULTICA_CODEBUDDY_ARGS`、`MULTICA_QWEN_ARGS` 和 `MULTICA_QWENPAW_ARGS`。例如：
+各 AI 编程工具可以使用 `MULTICA_<PROVIDER>_PATH` 覆盖命令路径；支持模型覆盖的工具还可以使用 `MULTICA_<PROVIDER>_MODEL`。QwenPaw 和 MiniMax Code 没有模型变量，因为 Multica 不会向它们传模型；MiniMax Code 的路径变量是 `MULTICA_MCODE_PATH`。详见 [AI 编程工具对比](/providers#模型来源)。DeepSeek Harness 支持 `MULTICA_DSH_PATH` 和 `MULTICA_DSH_MODEL`（取值为 dsh 模型目录中的模型 id，例如 `deepseek-official/deepseek-chat`）。ZeroClaw 支持 `MULTICA_ZEROCLAW_PATH`，但没有模型变量；模型由 ZeroClaw 的 Agent 配置管理。全机默认参数 `MULTICA_<PROVIDER>_ARGS` 目前支持 Claude Code、Codex、CodeBuddy、Qwen Code 和 QwenPaw 五款工具。对应变量是 `MULTICA_CLAUDE_ARGS`、`MULTICA_CODEX_ARGS`、`MULTICA_CODEBUDDY_ARGS`、`MULTICA_QWEN_ARGS` 和 `MULTICA_QWENPAW_ARGS`。例如：
 
 ```dotenv
 MULTICA_CLAUDE_PATH=/opt/bin/claude
