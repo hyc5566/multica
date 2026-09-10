@@ -6,6 +6,14 @@ product behavior. Taiwan-only changes should stay in small, purpose-specific
 commits so the edition can be rebuilt when an upstream rebase becomes more
 expensive than replaying the customization.
 
+## Server deployment procedure
+
+For Taiwan-edition Server updates, follow the canonical
+[繁體中文版 Server 平順切換維運程序](server-handoff.zh-tw.md).
+Preserve that document, the `CLAUDE.md` reading requirement and `scripts/deploy/`
+when rebuilding this edition. Deployment state and authorization must be checked
+for each operation; a tested candidate is not proof of production initialization.
+
 ## Customization layers
 
 Apply these layers in order when rebuilding the branch:
