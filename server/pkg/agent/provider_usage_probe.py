@@ -9,6 +9,7 @@ import datetime as dt
 import json
 import os
 import pathlib
+import ssl
 import subprocess
 import sys
 import tempfile
@@ -235,6 +236,8 @@ def append_codex_windows(
         if not isinstance(value, Mapping):
             continue
         used = number(value.get("used_percent"))
+        if used is None:
+            continue
         duration_seconds = number(value.get("limit_window_seconds"))
         duration_minutes = (
             round(duration_seconds / 60) if duration_seconds is not None else None
@@ -288,15 +291,13 @@ def normalize_codex(payload: Mapping[str, Any], observed_at: dt.datetime) -> Dic
     )
     plan = payload.get("plan_type")
     account_scope = plan.strip() if isinstance(plan, str) else ""
-    status = "available" if windows else "partial"
-    message = "" if windows else "OpenAI returned no account quota windows."
+    if not windows:
+        raise ProbeFailure("error", "OpenAI returned no usable account quota windows.")
     return snapshot(
         "codex",
         windows,
         observed_at,
         account_scope=account_scope,
-        status=status,
-        message=message,
     )
 
 
@@ -452,7 +453,17 @@ def http_json(
     for name, value in headers.items():
         request.add_header(name, value)
     try:
-        with urllib.request.urlopen(request, timeout=10) as response:
+        tls_context = ssl.create_default_context()
+        if os.environ.get("SSL_CERT_FILE"):
+            # Keep the daemon's private CA and add public roots for provider HTTPS.
+            paths = ssl.get_default_verify_paths()
+            cafile = paths.openssl_cafile
+            capath = paths.openssl_capath
+            cafile = cafile if cafile and os.path.isfile(cafile) else None
+            capath = capath if capath and os.path.isdir(capath) else None
+            if cafile or capath:
+                tls_context.load_verify_locations(cafile=cafile, capath=capath)
+        with urllib.request.urlopen(request, timeout=10, context=tls_context) as response:
             raw = response.read(MAX_RESPONSE_BYTES + 1)
     except urllib.error.HTTPError as exc:
         if exc.code in (401, 403):

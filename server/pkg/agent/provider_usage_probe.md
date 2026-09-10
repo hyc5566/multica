@@ -32,6 +32,15 @@ network, provider-rate-limit, and local-rate-limit failures are also emitted as
 normalized snapshots. Raw provider responses, OAuth tokens, refresh tokens,
 account IDs, and credential file contents are never returned or logged.
 
+When the daemon's `SSL_CERT_FILE` contains a private Multica Server CA, the
+provider HTTPS context retains it and additionally loads existing OpenSSL
+public CA defaults. Hostname verification and `CERT_REQUIRED` stay enabled;
+missing public roots fail normally rather than disabling TLS. This applies to
+the fixed provider HTTPS endpoints, not to the daemon's Server transport.
+
+Codex responses without any usable numeric quota window are probe errors, not
+successful empty snapshots, so callers retain the last successful observation.
+
 The probe requires Python 3. It uses only the Python standard library. It does
 not execute `claude`, `agy`, `codex`, or any other agent executable.
 
