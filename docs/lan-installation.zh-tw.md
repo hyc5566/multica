@@ -37,7 +37,7 @@ SMTP 使用現有 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USERNAME`、`SMTP_PASSWORD`�
    ```
 
    依提示完成自己的登入及工作區選擇。若已有該 profile，setup 可能重新啟動 daemon；先確認沒有進行中的任務。不要使用別人的 API token。
-5. wrapper 固定使用 `multica-zh-tw` profile，停用官方自動更新及自動重新載入，避免繁中 binary 被取代。它與 default／s90／Desktop profile 分離；同一 OS 帳號需要第二組環境時，另外指定完整 binary 與獨立 profile，不共用此 wrapper。
+5. wrapper 固定使用 `multica-zh-tw-<uid>` profile（依安裝帳號 UID），停用官方自動更新及自動重新載入，避免繁中 binary 被取代。它與 default／s90／Desktop profile 分離；同一 OS 帳號需要第二組環境時，另外指定完整 binary 與獨立 profile，不共用此 wrapper。
 6. 在指定機器查核：
 
    ```bash
@@ -162,3 +162,16 @@ App 的 API token 頁會辨識目前 Desktop profile 實際使用的 token，不
 ```
 
 舊版 binary 更新前避免再次執行不帶子命令的 setup。新版 setup 仍是互動設定／登入及 daemon 啟動流程，不只是修改 URL；執行前留意現有任務。此修正不自動遷移舊設定或替換已安裝 binary。
+
+
+### 新使用者簡化安裝（候選，尚未發布下載入口）
+
+發行包將內含已確認的 s90 **公開 CA 憑證**，與 CLI 一起受 installer 固定 SHA256 保護；發行建置須明確提供該憑證路徑，不包含私鑰。安裝腳本必須由可信 HTTPS 發布來源下載，不能從未驗證的 s90 HTTPS 用 -k 自行取得信任根。
+
+使用者下載該版本 install.sh 後執行 `bash ./install.sh --login`：自動辨識平台、下載並驗證成品、組合系統公用 CA + s90 CA、建立自己的 launcher，提示輸入 API token，登入成功後啟動 daemon。不輸入 URL、profile 或 SSL_CERT_FILE。沒有 --login 時只安裝並顯示後續指令，不啟動服務。
+
+launcher 為 `~/.local/bin/multica-zh-tw`，設定對外 Server/App URL `https://10.1.24.90:45671`，使用 `multica-zh-tw-<uid>` profile，減少不同 Linux 帳號使用相同 profile 時的固定 health port 衝突；仍須驗證目標機台埠可用。CA 僅由 launcher 帶入，組合公用 roots 避免 provider 工具失去原有公用 CA。
+
+這是新使用者安裝路徑，不會搬移或覆蓋既有 hungyu 的 v6/s90 binary。現有安裝會安全退出，升級另按部署流程。CLI 指令：`~/.local/bin/multica-zh-tw auth status`；停止：`~/.local/bin/multica-zh-tw daemon stop`。尚未配置 systemd／登入後開機自動啟動。
+
+s90 本機 daemon 的 `http://127.0.0.1:45673` 是直接 backend 入口；其他機器使用 `https://10.1.24.90:45671` 經 Caddy TLS 入口，兩者連同一 Server。不能把 s90 localhost URL 複製到同事機器。
