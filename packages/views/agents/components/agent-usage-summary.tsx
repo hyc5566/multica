@@ -10,6 +10,7 @@ import type {
 } from "@multica/core/types";
 import {
   runtimeProviderUsageOptions,
+  useRefreshRuntimeProviderUsage,
   runtimeUsageByAgentOptions,
 } from "@multica/core/runtimes";
 import { Button } from "@multica/ui/components/ui/button";
@@ -27,6 +28,7 @@ export function AgentUsageSummary({
 }) {
   const { t, i18n } = useT("agents");
   const tz = useViewingTimezone();
+  const providerRefresh = useRefreshRuntimeProviderUsage();
   const providerQuery = useQuery({
     ...runtimeProviderUsageOptions(runtime?.id),
     enabled: Boolean(runtime),
@@ -55,10 +57,11 @@ export function AgentUsageSummary({
   }, [agent.id, multicaQuery.data]);
 
   const refresh = () => {
-    if (runtime) void providerQuery.refetch();
+    if (runtime) providerRefresh.mutate(runtime.id);
     if (runtime) void multicaQuery.refetch();
   };
-  const refreshing = providerQuery.isFetching || multicaQuery.isFetching;
+  const refreshing =
+    providerRefresh.isPending || providerQuery.isFetching || multicaQuery.isFetching;
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const usage = providerQuery.data;
   const sourceLabel =
@@ -67,7 +70,16 @@ export function AgentUsageSummary({
       : usage?.source === "derived"
         ? t(($) => $.detail.usage.source_derived)
         : t(($) => $.detail.usage.source_unavailable);
+  const refreshFailed =
+    (providerRefresh.isError && providerRefresh.variables === runtime?.id) ||
+    Boolean(usage?.last_error_code);
+  const stale = usage?.stale === true || Boolean(
+    usage?.observed_at && Date.now() - Date.parse(usage.observed_at) > 15 * 60_000,
+  );
   const observedLabel = formatDate(usage?.observed_at, locale, tz, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
@@ -114,6 +126,12 @@ export function AgentUsageSummary({
           <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
         </Button>
       </div>
+
+      <p className="mt-1 text-[11px] text-muted-foreground">
+        {t(($) => $.detail.usage.refresh_hint)}
+      </p>
+      {refreshFailed ? <UnavailableState message={t(($) => $.detail.usage.refresh_failed)} /> : null}
+      {stale ? <UnavailableState message={t(($) => $.detail.usage.stale)} /> : null}
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">
         <div className="min-w-0">
@@ -171,6 +189,7 @@ export function AgentUsageSummary({
                 <QuotaWindow
                   key={`${window.id}:${window.resets_at ?? window.label}`}
                   window={window}
+                  stale={stale}
                   current={current}
                   displayLabel={displayLabel}
                   locale={locale}
@@ -209,19 +228,24 @@ export function AgentUsageSummary({
 function QuotaWindow({
   window,
   current,
+  stale,
   displayLabel,
   locale,
   tz,
 }: {
   window: RuntimeProviderUsageWindow;
   current: boolean;
+  stale: boolean;
   displayLabel: string;
   locale: string;
   tz: string;
 }) {
   const { t } = useT("agents");
-  const used = window.used_percent;
-  const remaining = window.remaining_percent;
+  const expired = Boolean(
+    window.resets_at && Date.parse(window.resets_at) <= Date.now(),
+  );
+  const used = expired ? undefined : window.used_percent;
+  const remaining = expired ? undefined : window.remaining_percent;
   const resetLabel = formatDate(window.resets_at, locale, tz, {
     month: "short",
     day: "numeric",
@@ -239,6 +263,7 @@ function QuotaWindow({
       data-current-model-usage={current ? "true" : "false"}
       className={cn(
         "w-[220px] shrink-0 rounded-md border px-2.5 py-2",
+        stale && "opacity-60",
         current
           ? "border-brand/50 bg-brand/10 ring-1 ring-brand/20"
           : "bg-background",
@@ -281,7 +306,9 @@ function QuotaWindow({
         )}
       </div>
       <p className="mt-1.5 truncate text-[10px] text-muted-foreground">
-        {window.resets_at && resetLabel
+        {expired
+          ? t(($) => $.detail.usage.window_expired)
+          : window.resets_at && resetLabel
           ? t(($) => $.detail.usage.resets, {
               when: resetLabel,
             })
