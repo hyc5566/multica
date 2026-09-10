@@ -90,18 +90,19 @@ type ModelListRequest struct {
 // provider that does not publish a field omits it; it never sends a synthetic
 // zero. Percent values use 0..100 for both Codex and Antigravity.
 type ProviderUsageSnapshot struct {
-	Provider          string                `json:"provider"`
-	AccountScope      string                `json:"account_scope,omitempty"`
-	Status            string                `json:"status"`
-	Source            string                `json:"source"`
-	Windows           []ProviderUsageWindow `json:"windows,omitempty"`
-	ObservedAt        time.Time             `json:"observed_at"`
-	Message           string                `json:"message,omitempty"`
-	RetryAfterSeconds *int64                `json:"retry_after_seconds,omitempty"`
-	LastAttemptAt     *time.Time            `json:"last_attempt_at,omitempty"`
-	LastSuccessAt     *time.Time            `json:"last_success_at,omitempty"`
-	LastErrorCode     string                `json:"last_error_code,omitempty"`
-	Stale             bool                  `json:"stale,omitempty"`
+	Provider           string                `json:"provider"`
+	AccountScope       string                `json:"account_scope,omitempty"`
+	Status             string                `json:"status"`
+	Source             string                `json:"source"`
+	Windows            []ProviderUsageWindow `json:"windows,omitempty"`
+	ObservedAt         time.Time             `json:"observed_at"`
+	Message            string                `json:"message,omitempty"`
+	RetryAfterSeconds  *int64                `json:"retry_after_seconds,omitempty"`
+	RefreshAvailableAt *time.Time            `json:"refresh_available_at,omitempty"`
+	LastAttemptAt      *time.Time            `json:"last_attempt_at,omitempty"`
+	LastSuccessAt      *time.Time            `json:"last_success_at,omitempty"`
+	LastErrorCode      string                `json:"last_error_code,omitempty"`
+	Stale              bool                  `json:"stale,omitempty"`
 }
 
 type ProviderUsageWindow struct {
@@ -437,8 +438,8 @@ func (h *Handler) InitiateListModels(w http.ResponseWriter, r *http.Request) {
 }
 
 // InitiateProviderUsage is the compatibility/manual-refresh endpoint. It uses
-// the same five-minute reservation as the scheduler, so opening an older
-// Desktop build or repeatedly pressing refresh cannot create duplicate probes.
+// a rolling one-minute reservation shared with scheduled probes. An admitted
+// request runs immediately instead of waiting for the next five-minute bucket.
 func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) {
 	runtimeID := chi.URLParam(r, "runtimeId")
 	rt, _, ok := h.requireRuntimeReadAccess(w, r, obsmetrics.RuntimeLookupSourceRuntimeAPI, runtimeID)
@@ -455,7 +456,7 @@ func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	now := time.Now().UTC()
-	req, admitted, err := h.EnqueueProviderUsageTarget(r.Context(), target, now.Truncate(providerUsageCadence), now)
+	req, admitted, err := h.EnqueueProviderUsageTarget(r.Context(), target, now, now)
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request: "+err.Error())
 		return
