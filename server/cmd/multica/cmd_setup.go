@@ -19,21 +19,11 @@ import (
 var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Configure the CLI, authenticate, and start the daemon",
-	Long: `Configures the CLI to connect to Multica Cloud (multica.ai), then
-authenticates via browser and starts the agent daemon.
-
-If a configuration already exists, you will be prompted before overwriting.
-
-Use 'multica setup self-host' to connect to a self-hosted server instead.
-
-If you run this command over SSH on a remote machine, keep the localhost
-callback and follow the SSH tunnel hint printed during browser login. If your
-browser can reach this CLI directly on a private network address, pass
---callback-host <host-or-ip>.
-
-Use --profile to create an isolated configuration for a separate environment:
-  multica setup self-host --profile staging --server-url https://api-staging.co`,
-	RunE: runSetupCloud,
+	Long: `Configure the Taiwan edition for the s90 server (https://10.1.24.90:45671).
+Existing profile URLs are preserved unless overridden by flags or environment.
+Use --profile to select the configuration, --server-url and --app-url to override.
+Use 'multica setup cloud' only to explicitly select the official Cloud service.`,
+	RunE: runSetupSelfHost,
 }
 
 var setupCloudCmd = &cobra.Command{
@@ -46,7 +36,7 @@ callback and follow the SSH tunnel hint printed during browser login. If your
 browser can reach this CLI directly on a private network address, pass
 --callback-host <host-or-ip>.
 
-This is equivalent to running 'multica setup' without a subcommand.`,
+The Taiwan edition's plain 'multica setup' uses the s90 server instead.`,
 	RunE: runSetupCloud,
 }
 
@@ -71,6 +61,10 @@ Examples:
 
 func init() {
 	setupCmd.Flags().String(callbackHostFlag, "", callbackHostFlagHelp)
+	setupCmd.Flags().String("server-url", "", "Server URL (env: MULTICA_SERVER_URL)")
+	setupCmd.Flags().String("app-url", "", "App URL (env: MULTICA_APP_URL)")
+	setupCmd.Flags().Int("port", 8080, "Explicit local backend port")
+	setupCmd.Flags().Int("frontend-port", 3000, "Explicit local frontend port")
 	setupCloudCmd.Flags().String(callbackHostFlag, "", callbackHostFlagHelp)
 
 	setupSelfHostCmd.Flags().String("server-url", "", "Backend server URL (e.g. https://api.internal.co) (env: MULTICA_SERVER_URL)")
@@ -379,6 +373,9 @@ func resolveSelfHostServerURL(cmd *cobra.Command, existing cli.CLIConfig) (serve
 		// probe and stored server_url expect, like resolveServerURL does.
 		return normalizeAPIBaseURL(existing.ServerURL), true
 	}
+	if cmd.Name() == "setup" && !cmd.Flags().Changed("port") {
+		return defaultTaiwanServerURL, false
+	}
 	port, _ := cmd.Flags().GetInt("port")
 	return fmt.Sprintf("http://localhost:%d", port), false
 }
@@ -399,6 +396,12 @@ func resolveSelfHostAppURL(cmd *cobra.Command, existing cli.CLIConfig) string {
 	}
 	if !cmd.Flags().Changed("frontend-port") && existing.AppURL != "" {
 		return existing.AppURL
+	}
+	if cmd.Name() == "setup" && !cmd.Flags().Changed("frontend-port") {
+		serverURL, _ := resolveSelfHostServerURL(cmd, existing)
+		if serverURL == defaultTaiwanServerURL {
+			return defaultTaiwanAppURL
+		}
 	}
 	return ""
 }

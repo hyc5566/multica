@@ -146,3 +146,19 @@ bash scripts/lan-release/build.sh 0.4.41-zh-tw.4-rc.1 \
 App 的 API token 頁會辨識目前 Desktop profile 實際使用的 token，不只比對名稱。刪除此 token 時提供「取消」或「重新生成並重新連線」：新 token 先產生並寫入，確認 daemon 使用新設定重新啟動且回報 running 後，才撤銷舊 token。執行中的任務或無法確認 daemon 狀態時不執行輪替；身分辨識失敗時停用刪除。
 
 產生失敗保留原憑證；重啟失敗保留舊 token 的有效性並回報新設定已保存，使用守護程序設定重試。新連線成功但撤銷失敗時明確提示手動刪除舊項目，不宣稱全部完成。取消不會刪除或產生 token。其他機器的 token 不會用本機 daemon 取代。
+
+### 繁中版 Server 預設值（HYCLV-64 後續候選）
+
+一般 `multica setup` 預設 server_url/app_url 均為 `https://10.1.24.90:45671`，依 flags → environment → 既有 profile → 繁中預設選用 URL。已指定的 profile URL 不會因重新 setup 自動變回官方 Cloud。明確執行 `setup cloud` 仍代表選擇官方服務；`setup self-host` 保留上游明確選用 localhost／自訂服務的用途。
+
+未配置 Server 的 `login --token` 與 Desktop 缺少正式 runtime 設定時，也預設連 s90；Desktop 開發模式維持 localhost。既有 explicit runtime config／環境變數仍優先。
+
+已被舊版 setup 寫成官方 URL 的 v6 profile，請先用以下指令改回；設定 URL 不會啟動或重啟 daemon：
+
+```bash
+/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica --profile v6 config set server_url https://10.1.24.90:45671
+/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica --profile v6 config set app_url https://10.1.24.90:45671
+/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica --profile v6 login --token
+```
+
+舊版 binary 更新前避免再次執行不帶子命令的 setup。新版 setup 仍是互動設定／登入及 daemon 啟動流程，不只是修改 URL；執行前留意現有任務。此修正不自動遷移舊設定或替換已安裝 binary。
