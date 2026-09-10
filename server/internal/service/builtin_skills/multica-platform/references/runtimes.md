@@ -37,6 +37,17 @@ multica repo checkout <url> --ref <branch-or-sha>
 Runtime and repo commands affect active agent execution. Do not restart daemons,
 update runtimes, or check out arbitrary repos just to test.
 
+Self-host operators can set `MULTICA_DAEMON_INSTALL_URL` to a public HTTPS
+installer URL for their pinned CLI build. The public `/api/config` exposes it
+as `daemon_install_url`; credentials, query strings, fragments and shell
+metacharacters are rejected. With this override, the connect-computer dialog
+uses `"$HOME/.local/bin/multica-zh-tw"` for setup, token login, daemon status and
+logs. The operator installer must provide that wrapper with an isolated
+`multica-zh-tw` profile and disabled automatic binary updates/reloads. An empty
+or invalid URL retains the standard upstream installer and `multica` commands.
+Installing the wrapper does not connect the computer: setup or token login
+and daemon start remain explicit human actions on the target machine.
+
 `runtime update` and `runtime delete` are writes. Starting a runtime update is
 limited to its owner or a workspace owner/admin; the original initiator may keep
 polling that specific in-flight request if their admin role changes.

@@ -11,6 +11,7 @@ interface ConfigState {
   googleClientId: string;
   daemonServerUrl: string;
   daemonAppUrl: string;
+  daemonInstallUrl: string;
   // Self-host gate (#3433): when true, every "Create workspace" affordance
   // must be hidden. Defaults to false so unknown / older servers behave like
   // the managed-cloud case.
@@ -46,6 +47,7 @@ interface ConfigState {
   setDaemonConfig: (config: {
     daemonServerUrl?: string;
     daemonAppUrl?: string;
+    daemonInstallUrl?: string;
   }) => void;
   setFeatureFlags: (flags?: Record<string, boolean>) => void;
   setServerVersion: (version?: string) => void;
@@ -60,6 +62,7 @@ export const configStore = createStore<ConfigState>((set) => ({
   googleClientId: "",
   daemonServerUrl: "",
   daemonAppUrl: "",
+  daemonInstallUrl: "",
   workspaceCreationDisabled: false,
   vcsIntegrationAvailable: false,
   featureFlags: {},
@@ -73,8 +76,8 @@ export const configStore = createStore<ConfigState>((set) => ({
     workspaceCreationDisabled = false,
     vcsIntegrationAvailable = false,
   }) => set({ allowSignup, googleClientId, workspaceCreationDisabled, vcsIntegrationAvailable }),
-  setDaemonConfig: ({ daemonServerUrl = "", daemonAppUrl = "" }) =>
-    set({ daemonServerUrl, daemonAppUrl }),
+  setDaemonConfig: ({ daemonServerUrl = "", daemonAppUrl = "", daemonInstallUrl = "" }) =>
+    set({ daemonServerUrl, daemonAppUrl, daemonInstallUrl }),
   setFeatureFlags: (flags = {}) => set({ featureFlags: { ...flags } }),
   setServerVersion: (version = "") => set({ serverVersion: version }),
   setLocalWorktreeSupported: (supported = false) =>
