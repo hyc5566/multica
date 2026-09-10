@@ -1,0 +1,14 @@
+{$MULTICA_APP_URL} {
+    tls internal
+    handle_path /downloads/* {
+        root * /srv/releases
+        file_server
+    }
+    @backend path /api/* /auth/* /ws /ws/* /health /uploads/* /oauth/* /webhooks/*
+    handle @backend {
+        reverse_proxy backend:8080
+    }
+    handle {
+        reverse_proxy frontend:3000
+    }
+}

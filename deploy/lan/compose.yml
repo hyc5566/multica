@@ -1,0 +1,21 @@
+# Overlay docker-compose.selfhost.yml for a NEW shared LAN server.
+# Existing s90 production uses its own reviewed override; do not replace it.
+services:
+  backend:
+    environment:
+      MULTICA_DAEMON_INSTALL_URL: ${MULTICA_APP_URL:?}/downloads/${MULTICA_RELEASE_VERSION:?}/install.sh
+  caddy:
+    image: caddy:2.10.2-alpine
+    ports:
+      - "${LAN_BIND_IP:?}:${LAN_HTTPS_PORT:-45671}:${LAN_HTTPS_PORT:-45671}"
+    environment:
+      MULTICA_APP_URL: ${MULTICA_APP_URL:?}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${MULTICA_RELEASES_DIR:?}:/srv/releases:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    restart: unless-stopped
+volumes:
+  caddy_data:
+  caddy_config:
