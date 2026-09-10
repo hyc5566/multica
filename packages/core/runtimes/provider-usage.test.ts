@@ -105,3 +105,22 @@ describe("refreshRuntimeProviderUsage", () => {
     await expect(refreshRuntimeProviderUsage("rt-1")).rejects.toThrow("offline");
   });
 });
+
+import { RuntimeProviderUsageSchema } from "../api/schemas";
+
+describe("provider usage cooldown contract", () => {
+  const snapshot = { provider: "codex", status: "available", source: "official", observed_at: "2026-09-10T05:00:00Z" };
+  it("accepts a server deadline and rejects malformed timestamps", () => {
+    expect(RuntimeProviderUsageSchema.safeParse({ ...snapshot, refresh_available_at: "2026-09-10T05:01:00Z" }).success).toBe(true);
+    for (const deadline of ["tomorrow", "", 60, null]) {
+      expect(RuntimeProviderUsageSchema.safeParse({ ...snapshot, refresh_available_at: deadline }).success).toBe(false);
+    }
+  });
+  it("returns a shared cooldown with the retained snapshot without polling", async () => {
+    const limited = { ...snapshot, refresh_available_at: "2026-09-10T05:01:00Z", last_error_code: "rate_limited" };
+    initiateProviderUsage.mockResolvedValue({ status: "completed", provider_usage: limited });
+    getProviderUsageSnapshot.mockResolvedValue(limited);
+    await expect(refreshRuntimeProviderUsage("rt-1")).resolves.toEqual(limited);
+    expect(getProviderUsageResult).not.toHaveBeenCalled();
+  });
+});

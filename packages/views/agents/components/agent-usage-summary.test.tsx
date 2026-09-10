@@ -181,3 +181,45 @@ describe("AgentUsageSummary refresh", () => {
     expect(document.querySelector("time")?.textContent).toContain("02:22 PM");
   });
 });
+
+describe("AgentUsageSummary cooldown", () => {
+  it("counts down server cooldown without hiding quota or submitting automatically", async () => {
+    snapshot = { ...snapshot, refresh_available_at: new Date(Date.now() + 1500).toISOString(), last_error_code: "rate_limited" };
+    mountSummary();
+    await screen.findByText("20% used");
+    const button = screen.getByRole("button", { name: "Refresh usage" });
+    expect(button).toBeDisabled();
+    expect(screen.getByRole("status")).toHaveTextContent(/Refresh available in [12]s/);
+    expect(screen.queryByText(enAgents.detail.usage.refresh_failed)).not.toBeInTheDocument();
+    fireEvent.click(button);
+    expect(mocks.start).not.toHaveBeenCalled();
+    await waitFor(() => expect(button).toBeEnabled(), { timeout: 3000 });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+    expect(mocks.start).not.toHaveBeenCalled();
+  });
+  it("keeps quota during the request and displays a server rejection as a countdown", async () => {
+    let complete!: (value: unknown) => void;
+    mocks.start.mockImplementation(() => new Promise((resolve) => { complete = resolve; }));
+    mountSummary();
+    await screen.findByText("20% used");
+    fireEvent.click(screen.getByRole("button", { name: "Refresh usage" }));
+    await waitFor(() => expect(mocks.start).toHaveBeenCalledTimes(1));
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh usage" })).toBeDisabled();
+    snapshot = { ...snapshot, refresh_available_at: new Date(Date.now() + 60_000).toISOString() };
+    complete({ id: "req-1", status: "completed", provider_usage: snapshot });
+    await screen.findByRole("status");
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+    expect(screen.queryByText(enAgents.detail.usage.refresh_failed)).not.toBeInTheDocument();
+  });
+  it("retains quota when a subsequent snapshot read fails", async () => {
+    mountSummary();
+    await screen.findByText("20% used");
+    mocks.read.mockRejectedValue(new Error("temporary connection failure"));
+    mocks.start.mockResolvedValue({ status: "completed", provider_usage: snapshot });
+    fireEvent.click(screen.getByRole("button", { name: "Refresh usage" }));
+    await screen.findByText(enAgents.detail.usage.refresh_failed);
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+  });
+});
