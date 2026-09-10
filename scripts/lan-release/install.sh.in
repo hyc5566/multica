@@ -5,7 +5,6 @@ set -euo pipefail
 version='@VERSION@'
 base_url='@BASE_URL@'
 [[ ${1:-} == "" || ${1:-} == --login ]] || { echo 'Usage: install.sh [--login]' >&2; exit 2; }
-profile="multica-zh-tw-$(id -u)"
 case "$(uname -s)-$(uname -m)" in
   Linux-x86_64) platform=linux-amd64; checksum='@LINUX_AMD64@' ;;
   Linux-aarch64|Linux-arm64) platform=linux-arm64; checksum='@LINUX_ARM64@' ;;
@@ -20,7 +19,7 @@ case "$install_root" in
   *) echo 'Installation root must be absolute.' >&2; exit 2 ;;
 esac
 destination="$install_root/share/multica-zh-tw/$version"
-wrapper="$install_root/bin/multica-zh-tw"
+wrapper="$install_root/bin/multica"
 if [[ -e "$destination" || -L "$destination" || -e "$wrapper" || -L "$wrapper" ]]; then
   echo 'Existing installation found. Review the upgrade procedure before replacing it.' >&2
   exit 2
@@ -58,7 +57,7 @@ cat "$destination/s90-ca.crt" >> "$destination/ca-bundle.crt"
   printf 'export MULTICA_DAEMON_AUTO_UPDATE=false MULTICA_DAEMON_AUTO_RELOAD=false\n'
   printf 'export SSL_CERT_FILE=%q\n' "$destination/ca-bundle.crt"
   printf 'export MULTICA_SERVER_URL=https://10.1.24.90:45671 MULTICA_APP_URL=https://10.1.24.90:45671\n'
-  printf 'exec %q --profile %q "$@"\n' "$destination/multica" "$profile"
+  printf 'exec %q "$@"\n' "$destination/multica"
 } > "$tmp/wrapper"
 chmod 755 "$tmp/wrapper"
 # A hard link creates the destination atomically and fails if already present.
