@@ -11,7 +11,7 @@ import {
   SettingsTab,
 } from "@multica/views/settings";
 import { useT } from "@multica/views/i18n";
-import { reauthenticateDaemon } from "../platform/daemon-reauth";
+import { reauthenticateDaemon, startDaemonWithSession } from "../platform/daemon-reauth";
 import type { DaemonPrefs, DaemonStatus } from "../../../shared/daemon-types";
 import {
   DAEMON_STATE_COLORS,
@@ -48,7 +48,7 @@ function DiagnosticsRow({
 
 export function DaemonSettingsTab() {
   const { t } = useT("settings");
-  const [prefs, setPrefs] = useState<DaemonPrefs>({ autoStart: true, autoStop: false });
+  const [prefs, setPrefs] = useState<DaemonPrefs>({ autoStart: false, autoStop: false });
   const [cliInstalled, setCliInstalled] = useState<boolean | null>(null);
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<DaemonStatus>({ state: "stopped" });
@@ -65,6 +65,15 @@ export function DaemonSettingsTab() {
     setReauthLoading(true);
     await reauthenticateDaemon(t);
     setReauthLoading(false);
+  }, [t]);
+
+  const handleStart = useCallback(async () => {
+    setReauthLoading(true);
+    try {
+      await startDaemonWithSession(t);
+    } finally {
+      setReauthLoading(false);
+    }
   }, [t]);
 
   const updatePref = useCallback(
@@ -137,6 +146,18 @@ export function DaemonSettingsTab() {
       )}
 
       <SettingsCard>
+        <SettingsRow
+          label={t(($) => $.desktop.daemon.state)}
+          description={daemonStateLabel(status.state, t)}
+        >
+          <Button
+            size="sm"
+            onClick={handleStart}
+            disabled={reauthLoading || externallyManaged || !["stopped", "auth_expired", "recovery_paused"].includes(status.state)}
+          >
+            {t(($) => $.desktop.daemon.start)}
+          </Button>
+        </SettingsRow>
         <SettingsRow
           label={t(($) => $.desktop.daemon.auto_start_title)}
           description={t(($) => $.desktop.daemon.auto_start_description)}
