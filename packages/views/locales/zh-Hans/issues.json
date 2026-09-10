@@ -47,7 +47,7 @@
     "viewer_close": "關閉已捕獲上下文",
     "viewer_expand": "放大已捕獲上下文",
     "viewer_restore": "還原已捕獲上下文尺寸",
-    "agent_received": "建立時提供給智能體",
+    "agent_received": "建立時提供給 Agent",
     "source_changed": "來源在捕獲後發生變化",
     "source_check_failed": "暫時無法檢查當前來源",
     "captured_context_available": "已捕獲上下文仍可檢視。",
@@ -75,10 +75,10 @@
     "author_at_capture": "捕獲時為 {{name}}",
     "author_renamed": "捕獲時為 {{captured}} · 現為 {{current}}",
     "author_archived": "已歸檔",
-    "author_deleted_agent": "智能體已刪除",
+    "author_deleted_agent": "Agent 已刪除",
     "author_left_workspace": "已不在工作區",
     "error_source_changed": "來源已發生變化。請檢查重新整理後的預覽，再次提交。",
-    "error_agent_unsupported": "此智能體執行環境需要更新後才能使用已捕獲上下文。請切換到手動模式或更新執行環境。",
+    "error_agent_unsupported": "此 Agent 執行環境需要更新後才能使用已捕獲上下文。請切換到手動模式或更新執行環境。",
     "error_server_unsupported": "服務端需要更新後才能建立帶已捕獲上下文的子任務。",
     "error_too_large": "要捕獲的來源上下文超過了服務端限制。",
     "error_comment_limit": "來源評論執行緒歷史至少包含 {{count}} 條評論，上限為 256 條。",
@@ -133,8 +133,8 @@
     "all_description": "工作區內的全部任務",
     "members_label": "成員",
     "members_description": "分配給成員的任務",
-    "agents_label": "智能體",
-    "agents_description": "分配給智能體的任務"
+    "agents_label": "Agents",
+    "agents_description": "分配給 Agent 的任務"
   },
   "filters": {
     "tooltip": "篩選",
@@ -164,7 +164,7 @@
     "date_apply": "應用",
     "date_clear": "清除日期篩選",
     "members_group": "成員",
-    "agents_group": "智能體",
+    "agents_group": "Agents",
     "squads_group": "小隊",
     "issue_count_other": "{{count}} 個任務",
     "reset": "重置全部篩選",
@@ -310,11 +310,11 @@
     "scope": {
       "assigned": {
         "label": "已分配",
-        "description": "分配給這個成員或智能體的任務"
+        "description": "分配給這個成員或 Agent 的任務"
       },
       "created": {
         "label": "已建立",
-        "description": "這個成員或智能體建立的任務"
+        "description": "這個成員或 Agent 建立的任務"
       }
     },
     "empty": {
@@ -377,14 +377,14 @@
     "section_quick_actions": "快捷操作",
     "quick_actions_more": "顯示其餘 {{count}} 條",
     "quick_action_runs_as": "由 {{name}} 執行",
-    "quick_action_target_fallback": "該智慧體",
+    "quick_action_target_fallback": "該 Agent",
     "quick_action_queued": "{{name}} 已開始處理",
     "quick_action_coalesced": "已加入 {{name}} 當前的執行",
     "quick_action_deferred": "{{name}} 當前離線，上線後開始",
     "quick_action_blocked": "無法觸發 {{name}}",
     "quick_action_posted": "評論已釋出",
     "quick_action_blocked_title": "你無法執行這條快捷操作",
-    "quick_action_blocked_body": "\"{{name}}\"由一個你無權觸發的智慧體執行。可以請工作區管理員把該智慧體開放給團隊，或把這條操作改綁一個共享的智慧體。",
+    "quick_action_blocked_body": "\"{{name}}\"由一個你無權觸發的 Agent 執行。可以請工作區管理員把該 Agent 開放給團隊，或把這條操作改綁一個共享的 Agent。",
     "quick_action_blocked_ok": "知道了",
     "pull_requests_loading": "載入中...",
     "pull_requests_empty": "還沒有關聯的 PR。將本任務的 identifier 寫入 PR 的分支名稱或標題，或在正文中寫在 Closes 後面，即可自動關聯。",
@@ -424,8 +424,8 @@
     "activity_section": "動態",
     "subscribe": "訂閱",
     "unsubscribe": "取消訂閱",
-    "delegated_subscription_badge": "由智能體代你關注",
-    "delegated_subscription_hint": "你的智能體代你建立了這個任務，因此你在關注它。待評審、完成或受阻時會通知你。",
+    "delegated_subscription_badge": "由 Agent 代你關注",
+    "delegated_subscription_hint": "你的 Agent 代你建立了這個任務，因此你在關注它。待評審、完成或受阻時會通知你。",
     "unsubscribe_this": "取消訂閱此任務",
     "unsubscribe_subtree": "取消訂閱此任務及其子任務",
     "unsubscribe_subtree_failed": "取消訂閱子任務失敗，請重試。",
@@ -433,7 +433,7 @@
     "no_subscribers_results": "未找到結果",
     "change_subscribers_placeholder": "更改訂閱者...",
     "members_group": "成員",
-    "agents_group": "智能體",
+    "agents_group": "Agents",
     "mark_done_tooltip": "標記為已完成",
     "archive_tooltip": "歸檔",
     "pin_tooltip": "固定到側邊欄",
@@ -456,7 +456,7 @@
     "project_directory_path_copied": "已複製專案目錄路徑",
     "project_directory_path_copied_with_branch": "已複製專案目錄路徑 — 任務改動位於 {{branch}} 分支",
     "workdir_path_copy_failed": "複製本地 workdir 路徑失敗",
-    "workdir_path_unavailable": "暫無本地 workdir — 這個任務還沒被本地智慧體執行過",
+    "workdir_path_unavailable": "暫無本地 workdir — 這個任務還沒被本地 Agent 執行過",
     "unsubscribe_subtree_succeeded": "已取消訂閱此任務及其子任務。",
     "subscription_update_failed": "無法更新訂閱狀態，請重試。"
   },
@@ -542,7 +542,7 @@
     "trigger_reason_mention_squad_leader": "被 @ 小隊的隊長。",
     "trigger_reason_unknown": "將由這條評論開始。",
     "trigger_will_start": "傳送後開始",
-    "trigger_will_start_count_other": "傳送後 {{count}} 個智能體開始工作",
+    "trigger_will_start_count_other": "傳送後 {{count}} 個 Agent 開始工作",
     "trigger_starts_now": "立即開始。",
     "trigger_starts_when_online": "當前離線，上線後開始。",
     "trigger_click_to_skip": "點選本次跳過。",
@@ -587,18 +587,18 @@
     }
   },
   "agent_activity": {
-    "hover_header_other": "{{count}} 個智能體工作中",
+    "hover_header_other": "{{count}} 個 Agent 工作中",
     "hover_header_tasks_other": "{{count}} 次執行進行中",
-    "hover_header_queued_other": "{{count}} 個智能體排隊中",
+    "hover_header_queued_other": "{{count}} 個 Agent 排隊中",
     "status_running": "正在工作",
     "status_queued": "排隊中",
-    "empty_hover": "當前沒有智能體在工作",
-    "unknown_hover": "工作中的智能體：尚未載入",
-    "filter_active_label": "正在檢視有智能體在工作的任務",
+    "empty_hover": "當前沒有 Agent 在工作",
+    "unknown_hover": "工作中的 Agent：尚未載入",
+    "filter_active_label": "正在檢視有 Agent 在工作的任務",
     "tasks_count_other": "{{count}} 次執行",
-    "chip_agents_working_other": "{{count}} 個智能體工作中",
+    "chip_agents_working_other": "{{count}} 個 Agent 工作中",
     "issues_count_other": "{{count}} 個任務",
-    "chip_agents_working_unknown": "工作中的智能體：—"
+    "chip_agents_working_unknown": "工作中的 Agent：—"
   },
   "filtered_empty": {
     "title": "沒有符合篩選條件的任務",
@@ -610,11 +610,11 @@
     "is_queued": "{{name}} 排隊中",
     "is_waiting_local_directory": "{{name}} 正在等待本地目錄",
     "queued_elapsed_prefix": "已排隊 {{elapsed}}",
-    "fallback_name": "智能體",
+    "fallback_name": "Agent",
     "tool_count_other": "{{count}} 次工具呼叫",
     "transcript_button": "檢視記錄",
     "stop_button": "停止",
-    "stop_tooltip": "停止智能體",
+    "stop_tooltip": "停止 Agent",
     "cancel_failed": "取消執行失敗"
   },
   "execution_log": {
@@ -626,7 +626,7 @@
     "retry_task_tooltip": "重試執行",
     "retry_task_aria": "重試執行",
     "retry_failed": "重試執行失敗",
-    "retry_blocked": "未重試——你沒有該智能體的使用許可權",
+    "retry_blocked": "未重試——你沒有該 Agent 的使用許可權",
     "transcript_tooltip": "檢視記錄",
     "cancel_failed": "取消執行失敗",
     "trigger_retry": "重試",
@@ -652,7 +652,7 @@
       "source_comment_source": "來自評論執行緒",
       "source_trigger_owner": "自動化觸發器建立者",
       "source_rule_owner": "自動化規則釋出者",
-      "source_owner_fallback": "無精確責任人——歸到智慧體所有者",
+      "source_owner_fallback": "無精確責任人——歸到 Agent 所有者",
       "source_backfill": "回填的歸因",
       "source_unattributed": "未解析到責任成員"
     },
@@ -668,7 +668,7 @@
     "kpi_cache_hint": "命中率 {{pct}}% · 讀取 {{reads}}",
     "kpi_tokens": "Token",
     "kpi_tokens_hint": "輸入 {{input}} · 輸出 {{output}}",
-    "by_agent": "按智能體分攤",
+    "by_agent": "按 Agent 分攤",
     "by_agent_total": "合計 {{cost}}",
     "col_run": "執行",
     "col_model": "模型",
@@ -785,9 +785,9 @@
       "trigger_unassigned": "未分配",
       "search_placeholder": "分配給...",
       "members_group": "成員",
-      "agents_group": "智能體",
+      "agents_group": "Agents",
       "squads_group": "小隊",
-      "agent_runtime_required": "請先為該智能體繫結執行環境，再分配工作",
+      "agent_runtime_required": "請先為該 Agent 繫結執行環境，再分配工作",
       "squad_runtime_required": "請先為該小隊的負責人繫結執行環境，再分配工作"
     },
     "start_date": {
@@ -831,12 +831,12 @@
     "delete_failed": "刪除標籤失敗"
   },
   "backlog_hint": {
-    "title": "智能體在 backlog 狀態下暫停",
-    "description": "這個任務處於待規劃狀態，被分配的智能體會等待。準備啟動時把它移到 todo。",
+    "title": "Agent 在 backlog 狀態下暫停",
+    "description": "這個任務處於待規劃狀態，被分配的 Agent 會等待。準備啟動時把它移到 todo。",
     "row_backlog_label": "backlog",
-    "row_backlog_hint": "智能體保持暫停",
+    "row_backlog_hint": "Agent 保持暫停",
     "row_todo_label": "todo",
-    "row_todo_hint": "啟動智能體"
+    "row_todo_hint": "啟動 Agent"
   },
   "save_view": {
     "title": "儲存為檢視",
@@ -846,7 +846,7 @@
     "hint_my_created": "基於「我的任務 · 我建立的」建立",
     "hint_my_involved": "基於「我的任務 · 我參與的」建立",
     "hint_project": "基於專案「{{title}}」建立，僅在該專案頁面可用",
-    "hint_project_agents": "基於專案「{{title}}」中智慧體負責的任務建立，僅在該專案頁面可用",
+    "hint_project_agents": "基於專案「{{title}}」中 Agent 負責的任務建立，僅在該專案頁面可用",
     "hint_project_members": "基於專案「{{title}}」中成員負責的任務建立，僅在該專案頁面可用",
     "my_private_note": "我的任務檢視僅自己可見",
     "name_label": "名稱",
@@ -870,12 +870,12 @@
     "toast_updated": "檢視已更新",
     "toast_conflict": "檢視已被他人修改，請重新開啟後再試",
     "hint_workspace_members": "基於工作區中成員負責的任務建立",
-    "hint_workspace_agents": "基於工作區中智慧體負責的任務建立",
+    "hint_workspace_agents": "基於工作區中 Agent 負責的任務建立",
     "scope_label_workspace": "負責人型別",
     "scope_label_my": "與我的關係",
     "variant_all": "不限負責人",
     "variant_members": "分配給成員",
-    "variant_agents": "分配給智能體",
+    "variant_agents": "分配給 Agent",
     "variant_my_any": "任何相關",
     "variant_my_assigned": "分配給我",
     "variant_my_created": "我建立的",

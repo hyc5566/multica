@@ -550,7 +550,7 @@ func zhNoRuntimeIssueDescription() string {
 	return strings.Join([]string{
 		"歡迎來到 Multica。",
 		"",
-		"智能體需要先連上執行環境才能執行工作。執行環境還沒準備好時，你也可以先把 Multica 當作輕量專案管理工具體驗。",
+		"Agent 需要先連上執行環境才能執行工作。執行環境還沒準備好時，你也可以先把 Multica 當作輕量專案管理工具體驗。",
 		"",
 		"## 先體驗專案管理功能",
 		"",
@@ -561,7 +561,7 @@ func zhNoRuntimeIssueDescription() string {
 		"3. 為 issue 加上優先順序、標籤、評論和訂閱。",
 		"4. 用收件匣追蹤分配給你的事項和 @mention。",
 		"",
-		"這樣可以先熟悉專案管理層。連上執行環境後，智能體會直接在這些 issue 上開始工作。",
+		"這樣可以先熟悉專案管理層。連上執行環境後，Agent 會直接在這些 issue 上開始工作。",
 		"",
 		"## 安裝第一個 Agent 執行環境",
 		"",
@@ -582,11 +582,11 @@ func zhNoRuntimeIssueDescription() string {
 		"   multica daemon restart",
 		"   如果使用桌面版，重新啟動 app 即可。",
 		"6. 回到 Runtimes 頁面重新整理。你應該會看到一個上線的 Kimi 執行環境。",
-		"7. 用這個執行環境建立第一個智能體，再把一個 issue 分配給它，並將狀態切換成 todo。",
+		"7. 用這個執行環境建立第一個 Agent，再把一個 issue 分配給它，並將狀態切換成 todo。",
 		"",
 		"Kimi CLI 官方文件：https://moonshotai.github.io/kimi-cli/zh/guides/getting-started.html",
 		"",
-		"連上執行環境後，你就可以建立 Multica Helper，開始一次有智能體參與的上手引導。",
+		"連上執行環境後，你就可以建立 Multica Helper，開始一次有 Agent 參與的上手引導。",
 	}, "\n")
 }
 

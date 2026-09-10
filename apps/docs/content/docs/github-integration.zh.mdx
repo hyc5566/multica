@@ -24,7 +24,7 @@ GitHub 集成只读取安装时授权的仓库，不会提交代码、评论或 
 连接状态会显示在同一页面。普通成员可以查看状态，但不能连接、断开或修改开关。
 
 <Callout type="info">
-**GitHub 连接**决定 Multica 从哪些仓库接收 PR 事件；**代码仓库**设置决定智能体运行时可以选择哪些仓库。两者用途不同，需要分别配置。
+**GitHub 连接**决定 Multica 从哪些仓库接收 PR 事件；**代码仓库**设置决定 Agent 运行时可以选择哪些仓库。两者用途不同，需要分别配置。
 </Callout>
 
 ## 功能开关
@@ -35,7 +35,7 @@ GitHub 集成只读取安装时授权的仓库，不会提交代码、评论或 
 |---|---|
 | GitHub 集成 | 总开关。关闭后，下面三项不再生效，但不会断开 GitHub App。 |
 | PR 侧栏 | 在任务详情中显示关联的 pull request。 |
-| Co-authored-by | 在智能体创建的 commit 中加入 `Co-authored-by: multica-agent <github@multica.ai>`。 |
+| Co-authored-by | 在Agent创建的 commit 中加入 `Co-authored-by: multica-agent <github@multica.ai>`。 |
 | 自动关联 PR | 从 PR 的分支名和标题中识别任务编号；正文中只识别紧跟关闭语句的编号。 |
 | **PR 卡片 → CI 与可合并性** | 对每个关联的 PR，Multica 从 GitHub API 拉取一份经鉴权的快照，把它的 **CI 状态**和**可合并性**镜像到卡片上（见下方 **PR 卡片展示什么**）。 |
 
@@ -183,5 +183,5 @@ make migrate-up
 ## 接下来
 
 - [任务](/issues) — 状态流转与 PR 合并转 Done 的关系。
-- [项目资源](/project-resources) — 智能体执行时使用哪些仓库。
+- [项目资源](/project-resources) — Agent 执行时使用哪些仓库。
 - [环境变量](/environment-variables) — 自托管 GitHub App 的完整配置。

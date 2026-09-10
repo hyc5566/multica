@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "執行環境",
-    "tagline": "為智能體跑 CLI 會話的機器和雲端 worker。",
+    "tagline": "為 Agent 跑 CLI 會話的機器和雲端 worker。",
     "learn_more": "瞭解更多 →",
     "connect_remote": "新增電腦",
     "search_placeholder": "搜尋執行環境...",
@@ -29,7 +29,7 @@
   },
   "mika_setup": {
     "title": "執行環境已準備好，和 Mika 開始。",
-    "description": "Mika 會把你的目標轉化為任務、協調合適的智能體，並在工作流需要時幫你新增可複用的 specialist。",
+    "description": "Mika 會把你的目標轉化為任務、協調合適的 Agent，並在工作流需要時幫你新增可複用的 specialist。",
     "action": "和 Mika 開始",
     "failed": "無法啟動 Mika",
     "dialog_title": "讓 Mika 在哪臺電腦上執行？",
@@ -76,7 +76,7 @@
     "rename": "重新命名機器",
     "rename_dialog": {
       "title": "重新命名機器",
-      "description": "給這臺機器起一個你能認出來的名字。會應用到這臺機器上的所有執行時，並在給智慧體選擇執行時時顯示。",
+      "description": "給這臺機器起一個你能認出來的名字。會應用到這臺機器上的所有執行時，並在給 Agent 選擇執行時時顯示。",
       "placeholder": "例如：我的 MacBook",
       "hint": "留空則使用裝置的預設名稱。",
       "cancel": "取消",
@@ -102,7 +102,7 @@
     },
     "long_offline": {
       "label": "長期離線",
-      "description": "6 天以上沒有心跳。如果這臺主機不會恢復，請將關聯智慧體改綁到其他執行時，或刪除此執行時。"
+      "description": "6 天以上沒有心跳。如果這臺主機不會恢復，請將關聯 Agent 改綁到其他執行時，或刪除此執行時。"
     }
   },
   "detail": {
@@ -118,8 +118,8 @@
     "fact_daemon_cli": "守護程序 CLI",
     "fact_daemon_id": "守護程序 ID",
     "serving_title": "服務中",
-    "serving_count_other": "{{count}} 個智能體",
-    "no_agents": "還沒有智能體繫結到這個執行環境。",
+    "serving_count_other": "{{count}} 個 Agent",
+    "no_agents": "還沒有 Agent 繫結到這個執行環境。",
     "diagnostics_title": "診斷",
     "diagnostics_cli": "CLI",
     "diagnostics_visibility": "可見性",
@@ -128,12 +128,12 @@
       "public": "公開"
     },
     "visibility_hint": {
-      "private": "僅你可以在此執行環境上建立智能體。",
-      "public": "工作區內任何成員都可以在此執行環境上建立智能體。"
+      "private": "僅你可以在此執行環境上建立 Agent。",
+      "public": "工作區內任何成員都可以在此執行環境上建立 Agent。"
     },
     "visibility_hint_readonly": {
-      "private": "僅執行環境所有者可以在此執行環境上建立智能體，也只有他們能切換為「公開」。",
-      "public": "工作區內任何成員都可以在此執行環境上建立智能體。只有執行環境所有者能切回「私有」。"
+      "private": "僅執行環境所有者可以在此執行環境上建立 Agent，也只有他們能切換為「公開」。",
+      "public": "工作區內任何成員都可以在此執行環境上建立 Agent。只有執行環境所有者能切回「私有」。"
     },
     "visibility_toast_updated": "可見性已設為\"{{visibility}}\"",
     "visibility_toast_failed": "更新可見性失敗",
@@ -148,18 +148,18 @@
         "submitting": "刪除中..."
       },
       "cascade": {
-        "title_other": "解綁 {{count}} 個智能體並刪除該執行環境？",
-        "description": "刪除\"{{name}}\"。下列智慧體會保留——其指令、聊天記錄和執行歷史都不會丟失——但會與該執行時解綁，在重新繫結前無法接受新工作。排隊中或進行中的執行會被取消，然後刪除執行時。",
-        "warning": "排隊中和進行中的執行會被取消；這些智慧體重新繫結執行時之前，無法接受新工作。",
-        "notice_runtime_has_active_agents": "自開啟此彈窗後，又有新的活動智能體加入。請確認新方案後繼續。",
-        "notice_runtime_delete_plan_changed": "在彈窗開啟期間，活動智能體集合發生了變化。請確認新方案後繼續。",
-        "checkbox_other": "我已瞭解：這 {{count}} 個智慧體會與該執行時解綁，在重新繫結前無法接受新工作；其排隊中或進行中的執行會被取消。",
+        "title_other": "解綁 {{count}} 個 Agent 並刪除該執行環境？",
+        "description": "刪除\"{{name}}\"。下列 Agent 會保留——其指令、聊天記錄和執行歷史都不會丟失——但會與該執行時解綁，在重新繫結前無法接受新工作。排隊中或進行中的執行會被取消，然後刪除執行時。",
+        "warning": "排隊中和進行中的執行會被取消；這些 Agent 重新繫結執行時之前，無法接受新工作。",
+        "notice_runtime_has_active_agents": "自開啟此彈窗後，又有新的活動 Agent 加入。請確認新方案後繼續。",
+        "notice_runtime_delete_plan_changed": "在彈窗開啟期間，活動 Agent 集合發生了變化。請確認新方案後繼續。",
+        "checkbox_other": "我已瞭解：這 {{count}} 個 Agent 會與該執行時解綁，在重新繫結前無法接受新工作；其排隊中或進行中的執行會被取消。",
         "cancel": "取消",
-        "confirm_other": "解綁 {{count}} 個智能體並刪除執行環境",
+        "confirm_other": "解綁 {{count}} 個 Agent 並刪除執行環境",
         "submitting": "正在解綁並刪除...",
         "delete_failed_toast": "刪除執行環境失敗",
         "table": {
-          "header_agent": "智能體",
+          "header_agent": "Agent",
           "header_owner": "所有者",
           "header_status": "狀態",
           "header_visibility": "可見性",
@@ -205,9 +205,9 @@
     "copy_aria": "複製",
     "cancel": "取消",
     "success_title": "電腦已連線",
-    "success_description": "電腦已經上線就緒。建立一個智慧體，執行就可以派發到這裡。",
+    "success_description": "電腦已經上線就緒。建立一個 Agent，執行就可以派發到這裡。",
     "view_runtime": "檢視執行環境",
-    "create_agent": "建立智能體"
+    "create_agent": "建立 Agent"
   },
   "cloud_runtime": {
     "action": "雲端執行環境",
@@ -287,7 +287,7 @@
     "col_runtime": "執行環境",
     "col_health": "健康度",
     "col_owner": "所有者",
-    "col_agents": "智能體",
+    "col_agents": "Agents",
     "col_cost": "費用 · 7 天",
     "col_cli": "CLI",
     "cost_delta_flat": "持平",
@@ -389,7 +389,7 @@
       "cancel": "取消",
       "deleting": "正在刪除...",
       "toast_deleted": "已從工作區刪除自定義執行環境",
-      "error_bound": "仍有智能體在使用此執行環境，無法刪除。",
+      "error_bound": "仍有 Agent 在使用此執行環境，無法刪除。",
       "error_generic": "刪除執行環境失敗。"
     }
   },
@@ -435,11 +435,11 @@
       "cancel": "取消",
       "save": "儲存"
     },
-    "cost_by_title_agent": "按智能體分攤",
+    "cost_by_title_agent": "按 Agent 分攤",
     "cost_by_title_model": "按模型分攤",
-    "cost_by_tab_agent": "按智能體",
+    "cost_by_tab_agent": "按 Agent",
     "cost_by_tab_model": "按模型",
-    "cost_by_caption_agent_other": "{{count}} 個智能體使用此執行環境",
+    "cost_by_caption_agent_other": "{{count}} 個 Agent 使用此執行環境",
     "cost_by_caption_model_other": "{{count}} 個模型已使用",
     "daily_breakdown_toggle": "每日明細表",
     "table_date": "日期",
