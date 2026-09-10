@@ -122,6 +122,44 @@ func TestGetConfigUsesDaemonServerURLOverride(t *testing.T) {
 	}
 }
 
+func TestDaemonInstallURLFromEnv(t *testing.T) {
+	for _, tt := range []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"absent", "", ""},
+		{"https", " https://10.1.24.90:45671/downloads/v1/install.sh ", "https://10.1.24.90:45671/downloads/v1/install.sh"},
+		{"http", "http://example.com/install.sh", ""},
+		{"credentials", "https://user:secret@example.com/install.sh", ""},
+		{"query", "https://example.com/install.sh?token=secret", ""},
+		{"empty query", "https://example.com/install.sh?", ""},
+		{"fragment", "https://example.com/install.sh#secret", ""},
+		{"empty fragment", "https://example.com/install.sh#", ""},
+		{"shell", "https://example.com/$(touch-pwned)", ""},
+		{"quote", "https://example.com/a'b", ""},
+		{"backslash", "https://example.com/a\\b", ""},
+		{"newline", "https://example.com/a\nb", ""},
+		{"missing host", "https:///install.sh", ""},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Setenv("MULTICA_DAEMON_INSTALL_URL", tt.input)
+			if got := daemonInstallURLFromEnv(); got != tt.want {
+				t.Fatalf("installer URL: got %q, want %q", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestGetConfigIncludesDaemonInstallURL(t *testing.T) {
+	t.Setenv("MULTICA_DAEMON_INSTALL_URL", "https://downloads.example.com/v1/install.sh")
+	var cfg AppConfig
+	testutil.Call(t, testHandler.GetConfig, httptest.NewRequest(http.MethodGet, "/api/config", nil)).Want(http.StatusOK).JSON(&cfg)
+	if cfg.DaemonInstallURL != "https://downloads.example.com/v1/install.sh" {
+		t.Fatalf("daemon_install_url: got %q", cfg.DaemonInstallURL)
+	}
+}
+
 func TestGetConfigHonorsVCSIntegrationSwitch(t *testing.T) {
 	origCfg := testHandler.cfg
 	t.Cleanup(func() { testHandler.cfg = origCfg })

@@ -31,7 +31,10 @@ import {
   UI_MOTION_DURATION,
 } from "@multica/ui/lib/motion";
 import { cn } from "@multica/ui/lib/utils";
-import { CliInstallCommand } from "../../common/cli-install-command";
+import {
+  CLI_INSTALL_COMMANDS,
+  CliInstallCommand,
+} from "../../common/cli-install-command";
 import { useNavigation } from "../../navigation";
 import { useT } from "../../i18n";
 
@@ -39,30 +42,59 @@ type Step = "instructions" | "success";
 
 const CLOUD_SERVER_URL = "https://api.multica.ai";
 const CLOUD_APP_URL = "https://multica.ai";
+const INSTALL_CMD = CLI_INSTALL_COMMANDS.macosLinux;
 
-function normalizeCommandURL(url: string | undefined) {
-  return url?.trim().replace(/\/+$/, "") ?? "";
+function installCommand(raw = "") {
+  const value = raw.trim();
+  try {
+    const url = new URL(value);
+    if (
+      url.protocol === "https:" &&
+      url.hostname &&
+      !url.username &&
+      !url.password &&
+      !/[?#\\'"`$;|&<>()\s]/.test(value)
+    ) {
+      return `curl -fsSL -- '${value}' | bash`;
+    }
+  } catch {
+    // Older or malformed server config keeps the standard installer.
+  }
+  return INSTALL_CMD;
 }
 
-function daemonCommands(serverUrl: string | undefined, appUrl: string | undefined) {
+function normalizeCommandURL(url: string | undefined) {
+  const value = url?.trim().replace(/\/+$/, "") ?? "";
+  return /^[a-zA-Z0-9:/._~-]*$/.test(value)
+    ? value
+    : `'${value.replaceAll("'", "'\\''")}'`;
+}
+
+function daemonCommands(
+  serverUrl: string | undefined,
+  appUrl: string | undefined,
+  cli = "multica",
+) {
   const normalizedServerUrl = normalizeCommandURL(serverUrl);
   const normalizedAppUrl = normalizeCommandURL(appUrl);
+  const tokenLogin =
+    cli === "multica" ? "login --token <YOUR_TOKEN>" : "login --token";
   if (normalizedServerUrl && normalizedAppUrl) {
     return {
-      setupCmd: `multica setup self-host --server-url ${normalizedServerUrl} --app-url ${normalizedAppUrl}`,
-      tokenCmd: `multica config set server_url ${normalizedServerUrl}
-multica config set app_url ${normalizedAppUrl}
-multica login --token <YOUR_TOKEN>
-multica daemon start`,
+      setupCmd: `${cli} setup self-host --server-url ${normalizedServerUrl} --app-url ${normalizedAppUrl}`,
+      tokenCmd: `${cli} config set server_url ${normalizedServerUrl}
+${cli} config set app_url ${normalizedAppUrl}
+${cli} ${tokenLogin}
+${cli} daemon start`,
     };
   }
 
   return {
-    setupCmd: "multica setup",
-    tokenCmd: `multica config set server_url ${CLOUD_SERVER_URL}
-multica config set app_url ${CLOUD_APP_URL}
-multica login --token <YOUR_TOKEN>
-multica daemon start`,
+    setupCmd: `${cli} setup`,
+    tokenCmd: `${cli} config set server_url ${CLOUD_SERVER_URL}
+${cli} config set app_url ${CLOUD_APP_URL}
+${cli} ${tokenLogin}
+${cli} daemon start`,
   };
 }
 
@@ -243,7 +275,11 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
   const { t } = useT("runtimes");
   const daemonServerUrl = useConfigStore((s) => s.daemonServerUrl);
   const daemonAppUrl = useConfigStore((s) => s.daemonAppUrl);
-  const { setupCmd, tokenCmd } = daemonCommands(daemonServerUrl, daemonAppUrl);
+  const daemonInstallUrl = useConfigStore((s) => s.daemonInstallUrl);
+  const installCmd = installCommand(daemonInstallUrl);
+  const cli =
+    installCmd === INSTALL_CMD ? "multica" : '"$HOME/.local/bin/multica-zh-tw"';
+  const { setupCmd, tokenCmd } = daemonCommands(daemonServerUrl, daemonAppUrl, cli);
   return (
     <>
       <DialogHeader className="px-6 pt-6 pb-2">
@@ -270,7 +306,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
             >
               {(cmd) => (
                 <CommandRow
-                  cmd={cmd}
+                  cmd={cmd === INSTALL_CMD ? installCmd : cmd}
                   copyAria={t(($) => $.connect.copy_aria)}
                 />
               )}
@@ -291,7 +327,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
 
           <LiveListening />
 
-          <TroubleshootingDetails tokenCmd={tokenCmd} />
+          <TroubleshootingDetails tokenCmd={tokenCmd} cli={cli} />
         </div>
       </div>
 
@@ -304,7 +340,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
   );
 }
 
-function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
+function TroubleshootingDetails({ tokenCmd, cli }: { tokenCmd: string; cli: string }) {
   const { t } = useT("runtimes");
   return (
     <details className="group rounded-lg border border-dashed">
@@ -340,7 +376,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
                 CODE_LIGATURE_CLASS,
               )}
             >
-              {"multica daemon status"}
+              {`${cli} daemon status`}
             </code>
           </li>
           <li className="flex items-center gap-1.5">
@@ -352,7 +388,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
                 CODE_LIGATURE_CLASS,
               )}
             >
-              {"multica daemon logs -f"}
+              {`${cli} daemon logs -f`}
             </code>
           </li>
         </ul>
