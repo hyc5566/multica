@@ -12,7 +12,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const fixture = join(root, 'fixture');
     const fakebin = join(root, 'fakebin');
     mkdirSync(fixture); mkdirSync(fakebin);
-    writeFileSync(join(fixture, 'multica'), '#!/usr/bin/env bash\n[[ ${1:-} != login || ${FIXTURE_LOGIN_FAIL:-} != 1 ]] || exit 7\nprintf "%s\\n" "$MULTICA_DAEMON_AUTO_UPDATE" "$MULTICA_DAEMON_AUTO_RELOAD" "$@"\n', {mode: 0o755});
+    writeFileSync(join(fixture, 'multica'), '#!/usr/bin/env bash\nif [[ ${1:-} == daemon && ${2:-} == status ]]; then echo \'{"status":"running"}\'; exit 0; fi\n[[ ${1:-} != login || ${FIXTURE_LOGIN_FAIL:-} != 1 ]] || exit 7\nprintf "%s\\n" "$MULTICA_DAEMON_AUTO_UPDATE" "$MULTICA_DAEMON_AUTO_RELOAD" "$@"\n', {mode: 0o755});
     for (const name of ['LICENSE', 'NOTICE', 's90-ca.crt']) writeFileSync(join(fixture, name), 'fixture');
     const archive = join(root, 'fixture.tar.gz');
     assert.equal(spawnSync('tar', ['-czf', archive, '-C', fixture, 'multica', 'LICENSE', 'NOTICE', 's90-ca.crt']).status, 0);
@@ -25,7 +25,8 @@ test('installer verifies artifacts, uses default configuration and preserves exi
       .replaceAll('@BASE_URL@', 'https://example.com/release')
       .replace(/@(LINUX|DARWIN)_(AMD64|ARM64)@/g, checksum);
     const installRoot = join(root, "local space ' $literal");
-    const env = {...process.env, PATH: `${fakebin}:${process.env.PATH}`, MULTICA_ZH_TW_INSTALL_ROOT: installRoot, FIXTURE_ARCHIVE: archive};
+    const home = join(root, 'home'); mkdirSync(home);
+    const env = {...process.env, HOME: home, MULTICA_PROFILE: '', PATH: `${fakebin}:${process.env.PATH}`, MULTICA_ZH_TW_INSTALL_ROOT: installRoot, FIXTURE_ARCHIVE: archive};
     writeFileSync(installer, render('0'.repeat(64)));
     assert.equal(spawnSync('bash', [installer], {env}).status, 1);
     assert.equal(existsSync(installRoot), false);
@@ -51,8 +52,25 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const explicitProfile = spawnSync(wrapper, ['--profile', 'optional', 'version'], {env, encoding: 'utf8'});
     assert.equal(explicitProfile.stdout, 'false\nfalse\n--profile\noptional\nversion\n');
     assert.doesNotMatch(readFileSync(wrapper, 'utf8'), /--profile/);
+    writeFileSync(join(fakebin, 'systemctl'), '#!/bin/sh\nprintf "%s\\n" "$*" >> "$FIXTURE_SYSTEMCTL_LOG"\n', {mode: 0o755});
+    const serviceHome = join(root, 'service-home'); mkdirSync(serviceHome);
+    const serviceRoot = join(root, 'service % space $path');
+    const systemctlLog = join(root, 'systemctl.log');
+    const service = spawnSync('bash', [installer, '--service'], {env: {...env, HOME: serviceHome, FIXTURE_SYSTEMCTL_LOG: systemctlLog, MULTICA_ZH_TW_INSTALL_ROOT: serviceRoot}, encoding: 'utf8'});
+    assert.equal(service.status, 0, service.stderr);
+    const unit = readFileSync(join(serviceHome, '.config/systemd/user/multica.service'), 'utf8');
+    assert.ok(unit.includes('service %% space $$path/bin/multica" daemon start --foreground'));
+    assert.match(unit, /Restart=on-failure/);
+    assert.match(readFileSync(systemctlLog, 'utf8'), /--user enable --now multica.service/);
+    assert.match(service.stdout, /Service ready/);
     const previous = readFileSync(wrapper, 'utf8');
     assert.equal(spawnSync('bash', [installer], {env}).status, 2);
     assert.equal(readFileSync(wrapper, 'utf8'), previous);
+    mkdirSync(join(home, '.multica'));
+    const config = join(home, '.multica/config.json');
+    writeFileSync(config, '{"workspaces_root":"/keep"}');
+    const preserve = spawnSync('bash', [installer], {env: {...env, MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'existing-config')}});
+    assert.equal(preserve.status, 2);
+    assert.equal(readFileSync(config, 'utf8'), '{"workspaces_root":"/keep"}');
   } finally { rmSync(root, {recursive: true, force: true}); }
 });

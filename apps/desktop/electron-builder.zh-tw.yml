@@ -13,6 +13,8 @@ files:
   - "!{scripts,test}/**"
   - "!dist*/**"
 extraResources:
+  - from: resources/s90-ca.crt
+    to: s90-ca.crt
   - from: ../../LICENSE
     to: LICENSE
   - from: ../../NOTICE

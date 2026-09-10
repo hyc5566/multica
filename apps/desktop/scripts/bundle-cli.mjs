@@ -103,7 +103,7 @@ async function exists(p) {
 }
 
 if (hasGo()) {
-  const version = deriveVersion() || "dev";
+  const version = process.env.MULTICA_BUILD_VERSION || deriveVersion() || "dev";
   const commit = git("rev-parse", "--short", "HEAD") || "unknown";
   const buildCommit = git("rev-parse", "HEAD") || "unknown";
   const date = new Date().toISOString().replace(/\.\d+Z$/, "Z");

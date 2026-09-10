@@ -81,3 +81,6 @@ __pycache__/
 perf-report/
 # The production example is a tracked template; `.env*` above would hide it.
 !apps/mobile/.env.production.example
+
+# Generated LAN release trust resource
+/apps/desktop/resources/s90-ca.crt
