@@ -58,9 +58,13 @@ Keep these invariants when replaying onto a newer upstream:
 - opening an Agent page and periodic reads use only the Server snapshot; the
   usage card refresh button posts the existing throttled provider-usage request
   and polls completion, then reads the durable result without creating a task;
-- refresh stays limited to the same five-minute bucket; a completed request is
-  not proof of a new observation. Show full observation dates, stale/error
-  metadata, and hide percentages for windows whose reset time has passed;
+- manual refresh bypasses the five-minute scheduling bucket but shares a rolling
+  60-second database cooldown per probe target with all callers. Honor longer
+  provider Retry-After deadlines. Return `refresh_available_at` on cache reads;
+  show an inline countdown and keep the last successful quota visible during
+  cooldown or refresh. Do not auto-submit when the countdown ends. A completed
+  request is not proof of a new observation. Show full observation dates,
+  stale/error metadata, and hide percentages for expired reset windows;
 - the external provider HTTPS probe adds OpenSSL public roots when daemon
   SSL_CERT_FILE supplies a private Server CA. Preserve that private CA and keep
   hostname/CERT_REQUIRED verification; never disable TLS to recover quota;

@@ -21,6 +21,7 @@ import (
 
 const (
 	providerUsageCadence   = 5 * time.Minute
+	providerUsageCooldown  = time.Minute
 	providerUsageFreshness = 15 * time.Minute
 )
 
@@ -139,9 +140,8 @@ func (h *Handler) ProviderUsageTargetByKey(ctx context.Context, key string) (Pro
 	return ProviderUsageTarget{}, pgx.ErrNoRows
 }
 
-// EnqueueProviderUsageTarget atomically reserves the five-minute bucket before
-// adding daemon work. The database reservation is the cross-replica and
-// reconnect/manual-refresh idempotency gate.
+// EnqueueProviderUsageTarget atomically applies the caller's scheduling cutoff,
+// the shared rolling cooldown, and any provider Retry-After before adding work.
 func (h *Handler) EnqueueProviderUsageTarget(ctx context.Context, target ProviderUsageTarget, bucket, now time.Time) (*ModelListRequest, bool, error) {
 	if h.DB == nil || h.ModelListStore == nil {
 		return nil, false, errors.New("provider usage refresh is unavailable")
@@ -166,9 +166,11 @@ func (h *Handler) EnqueueProviderUsageTarget(ctx context.Context, target Provide
 			last_error_code = 'pending',
 			updated_at = EXCLUDED.updated_at
 		WHERE runtime_provider_usage_snapshot.last_attempt_at < $8
+		  AND runtime_provider_usage_snapshot.last_attempt_at <= $9
+		  AND COALESCE((runtime_provider_usage_snapshot.snapshot->>'refresh_available_at')::timestamptz, '-infinity'::timestamptz) <= $7
 		RETURNING true
 	`, target.ProbeTarget, target.RuntimeID, target.WorkspaceID, target.DaemonID,
-		target.Provider, profileID, now.UTC(), bucket.UTC()).Scan(&admitted)
+		target.Provider, profileID, now.UTC(), bucket.UTC(), now.Add(-providerUsageCooldown).UTC()).Scan(&admitted)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, false, nil
 	}
@@ -254,7 +256,10 @@ func (h *Handler) recordProviderUsageResult(ctx context.Context, target Provider
 		errorCode = snapshot.Status
 	}
 	if good {
-		encoded, err := json.Marshal(snapshot)
+		stored := *snapshot
+		// Refresh admission metadata is owned by the server, not the daemon.
+		stored.RefreshAvailableAt = nil
+		encoded, err := json.Marshal(&stored)
 		if err != nil {
 			return fmt.Errorf("encode provider usage snapshot: %w", err)
 		}
@@ -269,23 +274,35 @@ func (h *Handler) recordProviderUsageResult(ctx context.Context, target Provider
 	if target.ProfileID != nil {
 		profileID = *target.ProfileID
 	}
+	var retryAt *time.Time
+	if snapshot != nil && snapshot.RetryAfterSeconds != nil && *snapshot.RetryAfterSeconds > 0 {
+		// Bound untrusted seconds before converting them to a Go duration.
+		seconds := min(*snapshot.RetryAfterSeconds, int64(math.MaxInt64/time.Second))
+		deadline := now.UTC().Add(time.Duration(seconds) * time.Second)
+		retryAt = &deadline
+	}
 	_, err := h.DB.Exec(ctx, `
 		INSERT INTO runtime_provider_usage_snapshot (
 			probe_target, runtime_id, workspace_id, daemon_id, provider, profile_id,
 			snapshot, last_attempt_at, last_success_at, last_error_code, updated_at
-		) VALUES ($1, $2::uuid, $3::uuid, $4, $5, $6::uuid, $7::jsonb, $8, $9, NULLIF($10, ''), $8)
+		) VALUES ($1, $2::uuid, $3::uuid, $4, $5, $6::uuid,
+			CASE WHEN $12::timestamptz IS NOT NULL THEN jsonb_set(COALESCE($7::jsonb, '{}'::jsonb), '{refresh_available_at}', to_jsonb($12::timestamptz)) ELSE $7::jsonb END,
+			$8, $9, NULLIF($10, ''), $8)
 		ON CONFLICT (probe_target) DO UPDATE SET
 			runtime_id = EXCLUDED.runtime_id,
 			workspace_id = EXCLUDED.workspace_id,
 			daemon_id = EXCLUDED.daemon_id,
 			provider = EXCLUDED.provider,
 			profile_id = EXCLUDED.profile_id,
-			snapshot = CASE WHEN $11 THEN EXCLUDED.snapshot ELSE runtime_provider_usage_snapshot.snapshot END,
+			snapshot = CASE
+				WHEN $11 THEN EXCLUDED.snapshot
+				WHEN $12::timestamptz IS NOT NULL THEN jsonb_set(COALESCE(runtime_provider_usage_snapshot.snapshot, '{}'::jsonb), '{refresh_available_at}', to_jsonb($12::timestamptz))
+				ELSE runtime_provider_usage_snapshot.snapshot END,
 			last_success_at = CASE WHEN $11 THEN EXCLUDED.last_success_at ELSE runtime_provider_usage_snapshot.last_success_at END,
 			last_error_code = EXCLUDED.last_error_code,
 			updated_at = EXCLUDED.updated_at
 	`, target.ProbeTarget, target.RuntimeID, target.WorkspaceID, target.DaemonID,
-		target.Provider, profileID, raw, now.UTC(), lastSuccess, errorCode, good)
+		target.Provider, profileID, raw, now.UTC(), lastSuccess, errorCode, good, retryAt)
 	if err != nil {
 		return fmt.Errorf("store provider usage result: %w", err)
 	}
@@ -312,9 +329,13 @@ func (h *Handler) readProviderUsageSnapshot(ctx context.Context, target Provider
 		return nil, fmt.Errorf("read provider usage snapshot: %w", err)
 	}
 	var snapshot ProviderUsageSnapshot
+	refreshAvailableAt := lastAttempt.UTC().Add(providerUsageCooldown)
 	if len(raw) > 0 {
 		if err := json.Unmarshal(raw, &snapshot); err != nil {
 			return nil, fmt.Errorf("decode provider usage snapshot: %w", err)
+		}
+		if snapshot.RefreshAvailableAt != nil && snapshot.RefreshAvailableAt.After(refreshAvailableAt) {
+			refreshAvailableAt = *snapshot.RefreshAvailableAt
 		}
 		// A custom profile keeps the same target when its provider changes.
 		// Never expose the previous provider's quota under the new identity;
@@ -334,6 +355,7 @@ func (h *Handler) readProviderUsageSnapshot(ctx context.Context, target Provider
 	}
 	attempt := lastAttempt.UTC()
 	snapshot.LastAttemptAt = &attempt
+	snapshot.RefreshAvailableAt = &refreshAvailableAt
 	if lastSuccess.Valid {
 		success := lastSuccess.Time.UTC()
 		snapshot.LastSuccessAt = &success
