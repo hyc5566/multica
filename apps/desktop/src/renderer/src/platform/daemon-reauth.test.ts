@@ -15,13 +15,14 @@ vi.mock("sonner", () => ({
   toast: { error: toastError },
 }));
 
-import { reauthenticateDaemon } from "./daemon-reauth";
+import { reauthenticateDaemon, startDaemonWithSession } from "./daemon-reauth";
 import type { DaemonTranslator } from "../components/daemon-i18n";
 
 const translations = {
   desktop: {
     daemon: {
       reconnect_failed: "無法重新連線 daemon",
+      start_failed: "啟動失敗",
       try_again_moment: "请稍后重试。",
       try_again: "请重试。",
     },
@@ -33,10 +34,15 @@ const t = ((selector: (resources: typeof translations) => string) =>
 
 const daemonAPI = {
   reauthenticate: vi.fn(),
+  setTargetApiUrl: vi.fn(),
+  syncToken: vi.fn(),
+  start: vi.fn(),
 };
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
+  Object.defineProperty(window, "desktopAPI", { configurable: true, value: { runtimeConfig: { ok: true, config: { apiUrl: "https://server.example" } } } });
+  daemonAPI.start.mockResolvedValue({ success: true });
   localStorage.clear();
   (window as unknown as { daemonAPI: typeof daemonAPI }).daemonAPI = daemonAPI;
   mockGetState.mockReturnValue({ user: { id: "user-1" }, logout });
@@ -112,5 +118,39 @@ describe("reauthenticateDaemon", () => {
 
     expect(logout).toHaveBeenCalledOnce();
     expect(daemonAPI.reauthenticate).not.toHaveBeenCalled();
+  });
+});
+
+describe("startDaemonWithSession", () => {
+  it("synchronizes the App session before starting through the bundled CLI", async () => {
+    localStorage.setItem("multica_token", "jwt-abc");
+    await startDaemonWithSession(t);
+    expect(daemonAPI.setTargetApiUrl).toHaveBeenCalledWith("https://server.example");
+    expect(daemonAPI.syncToken).toHaveBeenCalledWith("jwt-abc", "user-1");
+    expect(daemonAPI.setTargetApiUrl.mock.invocationCallOrder[0]).toBeLessThan(daemonAPI.syncToken.mock.invocationCallOrder[0]!);
+    expect(daemonAPI.syncToken.mock.invocationCallOrder[0]).toBeLessThan(daemonAPI.start.mock.invocationCallOrder[0]!);
+    expect(toastError).not.toHaveBeenCalled();
+  });
+
+  it("does not start or log out when credential synchronization fails", async () => {
+    localStorage.setItem("multica_token", "jwt-abc");
+    daemonAPI.syncToken.mockRejectedValue(new Error("Server unavailable"));
+    await startDaemonWithSession(t);
+    expect(daemonAPI.start).not.toHaveBeenCalled();
+    expect(logout).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledWith("啟動失敗", { description: "Server unavailable" });
+  });
+
+  it("requests login when the App session is missing", async () => {
+    await startDaemonWithSession(t);
+    expect(logout).toHaveBeenCalledOnce();
+    expect(daemonAPI.start).not.toHaveBeenCalled();
+  });
+
+  it("reports a failed daemon start", async () => {
+    localStorage.setItem("multica_token", "jwt-abc");
+    daemonAPI.start.mockResolvedValue({ success: false, error: "CLI unavailable" });
+    await startDaemonWithSession(t);
+    expect(toastError).toHaveBeenCalledWith("啟動失敗", { description: "CLI unavailable" });
   });
 });
