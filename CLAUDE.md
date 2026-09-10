@@ -257,3 +257,11 @@ Do not claim verification passed unless you ran it. If you skip checks because t
 
 - All queries filter by `workspace_id`; membership gates access; `X-Workspace-ID` selects the workspace.
 - Issue assignees are polymorphic: `assignee_type` plus `assignee_id` can reference a member or an agent.
+
+
+## Taiwan edition Server operations
+
+Before preparing or executing a Taiwan-edition Server deployment or handoff, read
+and follow [the Traditional Chinese Server handoff runbook](docs/server-handoff.zh-tw.md).
+Keep its prerequisites, verification, rollback and retirement steps in sync with
+`scripts/deploy/`; the runbook does not expand deployment authorization.
