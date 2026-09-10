@@ -132,3 +132,11 @@ bash scripts/lan-release/build.sh 0.4.41-zh-tw.4-rc.1 \
 此命令只建置本機 CLI、Server、migrator、來源包；Web image 依 `Dockerfile.web`，Backend image 依 `Dockerfile`，以同一 source commit 建置並存檔，不在正式發布時重新 build。Server Linux 包需要 PostgreSQL，先執行 migrate 才執行 server；一般部署使用現有 Docker entrypoint 自動 migration。
 
 繁中安裝擴充集中在 config API 的 `daemon_install_url`、shared config store 與「連接其他機器」dialog；未設定時沿用上游行為。重建繁中版時保留這個 runtime config 邊界與驗證 URL 的測試，不改寫登入的信任模型。原有繁中功能清單見 [zh-tw-maintenance.md](zh-tw-maintenance.md)。
+
+## Desktop 手動啟動與憑證恢復（候選功能）
+
+新設定預設關閉自動啟動；已有設定會保留原選擇。既有使用者可在「設定 → 守護程序」關閉自動啟動，再按「啟動」。這會使用 App 目前登入的帳號同步憑證，並呼叫 App 內嵌 CLI，不需要 terminal PATH 有 multica，也不需要手動指定 Desktop profile。
+
+若 desktop API token 被刪除，App session 仍有效時，啟動前會先確認 cached token；Server 明確回覆 401 才補發。網路失敗或 Server 暫時異常不視為 token 撤銷，也不會因此登出 App。若 App session 本身也過期，需重新登入。外部管理的 daemon 不提供此啟動操作。
+
+此修正尚未打包成新的 macOS App，亦未在 M5 驗證。既有 App 若出現 daemon 登入過期提示，可先使用其中的「重新登入」恢復憑證；這也是 App 內部流程，不依賴 PATH。
