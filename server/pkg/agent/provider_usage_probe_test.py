@@ -5,6 +5,7 @@ import importlib.util
 import json
 import os
 import pathlib
+import ssl
 import tempfile
 import unittest
 from unittest import mock
@@ -21,6 +22,18 @@ OBSERVED_AT = dt.datetime(2026, 8, 31, 10, 0, tzinfo=dt.timezone.utc)
 
 
 class ProviderUsageNormalizerTests(unittest.TestCase):
+    def test_codex_rejects_missing_or_unusable_windows(self) -> None:
+        for payload in (
+            {},
+            {"rate_limit": {}},
+            {"rate_limit": {"primary_window": {}}},
+            {"rate_limit": {"primary_window": {"used_percent": "unknown"}}},
+        ):
+            with self.subTest(payload=payload):
+                with self.assertRaises(probe.ProbeFailure) as failure:
+                    probe.normalize_codex(payload, OBSERVED_AT)
+                self.assertEqual(failure.exception.status, "error")
+
     def test_claude_normalizes_percent_windows(self) -> None:
         result = probe.normalize_claude(
             {
@@ -116,6 +129,41 @@ class ProviderUsageNormalizerTests(unittest.TestCase):
 
 
 class ProviderFetchTests(unittest.TestCase):
+    def test_provider_https_adds_public_roots_to_existing_private_ca_context(self) -> None:
+        for defaults_exist in (True, False):
+            with self.subTest(defaults_exist=defaults_exist):
+                context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+                context.load_verify_locations = mock.Mock()
+                paths = mock.Mock(
+                    openssl_cafile="/test/public-ca.pem", openssl_capath="/test/certs"
+                )
+
+                def default_context():
+                    # The default loader must still see the daemon's private CA.
+                    self.assertEqual(os.environ["SSL_CERT_FILE"], "/test/private-ca.pem")
+                    return context
+
+                with (
+                    mock.patch.dict(os.environ, {"SSL_CERT_FILE": "/test/private-ca.pem"}),
+                    mock.patch.object(probe.ssl, "create_default_context", side_effect=default_context),
+                    mock.patch.object(probe.ssl, "get_default_verify_paths", return_value=paths),
+                    mock.patch.object(probe.os.path, "isfile", return_value=defaults_exist),
+                    mock.patch.object(probe.os.path, "isdir", return_value=defaults_exist),
+                    mock.patch.object(probe.urllib.request, "urlopen") as request,
+                ):
+                    request.return_value.__enter__.return_value.read.return_value = b'{"ok":true}'
+                    self.assertEqual(probe.http_json(probe.CODEX_USAGE_URL, method="GET", headers={}), {"ok": True})
+
+                self.assertIs(request.call_args.kwargs["context"], context)
+                self.assertTrue(context.check_hostname)
+                self.assertEqual(context.verify_mode, ssl.CERT_REQUIRED)
+                if defaults_exist:
+                    context.load_verify_locations.assert_called_once_with(
+                        cafile="/test/public-ca.pem", capath="/test/certs"
+                    )
+                else:
+                    context.load_verify_locations.assert_not_called()
+
     def test_claude_uses_local_oauth_token_and_direct_usage_endpoint(self) -> None:
         limiter = mock.Mock()
         with (
