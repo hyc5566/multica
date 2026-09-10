@@ -138,6 +138,8 @@ interface DaemonAPI {
   setTargetApiUrl: (url: string) => Promise<void>;
   syncToken: (token: string, userId: string) => Promise<void>;
   clearToken: () => Promise<void>;
+  getDesktopTokenId: (token: string, userId: string) => Promise<string | null>;
+  rotateDesktopToken: (token: string, userId: string, id: string) => Promise<{ ok: boolean; message?: string }>;
   reauthenticate: (
     token: string,
     userId: string,
