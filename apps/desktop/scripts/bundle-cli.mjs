@@ -107,7 +107,7 @@ async function exists(p) {
 
 if (hasGo()) {
   const version =
-    git("describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty") ||
+    process.env.MULTICA_BUILD_VERSION || git("describe", "--tags", "--match", "v[0-9]*", "--always", "--dirty") ||
     "dev";
   const commit = git("rev-parse", "--short", "HEAD") || "unknown";
   const date = new Date().toISOString().replace(/\.\d+Z$/, "Z");

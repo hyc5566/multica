@@ -127,7 +127,7 @@ describe("ConnectRemoteDialog", () => {
       daemonInstallUrl: "https://downloads.example.com/v1/install.sh",
     });
     expect(baseElement).toHaveTextContent("curl -fsSL -- 'https://downloads.example.com/v1/install.sh' | bash");
-    const cli = '"$HOME/.local/bin/multica-zh-tw"';
+    const cli = '"$HOME/.local/bin/multica"';
     expect(baseElement).toHaveTextContent(`${cli} setup self-host --server-url https://api.example.com --app-url https://app.example.com`);
     for (const cmd of ["config set server_url", "config set app_url", "login --token", "daemon start", "daemon status", "daemon logs -f"]) {
       expect(baseElement).toHaveTextContent(`${cli} ${cmd}`);

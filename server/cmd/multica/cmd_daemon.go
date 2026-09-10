@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/fs"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -276,6 +277,9 @@ func openBoundedErrLog(path string) (*os.File, error) {
 // Default profile uses the standard port (19514). Named profiles get a
 // deterministic offset derived from the profile name.
 func healthPortForProfile(profile string) int {
+	if dynamicDaemonPort(profile) {
+		return readDaemonEndpoint(profile).Port
+	}
 	if profile == "" {
 		return daemon.DefaultHealthPort
 	}
@@ -355,6 +359,13 @@ func describeProfile(profile string) string {
 // field is present it is enforced strictly — including the empty string, which
 // is the default profile identifying itself, not a missing answer.
 func daemonIdentityMismatch(health map[string]any, profile string, port int) error {
+	if dynamicDaemonPort(profile) {
+		endpoint := readDaemonEndpoint(profile)
+		pid, _ := health["pid"].(float64)
+		if endpoint.Port != port || endpoint.PID <= 0 || int(pid) != endpoint.PID {
+			return &daemonProfileMismatchError{Want: profile, Port: port, Unreadable: true}
+		}
+	}
 	raw, ok := health["profile"]
 	if !ok {
 		return nil
@@ -560,7 +571,9 @@ func runDaemonBackground(cmd *cobra.Command) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	health := checkDaemonHealthOnPort(ctx, healthPort)
-	if daemonAlive(health) {
+	// A stale dynamic record may now point at an unrelated process. The
+	// lifetime lock below still prevents a second daemon for this user.
+	if daemonAlive(health) && (!dynamicDaemonPort(profile) || daemonIdentityMismatch(health, profile, healthPort) == nil) {
 		// A live daemon on our port that belongs to someone else is a
 		// collision, not an "already running" — starting would fail to bind
 		// and "already running" would send the user looking for a daemon of
@@ -688,10 +701,11 @@ func runDaemonBackground(cmd *cobra.Command) error {
 		case <-time.After(500 * time.Millisecond):
 		}
 		hctx, hcancel := context.WithTimeout(context.Background(), 2*time.Second)
+		healthPort = healthPortForProfile(profile)
 		health = checkDaemonHealthOnPort(hctx, healthPort)
 		hcancel()
 		lastStatus, _ = health["status"].(string)
-		if lastStatus == "running" {
+		if lastStatus == "running" && daemonIdentityMismatch(health, profile, healthPort) == nil {
 			started = true
 			break
 		}
@@ -702,7 +716,7 @@ func runDaemonBackground(cmd *cobra.Command) error {
 		} else {
 			fmt.Fprintf(os.Stderr, "Daemon may not have started successfully. Check logs:\n  %s\n  %s (crash output)\n", logPath, errLogPath)
 		}
-		return nil
+		return fmt.Errorf("daemon did not become ready within %s", startupTimeout)
 	}
 
 	if profile != "" {
@@ -1069,6 +1083,15 @@ func runDaemonForeground(cmd *cobra.Command) error {
 	cfg, err := daemon.LoadConfig(overrides)
 	if err != nil {
 		return err
+	}
+	if dynamicDaemonPort(profile) {
+		listener, release, err := reserveDaemonEndpoint(profile)
+		if err != nil {
+			return err
+		}
+		defer release()
+		cfg.HealthListener = listener
+		cfg.HealthPort = listener.Addr().(*net.TCPAddr).Port
 	}
 	cfg.CLIVersion = version
 	// Set by the Electron Desktop app when it spawns the CLI so the server

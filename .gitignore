@@ -79,3 +79,6 @@ data/
 __pycache__/
 *.pyc
 perf-report/
+
+# Generated LAN release trust resource
+/apps/desktop/resources/s90-ca.crt
