@@ -821,6 +821,60 @@ function errorMessage(err: unknown): string {
  * restart hiccup — is `transient`, leaving the user signed in so they can retry.
  * This mirrors the conservative classification the startup probe already uses.
  */
+// Resolve by this profile's credential, never by the user-editable token name.
+async function getDesktopTokenId(jwt: string, userId: string): Promise<string | null> {
+  const active = await ensureActiveProfile();
+  if (!active || await readProfileUserId(active.name) !== userId) return null;
+  const cfg = await readProfileConfig(active.name);
+  if (typeof cfg.token !== "string" || !cfg.token.startsWith("mul_")) return null;
+  const response = await fetch(`${targetApiBaseUrl!.replace(/\/+$/, "")}/api/tokens`, {
+    headers: { Authorization: `Bearer ${jwt}` }, signal: AbortSignal.timeout(10_000),
+  });
+  if (!response.ok) throw new Error("Cannot verify the Desktop token. Please retry after signing in.");
+  const rows = await response.json() as { id: string; token_prefix: string }[];
+  const matches = rows.filter(row => typeof row.token_prefix === "string" &&
+    row.token_prefix.length >= 8 && (cfg.token as string).startsWith(row.token_prefix));
+  if (matches.length > 1) throw new Error("Desktop token identity is ambiguous; no token was changed.");
+  return matches[0]?.id ?? null;
+}
+
+async function rotateDesktopToken(jwt: string, userId: string, id: string): Promise<{ ok: boolean; message?: string }> {
+  let saved = false;
+  try {
+    if (await getDesktopTokenId(jwt, userId) !== id) throw new Error("The selected token is no longer this App's Desktop token. Refresh and try again.");
+    const active = await ensureActiveProfile();
+    if (!active) throw new Error("Desktop profile unavailable.");
+    const status = await fetchHealth();
+    if (status.externallyManaged || !["running", "stopped", "auth_expired"].includes(status.state))
+      throw new Error("Daemon is busy or externally managed. Try again when it is idle.");
+    const health = await fetchHealthAtPort(active.port);
+    if (!health && existsSync(profilePidPath(active.name)))
+      throw new Error("Cannot confirm daemon task state. No token was changed.");
+    if (health && (health.status !== "running" || !health.pid || health.active_task_count !== 0))
+      throw new Error("Wait for running tasks to finish before replacing the Desktop token.");
+    const replacement = await mintPat(jwt);
+    await syncToken(replacement, userId);
+    saved = true;
+    setDesiredDaemonRunning(true, true);
+    const result = await restartDaemon();
+    if (!result.success) throw new Error("New token saved, but daemon restart failed. The old token has not been revoked; retry from daemon settings.");
+    let ready = false;
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const current = await fetchHealthAtPort(active.port);
+      if (current?.status === "running" && current.pid && current.server_url && urlsMatch(current.server_url, targetApiBaseUrl!) && (!health?.pid || current.pid !== health.pid)) { ready = true; break; }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    if (!ready) throw new Error("New token saved, but reconnect is not confirmed. The old token has not been revoked; check daemon settings.");
+    const revoked = await fetch(`${targetApiBaseUrl!.replace(/\/+$/, "")}/api/tokens/${encodeURIComponent(id)}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${jwt}` }, signal: AbortSignal.timeout(10_000),
+    });
+    if (!revoked.ok && revoked.status !== 404) throw new Error("Daemon reconnected with the new token, but revoking the old token failed. Delete the old token from the token list.");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, message: `${saved ? "" : "Old token retained. "}${errorMessage(error)}` };
+  }
+}
+
 async function reauthenticate(
   token: string,
   userId: string,
@@ -1395,6 +1449,9 @@ export function setupDaemonManager(
       }
     },
   );
+  ipcMain.handle("daemon:desktop-token-id", (_event, jwt: string, userId: string) => getDesktopTokenId(jwt, userId));
+  ipcMain.handle("daemon:rotate-desktop-token", (_event, jwt: string, userId: string, id: string) =>
+    lifecycleOperations.runForeground(() => rotateDesktopToken(jwt, userId, id)));
   ipcMain.handle("daemon:clear-token", () => {
     setDesiredDaemonRunning(false, true);
     return clearToken();

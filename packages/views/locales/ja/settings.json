@@ -699,6 +699,12 @@
       "cli_hint": "次のコマンドで CLI にログインできます:",
       "copy_command_tooltip": "コマンドをコピー",
       "done": "完了"
+    },
+    "desktop_rotation": {
+      "title": "Desktop API token を再生成しますか？",
+      "description": "この App の daemon はこの token を使用しています。新しい token で再接続してから古い token を無効にします。実行中のタスクが完了してから操作してください。キャンセルすると現在の token は保持されます。",
+      "confirm": "再生成して再接続",
+      "success": "Desktop token を更新し、daemon を再接続しました。"
     }
   },
   "workspace": {

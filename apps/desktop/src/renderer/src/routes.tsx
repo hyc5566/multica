@@ -29,6 +29,7 @@ import {
 import { SquadsPage, SquadDetailPage as SquadDetailPageView } from "@multica/views/squads/components";
 import { InboxPage } from "@multica/views/inbox";
 import { ChatPage } from "@multica/views/chat";
+import { desktopTokenControl } from "./platform/desktop-token-control";
 import { SettingsPage } from "@multica/views/settings";
 import { useT } from "@multica/views/i18n";
 import { Download, Server } from "lucide-react";
@@ -46,6 +47,7 @@ function DesktopSettingsRoute() {
   const { t } = useT("settings");
   return (
     <SettingsPage
+      desktopTokenControl={desktopTokenControl}
       extraDeviceTabs={[
         {
           value: "daemon",

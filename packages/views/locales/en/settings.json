@@ -701,6 +701,12 @@
       "cli_hint": "Sign in to the CLI with:",
       "copy_command_tooltip": "Copy command",
       "done": "Done"
+    },
+    "desktop_rotation": {
+      "title": "Regenerate Desktop API token?",
+      "description": "This App uses this token to sign in its daemon. Regenerate and reconnect? The old token is revoked only after the replacement is connected. Wait for running tasks to finish first. Cancel keeps the existing token.",
+      "confirm": "Regenerate and reconnect",
+      "success": "Desktop token replaced and daemon reconnected."
     }
   },
   "workspace": {
