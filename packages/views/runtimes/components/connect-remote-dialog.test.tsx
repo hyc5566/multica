@@ -44,6 +44,7 @@ function resetConfigStore() {
     googleClientId: "",
     daemonServerUrl: "",
     daemonAppUrl: "",
+    daemonInstallUrl: "",
     workspaceCreationDisabled: false,
   });
 }
@@ -51,6 +52,7 @@ function resetConfigStore() {
 function renderDialog(config?: {
   daemonServerUrl?: string;
   daemonAppUrl?: string;
+  daemonInstallUrl?: string;
 }) {
   resetConfigStore();
   if (config) {
@@ -116,5 +118,38 @@ describe("ConnectRemoteDialog", () => {
       ).toBeInTheDocument();
     });
     expect(baseElement).not.toHaveTextContent("multica setup");
+  });
+
+  it("uses the operator installer and isolated wrapper for every daemon command", () => {
+    const { baseElement } = renderDialog({
+      daemonServerUrl: "https://api.example.com/",
+      daemonAppUrl: "https://app.example.com/",
+      daemonInstallUrl: "https://downloads.example.com/v1/install.sh",
+    });
+    expect(baseElement).toHaveTextContent("curl -fsSL -- 'https://downloads.example.com/v1/install.sh' | bash");
+    const cli = '"$HOME/.local/bin/multica-zh-tw"';
+    expect(baseElement).toHaveTextContent(`${cli} setup self-host --server-url https://api.example.com --app-url https://app.example.com`);
+    for (const cmd of ["config set server_url", "config set app_url", "login --token", "daemon start", "daemon status", "daemon logs -f"]) {
+      expect(baseElement).toHaveTextContent(`${cli} ${cmd}`);
+    }
+    expect(baseElement).not.toHaveTextContent("<YOUR_TOKEN>");
+  });
+
+  it("ignores an unsafe installer URL from a malformed server response", () => {
+    const { baseElement } = renderDialog({
+      daemonInstallUrl: "https://downloads.example.com/install.sh'; touch /tmp/injected; '",
+    });
+    expect(baseElement).toHaveTextContent("https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh");
+    expect(baseElement).not.toHaveTextContent("/tmp/injected");
+    expect(baseElement).not.toHaveTextContent("multica-zh-tw");
+  });
+
+  it("shell-quotes configured setup URLs", () => {
+    const { baseElement } = renderDialog({
+      daemonServerUrl: "https://api.example.com/$(touch injected)",
+      daemonAppUrl: "https://app.example.com/a'b",
+    });
+    expect(baseElement).toHaveTextContent("--server-url 'https://api.example.com/$(touch injected)'");
+    expect(baseElement).toHaveTextContent("--app-url 'https://app.example.com/a'\\''b'");
   });
 });

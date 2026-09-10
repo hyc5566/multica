@@ -738,6 +738,7 @@ export interface AppConfigResponse {
   posthog_host?: string;
   analytics_environment?: string;
   daemon_server_url?: string;
+  daemon_install_url?: string;
   daemon_app_url?: string;
   workspace_creation_disabled?: boolean;
   /** Whether this deployment offers the self-hosted Git provider integration
@@ -958,6 +959,7 @@ export const AppConfigSchema = z.object({
   posthog_host: OptionalStringSchema,
   analytics_environment: OptionalStringSchema,
   daemon_server_url: OptionalStringSchema,
+  daemon_install_url: OptionalStringSchema,
   daemon_app_url: OptionalStringSchema,
   workspace_creation_disabled: BooleanWithDefaultSchema(false).optional(),
   vcs_integration_available: BooleanWithDefaultSchema(false).optional(),
@@ -974,6 +976,7 @@ export const EMPTY_APP_CONFIG: AppConfigResponse = {
   allow_signup: true,
   google_client_id: "",
   daemon_server_url: "",
+  daemon_install_url: "",
   daemon_app_url: "",
   workspace_creation_disabled: false,
   vcs_integration_available: false,

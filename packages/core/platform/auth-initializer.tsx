@@ -78,6 +78,7 @@ export function AuthInitializer({
         configStore.getState().setDaemonConfig({
           daemonServerUrl: cfg.daemon_server_url,
           daemonAppUrl: cfg.daemon_app_url,
+          daemonInstallUrl: cfg.daemon_install_url,
         });
         configStore.getState().setFeatureFlags(cfg.feature_flags);
         configStore.getState().setServerVersion(cfg.server_version);
