@@ -4,7 +4,7 @@
         root * /srv/releases
         file_server
     }
-    @backend path /api/* /auth/* /ws /ws/* /health /uploads/* /oauth/* /webhooks/*
+    @backend path /api/* /auth/send-code /auth/verify-code /auth/google /auth/logout /ws /ws/* /health /uploads/* /oauth/* /webhooks/*
     handle @backend {
         reverse_proxy backend:8080
     }
