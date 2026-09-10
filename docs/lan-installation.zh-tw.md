@@ -181,3 +181,10 @@ s90 本機 daemon 的 `http://127.0.0.1:45673` 是直接 backend 入口；其他
 新安裝使用 `~/.local/bin/multica` launcher，內建網址與 CA 處理，但不指定 profile 名稱。這是命令列入口，不是 macOS GUI App。設定屬於目前 OS 帳號，預設位於 `~/.multica/config.json`。
 
 具名 CLI profile 是同一 OS 帳號下不同連線／設定組合：可保存不同 Server、Multica 登入 token、預設工作區及 daemon 參數。它不切換 Linux 使用者，也不等於 Agent 人格；工作區是 Server 上的協作空間，同一登入可存取多個工作區。多個具名 profile 共用 state root 的 daemon ID，不能當成 OS 安全邊界。只有需要同帳號管理不同 Server／登入設定時才手動使用 `--profile`。
+
+
+### 每人、多台機器的安裝模型
+
+每位使用者有一個 Multica Server 帳號，可在 v6、s234、s90 各自的 OS 帳號下運行一個 daemon。每台機器獨立安裝、保留自己的 daemon 身分與 API token；不複製整份 ~/.multica 到其他機器。同一登入可參與多個 Server 工作區，工作區不等於本機工作目錄。
+
+新安裝器明確設定 workspaces_root=$HOME/.multica/workspaces；config/token 為 ~/.multica/config.json，task checkout 與執行環境在 workspaces/ 子目錄。程式原本的 ~/multica_workspaces fallback 不在本次全域修改，既有安裝不搬移。~/.multica 可能含原始碼、產物及憑證，不是可以任意整包清除的 cache，也不應跨機器共用同一個可寫 state root。
