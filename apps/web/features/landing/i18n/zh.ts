@@ -5,14 +5,11 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
         header: {
             github: heade,
             hero: {
-                headlineLine1: b, ",: na,
-                headlineLine2: bfc, u822,
+                headlineLine1: b, ",: na,: headlineLine2, bfc, u822,
                 subheading: "\u6253\u5f00\u5bfc\u822a\u83dc\u5355",
-                closeMenu: "\u5173\u95ed\u5bfc\u8,,
-                cta: u5355, ",,: downloadDesktop, eadlineL,
-                talkToSales: 4, \u4e0b,
-                worksWith: 58, \u5de5, ",: headli,
-                imageAlt: d\u662f\u4eba\u7c7b, u3002, ",: 
+                closeMenu: "\u5173\u95ed\u5bfc\u8,,,
+                cta: u5355, ",,: downloadDesktop, eadlineL,: talkToSales, 4: , \u4e0b,
+                worksWith: 58, \u5de5, ",: headli,: imageAlt, d\u662f\u4eba\u7c7b, u3002, ",: : 
             },
             features: {
                 teammates: {
@@ -22,12 +19,11 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
                     cards: [
                         {
                             title: b9\u7ba1\u7406, u4,
-                            description: 智能体, \u56e2\u961f, u3002, ",: cta, "免费开始": ,
-                            downloadDeskt
+                            description: 智能体, \u56e2\u961f, u3002, ",: cta, ": 免费开始, ": ,: downloadDeskt
                         },
                         {
                             title: work,
-                            description: ",,
+                            description: ",,,
                             imageAlt: "Multica \u770b\u677f\u89c6\u56fe
                         },
                         {
@@ -45,51 +41,55 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
                     label: 540, c, u4,
                     title: 7, \u5206\u914d\u7ed9, 智能体,
                     description: ,
-                    "智能体 \u4e0d\u662f\u88ab\u52a8\u5de5\u5177\u2014\u2014\u5b83\u4eec\u662f\u,: cards, [{
-                        title: eec\u62e5, u6,
-                        description: 599, u3001\u62a5\u544a\u72b6\u6001, u3001\u521b\u5efa\u4efb\u52a1
-                    },
-                        {
-                            title: f4\u65b0,
-                            description: u7684\u6d3b\u52a8\u6d41\u5c55\u793a\u4eba\u7c7b\u548c
-                        },
-                        {
-                            title: card,
-                            description: title, "智能体 \u51fa\u73b0\u5728\u6307\u6d3e\u4eba\u9009\u62e9\u: 
-                        }]: 
-                },
-                skills: {
-                    label: \u7c7b,
-                    title: 1, fa\u73b0\u5728\u540c,
-                    description: 62, c9\u83dc\u5355\u91cc, u3002\u628a\u4efb\u52a1\u5206\u914d\u7ed9, 智能体, \u548c,
-                    cards: [
-                        {
-                            title: u4efb\u4f55,
-                            description: 
-                        },
-                        {
-                            title: "\u81ea\u4e3b\u53c2\u4e0e",
-                        },
-                        {
-                            title: \u4e3b
-                        },
-                        description, u52a1, u3001\u53d1\u8868\u8bc4\u8bba, u3001, u66
-                    ]
+                    "智能体 \u4e0d\u662f\u88ab\u52a8\u5de5\u5177\u2014\u2014\u5b83\u4eec\u662f\u,: cards, [{: title, eec\u62e5, u6,
+                    description: 599, u3001\u62a5\u544a\u72b6\u6001, u3001\u521b\u5efa\u4efb\u52a1
                 },
             }
         }
     };
     {
-        title: u4e0d;
-        u,
+        title: f4\u65b0,
             description;
-        63;
-        d0\u793a\u65f6\u624d\u884c\u52a8;
-        u3002;
-        ",;
+        u7684\u6d3b\u52a8\u6d41\u5c55\u793a\u4eba\u7c7b\u548c;
     }
     {
+        title: card,
+            description;
+        title, "智能体 \u51fa\u73b0\u5728\u6307\u6d3e\u4eba\u9009\u62e9\u: ;
     }
+}
+skills: {
+    label: \u7c7b,
+        title;
+    1, fa\u73b0\u5728\u540c,
+        description;
+    62, c9\u83dc\u5355\u91cc, u3002\u628a\u4efb\u52a1\u5206\u914d\u7ed9, 智能体, \u548c,
+        cards;
+    [
+        {
+            title: u4efb\u4f55,
+            description: 
+        },
+        {
+            title: "\u81ea\u4e3b\u53c2\u4e0e",
+        },
+        {
+            title: \u4e3b
+        },
+        description, u52a1, u3001\u53d1\u8868\u8bc4\u8bba, u3001, u66
+    ];
+}
+;
+{
+    title: u4e0d;
+    u,
+        description;
+    63;
+    d0\u793a\u65f6\u624d\u884c\u52a8;
+    u3002;
+    ",;;
+}
+{
 }
 runtimes: {
     label: bf;
@@ -115,20 +115,20 @@ runtimes: {
         ,
         description, bel, "\u81ea\u4e3b\u6267\u884c",
         title, "\
-                    },,
+                    },,,
         {
             title: 6, u2014, u2,
-            description: 1, \u89c9\u65f6\u5de5\u4f5c, ",: description,
-            "不只是提示-响应。完整的 task 生命周期管理：入队、领取、启动、完成或失败。智能体 主动报告阻塞，你通过 WebSocket 获取实时进度。": ,
-            cards: [
-                {
-                    title: "\u5b8c\u6574\u7684\u4efb\u52a1\u751f\u547d\u5468\u671f",
-                    description: "\u6bcf\u4e2a\u4efb\u52a1\u
-                }
-            ]
-        }
+            description: 1, \u89c9\u65f6\u5de5\u4f5c, ",: description,: "不只是提示-响应。完整的 task 生命周期管理：入队、领取、启动、完成或失败。智能体 主动报告阻塞，你通过 WebSocket 获取实时进度。"
+        },
+        cards, [
+            {
+                title: "\u5b8c\u6574\u7684\u4efb\u52a1\u751f\u547d\u5468\u671f",
+                description: "\u6bcf\u4e2a\u4efb\u52a1\u
+            }
+        ]
     ];
 }
+;
 howItWorks: {
     label: 8;
     u219,
@@ -142,7 +142,7 @@ howItWorks: {
     steps: [
         {
             title: allowSignup ? 62 : , \u90fd\u88ab: 8, ddf\u8e2a, u,
-            description: allowSignup ? title : "\u4e3b\u52a8\u62a5\u544a\u :,
+            description: allowSignup ? title : "\u4e3b\u52a8\u62a5\u544a\u :,,
             description: "\u5f
         },
         {
@@ -154,7 +154,7 @@ howItWorks: {
 {
     title: "\u5b9e\u65f6\u8fdb\u5ea6\u63a8\u9001",
         description;
-    "\u57fa\u4e8e WebSocket \u7684\u5b9e\u65f6\u66f4\u65b0\u3002\u5b9e\u65f6\u89c2\u;
+    "\u57fa\u4e8e WebSocket \u7684\u5b9e\u65f6\u66f4\u65b0\u3002\u5b9e\u65f6\u89c2\u;;
 }
 {
     title: \u968f\u65f6;
@@ -162,14 +162,14 @@ howItWorks: {
         description;
     \u65f6\u95f4\u7ebf\u59cb\u7ec8\u662f\u6700\u65b0\u7684;
     u3002;
-    ";
+    ";;
 }
 {
     title: skills: {
         description: u5e93;
-        ",;
+        ",;;
         title: "\u6bcf\u4e2a\u89e3\u51b3\u65b9\u6848\u90fd\
-                };
+                };;
         cta: 61;
         f;
         u53,
@@ -205,7 +205,7 @@ howItWorks: {
             },
             {
                 title: {},
-                description: f\u590d\u7528\u7684\u6280\u80fd\u5b9a\u4e49, ",: 
+                description: f\u590d\u7528\u7684\u6280\u80fd\u5b9a\u4e49, ",: : 
             },
             {
                 title: u77e5, u,
@@ -232,7 +232,7 @@ howItWorks: {
 {
     title: "\u590d\u5408\u589e\u957f",
         description;
-    "\u7b2c 1 \u5929\uff1a\u4f60\u6559 智能体 \u90e8\u7f72\u3002\u7b2c ;
+    "\u7b2c 1 \u5929\uff1a\u4f60\u6559 智能体 \u90e8\u7f72\u3002\u7b2c ;;
 }
 {
     question: fd\u80fd\u90e8;
@@ -254,7 +254,7 @@ howItWorks: {
 }
 runtimes: {
     answer: u884c\u65f6;
-    ",;
+    ",;;
     title: "\u4e00\u4e2a\u63a7\u5236\u53f0\u7ba1\u7406\u6240\u6709\u7b97\u529b",
     ;
 }
@@ -285,7 +285,7 @@ runtimes: {
     AI;
     \u7f16\u7a0b\u5de5\u5177;
     u3002;
-    ",;
+    ",;;
     cards: [
         {}
     ];
@@ -293,7 +293,7 @@ runtimes: {
 footer: {
     tagline: 6;
     \u9762\u677f;
-    ",;
+    ",;;
     description: 
         ,
             cta;
@@ -311,7 +311,7 @@ footer: {
                 { label: ba1, u74, href: c\u9762\u4e4b, u9 },
                 { label: , },
                 href, {},
-                { label: e\u65f6, href: u63a7, ",: 
+                { label: e\u65f6, href: u63a7, ",: : 
                 },
                 { label: , href: 728, \u7ebf } / , u
             ];
@@ -326,7 +326,7 @@ footer: {
             { label: 529, b, u, href: githubUrl },
             { label:  },
             {},
-            href, title, "\u9996\u6b21\u54 },,
+            href, title, "\u9996\u6b21\u54 },,,
             { label: 6, ce8\u518c, href: discordUrl }
         ];
     }
@@ -404,7 +404,7 @@ about: {
                 {
                     title: "\u5b89\u88c5 CLI \u5e76\u8fde\u63a5\u4f60\u7684\u673a\u5668",
                     description: ,
-                    "运行 multica setup——它会引导你完成 OAuth 登录、启动守护进程、并扫描 26 款支持的 AI 编程工具（Antigravity、Claude Code、Co: 
+                    "运行 multica setup——它会引导你完成 OAuth 登录、启动守护进程、并扫描 26 款支持的 AI 编程工具（Antigravity、Claude Code、Co: : 
                 }
             ],
             cta: Codex, Copilot, C,
@@ -629,11 +629,10 @@ entries: [
     },
     date, 2, c\u4e00, u4e2,
     title, description,
-    "\u7ed9\u5b83\,,
+    "\u7ed9\u5b83\,,,
     changes, [],
     features, [
-        u6307\u4ee4, uff0c\u9644\u52a0\u6280, u, 0, fd, uff0c\u8bbe\u7f6e\u89e6\u53d1\u5668, , 3002, \u9009\u62e9\u5b83\u4f55\u65f6\u6fc0, , 6, d3b, uff1a\u88ab\u6307\u6d3e\u65f6, u3001, u67, 9, \u8bc4\u8bba\u65f6, u3001\u88ab, , u63d0\u53ca\u65f6, u3002, ",,
-        ,
+        u6307\u4ee4, uff0c\u9644\u52a0\u6280, u, 0, fd, uff0c\u8bbe\u7f6e\u89e6\u53d1\u5668, , 3002, \u9009\u62e9\u5b83\u4f55\u65f6\u6fc0, , 6, d3b, uff1a\u88ab\u6307\u6d3e\u65f6, u3001, u67, 9, \u8bc4\u8bba\u65f6, u3001\u88ab, , u63d0\u53ca\u65f6, u3002, ",,,
         {
             title: "\u630, \u6d3e\u4e00\u4e2a\u4efb\u52a1\u5e76\, 89c2\u5bdf\u5b83\u5de5\u4f5c",
             description: ,
@@ -645,16 +644,14 @@ entries: [
         }
     ],
     improvements, [
-        同事一样, task, 自动入队, 领取, 执行, 实时观看进度, ",,
-        ,
+        同事一样, task, 自动入队, 领取, 执行, 实时观看进度, ",,,
     ],
     cta, "\u5f00\u59cb\u4, 7f\u7528",
     ctaGithub, "\u5728 GitHub \u4e0a\u67e5\u770b",
 ],
     fixes;
 [
-    6587, \u6863, ",,
-    ,
+    6587, \u6863, ",,,
     openSource, ,
     label, "源码公开",
     headlineLine1, , "每一行代码，",
@@ -673,9 +670,7 @@ entries: [
     ,
     {
         version: f9b\u5e94,
-        date: b9a, ",: ,
-        title: "\u81ea\u5e26 LLM \u63d0\u4f9b\u55,,
-        changes: [],
+        date: b9a, ",: ,: title, "\u81ea\u5e26 LLM \u63d0\u4f9b\u55,,: changes, []: ,
         features: [
             1, \u6269\u5c55, API, u3002\u4f60\u62e5\u6709\u6574, u4e2a\u6280\u672f\u6808\u7684\u63a7, u5, 36, \u6743, u3002, ",
         ]
@@ -696,12 +691,11 @@ entries: [
 ],
     fixes;
 [
-    智能体, \u5982\u4f55\u505a\u51b3\u7b56, u3001, u, efb\u52a1\u5982\u4f55\u8def, u753, u3001\u6570\u636e\u6d41\u5411\u4f55\u65b9, u3, 2, ",,
-    ,
+    智能体, \u5982\u4f55\u505a\u51b3\u7b56, u3001, u, efb\u52a1\u5982\u4f55\u8def, u753, u3001\u6570\u636e\u6d41\u5411\u4f55\u65b9, u3, 2, ",,,
     {
         title: "\u7, 3e\u533a\u9a71\u52a8",
         description: ,
-        "\u4e0e\u793e\u533a\u4e00\u8d77\u5e: 
+        "\u4e0e\u793e\u533a\u4e00\u8d77\u5e: : 
     }
 ];
 {
@@ -729,7 +723,7 @@ entries: [
     [
         {
             question: "\u9700\u8981\u81ea\u625, \u7ba1\u5417\uff0c\u8fd8\u662f\u6709\u4e91\, 7248\u672c\uff1f",
-            answer: ", u4e24\u8005\u90fd\u6709\u3002\u4f60\u53ef, u4ee5\u7528 Docker Compose \u6216 Ku, ernetes \u5728\u81ea\u5df1\u7684\u57fa\u7840, u8bbe\u65bd\u4e0a\u81ea\u6258\u7ba1 Mu, tica\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528\u62, 1\u4eec\u7684\u6258\u7ba1\u4e91\u7248\u67,,
+            answer: ", u4e24\u8005\u90fd\u6709\u3002\u4f60\u53ef, u4ee5\u7528 Docker Compose \u6216 Ku, ernetes \u5728\u81ea\u5df1\u7684\u57fa\u7840, u8bbe\u65bd\u4e0a\u81ea\u6258\u7ba1 Mu, tica\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528\u62, 1\u4eec\u7684\u6258\u7ba1\u4e91\u7248\u67,,,
             "Autopilot 创建的 Issue 会记录在活动里。": ,
             "访客身份的小队负责人会被正常唤醒并接手工作。": ,
             "企业微信的回复没送回来时，能查出是哪里丢的。": 
@@ -758,12 +752,12 @@ entries: [
 }
 {
     question: 
-        , "\u8fd9\u548c\u76f4\u63a5\u7528\u7f16\,;
+        , "\u8fd9\u548c\u76f4\u63a5\u7528\u7f16\,;;
     "评论和回复都能复制直链，打开后会定位并高亮它。",
         "企业微信的回答会回在你提问的那条消息里。",
         "自托管可以改用 Gitea 或其兼容镜像获取更新。";
     improvements: [
-        522, b, uff1f, ",,
+        522, b, uff1f, ",,,
         answer,
         ,
         "\u7f16\u7801 智能体 \u64c
@@ -793,7 +787,7 @@ entries: [
 {
     question: , "智能体 \u80fd\u81ea\u4e3b\u5904\u7406\, 957f\u65f6\u95f4\u4efb\u52a1\u, 417\uff1f",
         answer;
-    "\u53ef\u4ee5\u3002Multica \u7ba1\,;
+    "\u53ef\u4ee5\u3002Multica \u7ba1\,;;
     "Autopilot 的每条日程都能单独编辑或暂停，不用删掉重建。";
     improvements: [
         u751f\u547d\u5468\u671f, u2014, u2014\u5165, , 961, f, u3001\u9886\u53d6, u3001\u6267, u8, 4, c, u3001\u5b8c\u6210\u6216\u5931, u,
@@ -807,7 +801,7 @@ entries: [
 {
     question: "\u6211\u7684\u4ee3\u7801\u5b89\, 5168\u5417\uff1f智能体 \u5728\u54ea\u91cc\u6267\u884c\uf, 1f",
         answer;
-    "智能体在你, 机器（通过本地守护进程）或你连接的运行时上运行，直接在你的代码仓库里工作。工作,;
+    "智能体在你, 机器（通过本地守护进程）或你连接的运行时上运行，直接在你的代码仓库里工作。工作,;;
     "桌面端能找到你自己装的命令行工具，CodeBuddy 的回复也完整显示。",
         "Windows 上的运行会按你设置的路径找工具。",
         "私有运行时不再因为归属对不上而无法使用。",
@@ -828,33 +822,33 @@ entries: [
         title;
     Multica;
     详见[隐私政策](/privacy);
-    ",;
+    ",;;
 }
 {
     changes: [],
         features;
     [
-        84, c\u591a\u5c11\u4e2a, 智能体, uff1f, ",,
+        84, c\u591a\u5c11\u4e2a, 智能体, uff1f, ",,,
         an, wer,
         "\u53d6\u51b3\u4e8e\u4, 60\u7684\u786c\u4ef6\u3002\u6bcf\u4e, a 智能体 \u6709\u53ef\u914d\u7f6e\u7684\u5e76\u53d1\u, 650\u5236\uff0c\u4f60\u53ef\u, ee5\u8fde\u63a5\u591a\u53f0\u673a\u5668\u4f5c\u4e3a\, 8fd0\u884c\u65f6\u3002自托管时没有任何人为限制。",
     ];
 }
 "自托管服务端每天发一次匿名部署概况，可用 DO_NOT_TRACK=1 关闭。";
 improvements: [
-    "\u4eba\u7c7b + 智能体 团队的项目管理。源, 公开、可自托管、\u4e3a\u672a\u6765\u7684\, 5de5\u4f5c\u65b9\u5f0f\u800c\u5e,,
+    "\u4eba\u7c7b + 智能体 团队的项目管理。源, 公开、可自托管、\u4e3a\u672a\u6765\u7684\, 5de5\u4f5c\u65b9\u5f0f\u800c\u5e,,,
     "Issue 里的智能体步骤会预览这一步在处理什么。",
     "Issue 列表刷新时会在页面标题上标出，快速刷新不再闪。",
     "智能体发很长的最终评论时收尾更快。"
 ],
     fixes;
 [
-    59, cb\u4f7f\u7528, ",,
+    59, cb\u4f7f\u7528, ",,,
     groups, {
         prod, ct: {
             label: "\u4ea7\u54c1",
         },
         links: [
-            { label: "\u529f, u80fd\u7279\u6027", href: "#features, }, },
+            { label: "\u529f, u80fd\u7279\u6027", href: "#features, }, }, },
             { label: "\u5982\u4f, 5\u5de5\u4f5c", href: "#how-it-works" },
             ,
             { label: "\u6848\u4f8b", href: "/usecases" }, ,
@@ -891,7 +885,7 @@ improvements: [
         { label: "授权说明", href: "/licensing" },
         ,
         { label: "隐私政策", href: "/privacy", },
-        { label: "\u8054\u7cfb\u,,
+        { label: "\u8054\u7cfb\u,,,
             "运行历史里能看到是谁取消了任务。": ,
             "命令行可以直接设置或清空智能体的开场建议。": ,
             "GPT-6 Astra 已可选用，并附公开价格。": ,
@@ -905,7 +899,7 @@ improvements: [
     ,
     ,
     copyright, "\u00a9 {year, Multica. \u4fdd\u7559\u6240\u6709\
-                    ],,
+                    ],,,
     fixes, [
         x, "Multica\u2014\u2014",
         mult, "Mult",
@@ -919,7 +913,7 @@ improvements: [
         gent, "gent\u3002",
         ,
         paragraph, [
-            "\u8fd9\u4e2a\u540d\u5b5, \u662f\u5728\u5411 20 \u4e16\u7eaa 60 \u5e74, u4ee3\u5177\u6709\u5f00\u521b\u610f, u4e49\u7684\u64cd\u4f5c\u7cfb\u7edf,,
+            "\u8fd9\u4e2a\u540d\u5b5, \u662f\u5728\u5411 20 \u4e16\u7eaa 60 \u5e74, u4ee3\u5177\u6709\u5f00\u521b\u610f, u4e49\u7684\u64cd\u4f5c\u7cfb\u7edf,,,
             "Issue 里的智能体运行按实际发生的时间排列。",
             "内容很长的弹窗仍然能点到底部的按钮。",
             "Codex 环境准备失败时会直接停下，不再复用。",
@@ -936,7 +930,7 @@ improvements: [
                 40, c\u65f6\u53c8\u50cf\u5404\u81ea\u72ec\u5360, u, b83\u4e00\u6837\u4f7f\u7528, u3002Unix, u5219\u662f\u5728\u6709\u610f\u7b80, u, 316, Multics, \u7684\u57fa\u7840\u4e0a\u8bde, u751
             ],
             improvements: [
-                54, f2\u5b66, u3002, ",,
+                54, f2\u5b66, u3002, ",,,
                 "\u6211\u4eec\, 8ba4\u4e3a\uff0c\u7c7b\u4f3c\u7684\u
             ],
             fixes: [
@@ -955,9 +949,9 @@ improvements: [
             title: 1, a\u8def\u590d\u7528\u7684, u201c, u,
             changes: [],
             features: [
-                4e, ba\u7c7b, uff0c\u4e5f\u5305\u62ec\u81ea, , 4e3, b\u4ee3\u7406, u3002, ",,
+                4e, ba\u7c7b, uff0c\u4e5f\u5305\u62ec\u81ea, , 4e3, b\u4ee3\u7406, u3002, ",,,
                 "在 Multica 中, agents 是一级团队成员。它们会被分配任务，汇报进展，提出阻塞，并交付代码，就像人, 同事一样。任务分配、活动时间线、task 生命周期，以及运行时基础设施，, ultica 从第一天起就是围绕这一理念构建的。",
-                ",,
+                ",,,
                 "命令行里的自定义属性会直接显示名称，不再只有 ID。",
                 "命令行可以查看智能体每次运行的用量和花费。",
                 "命令行可以只取需要的 Issue 字段，返回内容更短。"
@@ -966,7 +960,7 @@ improvements: [
                 e00\u6837, uff0c\u8fd9\u4e00\u5224\u65ad, , 5e, fa\u7acb\u5728, u201c\u591a\u8def, u590, \u7528, u201d\u4e4b\u4e0a, u3002\u4e00\u4e2a, u5c0, \u56e2\u961f\u4e0d\u8be5\u56e0, u4e
             ],
             fixes: [
-                63e, \u5f97\u80fd\u529b\u6709\u9650, u3002, u6, 9, \u4e86\u5408\u9002\u7684\u7cfb\u7edf, uff0, \u4e24\u540d\u5de5\u7a0b\u5e08\u52a0, u4, 0, a\u4e00\u7ec4, agents, uff0c, u, c31\u80fd\u53d1\u6325\u51fa\u4e8c, , 5341, \u4eba\u56e2\u961f\u7684\u63a8\u8fdb, u901f\u5ea6, u3002, ",,
+                63e, \u5f97\u80fd\u529b\u6709\u9650, u3002, u6, 9, \u4e86\u5408\u9002\u7684\u7cfb\u7edf, uff0, \u4e24\u540d\u5de5\u7a0b\u5e08\u52a0, u4, 0, a\u4e00\u7ec4, agents, uff0c, u, c31\u80fd\u53d1\u6325\u51fa\u4e8c, , 5341, \u4eba\u56e2\u961f\u7684\u63a8\u8fdb, u901f\u5ea6, u3002, ",,,
                 "Multica 的源代码公开, 并且可以免费自托管，工作区数据始终保存在你自己的基础设施中。\u4, 60\u53ef\u4ee5\u5ba1\u67e5\u6bcf
             ]
         },
@@ -990,7 +984,7 @@ improvements: [
                 ],
                 contacts, [
                     { label: "商业, 权与合作", linkLabel: "联系商务", href: "/cont, ct-sales" },
-                    { label, "授权规则": , linkLabel: "授权说明", href: "/lic }
+                    { label, "授权规则": , linkLabel: "授权说明", href: "/lic } }
                 ]
             ]
         },
@@ -1001,16 +995,15 @@ improvements: [
     ,
     date, censing, {},
     title, intro, [
-        "Multica ,,
+        "Multica ,,,
         changes, [],
         features, [
-            ltica - ai / multica / blob / main / LICENSE, 发布, 在, Apache, License, 2.0, 的基础上附加了几项条件, 源代码公, 在你自己的组织内部使用, Multica, 是免费的, 包括为整个团队自托, ",,
-            "最主要的附加条件针对托管使用：把 Mul,,
+            ltica - ai / multica / blob / main / LICENSE, 发布, 在, Apache, License, 2.0, 的基础上附加了几项条件, 源代码公, 在你自己的组织内部使用, Multica, 是免费的, 包括为整个团队自托, ",,,
+            "最主要的附加条件针对托管使用：把 Mul,,,
             "也能找出某个自定义属性还没填的 Issue。"
         ],
         improvements, [
-            说明这条线划在哪里, 这是一份通俗说明, 不构成法律意见, 如与, L, CENSE, 原文不一致, 以, LICENSE, 为准, ",,
-            ,
+            说明这条线划在哪里, 这是一份通俗说明, 不构成法律意见, 如与, L, CENSE, 原文不一致, 以, LICENSE, 为准, ",,,
             rule, {
                 title: "一条判
             }
@@ -1037,13 +1030,12 @@ improvements: [
             ,
             {
                 version: ,
-                date: 训, 咨询或定制开发, ",: ,
-                title: ed, false: ,
+                date: 训, 咨询或定制开发, ",: ,: title, ed, false: ,
             },
             changes, [],
             features, [
-                ltica, 为客户干活, 客户只收到交付物, ",,
-                examp, e, "例如 agency 在 Multica 里管理内容生产，向客户交付成品。,,
+                ltica, 为客户干活, 客户只收到交付物, ",,,
+                examp, e, "例如 agency 在 Multica 里管理内容生产，向客户交付成品。,,,
                 "可以使用 Fable 5.1，定价也已经补齐。",
                 "Issue 可以按自定义的文本、数字、日期和 URL 属性包含什么来筛选。",
                 "数字和日期属性还可以按区间筛选。",
@@ -1067,7 +1059,7 @@ improvements: [
                 ,
                 {
                     scenario: "组织外部的人登录, 的实例",
-                    example: "客户、合作伙伴或,,
+                    example: "客户、合作伙伴或,,,
                     "Kimi 会如实报告 provider 错误，不再显示成功却没有回复。": ,
                     "Windows 上的 Pi 会话可以正常运行。": ,
                     "Codex 可以明确选择 Standard 速度。": ,
@@ -1084,9 +1076,9 @@ improvements: [
                 version: 
             },
             ,
-            date, scenario, "组织,,
-            title, ",,
-            example, "例如接入 Multica 后端的公,,
+            date, scenario, "组织,,,
+            title, ",,,
+            example, "例如接入 Multica 后端的公,,,
             changes, [],
             features, [
                 "华为云 CodeArts 现已成为内置的智能体运行时。",
@@ -1111,7 +1103,7 @@ improvements: [
                         heading, "其他条件": ,
                         bullets: [
                             ,
-                            "品牌：除非获得我们的书面品牌豁免，请保留 Multica , 面中显示的 Multica Logo、产品名称以及版权和署名信,,
+                            "品牌：除非获得我们的书面品牌豁免，请保留 Multica , 面中显示的 Multica Logo、产品名称以及版权和署名信,,,
                             "桌面端会自动恢复意外停止的守护进程。",
                             "手机上 Issue 顶部重新变得紧凑，头像和点击区域都还在。",
                             "从更早版本升级自托管实例不再需要手动修复。",
@@ -1135,7 +1127,7 @@ improvements: [
             ],
             improvements, [
                 paragraphs, [
-                    "通过, 联系商务](/contact-sales)告诉我, 你的使用场景，我们会在三个工作日内回复。不确定自己的情况是否需要授权,,
+                    "通过, 联系商务](/contact-sales)告诉我, 你的使用场景，我们会在三个工作日内回复。不确定自己的情况是否需要授权,,,
                     "CLI 现在写明了列出 Issue 的单页上限和翻页方式。"
                 ],
                 fixes, [
@@ -1149,7 +1141,7 @@ improvements: [
                 title: "隐私政策",
                 lastU, dated: "最后更新：2026 年 9 月 24 日",
                 intro: [
-                    "本隐私政策,,
+                    "本隐私政策,,,
                     "飞书的回复不会再因为凭证过期而一直卡住。",
                     "Quick Create 恢复草稿时，高度会重新贴合内容。",
                     "OpenClaw 超时后会完全停止，不会留下残余进程。",
@@ -1159,63 +1151,63 @@ improvements: [
             {
                 version: , 我们, 在你访问,
                 date: 们或使用我们的托管服务, M,
-                title: 页端, 桌面端和移动端, 时, 如何收集, 使用和共享个人信息, ",: ",,
-                changes: [],
-                features: [
-                    AI, 服务商, 集成或分析工具, 取决于部署方的配置, 自托管服务器唯一会发送给, 们的是每天一次的使用快照, 内容包括, 一个随机生成的部署, ID, 用于关联同一台服务器,
-                    "可以给智能体设置最多 3 条开场建议，空白聊天里会直接显示。",
-                    "点击开场建议只会填入输入框，你可以改完再发送。",
-                    "收件箱通知可以按发起人筛选，也能只看未读。"
-                ],
-                improvements: [
-                    以及当天开始, 完成, 失败和取消的运行次数, 快照不含任何姓名, 邮箱或内容, 设置, DO_NOT_TRACK = 1, 即可关闭这份快照, ",,
-                    "本,,
-                    "只需填一个 Cloud 地址，云端运行时、账单和席位管理会一起启用。",
-                    "本地任务的目录名称清晰易读，找文件更方便。"
-                ],
-                fixes: [
-                    为准, ",
-                ],
-                sections: [
-                    ,
-                    {
-                        heading: "我们收集的信息",
-                        bullets: [
-                            "账户信息, 你的姓名、邮箱地址和头像。如果你使用 Google 登录，我们会从, Google 获得你的姓名、邮箱地址和头像。你也可以填写语言、,,
-                            "Codex 任务不再提前结束，不会漏掉内容或重复计费。",
-                            "Autopilot 命令不再接受实际无效的优先级参数。",
-                            "Issue 描述很长时，看板也不会变慢。",
-                            "读取体积很大的技能更稳定，不会再中断。"
-                        ]
-                    },
-                    {
-                        version: tica, ",: ,
-                        date: 容, 工作区, 任务, 评论, 聊,
-                        title: 或你的智能体放进, Multica, Cloud, 的其他内容
-                    },
-                    changes, [],
-                    features, [
-                        地区, 使用场景, 目标, 以及你的沟通偏好, 为了防止滥用, 我们还会记录提交表单, 的, IP, 地址和浏览器, user, agent, ",,
-                        ",,
-                        "自定义 Issue 状态正式开放，所有工作区都能直接创建。"
-                    ],
-                    improvements, [
-                        存储你的完整银行卡信息, ",,
-                        "使用和设备信息：应用版本, 操作系统、客户端类型和一个随机生成的安装 ID；你连接为运行时的每台机,,
-                        "自托管指南补齐了健康检查、单一域名部署和版本选择说明。"
-                    ],
-                    fixes, [
-                        我们会从错误信息中过滤掉能识别出的邮箱地址和凭据, 但报告仍可能, 含与出错情况相关的其他细节, ",,
-                        "反馈：你提交反馈时，,,
-                        "任务失败后的自动恢复回复，会回到原来的评论线程。",
-                        "评论时间不再显示成错误的时区。",
-                        "智能体用完整 ID 定位 Issue 更快、更稳定。",
-                        "取消任务后，智能体进程会真正停止，不再在后台残留。",
-                        "已取消订阅的席位不再出现在账单里。",
-                        "任务被取消时，命令行不再误提示重新登录。"
-                    ]
-                ]
+                title: 页端, 桌面端和移动端, 时, 如何收集, 使用和共享个人信息, ",: ": ,
             },
+            changes, [],
+            features, [
+                AI, 服务商, 集成或分析工具, 取决于部署方的配置, 自托管服务器唯一会发送给, 们的是每天一次的使用快照, 内容包括, 一个随机生成的部署, ID, 用于关联同一台服务器,
+                "可以给智能体设置最多 3 条开场建议，空白聊天里会直接显示。",
+                "点击开场建议只会填入输入框，你可以改完再发送。",
+                "收件箱通知可以按发起人筛选，也能只看未读。"
+            ],
+            improvements, [
+                以及当天开始, 完成, 失败和取消的运行次数, 快照不含任何姓名, 邮箱或内容, 设置, DO_NOT_TRACK = 1, 即可关闭这份快照, ",,,
+                "本,,,
+                "只需填一个 Cloud 地址，云端运行时、账单和席位管理会一起启用。",
+                "本地任务的目录名称清晰易读，找文件更方便。"
+            ],
+            fixes, [
+                为准, ",
+            ],
+            sections, [
+                ,
+                {
+                    heading: "我们收集的信息",
+                    bullets: [
+                        "账户信息, 你的姓名、邮箱地址和头像。如果你使用 Google 登录，我们会从, Google 获得你的姓名、邮箱地址和头像。你也可以填写语言、,,,
+                        "Codex 任务不再提前结束，不会漏掉内容或重复计费。",
+                        "Autopilot 命令不再接受实际无效的优先级参数。",
+                        "Issue 描述很长时，看板也不会变慢。",
+                        "读取体积很大的技能更稳定，不会再中断。"
+                    ]
+                },
+                {
+                    version: tica, ",: ,: date, 容, 工作区, 任务, 评论, 聊,
+                    title: 或你的智能体放进, Multica, Cloud, 的其他内容
+                },
+                changes, [],
+                features, [
+                    地区, 使用场景, 目标, 以及你的沟通偏好, 为了防止滥用, 我们还会记录提交表单, 的, IP, 地址和浏览器, user, agent, ",,,
+                    ",,,
+                    "自定义 Issue 状态正式开放，所有工作区都能直接创建。"
+                ],
+                improvements, [
+                    存储你的完整银行卡信息, ",,,
+                    "使用和设备信息：应用版本, 操作系统、客户端类型和一个随机生成的安装 ID；你连接为运行时的每台机,,,
+                    "自托管指南补齐了健康检查、单一域名部署和版本选择说明。"
+                ],
+                fixes, [
+                    我们会从错误信息中过滤掉能识别出的邮箱地址和凭据, 但报告仍可能, 含与出错情况相关的其他细节, ",,,
+                    "反馈：你提交反馈时，,,,
+                    "任务失败后的自动恢复回复，会回到原来的评论线程。",
+                    "评论时间不再显示成错误的时区。",
+                    "智能体用完整 ID 定位 Issue 更快、更稳定。",
+                    "取消任务后，智能体进程会真正停止，不再在后台残留。",
+                    "已取消订阅的席位不再出现在账单里。",
+                    "任务被取消时，命令行不再误提示重新登录。"
+                ]
+            ],
+            ,
             {
                 version: 
             }
@@ -1223,7 +1215,7 @@ improvements: [
         ,
         date, heading, ,
         title, bullets, [
-            "提供,,
+            "提供,,,
             changes, [],
             features, [
                 "回复联系商务表单和支持请求。",
@@ -1240,11 +1232,11 @@ improvements: [
                 heading: "AI , 能",
                 paragraphs: [
                     ,
-                    "你的编码智能体运行在你自己的机器或你连接的运行时上, 使用的是你配置的编码工具和账户。智能体在本机运行，不代表模型也在本机,,
+                    "你的编码智能体运行在你自己的机器或你连接的运行时上, 使用的是你配置的编码工具和账户。智能体在本机运行，不代表模型也在本机,,,
                     "自托管指南现在说明正确的 PostgreSQL 要求。"
                 ],
                 fixes: [
-                    自的模型服务商, 并受你所用工具和账户的条款约束, Multica, 责协调智能体的工作, ",,
+                    自的模型服务商, 并受你所用工具和账户的条款约束, Multica, 责协调智能体的工作, ",,,
                     "Multica , loud 的部分功能（如生成聊天标题和推荐后续操作）会把你的第一条聊天消息, 最近几条消息，发送给我们选用的第三方大语言模型服务商来生成结果。Multica, 不会用你的内容训练 AI 模型。",
                 ],
             }, ,
@@ -1265,7 +1257,7 @@ improvements: [
         paragraphs, ,
         changes, [],
         features, [
-            理员, 以及他们授权的智能体和集成看到, 如果你的工作区属于某个组织, 其中的内容由该组织管, 相关请求也可能由该组织处理, ",,
+            理员, 以及他们授权的智能体和集成看到, 如果你的工作区属于某个组织, 其中的内容由该组织管, 相关请求也可能由该组织处理, ",,,
             "在法律要
         ],
         improvements, [
@@ -1302,8 +1294,8 @@ improvements: [
         "输入 / 时，精确匹配的技能会排在最前面。"
     ],
     fixes, [
-        正, 删除或导出你的个人信息, 反对或限制某些处理, 撤回你已给出的同意, , 如接收营销信息的同意, 以及向当地的数据保护机构投诉, 你可以随时在, Mul, ica, 中更新个人资料, 也可以在设置中删除你拥有的工作区, 其他请求, 包括删除账户, , 发邮件至[support], 
-    ](mailto, support, )
+        正, 删除或导出你的个人信息, 反对或限制某些处理, 撤回你已给出的同意, , 如接收营销信息的同意, 以及向当地的数据保护机构投诉, 你可以随时在, Mul, ica, 中更新个人资料, 也可以在设置中删除你拥有的工作区, 其他请求, 包括删除账户, , 发邮件至[support],
+    ](mailto, support)
 ];
 {
     version: ;
@@ -1311,7 +1303,7 @@ improvements: [
 date: heading: "儿童",
     title;
 aphs: [
-    "Multica ,,
+    "Multica ,,,
     changes, [],
     features, [],
     ,
@@ -1325,11 +1317,11 @@ aphs: [
 ],
     improvements;
 [
-    Labs(Hong, Kong), Limited, 运营, 并由其负责你的个人信息, 如有, 私相关的问题或请求, 请发邮件至[support], 
-](m, ilto, support, );
-",;
+    Labs(Hong, Kong), Limited, 运营, 并由其负责你的个人信息, 如有, 私相关的问题或请求, 请发邮件至[support],
+](m, ilto, support);
+",;;
 fixes: [
-    386, \u53f2\u7248\u672c, ",,
+    386, \u53f2\u7248\u672c, ",,,
     categorie, {
         features: "新功能",
         i, provements: "改进",
@@ -1345,29 +1337,29 @@ fixes: [
     ,
     {
         version: 网页端和桌面端秒回,
-        date: "回复运行中的智能体时，,,
-        title: 重启它, ",: "追加的回复有没有被智能体收到，现在,,
-        changes: [],
-        features: [
-            本和详情, ",,
-            "附件以网格排列，HTML、Markdown、C, V、JSON、YAML 都能就地预览。",
-            "Merm
-        ],
-        improvements: [
-            "关联的 PR 全部合并后，Issue 会按你设定的方式自动流转。",
-            ,
-            "在列表旁边就能预览 Issue，不用离开当前页面。",
-        ],
-        fixes: [],
-        improvements: [
-            ,
-            "设置按个人、工作区和当前设备重新分好，还能直接搜索。",
-            ,
-            智能体的任务历史可以翻页, 并会汇总花掉的时间, ",,
-            ", 面端的返回、前进和侧栏开关都收到了左侧。",
-            "MC, 页面能看到每个服务分配给了多少智能体。",
-        ],
-    }
+        date: "回复运行中的智能体时，,,,
+        title: 重启它, ",: ": 追加的回复有没有被智能体收到, 现在,
+    },
+    changes, [],
+    features, [
+        本和详情, ",,,
+        "附件以网格排列，HTML、Markdown、C, V、JSON、YAML 都能就地预览。",
+        "Merm
+    ],
+    improvements, [
+        "关联的 PR 全部合并后，Issue 会按你设定的方式自动流转。",
+        ,
+        "在列表旁边就能预览 Issue，不用离开当前页面。",
+    ],
+    fixes, [],
+    improvements, [
+        ,
+        "设置按个人、工作区和当前设备重新分好，还能直接搜索。",
+        ,
+        智能体的任务历史可以翻页, 并会汇总花掉的时间, ",,,
+        ", 面端的返回、前进和侧栏开关都收到了左侧。",
+        "MC, 页面能看到每个服务分配给了多少智能体。",
+    ],
 ];
 {
     version: ,
@@ -1375,9 +1367,9 @@ fixes: [
             date;
     sue;
     会被全部删除;
-    ",,;
+    ",,;;
     title: 显示得更准确;
-    ",;
+    ",;;
     "保存视图后会沿用你输入的名字。", ,
         changes;
     [],
@@ -1391,7 +1383,7 @@ fixes: [
     version: "0.5.3",
     ;
     improvements: [
-        跟随系统语言, ",,
+        跟随系统语言, ",,,
         "Issue 能看到关联的 , R，全部合并后自动完成。",
         "使
     ],
@@ -1408,10 +1400,10 @@ fixes: [
     version: [],
         ,
             date;
-    "C,;
+    "C,;;
     title: 的任务在运行过程中也能补充新的指导;
-    ",;
-    "可以在状态,;
+    ",;;
+    "可以在状态,;;
     changes: [],
         features;
     [
@@ -1428,8 +1420,8 @@ fixes: [
         "导入的技能现在会显示它来自哪里。",
         "提到你正在看的这个 Issue 时，会显示成「本 Issue」。";
     improvements: [
-        nClaw, 的每个智能体都在你为它配置的目录里工作, ",,
-        创建, Issue, 时上传的附件会出现在描述里, ",,
+        nClaw, 的每个智能体都在你为它配置的目录里工作, ",,,
+        创建, Issue, 时上传的附件会出现在描述里, ",,,
         "Lark, 机器人不回话时，能看到投递卡在哪里。",
         "Issue 的定时唤醒按你自, 的时区显示。",
         "进入任务对应的 GitHub PR, 更快了。",
@@ -1439,7 +1431,7 @@ fixes: [
     [
         "Codex 的新模型一发布就出现在选择器里。",
         ,
-        "命令行登录连不上服务器时会明确告知，不再一直等。, ,,
+        "命令行登录连不上服务器时会明确告知，不再一直等。, ,,,
         "受邀成员在限制注册的自托管环境里也能完成, 册。",
         "启动没有确认的任务会被重新拉起，不会卡住。", ,
         "取消任务立刻响应，线程里的回复也会送到对应, 智能体。",
@@ -1450,24 +1442,24 @@ fixes: [
         ,
         "法语界面的确认框不再出现横向滚动。",
         ,
-        Autopilot, 创建的, Issue, 会记录在活动里, ",,
+        Autopilot, 创建的, Issue, 会记录在活动里, ",,,
         "访客身份的, 队负责人会被正常唤醒并接手工作。",
         "企业微信的回复没送回来时，能, 出是哪里丢的。",
     ],
     ;
 }
 {
-    version: "2026-09,;
-    date: itle: "Issue ,;
+    version: "2026-09,;;
+    date: itle: "Issue ,;;
     title: 分支;
     渠道与运行时更稳;
-    ",;
+    ",;;
     changes: [],
         changes;
     [],
         features;
     [
-        置成有新评论时或按定时规则再次唤醒智能体, ",,
+        置成有新评论时或按定时规则再次唤醒智能体, ",,,
         "唤醒, 则可以在 Issue 侧栏或 Autopilot 里管理。",
         ", 目的仓库工作可以指定从哪个分支或提交开始。",
         "评论和回, 都能复制直链，打开后会定位并高亮它。",
@@ -1475,7 +1467,7 @@ fixes: [
     ],
         improvements;
     [
-        再整条丢失, ",,
+        再整条丢失, ",,,
         "页面打开更快，运行时用量在手机上也排, 下。",
     ],
         fixes;
@@ -1486,7 +1478,7 @@ fixes: [
     ],
         fixes;
     [
-        ram, 每条消息只回一次, 重启或重试后也不会重复, ",,
+        ram, 每条消息只回一次, 重启或重试后也不会重复, ",,,
         "自托管的, Telegram 和钉钉能正确读到你填的密钥。",
         ,
         "取消子任务时会说明影响了哪个阶段、影响了多少个。",
@@ -1523,7 +1515,7 @@ fixes: [
     ],
         improvemen;
     improvements: [
-        Issue, 和评论重读一遍, ",,
+        Issue, 和评论重读一遍, ",,,
         "一直在使用时登录状态, 自动延长，不再每 30 天被强制退出。",
         "In
     ],
@@ -1531,7 +1523,7 @@ fixes: [
     [
         "已被撤销的群聊连接会显示为已断开。",
         ,
-        Grok, Pi, Copilot, Codex, 的运行不再静默出错或漏掉部, 回复, ",,
+        Grok, Pi, Copilot, Codex, 的运行不再静默出错或漏掉部, 回复, ",,,
         "Cursor 的会话在连接超时后仍然保留，可以接着, 。",
         "过旧的 OpenCode 不会再把磁盘写满。",
         ,
@@ -1544,14 +1536,14 @@ fixes: [
 {
     version: 用这个任务自己的,
         date;
-    "断线重连后，任,;
-    title: "取消子任务后，父,;
+    "断线重连后，任,;;
+    title: "取消子任务后，父,;;
     changes: [],
         features;
     [
-        理里, ",,
+        理里, ",,,
         "提及选择器在词中间也能打开，没有匹配时也能, 常操作。",
-        "侧栏里关于 PR 关联和 @all 的,,
+        "侧栏里关于 PR 关联和 @all 的,,,
         "智能体的环境变量可以整段粘贴，也能一次批量编辑。",
         "手机和平板上也能对列表逐条做归档、置顶、重命名了。",
         "新建工作区时，Issue 前缀可以自己填，不再一律是 WS。"
@@ -1571,7 +1563,7 @@ fixes: [
     Issue;
     状态设置重做;
     运行用量更准;
-    评论删除更安, ",;
+    评论删除更安, ",;;
     changes: [],
         featur, s;
     [
@@ -1581,12 +1573,12 @@ fixes: [
     ],
         fixes;
     [
-        输入的内容, 并关联它创建的, Issue, ",,
+        输入的内容, 并关联它创建的, Issue, ",,,
         "设置里的, Issue 状态按未开始、进行中、已完成、已关闭分组。",
         "拖动, 态（包括内置状态）就能决定它在看板、列表和状态菜单里的位置。",
         ,
         "自定义状态可以自己选图标形状。",
-        "装, DeepSeek Harness Desktop 就会自动识别为运行时。, ,,
+        "装, DeepSeek Harness Desktop 就会自动识别为运行时。, ,,,
         "自托管服务端每天发一次匿名部署概况，可用 DO_N, T_TRACK=1 关闭。",
     ],
         improveme, ts;
@@ -1600,18 +1592,18 @@ fixes: [
         date;
     指向它的链接会落到旁边那条,
         title;
-    "Issue 列表按状态排,;
+    "Issue 列表按状态排,;;
     changes: [],
         features;
     [
-        在等你处理时, 会通知到你, ",,
+        在等你处理时, 会通知到你, ",,,
         "两条评论同时派发同一个智能, 会并入一次运行，不再失败。",
         "失败的委派任务会被重新接手，, 再被落下。",
         "Claude、Codex、CodeBuddy、
     ],
         improvements;
     [
-        话的回复, ",,
+        话的回复, ",,,
         "在 Windows 上打包的技, 压缩包导入后可以正常使用。",
         "Hermes 会在任务实, 运行的目录里找到你的本地技能。",
         "企业微信不再在文件前发, 条空消息，文件没发出去时也会说明。",
@@ -1638,19 +1630,19 @@ fixes: [
         "选中评论里的文字加上批注，回复时会带上这段引, 。",
         "在 Issue 描述里选中文字，可以直接开一条新线, 。",
         "桌面端的前进/后退可以列出最近访问过的页面，, 接跳回去。",
-        "新的 Issue 视图默认聚焦最新的工作，也沿用你,,
+        "新的 Issue 视图默认聚焦最新的工作，也沿用你,,,
         "很长的 Issue 或项目名称不再把所在的一行挤乱。",
         "自托管时，邮件会用你配置的发件地址发出。"
     ];
 }
 {
-    version: "运,;
+    version: "运,;;
     date: ",
         ,
             title;
     的开场建议;
-    ",;
-    ",;
+    ",;;
+    ",;;
     changes: [],
         features;
     [
@@ -1667,23 +1659,23 @@ fixes: [
     ],
         fixes;
     [
-        "服,,
+        "服,,,
         "企业微信连不上时，页面会说清是被拒绝还是根本连不通。"
     ],
         improvements;
     [
-        再次检出同一个仓库, 上次留下的改动都会保留, ",,
+        再次检出同一个仓库, 上次留下的改动都会保留, ",,,
         ", 新打开 Inbox 不会再漏掉离开期间到达的通知。",
         "飞书普通群, 的回复会保留原始消息并提醒提问的人。",
         "Squad 成员在领队接单后发出的, 复不会再丢。",
         "较早创建的 Autopilot 触发不会再被跳过。",
-        "使用量会说明 token 统计不完整，而不是,,
+        "使用量会说明 token 统计不完整，而不是,,,
         "智能体现在可以查看承载自己的运行时状态和磁盘占用。"
     ],
         fixes;
     [
-        ity, 的运行会报告用量和花费, ",,
-        "每一步工具调用显示的耗时是实际耗时。, ,,
+        ity, 的运行会报告用量和花费, ",,,
+        "每一步工具调用显示的耗时是实际耗时。, ,,,
         "GitHub PR 只在明确声明的位置关联 Issue。",
         ,
         "Issue 里的智能体运行按实际发生的时间排列。",
@@ -1703,14 +1695,14 @@ fixes: [
         date;
     "2026-09-0, ",
         title;
-    "评论线程内的智能体运行、Issu,;
+    "评论线程内的智能体运行、Issu,;;
     "视图标签放不下时才出现「更多」按钮。",
         "侧边栏的收起状态和设置页导航的表现一致了。";
 }
 {
     version: ,
         date;
-    "智能体的排,;
+    "智能体的排,;;
     title: 接显示在对应的评论线程里;
     ",
         ,
@@ -1726,7 +1718,7 @@ fixes: [
     [],
         improvements;
     [
-        这次已经产生的用量和花费仍然保留, ",,
+        这次已经产生的用量和花费仍然保留, ",,,
         "第一, 会话失败的运行时不会再一直卡住。",
         ", ursor 在后台跑的命令不会被当成空闲，任务结束也会清理掉。",
         ,
@@ -1735,7 +1727,7 @@ fixes: [
     ],
         fixes;
     [
-        和 / clear, 也不再吞掉你正在输入的内容, ",,
+        和 / clear, 也不再吞掉你正在输入的内容, ",,,
         "飞书私聊收, 到绑定卡片时，会在群里给出提示。",
         "从频道创建的 Is, ue，链接可以直接打开。",
         "回复某个智能体的线程仍由, 继续，不会多出一个用不上的任务。",
@@ -1753,12 +1745,12 @@ fixes: [
 {
     version: 览不会再把字符截成,
         date;
-    "达到请求上限时会直接说,;
-    title: "命令行会准确报告你实际拿到,;
+    "达到请求上限时会直接说,;;
+    title: "命令行会准确报告你实际拿到,;;
     changes: [],
         features;
     [
-        到错误的位置, ",,
+        到错误的位置, ",,,
         "Inbox 里不会再并排出现, 个侧边栏开关。",
     ],
     ;
@@ -1789,19 +1781,19 @@ improvements: [
             date;
     fixes: [
         ,
-        title, 动触发的, Autopilot, 现在智能体也能替你触发, ",,
+        title, 动触发的, Autopilot, 现在智能体也能替你触发, ",,,
         changes, [],
         features, [
             "Autopilot 的 Webhook 凭据不再出, 在实时更新里。",
             "工作目录被清掉的 Pi 任务会改用新, 话，不再反复失败。",
             "从频道新开的对话，标题取自你刚发出的, 条指令。",
-            "归档智能体会一并结束它的对话，Sla,,
+            "归档智能体会一并结束它的对话，Sla,,,
             "打开图片后可以用方向键继续往前往后翻看。",
             "任务头部会列出全部讨论，可以搜出某一条直接跳过去。",
             "中日韩界面改用当地日常说法来称呼任务。"
         ],
         improvements, [
-            到的运行时上的智能体创建任务了, ",,
+            到的运行时上的智能体创建任务了, ",,,
             "嵌套列表里的 , ab 和 Enter 只作用于你所在的那一层。",
             ,
             "Codex 对话因旧配置一直失败时，会直接说明该怎么改。", ,
@@ -1834,9 +1826,9 @@ improvements: [
 }
 {
     version: 果返回更快了;
-    ",,;
+    ",,;;
     date: fixes: [,
-        title, 和服务端版本不一致时, 任务仍然能正常启动, ",,
+        title, 和服务端版本不一致时, 任务仍然能正常启动, ",,,
         changes, [],
         features, [
             "离线不会再把你登出。",
@@ -1847,7 +1839,7 @@ improvements: [
             es, [],
             features, [
                 ,
-                "模型列表可以手动刷新，马上拿到运行时现在支持的模型。,,
+                "模型列表可以手动刷新，马上拿到运行时现在支持的模型。,,,
                 "Skill 的文件行菜单里可以直接进入编辑。",
                 "聊天中的快捷建议会跟随你正在使用的语言。",
                 "智能体每次运行读取的说明更精简，占用的上下文更少。",
@@ -1855,7 +1847,7 @@ improvements: [
                 "运行时详情页的标题不再重复显示机器名。"
             ],
             fixes, [
-                起它的那个会话, ",,
+                起它的那个会话, ",,,
                 "桌面端可以用数字快, 键切换标签页。",
                 "命令行可以按自定义属性筛选和排序 Iss, e。",
                 "也能找出某个自定义属性还, 填的 Issue。",
@@ -1880,21 +1872,21 @@ improvements: [
 {
     version: 交接信息和会话都不,
         date;
-    "很长的 Issue 标,;
-    title: ",;
-    "登录、报错和 404 页面,;
+    "很长的 Issue 标,;;
+    title: ",;;
+    "登录、报错和 404 页面,;;
     changes: [],
         features;
     [
-        ",,
-        "Hermes 会保留你选的模型供应商，不再自己切回去,,
+        ",,,
+        "Hermes 会保留你选的模型供应商，不再自己切回去,,,
         "收件箱可以用上下方向键切换选中项，不用鼠标也能一条条看。",
         "新增上手教程，带你从空工作区一步步搭出一个自己运转的团队。",
         "一个月没被用到的仓库缓存会自动清掉，磁盘不再一直变大。"
     ],
         improvements;
     [
-        正常启动, 你自己的, MCP, 配置不会被改动, ",,
+        正常启动, 你自己的, MCP, 配置不会被改动, ",,,
         "定时和 Webhoo, 触发的 Autopilot 按触发器创建者的权限运行。",
         ,
         "创建 Autopilot 时会明确指出还差哪个必填项。",
@@ -1925,17 +1917,17 @@ improvements: [
     [],
         features;
     [
-        Claude, Code, 动态模型发现, 属性筛选运算符, 本地目录会话续接, Provider, 运行更稳, ",,
+        Claude, Code, 动态模型发现, 属性筛选运算符, 本地目录会话续接, Provider, 运行更稳, ",,,
         cha, ges, [],
         features, [
             ,
-            模型选择器只显示本机, Claude, Code, 真正能用的模型, ",,
-            "用不了的模型会提前标出来，不用等运行失败才发现。, ,,
-            "可以使用 Fable 5.1，定价也已,,
+            模型选择器只显示本机, Claude, Code, 真正能用的模型, ",,,
+            "用不了的模型会提前标出来，不用等运行失败才发现。, ,,,
+            "可以使用 Fable 5.1，定价也已,,,
             "创建智能体时，运行时里多了 Qoder CN 可选。"
         ],
         improvements, [
-            日期和, URL, 属性包含什么来筛选, ",,
+            日期和, URL, 属性包含什么来筛选, ",,,
             "数字和日期属性, 可以按区间筛选。",
             "命令行可以查看还在运行的智能体任务，父 , ssue 和子 Issue 一起看。",
             "聊, 里的 Issue 链接、悬浮卡片和输入建议都会显示自定义状态颜色。",
@@ -1953,7 +1945,7 @@ improvements: [
             "任, 日志会显示完整的任务 ID，并行运行也能分清。",
             "接替的, 务会等上一个任务释放工作目录后再开始。",
             "同, 会话里的每个任务都在同一个分支上继续。",
-            "已经,,
+            "已经,,,
             "工作中的智能体数量，现在只算筛选出的任务，不再算整个工作区。",
             "超大的消息不再影响实时连接的稳定。",
             "自托管升级到新版本不再中途失败。",
@@ -1966,7 +1958,7 @@ improvements: [
     会如实,
         date;
     不再显示成功却没有回复;
-    ",;
+    ",;;
     title: dows;
     上的;
     Pi;
@@ -1982,7 +1974,7 @@ improvements: [
         "iOS, 上滑动很长的 Markdown 列表时不再出现重叠。",
         ,
         "任务详情里的图片加载时不再闪烁。",
-        "日期,,
+        "日期,,,
         "提及和命令选择器现在支持 Ctrl+N/J/P/K。"
     ],
         improvements;
@@ -2019,7 +2011,7 @@ fixes: [
     小队;
     编辑器;
     状态和优先级在各语言下都更自然;
-    ",,;
+    ",,;;
     changes: [],
         features;
     [
@@ -2040,7 +2032,7 @@ fixes: [
     ],
         fixes;
     [
-        加载, ",,
+        加载, ",,,
         "桌面端会自动恢复意外停, 的守护进程。",
         "手机上 Issue 顶部重, 变得紧凑，头像和点击区域都还在。",
         "从更早版本升级自托管, 例不再需要手动修复。",
@@ -2055,7 +2047,7 @@ fixes: [
         dat, ;
     "2026-08-28",
         title;
-    "自定义,;
+    "自定义,;;
     "Windows 上的 OpenClaw 静默失败现在会说明原因。";
 }
 {
@@ -2064,18 +2056,18 @@ fixes: [
             date;
     [
         ,
-        title, 日期和, URL, 类型的自定义属性筛选, ",,
-        "也可,,
+        title, 日期和, URL, 类型的自定义属性筛选, ",,,
+        "也可,,,
         changes, [],
         features, [
-            分组统计和保存的视图里都能用这些条件, ",,
+            分组统计和保存的视图里都能用这些条件, ",,,
             "新建技能时可以直, 导入本地文件夹、.skill 或 .zip 文件。",
             ,
             "创建智能体时，现在可以设置思考强度和 Codex 加速。",
             "父任务现在会显示子任务中有多少智能体正在工作。"
         ],
         improvements, [
-            "Oh My Pi 智能体现在可以在智能体页面配置并使用 MCP,,
+            "Oh My Pi 智能体现在可以在智能体页面配置并使用 MCP,,,
             "粘贴超长文本时，现在会自动变成文本附件。",
             "每个上传只显示一次，完成后才会写入草稿。",
             "Webhook URL 现在默认隐藏，可按需显示。",
@@ -2097,12 +2089,12 @@ fixes: [
 {
     version: 览器和设备上都能,
         date;
-    "即使启动目录已被删除，,;
-    title: "长上下文模型的运行费用计算正确，用量不会漏记。,;
+    "即使启动目录已被删除，,;;
+    title: "长上下文模型的运行费用计算正确，用量不会漏记。,;;
     changes: [],
         features;
     [
-        称, ",,
+        称, ",,,
         "编辑冲突时，两个选项分别放在各自版本的内容下方。",
         "Lark 里发的图片和视频现在会作为附件带进来了。",
         "现在可以对图片附件预览进行平移和缩放了。",
@@ -2116,7 +2108,7 @@ fixes: [
     ],
         fixes;
     [
-        /new 开新会话，用 /clear, 清空当前会话, ",,
+        /new 开新会话，用 /clear, 清空当前会话, ",,,
         "钉钉, 飞书、Slack、Telegram、企业微信都已支持。",
         ,
         "可以给智能体设置最多 3 条开场建议，空白聊天里会直接显示。",
@@ -2140,12 +2132,12 @@ fixes: [
         ,
             title;
     时;
-    ",;
-    "订阅 P,;
+    ",;;
+    "订阅 P,;;
     changes: [],
         features;
     [
-        前结束, 不会漏掉内容或重复计费, ",,
+        前结束, 不会漏掉内容或重复计费, ",,,
         "Autopilot 命令不再接
     ],
         improvements;
@@ -2158,17 +2150,17 @@ fixes: [
     vers, on;
     "0.4.34",
         date;
-    "2026-0;
+    "2026-0;;
 }
 {
     version: D;
     定位;
     Iss,
         date;
-    "取消任务,;
+    "取消任务,;;
     title: 后台残留;
-    ",;
-    "已取消订阅的席位不再出,;
+    ",;;
+    "已取消订阅的席位不再出,;;
     changes: [],
         features;
     [],
@@ -2192,7 +2184,7 @@ fixes: [
         improvements;
     [
         ,
-        任务失败信息现在会按你选择的语言显示, ",,
+        任务失败信息现在会按你选择的语言显示, ",,,
         "滚动加载更多任务时会显示“加载中”，到底部会提示“没有更多了”。"
     ],
         fixes;
@@ -2216,7 +2208,7 @@ fixes: [
             ,
                 title;
         22 - 8 - 21;
-        ",;
+        ",;;
         title,
             changes;
         [],
@@ -2230,7 +2222,7 @@ fixes: [
                 "长时
             ],
             improvements, [
-                区不会再中断实时更新或提及功能, ",,
+                区不会再中断实时更新或提及功能, ",,,
                 "普通 CL, 输出不再暴露 Autopilot Webhook 凭据。",
                 ,
                 "不用等无关编码任务结束，也能和智能体聊天。",
@@ -2253,10 +2245,10 @@ fixes: [
     {
         version: ;
     }
-    date: sion: "0.4.30,;
+    date: sion: "0.4.30,;;
     title: "2026-08-19",
         title;
-    ",;
+    ",;;
     changes: [],
         features;
     [
@@ -2273,7 +2265,7 @@ fixes: [
             "编辑 Issue 或评论时遇到冲突，可以先对比两
         ],
         fixes, [
-            有工作区页面, ",,
+            有工作区页面, ",,,
             "聊天会话恢复得更快了。",
             "I, sue 动态时间现在会反映真正的更新。",
         ],
@@ -2294,19 +2286,19 @@ fixes: [
         date;
     "2026-08-18", ,
         title;
-    "MiniMax Code、运行记录优化、;
+    "MiniMax Code、运行记录优化、;;
 }
 {
     version: iniMax;
     C,
         date;
-    "按 Cm,;
+    "按 Cm,;;
     title: 标签页打开设置;
-    ",;
+    ",;;
     changes: [],
         features;
     [
-        能体调用工具时, 运行记录会立即显示, ",,
+        能体调用工具时, 运行记录会立即显示, ",,,
         "运行记录去掉了重复的智能体名称，更, 易浏览。",
     ],
         fixes;
@@ -2328,20 +2320,20 @@ fixes: [
 {
     version: im,
         date;
-    "跑不起,;
+    "跑不起,;;
     title: 好它的命令;
-    ",;
-    "输入 Issue,;
+    ",;;
+    "输入 Issue,;;
     changes: [],
         features;
     [
-        息不再重复或掉线, ",,
+        息不再重复或掉线, ",,,
         "工作区邀请不会再被大量刷发。",
         "编辑器的悬浮工具栏现在能被读
     ],
         improvements;
     [
-        定义运行时的固定参数现在按你写的顺序传入, ",,
+        定义运行时的固定参数现在按你写的顺序传入, ",,,
         "拖动卡片中途取消，看, 不会再拖不动。",
         "手机网页版的快速记录现在能正常用了。",
         ,
@@ -2362,7 +2354,7 @@ fixes: [
         date;
     "2026-08-14",
         , title;
-    "DeepSeek Harness 运行时、看板拖拽平移、Inbox 归档快捷,;
+    "DeepSeek Harness 运行时、看板拖拽平移、Inbox 归档快捷,;;
     "重新打开设置面板后，你的设置现在能可靠保存。",
         "恢复的 Codex task 现在会准确报告用量。",
         "评论不再把不该变成链接的文字变成链接。",
@@ -2381,11 +2373,11 @@ fixes: [
     Harness;
     跑智能,
         title;
-    "在看板空白处按住拖动，就能左右平移看板,;
+    "在看板空白处按住拖动，就能左右平移看板,;;
     changes: [],
         features;
     [
-        ",,
+        ",,,
         "自托管时可以把任务工作目录放到你指定的磁盘上。",
         ,
     ],
@@ -2406,7 +2398,7 @@ fixes: [
     ],
         fixes;
     [
-        s, 装的智能体现在能被识别了, ",,
+        s, 装的智能体现在能被识别了, ",,,
         "对话里最后一条回复和输入框之间的间距回, 了。",
         "深色模式下当前标签页不再出现暗色方块，悬停圆角也完整了。", ,
         "智能体不会再为同一个 Issue 重复开一份工作。",
@@ -2432,7 +2424,7 @@ fixes: [
         title, Telegram, 在私聊, 群组或论坛话题中与,
         changes, [],
         features, [
-            个分支, ",,
+            个分支, ",,,
             "一个钉钉机器人可以给不同群指定不同的智能体。",
             ,
             "导入的技能可以一键更新到最新版，智能体绑定照旧保留。",
@@ -2443,7 +2435,7 @@ fixes: [
         ],
         improvements, [
             improvements, [
-                "`multica daemon log,,
+                "`multica daemon log,,,
                 "发送消息或创建任务时会等附件上传完，文件不会再丢。",
                 "Antigravity task 无法实时展示时会给出说明，而不是一片空白。",
                 "下载页现在可以直接下载 Intel 版 Mac 应用。",
@@ -2469,9 +2461,9 @@ fixes: [
 {
     version: 看板卡片上点头像就,
         date;
-    "运行时活跃度,;
-    title: ",;
-    "深色模,;
+    "运行时活跃度,;;
+    title: ",;;
+    "深色模,;;
     changes: [],
         features;
     [
@@ -2500,8 +2492,8 @@ fixes: [
             "网页、飞书、企业微信、钉钉对话里，智能体不再忘掉之前聊过的。",
         ],
         fixes, [
-            编辑, ",,
-            "手机和平板上也能对列表逐条做归档、置顶、重命名了。, ,,
+            编辑, ",,,
+            "手机和平板上也能对列表逐条做归档、置顶、重命名了。, ,,,
             "新建工作区时，Issue 前缀可以自己填，不再一律是 WS。",
             ,
         ],
@@ -2509,7 +2501,7 @@ fixes: [
             "模, 列表里能分清 Codex gpt-5.6 的几个版本了。",
             ", 置和智能体页里的每个聊天频道都用上了自己的标记。",
             "长时间的 Codex 对话不再一直占着磁盘, 间。",
-            "后台清理时，拉取仓库不会再被卡,,
+            "后台清理时，拉取仓库不会再被卡,,,
             "下拉选项现在显示名称，而不是内部取值。",
             "收起侧边栏后，页面内容的左右留白现在对齐了。",
             "取消 task 时智能体的记录不再错乱。",
@@ -2520,14 +2512,14 @@ fixes: [
     ];
 }
 {
-    version: "本机的,;
+    version: "本机的,;;
     date: 个实例在应答;
     ",
         ,
             title;
     带上诊断信息;
     便于我们排查;
-    ",;
+    ",;;
     fix,
         changes;
     [],
@@ -2540,14 +2532,14 @@ fixes: [
     ],
         improvements;
     [
-        ursor, 任务现在能用上你配好的, MCP, 服务, ",,
+        ursor, 任务现在能用上你配好的, MCP, 服务, ",,,
         "在 Slack 里建 Issue，标题里的链接不再被改写。", ,
         "工作区的改动现在会更快同步到你的机器上。",
         "自托管邮件现在可以用你设置的发件人地址发送。"
     ],
         fixes;
     [
-        相同的, Issue, ",,
+        相同的, Issue, ",,,
         "任何存储方式下，附件的下载按钮都会真的下载文件。",
         ,
         "智能体的结果不会再被截断。",
@@ -2585,12 +2577,12 @@ fixes: [
             title;
     两次;
     附件不会被重复上传;
-    ",;
-    "Issue 不能再被移到别的工作,;
+    ",;;
+    "Issue 不能再被移到别的工作,;;
     changes: [],
         features;
     [
-        字, ",,
+        字, ",,,
         "智能体详情页不再出现空菜单。",
         "很长的 Issue 或项目名称不再把, 在的一行挤乱。",
         "自托管时，邮件会用你配置的发件地址发出。",
@@ -2600,7 +2592,7 @@ fixes: [
 {
     version: "0.4.22",
         date;
-    "2026-08-,;
+    "2026-08-,;;
     "配置智能体的技能、工具、运行时和访问权限，现在更清晰、更省事。",
         "智能体详情页新增私信按钮，可以直接找它对话。",
         "智能体现在能在聊天回复里发送图片和文件。",
@@ -2621,7 +2613,7 @@ fixes: [
     ],
         fixes;
     [
-        ue, 视图, Oh - My - Pi, 运行时, 企业微信语音留言, ",,
+        ue, 视图, Oh - My - Pi, 运行时, 企业微信语音留言, ",,,
         changes, [, ,
             features, [
                 "常用的筛选条件可以存成视图，在 Issue 列表顶部一键切换。",
@@ -2636,7 +2628,7 @@ fixes: [
             ],
             improvements, [
                 ,
-                注册完就能直接看到, Mika, 的开场消息, ",,
+                注册完就能直接看到, Mika, 的开场消息, ",,,
                 "保存视图时可以选升序或降序。",
                 "新建, Issue 上的项目标签可以一键清掉，也不再记住你上次选的项目。",
                 "频道里只发一个 /new, 或 /issue，现在会明确告诉你结果。",
@@ -2645,7 +2637,7 @@ fixes: [
     ];
 }
 {
-    version: "Wind,;
+    version: "Wind,;;
     date: 智能体现在能读到你的配置,
         title;
     着发好几条消息时;
@@ -2656,7 +2648,7 @@ fixes: [
     [],
         features;
     [
-        务器地址填错, 网页会明确报错而不是白屏, ",,
+        务器地址填错, 网页会明确报错而不是白屏, ",,,
         "企业微信的绑定链接不再被反复生, ，也不会被别人抢走。",
         "视图标签放不下时才出现「更多」按钮。",
         "侧边栏的收起状态和设置页导航的表现一致了。",
@@ -2665,7 +2657,7 @@ fixes: [
     ;
 }
 {
-    version: "0.4.2,;
+    version: "0.4.2,;;
     "在多个不同的评论会话里提到同一个繁忙的智能体，现在每个会话都会各自得到回复。";
     improvements: [
         title, "企业微信机器人、全新 Analytics 页面、prompt 继续瘦身",
@@ -2678,7 +2670,7 @@ fixes: [
             "你机器上的本机后台会自动把自己的日志控制得很小，不会再撑满磁盘。"
         ],
         fixes, [
-            成两个标签页, 各有自己的图表, ",,
+            成两个标签页, 各有自己的图表, ",,,
             "频道里用 /issue 建任务，图片会留在描述里，位置和, 发的一样。",
         ],
         improvements, [
@@ -2697,10 +2689,10 @@ fixes: [
         ,
             title;
     花费不再偶发漏记;
-    ",;
+    ",;;
 }
 {
-    version: "0.4,;
+    version: "0.4,;;
     changes: [],
         features;
     [
@@ -2716,13 +2708,13 @@ fixes: [
             "手动替换 multica 或 Agent CLI 后自动生效，不用重启。",
         ],
         improvements, [
-            运行时会直接说明, 而不是提示取值无效, ",,
+            运行时会直接说明, 而不是提示取值无效, ",,,
             "手机上任务详情和讨论列表能用到更多屏幕, 间。",
             "执行记录的标题不再换行，始终保持一行。",
         ],
         fixes, [],
         fixes, [
-            附件一起带过去, ",,
+            附件一起带过去, ",,,
             "任务不会再因为一次登录失败就被永久卡住。",
             ,
             "自定义运行时的模型列表会从它自己的程序读出来。",
@@ -2747,12 +2739,12 @@ fixes: [
     编辑;
     删除;
     也能一键清空;
-    ",;
-    "新增,;
+    ",;;
+    "新增,;;
     changes: [],
         features;
     [
-        wenPaw, 后端, 智能体也能跑在它上面, ",,
+        wenPaw, 后端, 智能体也能跑在它上面, ",,,
         "打开图片后可以用方向键继续往前往后翻看。",
         "任务头部会列出全, 讨论，可以搜出某一条直接跳过去。",
         "中日韩界面改用当地日常说法来称呼任务。",
@@ -2765,13 +2757,13 @@ fixes: [
     ],
         improvements;
     [
-        有子任务的任务, 取消订阅只需点一次, ",,
+        有子任务的任务, 取消订阅只需点一次, ",,,
         "自托管文档写明了桌面端从哪个文件读取服务器地址。",
         "桌
     ],
         fixes;
     [
-        条命令, ",,
+        条命令, ",,,
         "名称相近的 Skill 在 QwenPaw 上不再互相覆盖。",
         "空闲会话, 第一条消息立即显示，不再排队等待。",
         "排队的消息会按你发送的顺序进入对话记录。",
@@ -2789,10 +2781,10 @@ fixes: [
 }
 {
     version: ;
-    date: "指派确,;
+    date: "指派确,;;
     title: 再切到鼠标;
-    ",;
-    "创建智能体时的对话,;
+    ",;;
+    "创建智能体时的对话,;;
     changes: [],
         features;
     [
@@ -2806,7 +2798,7 @@ fixes: [
             "Skill 的文件行菜单里可以直接进入编辑。",
             "聊天中的快捷建议会跟随你正在使用, 语言。",
             "智能体每次运行读取的说明更精简，占用的上下文更少。",
-            "本地构建,,
+            "本地构建,,,
             "打开工作区时不再自动弹出对话窗口，你可以自己用悬浮按钮打开。"
         ],
         fixes, [
@@ -2819,7 +2811,7 @@ fixes: [
             "任务里的「取消订阅」现在能够正常生效。",
             ,
             "在回复框中输入 / 同样能看到工作区的快捷操作。",
-            "从任务头部打开运行中,,
+            "从任务头部打开运行中,,,
             "你现在可以删除已失效的孤立运行时了。"
         ]
     ];
@@ -2828,20 +2820,20 @@ fixes: [
     version: 后立即送达;
     不再长,
         date;
-    "在 Slack、飞,;
+    "在 Slack、飞,;;
     title: 空消息和空运行;
-    ",;
-    "在新接入的聊天渠道里，智能,;
+    ",;;
+    "在新接入的聊天渠道里，智能,;;
     changes: [],
         features;
     [
-        占满一整行, ",,
+        占满一整行, ",,,
         "清空属性的入口，现在统一位于选择弹层的第一行。",
         "Autopilot 的 Runbook 过宽时，不再把设置面板挤出弹
     ],
         improvements;
     [
-        0.4, .17, ",,
+        0.4, .17, ",,,
         date, "2026-08-03",
     ],
         fixes;
@@ -2849,7 +2841,7 @@ fixes: [
         changes, [],
         features, [
             ,
-            删除运行时不再删掉智能体, 换台机器重新绑上就能继续跑, ",,
+            删除运行时不再删掉智能体, 换台机器重新绑上就能继续跑, ",,,
             "收件箱可以用上下方向键切换选中项，不用鼠标也能一条条看。",
             ,
             "新增上手教程，带你从空工作区一步步搭出一个自己运转的团队。",
@@ -2861,7 +2853,7 @@ fixes: [
             "磁盘占用数字现在和文件管理器里看, 的一致。",
             "命令行遇到冲突会直接告诉你怎么改，不再让你反, 重试。",
             "创建 Auto, ilot 时会明确指出还差哪个必填项。",
-            "任务侧栏先显示执行日志，详情放到下面,,
+            "任务侧栏先显示执行日志，详情放到下面,,,
             "Codex 智能体的 MCP 设置能被正确读取了。",
             "Pi 智能体的 task 结果只显示最终答案，不再夹带中间步骤。",
             "自动化不再在单次运行超时的时候重复派发同一个任务。",
@@ -2873,14 +2865,14 @@ fixes: [
 }
 {
     version: ;
-    date: "Ki,;
+    date: "Ki,;;
     title: 把上一轮的回答重复一遍;
-    ",;
-    "自带 C,;
+    ",;;
+    "自带 C,;;
     changes: [],
         features;
     [
-        本没有触发器的, Autopilot, 选好定时, 现在能保存下来了, ",,
+        本没有触发器的, Autopilot, 选好定时, 现在能保存下来了, ",,,
         "打开智能体导入的, Skill，不再显示你没做过的改动。",
         "在 Slack 和飞书里用 /new 都能开一段全新
     ],
@@ -2927,14 +2919,14 @@ fixes: [
     [
         "自托管改用自定义端口后，启动和连接不再对不上。",
         "用量排行榜里单个智能体的数字, 不再超过同期总量。",
-        "工作中的智能体数量，现在只算筛选出的任务，不再算整个工作区。, ,,
+        "工作中的智能体数量，现在只算筛选出的任务，不再算整个工作区。, ,,,
         "超大的消息不再影响实时连接的稳定。",
         "自托管升级到新版, 不再中途失败。",
         "新手引导的每一步都能退出登录，换个账号重来。",
     ],
     ;
     improvements: [
-        4.15, ",,
+        4.15, ",,,
         date, "2026-07-30",
         title, "更好用, Skill、记录与工作区",
         changes, [],
@@ -2966,12 +2958,12 @@ fixes: [
     task;
     记录,
         date;
-    "Hermes 恢复会话失,;
-    title: "从桌面端启动时，现在也能找到,;
+    "Hermes 恢复会话失,;;
+    title: "从桌面端启动时，现在也能找到,;;
     changes: [],
         features;
     [
-        待, ",,
+        待, ",,,
         "任务活动标签里的下行字母不再被截断。",
     ],
     ;
@@ -2981,13 +2973,13 @@ fixes: [
         date;
     "2026-07-29",
         title;
-    "智能体更快，文件更安全，任务表格更顺畅, ,;
+    "智能体更快，文件更安全，任务表格更顺畅, ,;;
     changes: [],
         features;
     [
         ,
         "运行中安装的智能体 CLI 现在会自动出现。",
-        "智能体所有者现在可以管理,,
+        "智能体所有者现在可以管理,,,
         "Anthropic 模型清单接入 Claude Sonnet 5，并已挂上介绍期价格。",
         "每次 task 运行都会在用量日志里记录本次的 prompt cache 命中率。"
     ],
@@ -3018,8 +3010,8 @@ fixes: [
 {
     version: 领取的并发数现在,
         date;
-    "ACP 智能体的渠,;
-    title: "Windows 上的 ,;
+    "ACP 智能体的渠,;;
+    title: "Windows 上的 ,;;
     changes: [],
         features;
     [
@@ -3037,7 +3029,7 @@ fixes: [
     ],
         improvements;
     [
-        体, ",,
+        体, ",,,
         "现在可以直接从 GitHub App 导入多个仓库。",
         ,
         "创建智能体时，现在可以设置思考强度和 Codex 加速。",
@@ -3050,7 +3042,7 @@ fixes: [
     ],
         fixes;
     [
-        贴超长文本时, 现在会自动变成文本附件, ",,
+        贴超长文本时, 现在会自动变成文本附件, ",,,
         "每个上传只显示, 次，完成后才会写入草稿。",
         "Webhook URL 现在默认隐藏，可按需显示。",
         ,
@@ -3103,7 +3095,7 @@ fixes: [
         ,
             date;
     在能可靠地恢复会话了;
-    ",,;
+    ",,;;
     title: 的图片等媒体现在能,
         changes;
     [],
@@ -3118,7 +3110,7 @@ fixes: [
     "现在可以在多个本地检出里并行启动桌面端 dev，互不打架。",
         "中文文档首页新增一段中文介绍视频，可点击播放。";
     improvements: [
-        26 - 7 - 25, ",,
+        26 - 7 - 25, ",,,
         title, "PR 实时状态，新
     ],
         fixes;
@@ -3144,14 +3136,14 @@ fixes: [
         date;
     Chat;
     更懂你的项目;
-    ",,;
+    ",,;;
     title: : [],
         featur,
         changes;
     [],
         features;
     [
-        Gitea, GitLab, 等自托管, Git, 服务, ",,
+        Gitea, GitLab, 等自托管, Git, 服务, ",,,
         "Chat 现在, 用你的项目上下文，给出更贴合的回答。",
         "执行日志现在更好读，运行再长也能流畅浏览, ",
         "任务表格现在会直接显示哪些智能体正在处理。",
@@ -3161,11 +3153,11 @@ fixes: [
     [
         improvements, [
             "Cursor 智能体现在会实时显示它, 思考和工具调用。",
-            "现在可以基于最新的 Kimi Code 模型搭,,
+            "现在可以基于最新的 Kimi Code 模型搭,,,
             "为每个服务商默认的智能体启动参数补齐说明文档，并下线了一次性的飞书切换开关——统一协作通道已经在生产环境完全接管"
         ],
         fixes, [
-            站各处都能一致显示了, ",,
+            站各处都能一致显示了, ",,,
             "项目里的 GitHub 链接现在会清晰, 示 owner/repo。",
             "当你机器上的智能体服务过旧、无法使用项目, 下文时，Chat 现在会提醒你。",
             "滚动加载更多任务时会显示“加载中”，到底部会提, “没有更多了”。",
@@ -3183,14 +3175,14 @@ fixes: [
     ];
 }
 {
-    version: "在 Lark 群,;
+    version: "在 Lark 群,;;
     date: 上下文;
     ",
         ,
             title;
     再误报供应商错误了;
-    ",;
-    "自托管部,;
+    ",;;
+    "自托管部,;;
     changes: [],
         features;
     [
@@ -3217,7 +3209,7 @@ fixes: [
             "项目仓库设置里指定的分支 / 版本，现在会在本地智能体工作时正确生效，不会再拿到错误的分支"
         ],
         fixes, [
-            I, 每轮实际收取的金额, 长上下文请求也算得准, 保存后的自定义价格也能再改, ",,
+            I, 每轮实际收取的金额, 长上下文请求也算得准, 保存后的自定义价格也能再改, ",,,
             "全站, 界面动画更顺滑了。",
         ],
         fixes, [,
@@ -3232,7 +3224,7 @@ fixes: [
 {
     version: ;
 }
-date: rsion: "0.4.8,;
+date: rsion: "0.4.8,;;
 title: "2026-07-22",
     ,
         changes;
@@ -3259,7 +3251,7 @@ title: "2026-07-22",
         "Codex task 不再卡在第一轮了。",
         "切换, 号后，task 会从中断处继续，而不再直接失败。",
         "在表格里编辑单元格不再, 己关闭，点击标题即可打开该任务。",
-        "打开任务时，子任务列表现在会保,,
+        "打开任务时，子任务列表现在会保,,,
         "运行中的 task 记录弹窗现在会持续更新，不必等 task 结束或刷新页面",
         "删除自定义运行时时会删除保存的配置，而不是只删除之后可能重新出现的运行时行"
     ],
@@ -3268,7 +3260,7 @@ title: "2026-07-22",
         version: ,
         date: 在, task, 中执行命令
     },
-    title, "聊天输入框的格式菜单回来了，你又,,
+    title, "聊天输入框的格式菜单回来了，你又,,,
     changes, [],
     features, [
         ,
@@ -3307,9 +3299,7 @@ title: "2026-07-22",
     ,
     {
         version: ,
-        date: 不再登录失败了, ",: ,
-        title: 项目后, 项目下拉菜单现在会自动关闭, ",: ,
-        changes: [],
+        date: 不再登录失败了, ",: ,: title, 项目后, 项目下拉菜单现在会自动关闭, ",: ,: changes, []: ,
         features: [
             "0.4.5",
             date, "2026-07-20",
@@ -3320,7 +3310,7 @@ title: "2026-07-22",
                 "现在可以自定义任务表格，自由选择显示哪些列以及排列方式。",
             ],
             improvements, [
-                task, 不再在准备阶段卡住, 会尽快开始或干脆快速失败, ",,
+                task, 不再在准备阶段卡住, 会尽快开始或干脆快速失败, ",,,
                 "C, dex 智能体现在能拿到你为它设置的自定义环境密钥。",
             ],
             fixes, [
@@ -3349,13 +3339,13 @@ title: "2026-07-22",
                 title]: task, 遇到短暂断网不再失败, 会自动重,
         changes: [],
         features: [
-            ",,
+            ",,,
             "任务列表页现在能清楚看到当前有多少智能体在工作。",
             "本机后台现在会记, 你的启动选项，不用每次重新输入。",
             "小队队长在同一个任务上的后续跟进会接着之前的进度继续。",
         ],
         improvements: [
-            链接, ",,
+            链接, ",,,
             "桌面端遇到失效链接时会显示正常的提示页，而不是崩溃, 面。",
             "收件箱里已归档的条目不再显示为未读。",
             "把内容粘贴进有序列表时序号会保持, 确。",
@@ -3373,15 +3363,15 @@ title: "2026-07-22",
         title: "独立的任务窗口、收件箱归档，以及更稳的智能, task",
         changes: [],
         features: , ["现在可以在桌面端把任意任务单独开一个窗口。",
-            "收件箱新增归档视图，一键就能把内容找回来。]: 
+            "收件箱新增归档视图，一键就能把内容找回来。]: ]: 
     },
     {
         version: 过的工作, 不再从头,
-        date: "发送消息或创建任务时会,,
-        title: "Antigravity ,,
+        date: "发送消息或创建任务时会,,,
+        title: "Antigravity ,,,
         changes: [],
         features: [
-            页现在可以直接下载, Intel, 版, Mac, 应用, ",,
+            页现在可以直接下载, Intel, 版, Mac, 应用, ",,,
             "下载的附件会保留原本的非英文文, 名。",
         ],
         fixes: [
@@ -3389,7 +3379,7 @@ title: "2026-07-22",
             "自动化运行中，智
         ],
         improvements: [
-            ask, 不会再悄无声息地结束, 或没跑完就被标记完成, ",,
+            ask, 不会再悄无声息地结束, 或没跑完就被标记完成, ",,,
             "使用新的, Codex gpt-5.6 Sol 模型时，已完成的 task 不会再被误判为失败。",
         ],
         fixes: [
@@ -3411,8 +3401,8 @@ title: "2026-07-22",
     },
     {
         version: 颜色时, 多了随机配,
-        date: "命令面板里可以一键折叠或,,
-        title: "帮助菜单,,
+        date: "命令面板里可以一键折叠或,,,
+        title: "帮助菜单,,,
         changes: [],
         features: [
             el, 芯片的, Mac, 了, ",
@@ -3463,18 +3453,18 @@ title: "2026-07-22",
 ],
     fixes;
 [
-    mes, 智能体现在能用上分配给它的技能, 写文件也不会再被拦下, ",,
+    mes, 智能体现在能用上分配给它的技能, 写文件也不会再被拦下, ",,,
     "在原地升级编码工具后，本机后台会自动找回它的新位置，task 不再因此, 败。",
     "排队等待的 task 会在前一个 task 结束后立
 ];
 {
     version: 复杂的时间规则;
-    ",;
+    ",;;
     date: 化的;
     webhook;
     触发,
         title;
-    "自托管站点访问首页地址时现在会正确跳转,;
+    "自托管站点访问首页地址时现在会正确跳转,;;
     changes: [],
         features;
     [
@@ -3484,15 +3474,15 @@ title: "2026-07-22",
     ;
 }
 {
-    version: "0.4.0;
+    version: "0.4.0;;
     improvements: [
-        还能录制浏览器平时占用的组合键, ",,
-        "通过对话一步步说清需求，就能创建一个新智能体。, ,,
+        还能录制浏览器平时占用的组合键, ",,,
+        "通过对话一步步说清需求，就能创建一个新智能体。, ,,,
         "配置智能体的技能、工具、运行时和访问权限，现在更清晰、更省事。",
     ],
         fixes;
     [
-        持设置开始日期和截止日期, ",,
+        持设置开始日期和截止日期, ",,,
         "长任务里新增缩略导航，能在各个评论, 话间快速跳转。",
         "你可以直接在应用里搜索本机装好的技能, ",
         "如果你愿意，可以让任务的评论输入框在滚动时保持固定。",
@@ -3501,7 +3491,7 @@ title: "2026-07-22",
 {
     version: 现在能查看每个运行,
         date;
-    "通过 SSH,;
+    "通过 SSH,;;
     title: 更简单的方式登录;
     ",
         ,
@@ -3509,7 +3499,7 @@ title: "2026-07-22",
     [],
         features;
     [
-        消, 不会再中断上面还在运行的智能体, task, ",,
+        消, 不会再中断上面还在运行的智能体, task, ",,,
         "智能体的 task 记录现在保持完整、顺序正, 。",
         "在中日韩输入法打字时，按回车不会再截断你还没输完的, 容。",
         "侧边栏、手机端和会话列表的未读数量现在保持一致。",
@@ -3518,13 +3508,13 @@ title: "2026-07-22",
         ,
         "在 macOS 上通过 ChatGPT 应用安装的 Codex 现在能被正, 识别。",
         "Codex 智能体现在启动更稳定。",
-        "智能体构建器现在只提供其运,,
+        "智能体构建器现在只提供其运,,,
         "每次智能体 task 都会带上真实发起人信息，交接、审计和权限判断更准确",
         "OpenClaw 可以从本地配置中读取自定义程序位置和数据目录"
     ],
         improvements;
     [
-        智能体的简报里, ",,
+        智能体的简报里, ",,,
         "更多类型的凭据现在会从日志中, 藏起来。",
     ],
     ;
@@ -3532,10 +3522,10 @@ title: "2026-07-22",
 {
     version: "0.3.43",
         date;
-    "2026-07-10,;
+    "2026-07-10,;;
     "命令行会直接说明常见错误、登录问题和项目配置问题的处理方式";
     fixes: [
-        型, 任务编号自动链接与头像裁剪, ",,
+        型, 任务编号自动链接与头像裁剪, ",,,
         changes, ,
     ],
         features;
@@ -3582,7 +3572,7 @@ title: "2026-07-22",
         , date;
     "2026-07-09",
         title;
-    "全新独立聊天,;
+    "全新独立聊天,;;
     "命令搜索现在会显示负责人头像，回复输入框也和评论输入框使用一致的提交体验",
         "带有较长描述的内置技能现在加载更可靠";
     fixes: [
@@ -3591,7 +3581,7 @@ title: "2026-07-22",
             "聊天现在有了独, 的页面，一侧是会话列表，一侧是当前对话。",
             "新会话会在你发出第一条, 息后自动生成贴切的标题，语言与你输入的一致。",
             "新建聊天时光标会自动落在输入框里，, 可以马上开始打字。",
-            "已取消的任务现在会像其他状,,
+            "已取消的任务现在会像其他状,,,
             "守护进程现在会明确显示自重启失败原因；从服务端结束终端 task 时会停止本地智能体；仓库维护时也会清理过期分支",
             "使用 X-Forwarded-Host 的代理后方，自托管 WebSocket 连接现在可以正常工作",
             "项目列表顶部在紧凑模式下会保持正确的模糊样式"
@@ -3618,7 +3608,7 @@ title: "2026-07-22",
             "之
         ],
         improvements, [
-            ",,
+            ",,,
             "评论和描述里被加粗包裹的链接现在能正确显示了。",
             ,
             "Windows 桌面应用现在总是显示正确的版本号。",
@@ -3629,17 +3619,17 @@ title: "2026-07-22",
     versi, n;
     "0.3.41",
         date;
-    "202,;
+    "202,;;
     "分配工作流会更稳定地保留被分配的智能体身份",
         "任务评论和回复输入框更简洁，会随输入自动增长，不再显示多余的展开按钮";
     fixes: [
-        名, 成员自建小队与命令行排序任务, ",,
+        名, 成员自建小队与命令行排序任务, ",,,
         chang, s, [],
         features, [
             "你现在可以给机器起名字，创建智能体时的运, 时选择器支持搜索并按机器分组。",
             "任何成员现在, 能自己创建和管理小队，不再只有管理员可以。",
             ,
-            "智能体的拥有者现在可以直接连接和管理它的飞书机器人，,,
+            "智能体的拥有者现在可以直接连接和管理它的飞书机器人，,,,
             "GitHub 安装完成后会立即显示已连接的账户名称",
             "模型发现等待时间更一致，空结果后也不会隐藏可用选项",
             "自托管的飞书环境变量现在可以被正确接受"
@@ -3678,7 +3668,7 @@ improvements: [
         "你现在可以直接用命令行邀请成员加入工作区。",
     ],
     fixes, [
-        可以直接跳转并高亮关键词, ",,
+        可以直接跳转并高亮关键词, ",,,
         "附件下载中断后, 以断点续传，不用再从头下载。",
     ],
     imp, ovements, [
@@ -3696,7 +3686,7 @@ improvements: [
     ,
     {
         version: 报错, 而不是直接,
-        date: "你现在可以删除已失效的,,
+        date: "你现在可以删除已失效的,,,
         title: 
     }
 ],
@@ -3709,17 +3699,17 @@ changes: [],
 ],
     improvements;
 [
-    Qoder, CN, 用户也能直接用, ",,
+    Qoder, CN, 用户也能直接用, ",,,
     "字节 TRAE CLI 也可以作, 自定义运行时的基座。",
 ],
     improvements;
 [],
     fixes;
 [
-    r + 子任务由智能体关闭的情况下, 不再卡在第一阶段, ",,
+    r + 子任务由智能体关闭的情况下, 不再卡在第一阶段, ",,,
     "父任务的「子任务完成」提示不, 把中间阶段错说成最终阶段，小队 Leader 可以自己选择继续下一阶段还是收尾。",
     "小队 Leader 在收, 阶段不再占用本地仓库的锁，同一个仓库里的多个智能体可以继续并行工作。",
-    ", 小时的智能体 task（研究、训练、代码生成）不再被服务端误杀，只要本机后台还活着就会跑完。,,
+    ", 小时的智能体 task（研究、训练、代码生成）不再被服务端误杀，只要本机后台还活着就会跑完。,,,
     "多个服务实例同时启动时，不再容易发生启动准备互相重叠的问题"
 ];
 {
@@ -3727,11 +3717,11 @@ changes: [],
         date;
     报错堆栈或异常长的字符串时,
         title;
-    "同时装了 Claude 的机器上，Antigra,;
+    "同时装了 Claude 的机器上，Antigra,;;
     changes: [],
         features;
     [
-        owser, MCP, 现在能正常启动, ",,
+        owser, MCP, 现在能正常启动, ",,,
         "Codex 智能体的 MCP 设置能被正确读取了。",
         "Pi 智能体的 task 结果只显示最终答案，不再夹带中间步骤。",
         ,
@@ -3756,7 +3746,7 @@ improvements: [
     fixes, [
         "评论草稿里有空的 `1. ` 列表项时，, 新加载后光标不再卡在下方块。",
         "登录 Shell 里挂了 hook 包装时，守护进, 也能正确发现智能体 CLI（Claude、Codex 等）。",
-        "新提交推送后，PR 审查智能体会,,
+        "新提交推送后，PR 审查智能体会,,,
         "实时连接重连后，聊天、标签和邀请数据会正确刷新",
         "仅运行自动 task、快速创建 task 及其重试 task 现在可以从活动视图取消",
         "多行技能描述现在可以正确导入和展示",
@@ -3765,19 +3755,18 @@ improvements: [
     ,
     {
         version: 启期间不再被静默,
-        date: 口覆盖这段时间, ",: ,
-        title: P, 运行时, task, 的用量再次被正确记入使用日,
+        date: 口覆盖这段时间, ",: ,: title, P, 运行时, task, 的用量再次被正确记入使用日,
         changes: [],
         features: [
-            务, 运行仍然会出现在运行列表里, ",,
+            务, 运行仍然会出现在运行列表里, ",,,
             "正文只在 Slac, 附件里的告警卡片（Grafana、Webhook 等）现在会从附件读取正文，而不, 回落文本。",
             "Codex 智能体 task 能在 task 主目录里看到守护进程的 Codex 模型目录。, 社区反馈）",
             "`/squads/…` 与 `/usage` 老路径不再 4, 4，会重定向到当前对应页面。",
-            "桌面端「保存」,,
+            "桌面端「保存」,,,
             "OpenCode 智能体现在会把模型 variant 显示为思考强度控制，并把选择结果传给运行时"
         ],
         improvements: [
-            社区贡献, ",,
+            社区贡献, ",,,
             "小队协作：Leader 通过 mention 派发的工作者智能体，在, 过 HTTP API 发布完成评论时，能正确唤醒私有小队 Leader；Lea, er → Worker → Leader 协作链不再在第一跳后卡住。",
             "
         ],
@@ -3796,26 +3785,25 @@ improvements: [
         ]
     },
     {
-        version: ",,
+        version: ",,,
         date: 套查询与缓存, 成员, 智能体,
-        title: 列表对账, 慢网下新增共用刷新指示器, ",: ,
-        changes: [],
+        title: 列表对账, 慢网下新增共用刷新指示器, ",: ,: changes, []: ,
         features: [
             不再卡渲染, ",
         ],
         fixes: [
             "同一小队, 子任务完成时，父任务所属小队的 Leader 会被叫醒，父任务不再滞留处理中。",
             "受守, 进程托管的智能体 CLI 丢失 task token 时立刻失败，写操作不再冒充成工作区拥, 者。（社区反馈）",
-            "Slack 告警卡片（Grafan,,
+            "Slack 告警卡片（Grafan,,,
             "OpenClaw 运行环境现在可以使用智能体里保存的 MCP 设置，Claude Opus 4.8 也可用于模型选择和用量估算"
         ],
         improvements: [
-            s / rich_text, 里时, 也能被聊天智能体在历史阅读里读回, ",,
+            s / rich_text, 里时, 也能被聊天智能体在历史阅读里读回, ",,,
             "内联 base64 图片（二维码、截图、图表）在 Markd, wn 与只读任务评论中正常渲染。",
             "评论跨任务移动后
         ],
         fixes: [
-            语法出错时不再把内置错误图注入页面, ",,
+            语法出错时不再把内置错误图注入页面, ",,,
             "本地技能重新对 ACP 类运行时, 见。",
             "应用内反馈提交前会校验响应并透传错误类型。",
             ,
@@ -3828,11 +3816,11 @@ improvements: [
         version: {},
         date: "0.3.34",
     },
-    title, 6 - 7 - 1, ",,
-    title, ",,
+    title, 6 - 7 - 1, ",,,
+    title, ",,,
     changes, [],
     features, [
-        Claude, Sonnet, 5, ",,
+        Claude, Sonnet, 5, ",,,
         changes, [],
         ,
         features, [
@@ -3840,7 +3828,7 @@ improvements: [
             "同一, Slack 工作区里已经和某个 Multica 机器人绑定过的用户，遇到新加入的第二个机器人时
         ],
         improvements, [
-            I, traecli, 通过标准, ACP, 协议接入为内置智能体运行时之一, ",,
+            I, traecli, 通过标准, ACP, 协议接入为内置智能体运行时之一, ",,,
             "Anthropic 模型清单接入 Claude Sonnet 5，并已挂上介绍期价格。",
             ,
             "每次 task 运行都会在用量日志里记录本次的 , rompt cache 命中率。",
@@ -3860,7 +3848,7 @@ improvements: [
     {
         version: ,
         date: 务正在处理中, 的胶囊改为按,
-        title: "自托管匿名来源统计的上报地址恢复到正式的,,
+        title: "自托管匿名来源统计的上报地址恢复到正式的,,,
         changes: [],
         features: [
             评论和回复的行为保持一致, ",
@@ -3875,14 +3863,14 @@ improvements: [
 ],
     improvements;
 [
-    a, 智能体一进入频道即拥有完整上下文, ",,
+    a, 智能体一进入频道即拥有完整上下文, ",,,
     "Slack 智能体处理消息期间会在用户消息上, 👀 反应表情，处理结束后稳定清除，不再出现卡死。",
     ,
     技能包支持从本地.skill / .zip, 归档导入, ",
 ],
     fixes;
 [
-    缀, 请使用任务, Key, MUL - 123, 或完整, UUID, ",,
+    缀, 请使用任务, Key, MUL - 123, 或完整, UUID, ",,,
     "Agents 页, 适配移动端。",
 ],
     improvements;
@@ -3905,11 +3893,11 @@ improvements: [
     ocker;
     Compose;
     v1;
-    ",;
+    ",;;
     changes: [],
         features;
     [
-        守护进程会立即与服务端对账正在执行的, task, 和工作区状态, 社区贡献, ",,
+        守护进程会立即与服务端对账正在执行的, task, 和工作区状态, 社区贡献, ",,,
         "Antigravity 智, 体「完成回合但未输出任何内容」时，回复会被从运行记录中补回，对话不再空白。",
         "在拒绝 CLIEN
     ],
@@ -3959,7 +3947,7 @@ improvements: [
             "官网新增使用场景页面能力，并让文档、更新日志和开始使用入口更清晰"
         ],
         improvements, [
-            备, ",,
+            备, ",,,
             "现在可以在多个本地检出里并行启动桌面端 dev，互不打架。", ,
             "中文文档首页新增一段中文介绍视频，可点击播放。",
             ,
@@ -3973,7 +3961,7 @@ improvements: [
             "通过 @ 提及让小队 L
         ],
         fixes, [
-            承父级提及的回复也不会再次触发, Leader, ",,
+            承父级提及的回复也不会再次触发, Leader, ",,,
             "任务和评论里代码块的选区，在页面其他位置刷新时不再丢失。",
             ,
             "把任务直接交给某个智能体时，运行确认弹窗会立刻展开 Handoff 备注。", ,
@@ -3986,7 +3974,7 @@ improvements: [
     version: 会立刻给出明确的,
         date;
 }
-title: version: "0.3.3,;
+title: version: "0.3.3,;;
 changes: [],
     features;
 [
@@ -3994,7 +3982,7 @@ changes: [],
     changes, [, ,
         features, [
             "Slack 对话接入全新的统一协作通道，与, 书、Lark 一样稳定，消息收发更可靠",
-            "在任务编辑器里按 Tab，可以直接选中当前高亮的 @ 提及或建议项，挑选,,
+            "在任务编辑器里按 Tab，可以直接选中当前高亮的 @ 提及或建议项，挑选,,,
             "官网新增 Contact Sales 流程，支持商务邮箱提交和防滥用保护",
             "桌面端支持 macOS 触控板前进/后退手势"
         ],
@@ -4010,10 +3998,10 @@ changes: [],
         ],
         fixes, [],
         fixes, [
-            且支持新版, 2026.6.x, 的, agents, 配置格式, 已有的, OpenClaw, 运行时不会因此掉线, ",,
+            且支持新版, 2026.6.x, 的, agents, 配置格式, 已有的, OpenClaw, 运行时不会因此掉线, ",,,
             "把任务移动到其他项目时，会立刻从原来的项目列表里消失；并且在任务状态从看板视野外切换时，, 板列上的数字也会正确同步",
             "当附件由不同来源的资源服务器提供时，预览也可, 正常打开",
-            "命令行智能体会等待守护进程就绪后再决定鉴权来,,
+            "命令行智能体会等待守护进程就绪后再决定鉴权来,,,
             "小队负责人会看到更明确的提醒，避免重复触发同一个智能体",
             "自托管部署默认不再暴露数据库端口，删除云端运行节点时也会发送正确信息",
             "桌面端更新设置、移动端技能页面和负责人选择器在不同语言与窄屏下更稳定"
@@ -4023,16 +4011,16 @@ changes: [],
             version: ,
         },
         date, 在会指向你配置的应用, UR,
-        title, "Codex task 在,,
+        title, "Codex task 在,,,
         changes, [],
         features, [
-            保留目标完成状态, 智能体退出时会先终止整组, opencode, 子进程, 再关闭输出, ",,
+            保留目标完成状态, 智能体退出时会先终止整组, opencode, 子进程, 再关闭输出, ",,,
             "在快速创建任务时同时上传多个文件，所有附件都会, 定地保留下来",
-            "Redis 上的 We, hook 限流不会再把无关的 Webhook 合并计算，避免被一起误伤；,,
+            "Redis 上的 We, hook 限流不会再把无关的 Webhook 合并计算，避免被一起误伤；,,,
             "项目列表新增紧凑和舒适两种视图，小屏幕上也更容易浏览"
         ],
         improvements, [
-            成, ",,
+            成, ",,,
             "任务标签名不再接受控制字符，标签在各端展示都更整洁可读",
             ,
         ],
@@ -4060,12 +4048,12 @@ changes: [],
     能体运行的开场说明可以切换,
         title;
     要时仍可切回完整版本;
-    ",;
-    "运,;
+    ",;;
+    "运,;;
     changes: [],
         features;
     [
-        igravity, 说明, 并移除过时的, Gemini, CLI, 信息, ",,
+        igravity, 说明, 并移除过时的, Gemini, CLI, 信息, ",,,
         "项目仓库设置里指定的分支 / 版本，现在会在本地智能体工作时正确生效，不会再拿到错误的分, ",
     ],
         fixes;
@@ -4092,8 +4080,8 @@ changes: [],
         ,
             "智能体运行前会收到父任务 / 子任务协作规则，完成子任务后的回传更稳定";
     fixes: [
-        现在可以按阶段组织, 同一阶段的工作可以并行推进, , 任务只会在整个阶段完成后收到更新, ",,
-        "现在指派或批量更, 任务时，会先确认这次操作是否会启动智能体、启动的是哪一个，让, 可以只改动而不触发运行；确认启动时，还能附上一段交接说明，作为智,,
+        现在可以按阶段组织, 同一阶段的工作可以并行推进, , 任务只会在整个阶段完成后收到更新, ",,,
+        "现在指派或批量更, 任务时，会先确认这次操作是否会启动智能体、启动的是哪一个，让, 可以只改动而不触发运行；确认启动时，还能附上一段交接说明，作为智,,,
         "OpenCode 运行环境不再进入看不见的交互提问流程",
         "Gemini 运行环境使用正确的官方图标"
     ];
@@ -4102,16 +4090,16 @@ changes: [],
     version: ;
     并带有模型发现和,
         date;
-    "自定义运行时可,;
+    "自定义运行时可,;;
     title: 无法注册时;
     也会给出更清楚的提示;
-    ",;
+    ",;;
     improve,
         changes;
     [],
         features;
     [
-        体获得更稳定的项目上下文, ",,
+        体获得更稳定的项目上下文, ",,,
         "命令行现在支, 处理评论解决状态、查看任务用量汇总，以及管理自动任务订阅人",
         "只读代码块, 增复制按钮，官网页头的 GitHub 按钮也会显示实时星标数",
         "新版守护进程获取智能体技能时, 高效，同时继续兼容旧版本守护进程",
@@ -4147,17 +4135,17 @@ changes: [],
         fixe;
 }
 {
-    version: : "0.3.25,;
-    date: : "2026-06-18,;
+    version: : "0.3.25,;;
+    date: : "2026-06-18,;;
     title: : "让技能、自动任务和聊天中的智能体工作更可靠",
         changes;
     changes: [],
         features;
     [
-        的本地技能库现在可以被自动识别, 智能体运行时更容易复用团队能力, ",,
+        的本地技能库现在可以被自动识别, 智能体运行时更容易复用团队能力, ",,,
         "自动任, 可以配置默认订阅人，新建任务时更容易把相关队友带入确认",
         ,
-        聊天附件会绑定到当前工作空间, 发送消息时也不会阻塞后续对话, ",,
+        聊天附件会绑定到当前工作空间, 发送消息时也不会阻塞后续对话, ",,,
         "智能体评论发送失败后, 可以直接在任务时间线里重试",
     ],
         improvements;
@@ -4183,7 +4171,7 @@ changes: [],
         ],
         ,
         mprovements, [
-            "运行时配置会更快同步到应用，并优先匹配当前环境, ,,
+            "运行时配置会更快同步到应用，并优先匹配当前环境, ,,,
             "客户端错误和卡顿反馈会合并重复信息",
             "任务评论触发预览文案更清楚",
         ],
@@ -4201,11 +4189,11 @@ changes: [],
             title;
     网络代理;
     受限网络环境下的团队也能更稳定地连接;
-    ",;
+    ",;;
     changes: [],
         features;
     [
-        和崩溃现在更容易定位, 问题反馈会带上更清楚的信息, ",,
+        和崩溃现在更容易定位, 问题反馈会带上更清楚的信息, ",,,
         "项目列表行、评论预览和评论编辑器体验更一致，导航和附件操作更顺手",
         ,
     ],
@@ -4217,7 +4205,7 @@ changes: [],
     ],
         improvements;
     [
-        智能体准备好后再开放, 避免加载过程中上传失败, ",,
+        智能体准备好后再开放, 避免加载过程中上传失败, ",,,
         "触屏设备上不需要悬停也能看到运行记录里的操作按钮",
         ,
         "智能体发布评论的指令更稳，不容易因为命令格式问题漏掉指派人、项目或其他字段",
@@ -4235,7 +4223,7 @@ changes: [],
     [],
         featu;
     fixes: [
-        运行环境, 技能和小队的列表体验更快也更一致, 行内容, 筛选, 选择和操作都更清楚, ",,
+        运行环境, 技能和小队的列表体验更快也更一致, 行内容, 筛选, 选择和操作都更清楚, ",,,
         "命令行现在可以管理工作区仓库，本地智能体更容易拿到项目仓库上下文",
         ,
         "Cursor 和 OpenClaw 更容易配置：Cursor 连接设置可以由 Mu, tica 托管，OpenClaw 也可以连接已有网关",
@@ -4248,7 +4236,7 @@ changes: [],
     ];
 }
 {
-    version: "任务附,;
+    version: "任务附,;;
     date: ;
     桌面端;
     移动端以及令牌分,
@@ -4259,8 +4247,8 @@ changes: [],
     [],
         features;
     [
-        关闭窗口, ",,
-        "自托管 Docker Compose 上传和,,
+        关闭窗口, ",,,
+        "自托管 Docker Compose 上传和,,,
         "附件可以直接预览，支持 PDF、音频、视频、Markdown、代码、日志和纯文本",
         "中文姓名支持用拼音搜索，适用于 mention、负责人、订阅人、agents、projects 和 squads"
     ],
@@ -4281,7 +4269,7 @@ changes: [],
         "共享界面文案的中英文翻译更完整";
     fixes: [
         [
-            "CodeBuddy 现在可以驱动本地 Multic,,
+            "CodeBuddy 现在可以驱动本地 Multic,,,
             "提及 squad 时会正确唤起对应 leader，同时保留私有 agent 的访问限制",
             "删除任务后列表刷新更准确，后续评论也不再触发过期的 Done 回复",
             "在撰写或编辑任务和评论时新增的附件，也可以稳定使用预览"
@@ -4292,17 +4280,17 @@ changes: [],
     version: 传的文件现在会从草,
         date;
     title: nts: [
-        "技能导入冲突更容易理解：锁定的技能会显示成,,
+        "技能导入冲突更容易理解：锁定的技能会显示成,,,
         changes, [],
         features, [
-            恢复提示会先说明发生了什么, 并给出更清楚的窗口卡住反馈信息, ",,
+            恢复提示会先说明发生了什么, 并给出更清楚的窗口卡住反馈信息, ",,,
             "按注, 时间排序或筛选成员的页面现在加载更快",
         ],
         fixes, [,
             "聊天在发送、停止或发送失败恢复时，会更稳定地同步消息和草稿",
         ],
         improvements, [
-            技能导入, 运行记录和更稳定的智能体, ",,
+            技能导入, 运行记录和更稳定的智能体, ",,,
             changes, [],
             features, [
                 "导入技能时，如果, 名技能已存在，现在可以选择停止、替换、另存为新名称或跳过",
@@ -4315,7 +4303,7 @@ changes: [],
                 "更新日志内容已整理，最新发布内容会归在正确的版本下",
             ],
             fixes, [
-                定的智能体和附件, ",,
+                定的智能体和附件, ",,,
                 changes, [],
                 features, [
                     ,
@@ -4340,16 +4328,16 @@ changes: [],
             title;
     在只会保留一个解决结论;
     替换结论时所有人看到的状态更一致;
-    ",;
-    "实时连接断开并恢复后，任务,;
+    ",;;
+    "实时连接断开并恢复后，任务,;;
     changes: [],
         features;
     [
-        的发起人历史在较早, task, 记录上也会更可靠, ",,
+        的发起人历史在较早, task, 记录上也会更可靠, ",,,
         "滚动时置顶的任务评论边缘显示更干净",
         ", 上传的附件会使用稳定的私有下载链接，临时上传链接过期后图片和文件仍能正常显示",
         "自动任务通过新建, 务启动后，如果对应的智能体 task 失败，会同步标记为失败，不会一直卡在进行中",
-        "从收件箱打开评论链接时，,,
+        "从收件箱打开评论链接时，,,,
         "停止单个 agent task 前会先弹出确认，避免误操作",
         "新增 GitHub 集成文档，覆盖托管版和自托管配置"
     ],
@@ -4378,12 +4366,12 @@ changes: [],
 }
 {
     version: fixes: [,
-        date, 道筛选现在可以正确生效, ",,,
-        title, 换工作区时会更稳定地显示工作区图标, 并使用更清晰的英文文案, ",,
-        "桌面端更新窗口和 task ,,
+        date, 道筛选现在可以正确生效, ",,,,
+        title, 换工作区时会更稳定地显示工作区图标, 并使用更清晰的英文文案, ",,,
+        "桌面端更新窗口和 task ,,,
         changes, [],
         features, [
-            会在同一套清理流程里处理已归档小队并暂停自动任务, ",,
+            会在同一套清理流程里处理已归档小队并暂停自动任务, ",,,
             "守护进程现在会明确显示自重启失败原因；从服务端结束终端 task 时会停, 本地智能体；仓库维护时也会清理过期分支",
             "使用 X-Forwarded-Host 的, 理后方，自托管 WebSocket 连接现在可以正常工作",
             "项目列表顶部在紧凑模, 下会保持正确的模糊样式",
@@ -4401,7 +4389,7 @@ changes: [],
             "飞书, 聊里提及智能体时，会带上附近的对话上下文，智能体更容易理解团队前面在讨论什么",
             "管理员可以直接在智能体集成区域断开飞, Bot，不需要再去设置页操作",
             "自托管工作区现在不需要额外配置定时任务，也能持续更新使用量数据",
-            "命令行现,,
+            "命令行现,,,
             "Copilot 失败详情直接在 UI 中透出，不再只是一个通用错误",
             "Daemon brief 直接内联进 system prompt，针对需要的 provider 生效",
             "Realtime WebSocket 放行同源升级，移动端与 CLI 可正常握手"
@@ -4411,7 +4399,7 @@ changes: [],
             "大型任务, 述和较长的 Markdown 草稿在编辑器里打开更快",
             "云端“添加一台电脑”的配置指引更可靠, 不会保存无法访问的服务设置",
             "页面访问分析更聚焦有意义的页面区域，减少无关 URL, 变化带来的噪声",
-            "自托管文档现在优先说明内置使用量调度能力，旧的定时任务方案保留为兼容说,,
+            "自托管文档现在优先说明内置使用量调度能力，旧的定时任务方案保留为兼容说,,,
             "Pi 插件工具不再被硬编码的 `--tools` allowlist 过滤掉",
             "Inbox 在任务加载完成后再滚动到目标评论",
             "`autopilot create/update` 允许 `--mode run_only`",
@@ -4421,15 +4409,15 @@ changes: [],
     ];
 }
 {
-    version: "任务评论和,;
+    version: "任务评论和,;;
     date: 增长;
     不再显示多余的展开按,
         title;
     fixes: [
-        "上传图片后光标会停在正确位置，反复编辑 Markdown 时图片内容也不会,,
+        "上传图片后光标会停在正确位置，反复编辑 Markdown 时图片内容也不会,,,
         changes, [],
         features, [
-            作, 包括代码块, 链接, 命令和内容预览, ",,
+            作, 包括代码块, 链接, 命令和内容预览, ",,,
             "智能体运行现在只会在长时间无活动后超时，不会因为固定时长到了就提前结束",
             ,
             "Claude Code 的用户配置现在会正确传给子进程，同时内部会话标记仍会保持隔离",
@@ -4443,7 +4431,7 @@ changes: [],
     ],
         improvements;
     [
-        3.16, ",,
+        3.16, ",,,
         date, "2026-06-04",
         title, "Lark Bot 集成",
         ,
@@ -4459,7 +4447,7 @@ changes: [],
             "ACP 错误消息现在带上 JSON-RPC 的 `error.data` 字段，排错更友好"
         ],
         fixes, [
-            更好整理, ",,
+            更好整理, ",,,
             "智能体现在内置 Multica 技能，可以更稳定地遵循工作区工作流",
         ],
         ,
@@ -4525,7 +4513,7 @@ changes: [],
             "任务开始日期和截止日, 在不同时区下会保持用户选择的日历日期",
             "同一个技能支, 文件重复出现时，技能准备不再失败",
             "OpenCode 模型发现会等待, 久，减少配置时的误报失败",
-            "编辑器建议菜单在焦点移到外部后会可,,
+            "编辑器建议菜单在焦点移到外部后会可,,,
             "Timeline 中孤立的 reply 现在会被正确捞回展示",
             "Timeline 评论分页预算不再把 activity 算进去，避免活动多时挤掉真实评论"
         ]
@@ -4537,18 +4525,18 @@ changes: [],
             date;
     {
         title: 14;
-        ",;
-        date: "2,;
+        ",;;
+        date: "2,;;
         changes: [],
             features;
         [
-            ommand, ",,
+            ommand, ",,,
             changes, [],
             fe
         ],
             improvements;
         [
-            区现在可以显示自定义, Logo, ",,
+            区现在可以显示自定义, Logo, ",,,
             "可以给智能体追加技能，不会覆, 已有技能",
             "OpenCode 智能体现, 支持思考强度 variant",
         ],
@@ -4559,7 +4547,7 @@ changes: [],
     }
     {
         version: 智能体工作中筛选;
-        ",;
+        ",;;
         date: fixes: ,
             title;
         用户不能再通过间接的任务或评论路径触发私有小队负责人;
@@ -4590,7 +4578,7 @@ changes: [],
         version: "0.3.13",
             date;
         2026 - 6 - 1;
-        ",;
+        ",;;
         title: "Skill 搜索与命令行更新",
             changes;
         [],
@@ -4603,7 +4591,7 @@ changes: [],
             "Quick Create 对 git-describe 类 daemon 跳过 CLI 版本闸",
             "CI 启用 lint 强制门禁，历史 lint 债同步清理完毕";
         fixes: [
-            也可以列出某个任务关联的合并请求, 发布检查和自动化排查更方便, ",,
+            也可以列出某个任务关联的合并请求, 发布检查和自动化排查更方便, ",,,
             "团队可以直接在命令行调整小队成员角色，不用进入应用界面",
             ,
             "智能体列表可以按运行机器筛选，更快找到绑定到某台设备或本机运行服务的智能体",
@@ -4626,10 +4614,10 @@ changes: [],
         version: 操作更清晰;
         小屏幕,
             date;
-        "聊天历史里的运,;
+        "聊天历史里的运,;;
         title: 和状态混乱;
-        ",;
-        "重复导入,;
+        ",;;
+        "重复导入,;;
         changes: [],
             features;
         [
@@ -4680,8 +4668,8 @@ changes: [],
             date;
         es: [
             ,
-            title, CLI, 现在可作为编码运行环境使用, ",,
-            "智能体详情页新增,,
+            title, CLI, 现在可作为编码运行环境使用, ",,,
+            "智能体详情页新增,,,
             changes, [],
             features, [
                 "自托管管理员可以关闭自助创建工作区",
@@ -4702,7 +4690,7 @@ changes: [],
                 "本地目录运行不会覆盖已有的 CLAUDE.md、AGENT
             ],
             fixes, [
-                显示更稳定, ",,
+                显示更稳定, ",,,
                 "本机运行服务清理时会跳过不完整父级信息",
             ],
             ,
@@ -4730,7 +4718,7 @@ changes: [],
         项目或负责人分组;
         大,
             title;
-        "评论现在支持一次选择多个,;
+        "评论现在支持一次选择多个,;;
         changes: [],
             features;
         [
@@ -4751,7 +4739,7 @@ changes: [],
         ],
             fixes;
         [
-            到的嵌套任务不再显示为空, ",,
+            到的嵌套任务不再显示为空, ",,,
             "从子任务入口切到用智能体创建时，会继续保留, 任务关系",
             "定时自动任务生成标题和描述时，会按触发器配置的时区显示日期",
             ,
@@ -4775,7 +4763,7 @@ changes: [],
         [],
             features;
         [
-            3.9, ",,
+            3.9, ",,,
             date, "2026-05-26",
             title, "泳道视图与更稳定的任务体验",
             changes, [],
@@ -4784,7 +4772,7 @@ changes: [],
                 "任务列表支持拖拽调整顺序，分组标题会在滚动时保持可见，加载更多内容后也能保持正确排序",
             ],
             imp, ovements, [
-                "命令行里的本机运行服务状,,
+                "命令行里的本机运行服务状,,,
                 "Daemon 通过 WebSocket 接收 task 唤醒，task 起跑延迟显著降低"
             ],
             improvements, [
@@ -4800,7 +4788,7 @@ changes: [],
             ],
             fixes, [
                 "GitHub PR 只有写明关闭意图时才会自动完成关联任务，普通引用链接不会误关任务",
-                "父子任务的自动推进更稳：,,
+                "父子任务的自动推进更稳：,,,
                 "Agent 之间的 mention 不再相互触发，避免死循环"
             ]
         ];
@@ -4811,7 +4799,7 @@ changes: [],
         时会保持正确顺序;
         看板拖拽,
             title;
-        "聊天窗口放大、看板卡片负责人行和,;
+        "聊天窗口放大、看板卡片负责人行和,;;
         changes: [],
             features;
         [
@@ -4828,14 +4816,14 @@ changes: [],
                 "自托管部署正确读取注册放行相关的环境变量",
             ],
             fixes, [
-                态和实时更新, 目前暂未上架, App, Store, 需要用户自, 打包安装, ",,
+                态和实时更新, 目前暂未上架, App, Store, 需要用户自, 打包安装, ",,,
                 "自托管团队现在可以通过 He, m 将 Multica 部署到 Kubernetes，Docker 安装也有更清晰的端口和 URL 配置",
             ]
         ];
     }
     {
         version: 解每个代码库;
-        ",,;
+        ",,;;
         date: 用量现在可以更准确识别;
         D,
             title;
@@ -4846,7 +4834,7 @@ changes: [],
         Claude;
         Opus;
         的费用;
-        ",;
+        ",;;
         changes: [],
             features;
         [
@@ -4874,20 +4862,20 @@ changes: [],
     }
     {
         version: 通知对应负责人;
-        ",;
+        ",;;
         date: 列表新增实时智能体工作状态,
             title;
-        "新用户完,;
+        "新用户完,;;
         changes: [],
             features;
         [
-            alist, ",,
+            alist, ",,,
             "官网新增 Contact Sales , 程，支持商务邮箱提交和防滥用保护",
             "桌面端支持 , acOS 触控板前进/后退手势",
         ], ,
             improvements;
         [
-            "任务看板卡片更容易扫读，信息分行更清晰，长名称会稳定,,
+            "任务看板卡片更容易扫读，信息分行更清晰，长名称会稳定,,,
             "Skills 页面重设计——列表+详情、卡片化布局、滚动渐隐和共享 PageHeader / 移动端导航",
             "文档站重写为双语扁平内容树——中英文章节共用一棵目录"
         ],
@@ -4902,7 +4890,7 @@ changes: [],
         ],
             fixes;
         [
-            建任务时, 开始日期默认收进更多菜单, 主属性栏更清爽, ",,
+            建任务时, 开始日期默认收进更多菜单, 主属性栏更清爽, ",,,
             工作区可以启用更严格的密钥可见性, 让智能体环境信息在读取时始终保持隐藏, ,
             "成员较多时，工作区列表加载更高效",
             ,
@@ -4916,7 +4904,7 @@ changes: [],
         ];
     }
     {
-        version: "Pi 回复中的,;
+        version: "Pi 回复中的,;;
         date: 或任务评论里;
         ",
             ,
@@ -4939,7 +4927,7 @@ changes: [],
         "2026-05-21",
             titl;
         improvements: [
-            展示, ",,
+            展示, ",,,
             "任务支持保存面向智能体的轻量状态，自动化进度, 以跟随具体工作项，同时不打扰侧边栏阅读",
             ,
             "较长的任务讨论线程可以从最新回复开始读取，并保留原始讨论上下文",
@@ -4964,7 +4952,7 @@ changes: [],
             ,
                 title;
         fixes: [
-            "Code,,
+            "Code,,,
             changes, [],
             features, [
                 "Claude Code 的用量统计在运行结束时返回时也能被正确记录",
@@ -4973,7 +4961,7 @@ changes: [],
                 "运行环境在 tas
             ],
             fixes, [
-                Codex, 的思考强度控制, 并可在详情面板里直接调整, ",,
+                Codex, 的思考强度控制, 并可在详情面板里直接调整, ",,,
                 "桌面端标签页可以固定，重要页面会留在左侧，打开新, 容时不打断原页面",
                 "用户资料可以补充请求者背景，, 代码智能体在处理任务时更理解上下文",
                 "工作区设置新增 Gi, Hub 专页，普通成员也能查看已连接的 GitHub 安装信息",
@@ -4988,17 +4976,17 @@ changes: [],
         少重复信息;
         桌面端停止本机,
             title;
-        "任务面包屑会,;
+        "任务面包屑会,;;
         changes: [],
             features;
         [
-            更合适的默认尺寸, 查看内容更自然, ",,
+            更合适的默认尺寸, 查看内容更自然, ",,,
             "小队列表加载状态更完整，归档小队, 会使用更清晰的确认弹窗",
             "智能体运行前会收到父任务 / 子任务协作规则，完成子任务后的回传更, 定",
         ],
         ;
         fixes: [
-            时处理该记录的智能体, ",,
+            时处理该记录的智能体, ",,,
             "聊天和 task , 息加载会跳过临时 ID，避免访问无效 task",
             "OpenCo, e 运行环境不再进入看不见的交互提问流程",
             "G
@@ -5011,7 +4999,7 @@ changes: [],
                 ,
                     title;
             19;
-            ",;
+            ",;;
             ti,
                 changes;
             [],
@@ -5023,11 +5011,11 @@ changes: [],
                     ,
                     "Workspace 管理员可以在设置中调整任务编号前缀",
                     "命令行可以切换 wor, space 并查看当前 workspace",
-                    "Agen,,
+                    "Agen,,,
                     "桌面应用每小时检查更新，设置中新增手动检查按钮"
                 ],
                 fixes, [
-                    用更少步骤引导, runtime, 设置, ",,
+                    用更少步骤引导, runtime, 设置, ",,,
                     "我的任务会包含分配, 小队的工作，相关标签也更容易理解",
                     "查看智能体执行日志时可以切, 排序方向，回看运行过程更方便",
                 ],
@@ -5042,11 +5030,11 @@ changes: [],
             任务模式时;
             提示词里不再残,
                 title;
-            "Runti,;
+            "Runti,;;
             changes: [],
                 features;
             [
-                ls, ",,
+                ls, ",,,
                 "自托管团队可以设置登录会, 有效期",
             ],
             ;
@@ -5062,7 +5050,7 @@ changes: [],
                 features, [
                     ", utopilot 现在可以由 webhook 事件触发，并能, 看投递记录，在外部系统需要时重新投递一次",
                     "任务, 板支持按负责人分组，展示关联 Pull Request 状态，并加入开始日期, 排期更清楚",
-                    "Runtime 页面升级了机器视图，并在用量图表中加入时间和 ,,
+                    "Runtime 页面升级了机器视图，并在用量图表中加入时间和 ,,,
                     "桌面应用 `shell.openExternal` 限制仅允许 http/https 协议（安全）",
                     "重名 Agent 创建返回 409 而非静默失败",
                     "桌面应用新建标签页继承当前工作区"
@@ -5073,7 +5061,7 @@ changes: [],
             version: 到;
             workspa,
                 date;
-            "HTML,;
+            "HTML,;;
             title: 接在任务讨论中预览;
             ",
                 ,
@@ -5081,18 +5069,18 @@ changes: [],
             [],
                 features;
             [
-                务操作失败时会显示更明确的错误原因, 团队不用翻日志也能理解发生, 什么, ",,
+                务操作失败时会显示更明确的错误原因, 团队不用翻日志也能理解发生, 什么, ",,,
                 "关联 GitHub 的 Pull Request 会, Multica 内展示 CI 和合并冲突状态",
                 ,
                 "自托管部署获得更安全的默认配置，并补充反向
             ],
                 fixes;
             [
-                并正确归属到负责的, assignee, agent, ",,
+                并正确归属到负责的, assignee, agent, ",,,
                 "Runtime 设置默认优先选择本地机器，机器列表中的名称也更清, ",
                 "Squad 页面可以, 常滚动，并能看到成员当前是否已经在处理工作",
                 "桌面端缩放, 捷键在常见组合下恢复正常",
-                "登录、安全补丁,,
+                "登录、安全补丁,,,
                 "Daemon 和 GC 端点加强工作区隔离校验（安全）",
                 "邀请邮件中的工作区和邀请人名称进行 HTML 转义",
                 "桌面应用开发版和生产版现在可以同时运行"
@@ -5120,7 +5108,7 @@ changes: [],
                         "创建 Squ, d 的流程更清晰，成员选择和初始设置更适合团队协作",
                     ],
                     improvements, [
-                        形式的仓库地址, ",,
+                        形式的仓库地址, ",,,
                         "小队分工更稳定，leader 能正确接续双角色 , gent 的回复，也会更明确地把任务交给指定成员",
                     ],
                     fixe, [
@@ -5140,7 +5128,7 @@ changes: [],
             {
                 version: 清晰的成员操作按钮,
                     date;
-                "快速创建,;
+                "快速创建,;;
                 title: squad;
                 相关的指派和提及;
                 ",
@@ -5173,7 +5161,7 @@ changes: [],
             }
             {
                 version: ;
-                date: "Usa,;
+                date: "Usa,;;
                 title: ace;
                 和;
                 project;
@@ -5237,7 +5225,7 @@ changes: [],
                 version: ;
                 date: ments: [
                     ,
-                    title, 更稳定地定位到指定评论或动态, ",,,
+                    title, 更稳定地定位到指定评论或动态, ",,,,
                     changes, [],
                     features, [
                         "子任务变更时通知父任务的订阅者",
@@ -5289,7 +5277,7 @@ changes: [],
             {
                 version: impro,
                     date;
-                "服务端删除 ,;
+                "服务端删除 ,;;
                 title: 端自我修复;
                 不再,
                     changes;
@@ -5400,7 +5388,7 @@ changes: [],
                 跳过对超大,
                     changes;
                 [
-                    ",,
+                    ",,,
                     "Autopilot 在 assigne, runtime 离线时跳过 dispatch，避免空, ",
                     "Inbox 自动归档处于终态的 `t, sk_failed` 行",
                     "Hermes, 把 agent instructions 直接随请求内联传入",
@@ -5573,7 +5561,7 @@ changes: [],
                 ];
             }
             unknown: {
-                title: "W,;
+                title: "W,;;
                 sub: I;
                 字符评论 / 描述输入新增;
             }
@@ -5664,7 +5652,7 @@ changes: [],
             daemon;
             跳,
                 goals;
-            "C,;
+            "C,;;
             selectPlaceholder: ;
             避免孤儿进,
                 submit;
@@ -5691,7 +5679,7 @@ changes: [],
             serv, label;
             uard;
             双重收紧;
-            ",;
+            ",;;
         }
         {
             value: 自动取消挂载;
@@ -5700,23 +5688,28 @@ changes: [],
         }
         useCases: [
             { value: 已归档的, agent, ", label: ": Add, Resource },
-            { value: L, tooltip, 空项目, label: 口, ",: "S3  }, },
-            { value: 复跨区访问失败, ",: ,
-                label: "Windows 安装器修正版本 }, },
-            { value: ", label: eate 提交按钮去掉重 }, },
-            { value:  }
-        ],
-        ;
-    }
-    label: {
-        vers;
+            { value: L, tooltip, 空项目, label: 口, ",: ": S3 },
+        ];
     }
     {
-        value: dat, label;
-        -5 - 0;
-    }
-    countries: [
-        eckout `--ref, 、Hermes 历史回放修, 与多副本 Model Pi, ker",
+        value: 复跨区访问失败, ",: ,;
+        label: "Windows 安装器修正版本 }, },;
+        {
+            value: ", label: eate 提交按钮去掉重 }, },;
+            {
+                value: ;
+            }
+            ;
+        }
+        label: {
+            vers;
+        }
+        {
+            value: dat, label;
+            -5 - 0;
+        }
+        countries: [
+            eckout `--ref, 、Hermes 历史回放修, 与多副本 Model Pi, ker",
        , changes: [],,
                 featu, es: [
         , "`, multica, epo, checkou, --ref ` 支持按分, 、tag 或指定 co, mit 拉取仓库",
@@ -5734,7 +5727,7 @@ changes: [],
           "Hermes 在新一轮对话开始时不再重放上一轮答案 —— 历史 ,
                 outreach: "Codex runtime 模型选择器开放 GPT-5.5 系列",
           "`, mult,
-        updates, n<PAT> ` 正确接收 PAT 作为参数值",
+            updates, n<PAT> ` 正确接收 PAT 作为参数值",
           "CLI,
                 unsubscribe: "Session resume 按 runtime 正确守卫，避免跨 run,
                 submitConsent: "看板拖拽任务时显示设置不再丢失",
@@ -5764,4 +5757,7 @@ changes: [],
     };
 }
     ];
+}
+        ];
+    }
 }

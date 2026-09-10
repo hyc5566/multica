@@ -28,7 +28,6 @@ const LEGACY_ROUTE_SEGMENTS = new Set([
 function resolveLocale(req: NextRequest): string {
   return resolveLocaleFromSignals({
     cookieLocale: req.cookies.get(LOCALE_COOKIE)?.value,
-    acceptLanguage: req.headers.get("accept-language"),
   });
 }
 

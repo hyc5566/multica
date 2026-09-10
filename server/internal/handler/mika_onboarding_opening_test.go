@@ -106,8 +106,8 @@ func TestMikaOnboardingOpeningUsesTaiwanTraditionalChinese(t *testing.T) {
 
 	for _, want := range []string{
 		"歡迎來到 Venus",
-		"AI 智能體透過任務",
-		"交給合適的智能體開始執行",
+		"AI Agent 透過任務",
+		"交給合適的 Agent 開始執行",
 		"從下方選一個開始",
 	} {
 		if !strings.Contains(opening, want) {
@@ -125,7 +125,7 @@ func TestMikaOnboardingOpeningUsesTaiwanTraditionalChinese(t *testing.T) {
 func TestMikaAgentDescriptionUsesTaiwanTraditionalChinese(t *testing.T) {
 	description := mikaAgentDescriptions["zh"]
 
-	for _, want := range []string{"工作區", "會把目標轉化為任務", "協調智能體", "工作流程"} {
+	for _, want := range []string{"工作區", "會把目標轉化為任務", "協調 Agent", "工作流程"} {
 		if !strings.Contains(description, want) {
 			t.Errorf("Traditional Chinese Mika description missing %q: %s", want, description)
 		}
