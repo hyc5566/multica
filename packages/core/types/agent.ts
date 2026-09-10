@@ -1256,6 +1256,8 @@ export interface RuntimeProviderUsage {
   observed_at: string;
   message?: string;
   retry_after_seconds?: number;
+  /** Server-enforced shared probe cooldown deadline. */
+  refresh_available_at?: string;
   last_attempt_at?: string;
   last_success_at?: string;
   last_error_code?: string;

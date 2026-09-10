@@ -3038,6 +3038,7 @@ export const RuntimeProviderUsageSchema = z.object({
   observed_at: z.string().default(""),
   message: z.string().optional(),
   retry_after_seconds: z.number().int().positive().optional(),
+  refresh_available_at: z.iso.datetime({ offset: true }).optional(),
   last_attempt_at: z.string().optional(),
   last_success_at: z.string().optional(),
   last_error_code: z.string().optional(),

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, Database, Gauge, RefreshCw } from "lucide-react";
 import type {
@@ -56,7 +56,22 @@ export function AgentUsageSummary({
     );
   }, [agent.id, multicaQuery.data]);
 
+  const [now, setNow] = useState(Date.now);
+  const deadline = Date.parse(providerQuery.data?.refresh_available_at ?? "");
+  const cooldown = Number.isFinite(deadline) ? Math.max(0, Math.ceil((deadline - now) / 1000)) : 0;
+  useEffect(() => {
+    setNow(Date.now());
+    if (!Number.isFinite(deadline) || deadline <= Date.now()) return;
+    const timer = setInterval(() => {
+      const current = Date.now();
+      setNow(current);
+      if (current >= deadline) clearInterval(timer);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [deadline]);
+
   const refresh = () => {
+    if (cooldown > 0 || providerRefresh.isPending) return;
     if (runtime) providerRefresh.mutate(runtime.id);
     if (runtime) void multicaQuery.refetch();
   };
@@ -72,7 +87,7 @@ export function AgentUsageSummary({
         : t(($) => $.detail.usage.source_unavailable);
   const refreshFailed =
     (providerRefresh.isError && providerRefresh.variables === runtime?.id) ||
-    Boolean(usage?.last_error_code);
+    Boolean(usage?.last_error_code && usage.last_error_code !== "rate_limited");
   const stale = usage?.stale === true || Boolean(
     usage?.observed_at && Date.now() - Date.parse(usage.observed_at) > 15 * 60_000,
   );
@@ -85,8 +100,8 @@ export function AgentUsageSummary({
   });
   const providerUnavailable =
     !runtime ||
-    providerQuery.isError ||
-    (usage && !["available", "partial"].includes(usage.status));
+    (providerQuery.isError && !usage) ||
+    (usage && !["available", "partial"].includes(usage.status) && !usage.windows?.length);
   const quotaWindows = useMemo(
     () =>
       prioritizeUsageWindows(
@@ -114,17 +129,24 @@ export function AgentUsageSummary({
             </span>
           ) : null}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={refresh}
-          disabled={!runtime || refreshing}
-          aria-label={t(($) => $.detail.usage.refresh)}
-          title={t(($) => $.detail.usage.refresh)}
-        >
-          <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
-        </Button>
+        <div className="flex items-center gap-2">
+          {cooldown > 0 ? (
+            <span role="status" className="text-[11px] text-muted-foreground">
+              {t(($) => $.detail.usage.refresh_countdown, { seconds: cooldown })}
+            </span>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={refresh}
+            disabled={!runtime || refreshing || cooldown > 0}
+            aria-label={t(($) => $.detail.usage.refresh)}
+            title={t(($) => $.detail.usage.refresh)}
+          >
+            <RefreshCw className={cn("h-3.5 w-3.5", refreshing && "animate-spin")} />
+          </Button>
+        </div>
       </div>
 
       <p className="mt-1 text-[11px] text-muted-foreground">
