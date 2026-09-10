@@ -63,6 +63,8 @@ chmod 755 "$tmp/wrapper"
 # A hard link creates the destination atomically and fails if already present.
 install -m 755 "$tmp/wrapper" "$destination/launcher"
 ln "$destination/launcher" "$wrapper"
+# New installs keep task working directories separate from config and tokens.
+"$wrapper" config set workspaces_root "$HOME/.multica/workspaces"
 printf 'Installed %s.\n' "$version"
 printf 'Command: %s\n' "$wrapper"
 
