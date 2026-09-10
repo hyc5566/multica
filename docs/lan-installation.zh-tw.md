@@ -140,3 +140,9 @@ bash scripts/lan-release/build.sh 0.4.41-zh-tw.4-rc.1 \
 若 desktop API token 被刪除，App session 仍有效時，啟動前會先確認 cached token；Server 明確回覆 401 才補發。網路失敗或 Server 暫時異常不視為 token 撤銷，也不會因此登出 App。若 App session 本身也過期，需重新登入。外部管理的 daemon 不提供此啟動操作。
 
 此修正尚未打包成新的 macOS App，亦未在 M5 驗證。既有 App 若出現 daemon 登入過期提示，可先使用其中的「重新登入」恢復憑證；這也是 App 內部流程，不依賴 PATH。
+
+### Desktop token 刪除保護（後續候選，尚未安裝）
+
+App 的 API token 頁會辨識目前 Desktop profile 實際使用的 token，不只比對名稱。刪除此 token 時提供「取消」或「重新生成並重新連線」：新 token 先產生並寫入，確認 daemon 使用新設定重新啟動且回報 running 後，才撤銷舊 token。執行中的任務或無法確認 daemon 狀態時不執行輪替；身分辨識失敗時停用刪除。
+
+產生失敗保留原憑證；重啟失敗保留舊 token 的有效性並回報新設定已保存，使用守護程序設定重試。新連線成功但撤銷失敗時明確提示手動刪除舊項目，不宣稱全部完成。取消不會刪除或產生 token。其他機器的 token 不會用本機 daemon 取代。

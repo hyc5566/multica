@@ -664,6 +664,12 @@
       "cli_hint": "다음 명령으로 CLI에 로그인하세요:",
       "copy_command_tooltip": "명령 복사",
       "done": "완료"
+    },
+    "desktop_rotation": {
+      "title": "Desktop API token을 다시 생성할까요?",
+      "description": "이 App의 daemon이 사용하는 token입니다. 새 token으로 연결된 후 기존 token을 폐기합니다. 실행 중인 작업이 끝난 후 진행하세요. 취소하면 기존 token이 유지됩니다.",
+      "confirm": "다시 생성하고 연결",
+      "success": "Desktop token을 교체하고 daemon을 다시 연결했습니다."
     }
   },
   "workspace": {

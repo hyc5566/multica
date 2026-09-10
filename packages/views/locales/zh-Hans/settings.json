@@ -664,6 +664,12 @@
       "cli_hint": "使用以下命令登入 CLI：",
       "copy_command_tooltip": "複製命令",
       "done": "完成"
+    },
+    "desktop_rotation": {
+      "title": "是否重新生成 Desktop API token？",
+      "description": "這台 App 的 daemon 正在使用此 token。是否重新生成並重新連線？新 token 連線成功後才會撤銷舊 token。請先等待執行中的任務完成；取消會保留原 token。",
+      "confirm": "重新生成並重新連線",
+      "success": "Desktop token 已更新，daemon 已重新連線。"
     }
   },
   "workspace": {

@@ -42,7 +42,12 @@ import { SettingsSection, SettingsTab } from "./settings-layout";
 
 const EXPIRY_KEYS = ["30", "90", "365", "never"] as const;
 
-export function TokensTab() {
+export interface DesktopTokenControl {
+  getCurrentTokenId(): Promise<string | null>;
+  rotate(tokenId: string): Promise<void>;
+}
+
+export function TokensTab({ desktopTokenControl }: { desktopTokenControl?: DesktopTokenControl } = {}) {
   const { t } = useT("settings");
   const locale = useLocale();
   const expiryItems = EXPIRY_KEYS.map((value) => ({
@@ -59,12 +64,19 @@ export function TokensTab() {
   const [storedConfirmed, setStoredConfirmed] = useState(false);
   const [tokenRevoking, setTokenRevoking] = useState<string | null>(null);
   const [revokeConfirmId, setRevokeConfirmId] = useState<string | null>(null);
+  const [desktopTokenId, setDesktopTokenId] = useState<string | null>(null);
+  const [identityReady, setIdentityReady] = useState(!desktopTokenControl);
+  const rotatingDesktop = !!revokeConfirmId && revokeConfirmId === desktopTokenId;
   const [tokensLoading, setTokensLoading] = useState(true);
   const [tokensLoadFailed, setTokensLoadFailed] = useState(false);
 
   const loadTokens = useCallback(async () => {
     try {
+      setIdentityReady(!desktopTokenControl);
       const list = await api.listPersonalAccessTokens();
+      const currentId = desktopTokenControl ? await desktopTokenControl.getCurrentTokenId() : null;
+      setDesktopTokenId(currentId);
+      setIdentityReady(true);
       setTokens(list);
       setTokensLoadFailed(false);
     } catch (e) {
@@ -73,7 +85,7 @@ export function TokensTab() {
     } finally {
       setTokensLoading(false);
     }
-  }, [t]);
+  }, [t, desktopTokenControl]);
 
   useEffect(() => { loadTokens(); }, [loadTokens]);
 
@@ -102,6 +114,21 @@ export function TokensTab() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t(($) => $.tokens.toast_revoke_failed));
     } finally {
+      setTokenRevoking(null);
+    }
+  };
+
+  const handleRotateDesktop = async (id: string) => {
+    if (!desktopTokenControl || tokenRevoking) return;
+    setTokenRevoking(id);
+    try {
+      await desktopTokenControl.rotate(id);
+      toast.success(t(($) => $.tokens.desktop_rotation.success));
+      setRevokeConfirmId(null);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t(($) => $.tokens.toast_revoke_failed));
+    } finally {
+      await loadTokens();
       setTokenRevoking(null);
     }
   };
@@ -225,7 +252,7 @@ export function TokensTab() {
                           variant="ghost"
                           size="icon-sm"
                           onClick={() => setRevokeConfirmId(token.id)}
-                          disabled={tokenRevoking === token.id}
+                          disabled={!!tokenRevoking || !identityReady}
                           aria-label={t(($) => $.tokens.revoke_aria, { name: token.name })}
                         >
                           <Trash2 className="h-3.5 w-3.5" />
@@ -241,24 +268,30 @@ export function TokensTab() {
         )}
       </SettingsSection>
 
-      <AlertDialog open={!!revokeConfirmId} onOpenChange={(v) => { if (!v) setRevokeConfirmId(null); }}>
+      <AlertDialog open={!!revokeConfirmId} onOpenChange={(v) => { if (!v && !tokenRevoking) setRevokeConfirmId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{t(($) => $.tokens.revoke_dialog.title)}</AlertDialogTitle>
+            <AlertDialogTitle>{rotatingDesktop ? t(($) => $.tokens.desktop_rotation.title) : t(($) => $.tokens.revoke_dialog.title)}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t(($) => $.tokens.revoke_dialog.description)}
+              {rotatingDesktop ? t(($) => $.tokens.desktop_rotation.description) : t(($) => $.tokens.revoke_dialog.description)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t(($) => $.tokens.revoke_dialog.cancel)}</AlertDialogCancel>
+            <AlertDialogCancel disabled={!!tokenRevoking}>{t(($) => $.tokens.revoke_dialog.cancel)}</AlertDialogCancel>
             <AlertDialogAction
               variant="destructive"
-              onClick={async () => {
+              disabled={!!tokenRevoking}
+              onClick={async (event) => {
+                if (rotatingDesktop && revokeConfirmId) {
+                  event.preventDefault();
+                  await handleRotateDesktop(revokeConfirmId);
+                  return;
+                }
                 if (revokeConfirmId) await handleRevokeToken(revokeConfirmId);
                 setRevokeConfirmId(null);
               }}
             >
-              {t(($) => $.tokens.revoke_dialog.confirm)}
+              {rotatingDesktop ? t(($) => $.tokens.desktop_rotation.confirm) : t(($) => $.tokens.revoke_dialog.confirm)}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

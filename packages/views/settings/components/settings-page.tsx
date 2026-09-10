@@ -30,7 +30,7 @@ import { resolveSettingsLocation, settingsHref } from "./settings-navigation";
 import { AppLink, useNavigation } from "../../navigation";
 import { AccountTab } from "./account-tab";
 import { PreferencesTab } from "./preferences-tab";
-import { TokensTab } from "./tokens-tab";
+import { TokensTab, type DesktopTokenControl } from "./tokens-tab";
 import { WorkspaceTab } from "./workspace-tab";
 import { MembersTab } from "./members-tab";
 import { RepositoriesTab } from "./repositories-tab";
@@ -56,12 +56,13 @@ export interface ExtraSettingsTab {
 
 interface SettingsPageProps {
   /** Device settings supplied by the desktop platform. */
+  desktopTokenControl?: DesktopTokenControl;
   extraDeviceTabs?: ExtraSettingsTab[];
 }
 
 type SettingsEntry = ExtraSettingsTab & { wide?: boolean };
 
-export function SettingsPage({ extraDeviceTabs = [] }: SettingsPageProps = {}) {
+export function SettingsPage({ extraDeviceTabs = [], desktopTokenControl }: SettingsPageProps = {}) {
   const { t } = useT("settings");
   const workspaceName =
     useCurrentWorkspace()?.name ?? t(($) => $.page.workspace_fallback);
@@ -112,7 +113,7 @@ export function SettingsPage({ extraDeviceTabs = [] }: SettingsPageProps = {}) {
           "tokens",
           t(($) => $.page.tabs.tokens),
           Key,
-          <TokensTab />,
+          <TokensTab desktopTokenControl={desktopTokenControl} />,
         ),
       ],
     },
