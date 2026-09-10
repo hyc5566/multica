@@ -74,7 +74,7 @@ const HEALTH_PROBE_TIMEOUT_MS = 2_000;
 // misses this second independent window is no longer treated as merely busy.
 const RECOVERY_HEALTH_PROBE_TIMEOUT_MS = 10_000;
 
-const DEFAULT_PREFS: DaemonPrefs = { autoStart: true, autoStop: false };
+const DEFAULT_PREFS: DaemonPrefs = { autoStart: false, autoStop: false };
 
 // Always a resolved Desktop-owned profile. "Not resolved yet" is represented by
 // `null` at every call site, never by an empty name — see daemon-profile.ts.
@@ -218,17 +218,18 @@ async function probeTokenValidity(profile: string): Promise<AuthProbeResult> {
   const cfg = await readProfileConfig(profile);
   const token = typeof cfg.token === "string" ? cfg.token : "";
   if (!token) return classifyAuthProbe({ noToken: true });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4_000);
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4_000);
     const res = await fetch(`${targetApiBaseUrl.replace(/\/+$/, "")}/api/me`, {
       headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     });
-    clearTimeout(timeout);
     return classifyAuthProbe({ status: res.status });
   } catch {
     return classifyAuthProbe({ networkError: true });
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -682,8 +683,9 @@ async function mintPat(jwt: string): Promise<string> {
  * - Input from the renderer is the user's JWT (from localStorage) plus the
  *   current user's id, so we can detect session changes.
  * - If the profile already has a cached PAT (`mul_...`) AND the sidecar user
- *   id matches the caller, reuse it — minting fresh on every launch would
- *   accumulate garbage in the user's tokens page.
+ *   id matches the caller, reuse it unless the server explicitly rejects it.
+ *   A deleted PAT is replaced using the valid App session; network failures
+ *   must not accumulate fresh tokens or invalidate the App's login.
  * - On user mismatch (or first run) call POST /api/tokens with the JWT to
  *   mint a fresh PAT, overwriting any stale cached PAT. This is the critical
  *   path: without it, a previous user's PAT would be used by a new session.
@@ -714,7 +716,10 @@ async function syncToken(
   let finalToken: string;
   if (tokenFromRenderer.startsWith("mul_")) {
     finalToken = tokenFromRenderer;
-  } else if (sameUserWithCachedPat) {
+  } else if (
+    sameUserWithCachedPat &&
+    (await probeTokenValidity(active.name)) !== "auth_expired"
+  ) {
     finalToken = config.token as string;
   } else {
     try {

@@ -1,10 +1,11 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "@multica/core/i18n/react";
 import { RESOURCES } from "@multica/views/locales";
 import type { DaemonStatus } from "../../../shared/daemon-types";
 import { DaemonPanel } from "./daemon-panel";
+import { startDaemonWithSession } from "../platform/daemon-reauth";
 import { DaemonSettingsTab } from "./daemon-settings-tab";
 
 vi.mock("sonner", () => ({
@@ -13,6 +14,7 @@ vi.mock("sonner", () => ({
 
 vi.mock("../platform/daemon-reauth", () => ({
   reauthenticateDaemon: vi.fn(),
+  startDaemonWithSession: vi.fn(),
 }));
 
 let emitLogLine: (line: string) => void = () => {};
@@ -61,6 +63,15 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
     ).toBeInTheDocument();
     const command = screen.getByText("multica daemon stop");
     expect(command.closest("p")).toHaveTextContent(/multica daemon stop。$/);
+  });
+
+  it("offers manual start in settings while stopped", async () => {
+    installDaemonAPI({ state: "stopped" });
+    renderInTaiwanChinese(<DaemonSettingsTab />);
+    const button = await screen.findByRole("button", { name: "啟動" });
+    expect(button).toBeEnabled();
+    await act(async () => { fireEvent.click(button); });
+    expect(startDaemonWithSession).toHaveBeenCalledOnce();
   });
 
   it("renders repeated log messages with straight double quotes", async () => {
