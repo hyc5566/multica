@@ -3,9 +3,12 @@ set -euo pipefail
 
 # Build a local release without publishing, installing, or starting services.
 repo=$(git rev-parse --show-toplevel)
-version=${1:?Usage: build.sh VERSION OUTPUT_DIR HTTPS_DOWNLOAD_BASE}
+version=${1:?Usage: build.sh VERSION OUTPUT_DIR HTTPS_DOWNLOAD_BASE VERIFIED_CA_FILE}
 out=${2:?Missing output directory}
 base_url=${3:?Missing immutable HTTPS download base}
+ca_file=${4:?Missing verified s90 public CA certificate path}
+openssl x509 -in "$ca_file" -noout -checkend 0 >/dev/null
+if grep -q 'PRIVATE KEY' "$ca_file"; then echo 'CA input must not contain a private key.' >&2; exit 2; fi
 [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+(-rc\.[0-9]+)?$ ]] || exit 2
 [[ "$base_url" =~ ^https://[a-zA-Z0-9.:/-]+$ && "$base_url" != */ ]] || exit 2
 [[ "$out" == /* && ! -e "$out" ]] || { echo 'Use a new absolute output directory.' >&2; exit 2; }
@@ -25,7 +28,8 @@ for platform in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
     -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.date=$build_date" \
     -o "$out/$platform/multica" ./cmd/multica
   cp "$repo/LICENSE" "$repo/NOTICE" "$out/$platform/"
-  tar -czf "$out/multica-$platform.tar.gz" -C "$out/$platform" multica LICENSE NOTICE
+  cp "$ca_file" "$out/$platform/s90-ca.crt"
+  tar -czf "$out/multica-$platform.tar.gz" -C "$out/$platform" multica LICENSE NOTICE s90-ca.crt
   checksum=$(sha256sum "$out/multica-$platform.tar.gz")
   placeholder=$(printf '%s' "$platform" | tr 'a-z-' 'A-Z_')
   sed -i "s|@$placeholder@|${checksum%% *}|g" "$out/install.sh"
