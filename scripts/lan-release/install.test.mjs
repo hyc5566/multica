@@ -6,13 +6,13 @@ import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
-test('installer verifies artifacts, isolates daemon and preserves existing installs', () => {
+test('installer verifies artifacts, uses default configuration and preserves existing installs', () => {
   const root = mkdtempSync(join(tmpdir(), 'multica-installer-'));
   try {
     const fixture = join(root, 'fixture');
     const fakebin = join(root, 'fakebin');
     mkdirSync(fixture); mkdirSync(fakebin);
-    writeFileSync(join(fixture, 'multica'), '#!/usr/bin/env bash\n[[ ${3:-} != login || ${FIXTURE_LOGIN_FAIL:-} != 1 ]] || exit 7\nprintf "%s\\n" "$MULTICA_DAEMON_AUTO_UPDATE" "$MULTICA_DAEMON_AUTO_RELOAD" "$@"\n', {mode: 0o755});
+    writeFileSync(join(fixture, 'multica'), '#!/usr/bin/env bash\n[[ ${1:-} != login || ${FIXTURE_LOGIN_FAIL:-} != 1 ]] || exit 7\nprintf "%s\\n" "$MULTICA_DAEMON_AUTO_UPDATE" "$MULTICA_DAEMON_AUTO_RELOAD" "$@"\n', {mode: 0o755});
     for (const name of ['LICENSE', 'NOTICE', 's90-ca.crt']) writeFileSync(join(fixture, name), 'fixture');
     const archive = join(root, 'fixture.tar.gz');
     assert.equal(spawnSync('tar', ['-czf', archive, '-C', fixture, 'multica', 'LICENSE', 'NOTICE', 's90-ca.crt']).status, 0);
@@ -32,10 +32,10 @@ test('installer verifies artifacts, isolates daemon and preserves existing insta
     writeFileSync(installer, render(hash));
     const installed = spawnSync('bash', [installer], {env, encoding: 'utf8'});
     assert.equal(installed.status, 0, installed.stderr);
-    const wrapper = join(installRoot, 'bin/multica-zh-tw');
+    const wrapper = join(installRoot, 'bin/multica');
     const result = spawnSync(wrapper, ['version'], {env, encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stdout, `false\nfalse\n--profile\nmultica-zh-tw-${process.getuid()}\nversion\n`);
+    assert.equal(result.stdout, 'false\nfalse\nversion\n');
     assert.match(readFileSync(wrapper, 'utf8'), /SSL_CERT_FILE=/);
     assert.match(readFileSync(wrapper, 'utf8'), /MULTICA_SERVER_URL=https:\/\/10\.1\.24\.90:45671/);
     assert.match(readFileSync(join(installRoot, 'share/multica-zh-tw/0.4.41-zh-tw.4-rc.1/ca-bundle.crt'), 'utf8'), /BEGIN CERTIFICATE/);
@@ -46,6 +46,9 @@ test('installer verifies artifacts, isolates daemon and preserves existing insta
     const failedLogin = spawnSync('bash', [installer, '--login'], {env: {...env, FIXTURE_LOGIN_FAIL: '1', MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'failed-login')}, encoding: 'utf8'});
     assert.equal(failedLogin.status, 7);
     assert.doesNotMatch(failedLogin.stdout, /daemon\nstart\n/);
+    const explicitProfile = spawnSync(wrapper, ['--profile', 'optional', 'version'], {env, encoding: 'utf8'});
+    assert.equal(explicitProfile.stdout, 'false\nfalse\n--profile\noptional\nversion\n');
+    assert.doesNotMatch(readFileSync(wrapper, 'utf8'), /--profile/);
     const previous = readFileSync(wrapper, 'utf8');
     assert.equal(spawnSync('bash', [installer], {env}).status, 2);
     assert.equal(readFileSync(wrapper, 'utf8'), previous);

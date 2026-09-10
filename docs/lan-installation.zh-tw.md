@@ -27,23 +27,22 @@ SMTP 使用現有 `SMTP_HOST`、`SMTP_PORT`、`SMTP_USERNAME`、`SMTP_PASSWORD`�
 
 1. 登入 Web 或相同候選版 Desktop，切換正確工作區，開啟「執行環境 → 連接其他機器」。
 2. 在**要執行任務的機器**，以同事自己的 OS 帳號執行第一步安裝命令。管理員設定 `MULTICA_DAEMON_INSTALL_URL` 後，此步改為下載固定版本的內網安裝器。
-3. 安裝器驗證內嵌的 SHA-256，binary 放入 `~/.local/share/multica-zh-tw/<version>/multica`；啟動入口是 `~/.local/bin/multica-zh-tw`。既有安裝會拒絕覆寫，安裝不會自動登入或啟動 daemon。
+3. 安裝器驗證內嵌的 SHA-256，binary 放入 `~/.local/share/multica-zh-tw/<version>/multica`；啟動入口是 `~/.local/bin/multica`。既有安裝會拒絕覆寫，不帶 --login 時只安裝；帶 --login 時依提示登入並啟動 daemon。
 4. 執行介面第二步，或使用：
 
    ```bash
-   "$HOME/.local/bin/multica-zh-tw" setup self-host \
-     --server-url https://10.1.24.90:45671 \
-     --app-url https://10.1.24.90:45671
+   "$HOME/.local/bin/multica" login --token
+   "$HOME/.local/bin/multica" daemon start
    ```
 
    依提示完成自己的登入及工作區選擇。若已有該 profile，setup 可能重新啟動 daemon；先確認沒有進行中的任務。不要使用別人的 API token。
-5. wrapper 固定使用 `multica-zh-tw-<uid>` profile（依安裝帳號 UID），停用官方自動更新及自動重新載入，避免繁中 binary 被取代。它與 default／s90／Desktop profile 分離；同一 OS 帳號需要第二組環境時，另外指定完整 binary 與獨立 profile，不共用此 wrapper。
+5. wrapper 不指定具名 profile，使用目前 OS 帳號的預設設定，停用官方自動更新及自動重新載入，避免繁中 binary 被取代。它使用 default 設定；同一 OS 帳號已有 default 設定時須先核對，不可當成另一套隔離設定。需要第二組環境時可自行指定 --profile。
 6. 在指定機器查核：
 
    ```bash
-   "$HOME/.local/bin/multica-zh-tw" version
-   "$HOME/.local/bin/multica-zh-tw" daemon status --output json
-   "$HOME/.local/bin/multica-zh-tw" daemon logs
+   "$HOME/.local/bin/multica" version
+   "$HOME/.local/bin/multica" daemon status --output json
+   "$HOME/.local/bin/multica" daemon logs
    ```
 
    核對 Server URL、profile、版本、daemon 身分、工作區與近期 heartbeat；介面「已連線」提示不足以證明是本次機器。再在 Web 選擇該執行環境，執行一個已核准的簡單議題確認結果。
@@ -59,7 +58,7 @@ Description=Multica zh-TW personal daemon
 After=network-online.target
 
 [Service]
-ExecStart=%h/.local/bin/multica-zh-tw daemon start --foreground
+ExecStart=%h/.local/bin/multica daemon start --foreground
 Restart=on-failure
 RestartSec=5
 
@@ -170,8 +169,15 @@ App 的 API token 頁會辨識目前 Desktop profile 實際使用的 token，不
 
 使用者下載該版本 install.sh 後執行 `bash ./install.sh --login`：自動辨識平台、下載並驗證成品、組合系統公用 CA + s90 CA、建立自己的 launcher，提示輸入 API token，登入成功後啟動 daemon。不輸入 URL、profile 或 SSL_CERT_FILE。沒有 --login 時只安裝並顯示後續指令，不啟動服務。
 
-launcher 為 `~/.local/bin/multica-zh-tw`，設定對外 Server/App URL `https://10.1.24.90:45671`，使用 `multica-zh-tw-<uid>` profile，減少不同 Linux 帳號使用相同 profile 時的固定 health port 衝突；仍須驗證目標機台埠可用。CA 僅由 launcher 帶入，組合公用 roots 避免 provider 工具失去原有公用 CA。
+launcher 為 `~/.local/bin/multica`，設定對外 Server/App URL `https://10.1.24.90:45671`，不帶 `--profile`，設定使用 `~/.multica/config.json`。同機多人使用預設 profile 的 health port 隔離尚待處理與驗證，不能據此宣稱已支援同機多人同時啟動。CA 僅由 launcher 帶入，組合公用 roots 避免 provider 工具失去原有公用 CA。
 
-這是新使用者安裝路徑，不會搬移或覆蓋既有 hungyu 的 v6/s90 binary。現有安裝會安全退出，升級另按部署流程。CLI 指令：`~/.local/bin/multica-zh-tw auth status`；停止：`~/.local/bin/multica-zh-tw daemon stop`。尚未配置 systemd／登入後開機自動啟動。
+這是新使用者安裝路徑，不會搬移或覆蓋既有 hungyu 的 v6/s90 binary。現有安裝會安全退出，升級另按部署流程。CLI 指令：`~/.local/bin/multica auth status`；停止：`~/.local/bin/multica daemon stop`。尚未配置 systemd／登入後開機自動啟動。
 
 s90 本機 daemon 的 `http://127.0.0.1:45673` 是直接 backend 入口；其他機器使用 `https://10.1.24.90:45671` 經 Caddy TLS 入口，兩者連同一 Server。不能把 s90 localhost URL 複製到同事機器。
+
+
+### profile 的用途（最新安裝決策）
+
+新安裝使用 `~/.local/bin/multica` launcher，內建網址與 CA 處理，但不指定 profile 名稱。這是命令列入口，不是 macOS GUI App。設定屬於目前 OS 帳號，預設位於 `~/.multica/config.json`。
+
+具名 CLI profile 是同一 OS 帳號下不同連線／設定組合：可保存不同 Server、Multica 登入 token、預設工作區及 daemon 參數。它不切換 Linux 使用者，也不等於 Agent 人格；工作區是 Server 上的協作空間，同一登入可存取多個工作區。多個具名 profile 共用 state root 的 daemon ID，不能當成 OS 安全邊界。只有需要同帳號管理不同 Server／登入設定時才手動使用 `--profile`。
