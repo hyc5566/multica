@@ -111,7 +111,7 @@ func confirmOverwrite(profile, newServerURL, newAppURL string) (bool, error) {
 		fmt.Fprintf(os.Stderr, "  workspace:  %s\n", cfg.WorkspaceID)
 	}
 	fmt.Fprintln(os.Stderr, "")
-	fmt.Fprint(os.Stderr, "This will reset your configuration. Continue? [y/N] ")
+	fmt.Fprint(os.Stderr, "Apply these server settings? Local settings will be retained. Continue? [y/N] ")
 
 	reader := bufio.NewReader(os.Stdin)
 	answer, _ := reader.ReadString('\n')
@@ -138,10 +138,14 @@ func runSetupCloud(cmd *cobra.Command, args []string) error {
 	}
 	profile := resolveProfile(cmd)
 
-	cfg := cli.CLIConfig{
-		ServerURL: defaultCloudServerURL,
-		AppURL:    defaultCloudAppURL,
+	cfg, err := cli.LoadCLIConfigForProfile(profile)
+	if err != nil {
+		return err
 	}
+	if normalizeAPIBaseURL(cfg.ServerURL) != defaultCloudServerURL {
+		cfg.Token, cfg.WorkspaceID = "", ""
+	}
+	cfg.ServerURL, cfg.AppURL = defaultCloudServerURL, defaultCloudAppURL
 
 	ok, err := confirmOverwrite(profile, cfg.ServerURL, cfg.AppURL)
 	if err != nil {
@@ -162,7 +166,7 @@ func runSetupCloud(cmd *cobra.Command, args []string) error {
 
 	// Authenticate.
 	fmt.Fprintln(os.Stderr, "")
-	if err := runLogin(cmd, args); err != nil {
+	if err := authenticateAfterSetup(cmd, args); err != nil {
 		return err
 	}
 
@@ -243,7 +247,7 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 
 	// Authenticate.
 	fmt.Fprintln(os.Stderr, "")
-	if err := runLogin(cmd, args); err != nil {
+	if err := authenticateAfterSetup(cmd, args); err != nil {
 		return err
 	}
 
@@ -253,6 +257,41 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 	fmt.Fprintln(os.Stderr, "\n✓ Setup complete! Your machine is now connected to Multica.")
 
 	return nil
+}
+
+// authenticateAfterSetup reuses a saved credential only after the server accepts it.
+// Transport and server failures must not cause needless token replacement.
+func authenticateAfterSetup(cmd *cobra.Command, args []string) error {
+	cfg, err := cli.LoadCLIConfigForProfile(resolveProfile(cmd))
+	if err != nil {
+		return err
+	}
+	reuse, err := validateSetupToken(cfg)
+	if err != nil {
+		return err
+	}
+	if reuse {
+		fmt.Fprintln(os.Stderr, "Existing authentication verified; keeping your token.")
+		return nil
+	}
+	return runLogin(cmd, args)
+}
+
+func validateSetupToken(cfg cli.CLIConfig) (bool, error) {
+	if cfg.Token == "" {
+		return false, nil
+	}
+	ctx, cancel := cli.APIContext(context.Background())
+	defer cancel()
+	var me map[string]any
+	err := cli.NewAPIClient(cfg.ServerURL, "", cfg.Token).GetJSON(ctx, "/api/me", &me)
+	if err == nil {
+		return true, nil
+	}
+	if isInvalidAuthentication(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("could not verify existing authentication; token retained: %w", err)
 }
 
 // runDaemonAfterSetup makes the freshly authenticated profile effective in
@@ -324,21 +363,21 @@ func daemonActiveTaskCount(health map[string]any) int64 {
 	}
 }
 
-// persistSelfHostConfigIfReachable probes serverURL and, only when it answers,
-// overwrites the profile config with the given self-host URLs. When the server
-// is unreachable it leaves any existing config — and its auth token — untouched
-// and returns false, so a failed `setup self-host` never logs the user out or
-// clobbers a working config (the original ordering saved first, then probed,
-// then bailed — wiping the token on every failed probe). The prober is injected
-// so tests can exercise both branches without real network I/O.
+// persistSelfHostConfigIfReachable preserves local settings, and retains credentials
+// only when the server identity is unchanged. Failed probes leave config untouched.
 func persistSelfHostConfigIfReachable(serverURL, appURL, profile string, probe func(string) bool) (bool, error) {
 	if !probe(serverURL) {
 		return false, nil
 	}
-	cfg := cli.CLIConfig{
-		ServerURL: serverURL,
-		AppURL:    appURL,
+	cfg, err := cli.LoadCLIConfigForProfile(profile)
+	if err != nil {
+		return false, err
 	}
+	if normalizeAPIBaseURL(cfg.ServerURL) != normalizeAPIBaseURL(serverURL) {
+		cfg.Token = ""
+		cfg.WorkspaceID = ""
+	}
+	cfg.ServerURL, cfg.AppURL = serverURL, appURL
 	if err := cli.SaveCLIConfigForProfile(cfg, profile); err != nil {
 		return false, err
 	}

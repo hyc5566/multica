@@ -24,7 +24,7 @@ if [[ $(uname -s) != "Darwin" || $(uname -m) != "arm64" ]]; then
   exit 2
 fi
 
-for required_command in git node pnpm xcode-select codesign ditto shasum; do
+for required_command in git node pnpm go openssl xcode-select codesign ditto shasum; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "error: missing required command: $required_command" >&2
     exit 2
@@ -74,18 +74,22 @@ echo "pnpm=$(pnpm --version) node=$(node --version)"
 # staging and must never accumulate output from older builds.
 rm -rf "$desktop_dir/dist-zh-tw"
 
+ca_file=${MULTICA_ZH_TW_CA_FILE:?Set MULTICA_ZH_TW_CA_FILE to the verified public s90 CA}
+openssl x509 -in "$ca_file" -noout -checkend 0 >/dev/null
+if grep -q "PRIVATE KEY" "$ca_file"; then echo "Refusing private key input" >&2; exit 2; fi
+mkdir -p "$desktop_dir/resources"
+cp "$ca_file" "$desktop_dir/resources/s90-ca.crt"
+export MULTICA_BUILD_VERSION="$requested_version"
+
 pnpm install --frozen-lockfile
 pnpm --filter @multica/desktop typecheck
 pnpm --filter @multica/desktop test
 
-# bundle-cli.mjs builds and embeds the matching CLI when Go is available.
-# Without Go it intentionally leaves the app to use Multica's verified
-# runtime bootstrap path.
+# Always embed the matching CLI; release builds require Go.
 pnpm -C apps/desktop run bundle-cli
 pnpm -C apps/desktop exec electron-vite build
 
-CSC_IDENTITY_AUTO_DISCOVERY=false \
-  pnpm -C apps/desktop exec electron-builder \
+pnpm -C apps/desktop exec electron-builder \
   --config electron-builder.zh-tw.yml \
   --mac dir \
   --arm64 \
@@ -121,22 +125,8 @@ fi
 
 ditto -c -k --sequesterRsrc --keepParent "$built_app" "$zip_path"
 
-# Keep the current and immediately previous installable archives. The installed
-# app and the single rollback app are managed by the deployment procedure.
-desktop_artifacts=("$artifact_dir"/multica-desktop-*-mac-arm64.zip)
-if (( ${#desktop_artifacts[@]} > 2 )); then
-  artifact_number=0
-  while IFS= read -r artifact; do
-    ((artifact_number += 1))
-    if (( artifact_number > 2 )); then
-      rm -- "$artifact"
-      echo "Pruned old Desktop artifact: $artifact"
-    fi
-  done < <(ls -1t "${desktop_artifacts[@]}")
-fi
-
 echo "Build complete:"
 echo "  App: $built_app"
 echo "  ZIP: $zip_path"
 shasum -a 256 "$zip_path"
-echo "Signature: ad-hoc local build (not notarized)"
+echo "Signature: inspect codesign and Gatekeeper output before publishing; notarization is not enabled by this config."
