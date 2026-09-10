@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, expect, it } from "vitest";
 import {
   isSupportedLocale,
@@ -14,45 +15,19 @@ describe("locale routing", () => {
     expect(isSupportedLocale(null)).toBe(false);
   });
 
+  it("defaults new visitors to Traditional Chinese", () => {
+    expect(resolveLocaleFromSignals({})).toBe("zh-Hans");
+    expect(resolveLocaleFromSignals({ cookieLocale: "" })).toBe("zh-Hans");
+  });
+
   it("normalizes legacy landing zh cookies to the app locale", () => {
-    expect(
-      resolveLocaleFromSignals({
-        cookieLocale: "zh",
-        acceptLanguage: "en-US,en;q=0.9",
-      }),
-    ).toBe("zh-Hans");
+    expect(resolveLocaleFromSignals({ cookieLocale: "zh" })).toBe("zh-Hans");
   });
 
-  it("prefers cookie locale over Accept-Language", () => {
-    expect(
-      resolveLocaleFromSignals({
-        cookieLocale: "en",
-        acceptLanguage: "zh-CN,zh;q=0.9",
-      }),
-    ).toBe("en");
-  });
-
-  it("falls back to Accept-Language when no cookie is set", () => {
-    expect(
-      resolveLocaleFromSignals({
-        acceptLanguage: "zh-CN,zh;q=0.9,en;q=0.8",
-      }),
-    ).toBe("zh-Hans");
-  });
-
-  it("matches Korean browser language signals", () => {
-    expect(
-      resolveLocaleFromSignals({
-        acceptLanguage: "ko-KR,ko;q=0.9,en;q=0.8",
-      }),
-    ).toBe("ko");
-  });
-
-  it("matches Japanese browser language signals", () => {
-    expect(
-      resolveLocaleFromSignals({
-        acceptLanguage: "ja-JP,ja;q=0.9,en;q=0.8",
-      }),
-    ).toBe("ja");
-  });
+  it.each(["en", "zh-Hans", "ko", "ja"])(
+    "preserves the saved %s preference",
+    (locale) => {
+      expect(resolveLocaleFromSignals({ cookieLocale: locale })).toBe(locale);
+    },
+  );
 });

@@ -72,7 +72,7 @@ Mika will turn one real goal into an issue, start it with the right agent, and s
 
 const zh = `歡迎來到 Multica。
 
-智能體需要先連上執行環境才能執行工作。執行環境還沒準備好時,你也可以先把 Multica 當作輕量專案管理工具體驗起來。
+Agent 需要先連上執行環境才能執行工作。執行環境還沒準備好時,你也可以先把 Multica 當作輕量專案管理工具體驗起來。
 
 ## 先體驗專案管理功能
 
@@ -83,7 +83,7 @@ const zh = `歡迎來到 Multica。
 3. 給任務加優先順序、標籤、評論和訂閱。
 4. 用收件匣追蹤分配給你的事項和 @mention。
 
-這樣你先熟悉專案管理層。連上執行環境後,智能體會直接在這些任務上開始工作。
+這樣你先熟悉專案管理層。連上執行環境後,Agent 會直接在這些任務上開始工作。
 
 ## 安裝第一個 Agent 執行環境
 
@@ -109,7 +109,7 @@ const zh = `歡迎來到 Multica。
 
 Kimi CLI 官方文件:https://moonshotai.github.io/kimi-cli/zh/guides/getting-started.html
 
-Mika 會把一個真實目標轉化為任務，交給合適的智能體啟動執行，並在工作流需要時建議新增可複用的 specialist。`;
+Mika 會把一個真實目標轉化為任務，交給合適的 Agent 啟動執行，並在工作流需要時建議新增可複用的 specialist。`;
 
 const ko = `Multica에 오신 것을 환영합니다.
 

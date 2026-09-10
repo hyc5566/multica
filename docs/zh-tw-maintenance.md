@@ -210,3 +210,8 @@ there is no new dependency or database migration.
   reproducible and may be pruned when no build is running; never remove daemon
   workspaces, profiles, logs, databases, or the one retained rollback app as
   cache cleanup.
+# 介面用語與入口語系（HYCLV-64）
+
+繁中介面中的 agent 一律保留英文 `Agent`，列表標題可用 `Agents`；不翻成「智能體」「智慧體」「助理」或「代理」。此規則包含 Web／Desktop 共用 locale、入口頁、內建上手引導、CLI 顯示文案及分支內相關說明文件；網路 proxy 的「代理」與使用者自行命名的內容不在替換範圍。
+
+未儲存語系偏好的 Web 新訪客預設繁體中文；明確選擇英文等既有語系時保留 cookie 偏好。入口頁和登入頁透過 `apps/web/lib/locale-routing.ts` 共用這項決策。相容性 key `zh-Hans` 仍載入繁中資源，不更動 API／資料庫語系 enum。重建時檢查首頁、登入頁、導航與 Agent 頁，並核對翻譯 key 和插值不變。

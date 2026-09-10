@@ -1,11 +1,11 @@
 ---
 title: Telegram Bot 接入
-description: 把 Multica 智能体接入你自己的 Telegram Bot，支持私聊、群聊 @、forum topic 和 /issue。
+description: 把 Multica Agent 接入你自己的 Telegram Bot，支持私聊、群聊 @、forum topic 和 /issue。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Multica 使用你通过 Telegram 官方 [@BotFather](https://t.me/BotFather) 创建的 Bot。一个 Bot 对应一个 Multica 智能体；需要多个独立 Bot 身份时，为每个智能体分别创建。
+Multica 使用你通过 Telegram 官方 [@BotFather](https://t.me/BotFather) 创建的 Bot。一个 Bot 对应一个 Multica Agent；需要多个独立 Bot 身份时，为每个 Agent 分别创建。
 
 Telegram 集成[由社区维护](/community-maintained)：每个版本都会随包发布，但不附带官方支持 SLA。遇到问题请提到 [GitHub 任务](https://github.com/multica-ai/multica/issues)。
 
@@ -26,13 +26,13 @@ Telegram 集成[由社区维护](/community-maintained)：每个版本都会随�
 不要把 token 发到任务、聊天、日志或代码仓库。若已泄露，请在 @BotFather 中撤销，再用替换后的 token 重新连接。
 </Callout>
 
-## 2. 连接到智能体
+## 2. 连接到 Agent
 
-1. 在 Multica 打开 **智能体**，选择目标智能体并进入 **集成**。
+1. 在 Multica 打开 **Agent**，选择目标 Agent 并进入 **集成**。
 2. 点击 **连接 Telegram**。
 3. 粘贴 Bot token，然后点击 **连接**。
 
-Multica 会实时请求 Telegram 验证 Bot，检查是否存在与长轮询冲突的 webhook，加密保存 token，并启动一条受监督的 `getUpdates` 连接。一个 Bot 若已连接到其他智能体或工作区，必须先在原处断开。
+Multica 会实时请求 Telegram 验证 Bot，检查是否存在与长轮询冲突的 webhook，加密保存 token，并启动一条受监督的 `getUpdates` 连接。一个 Bot 若已连接到其他 Agent 或工作区，必须先在原处断开。
 
 ## 首次使用与账号绑定
 
@@ -55,7 +55,7 @@ Multica 会实时请求 Telegram 验证 Bot，检查是否存在与长轮询冲�
 ### 命令
 
 - `/new` 创建一个新的空 Multica Chat，并把该 Telegram 对话的后续消息路由到新 Chat；`/new <消息>` 会把消息作为新 Chat 的第一轮。回复其他成员并明确 @ Bot 时，被选中的引用内容仍会附在第一轮中。
-- `/clear` 保留当前 Multica Chat，把新的智能体可见上下文应用到下一条非空消息；`/clear <消息>` 会把消息作为上下文边界后的第一轮，明确选择的回复引用仍会保留。
+- `/clear` 保留当前 Multica Chat，把新的 Agent 可见上下文应用到下一条非空消息；`/clear <消息>` 会把消息作为上下文边界后的第一轮，明确选择的回复引用仍会保留。
 - `/issue <标题>` 创建 Multica 任务，后续行作为可选描述；不带标题时返回用法提示。
 - 群聊支持 `/issue@your_bot` 这种 Telegram 命令后缀。
 
@@ -88,10 +88,10 @@ MULTICA_TELEGRAM_SECRET_KEY=<base64 编码的 32 字节密钥>
 - **409 轮询冲突**：另一个 Multica 实例或进程正在轮询同一个 Bot。停止另一个消费者，或为不同环境使用不同 Bot。
 - **群里不回复**：确认 Bot 已入群，并且消息 @ 了它或回复了它的消息。
 - **绑定链接过期**：重新私聊 Bot，并使用最新链接。
-- **Bot 不执行**：检查智能体是否已归档，以及它使用的[运行时](/daemon-runtimes)是否在线。
+- **Bot 不执行**：检查 Agent 是否已归档，以及它使用的[运行时](/daemon-runtimes)是否在线。
 
 ## 接下来
 
 - [聊天集成](/channels) — 比较平台并理解会话与身份机制。
-- [与智能体对话](/chat) — Bot 消息如何变成智能体执行。
+- [与 Agent 对话](/chat) — Bot 消息如何变成 Agent 执行。
 - [任务](/issues) — `/issue` 创建的工作项。

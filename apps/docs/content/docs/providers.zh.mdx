@@ -46,11 +46,11 @@ Multica 不会替代你使用的 AI 编程工具。运行时会调用电脑上�
 | Trae CLI | `traecli` | ✓ | ✓ | `.traecli/skills/` |
 | Dim | `dim` | ✓ | ✓ | — |
 
-"Multica 管理 MCP" 表示你可以在智能体配置中填写 MCP server，由 Multica 在执行前传给对应工具。它不代表该工具本身没有其他 MCP 配置方式。
+"Multica 管理 MCP" 表示你可以在 Agent 配置中填写 MCP server，由 Multica 在执行前传给对应工具。它不代表该工具本身没有其他 MCP 配置方式。
 
 ## 模型来源
 
-创建智能体时，模型列表来自对应的运行时。有些工具提供固定的模型名称，有些会根据本机配置、登录账号和订阅权益返回可用模型。
+创建 Agent 时，模型列表来自对应的运行时。有些工具提供固定的模型名称，有些会根据本机配置、登录账号和订阅权益返回可用模型。
 
 不选择模型时，Multica 使用该工具的默认设置。列表为空时，先确认运行时在线并且工具已经登录，再刷新模型列表。
 
@@ -72,28 +72,28 @@ Multica 会保存工具返回的会话标识。下一次在同一任务中继续
 
 ## MCP 配置
 
-Antigravity、GitHub Copilot CLI、DevEco Code 和 Pi 暂不读取智能体中的 MCP 配置，因此创建智能体时不会显示这一项。
+Antigravity、GitHub Copilot CLI、DevEco Code 和 Pi 暂不读取 Agent 中的 MCP 配置，因此创建 Agent 时不会显示这一项。
 
 <Callout type="warning">
-MCP server 的命令、参数和环境变量会随智能体配置保存在服务器端。不要把不需要共享的本地凭据直接写入配置。
+MCP server 的命令、参数和环境变量会随 Agent 配置保存在服务器端。不要把不需要共享的本地凭据直接写入配置。
 </Callout>
 
 ## Skill 注入方式
 
-执行开始前，Multica 会把智能体绑定的 skill 写入上表对应的位置，让工具通过自己的原生机制发现它们。
+执行开始前，Multica 会把 Agent 绑定的 skill 写入上表对应的位置，让工具通过自己的原生机制发现它们。
 
 仓库里原本存在的 skill 不会被覆盖。如果名称冲突，Multica 会为注入的副本使用另一个目录名；执行结束后，只清理自己创建的文件。
 
 Codex、Hermes 和 OpenClaw 的处理稍有不同：
 
 - Codex 使用单次执行的 `CODEX_HOME`，不会把 skill 写进系统级 Codex 目录。
-- Hermes 使用单次执行的 `HERMES_HOME`。已有的本地配置仍然可以被读取，但绑定的 skill 与会话数据按运行隔离。这套隔离只在智能体绑定了 skill 时启用，没有绑定 skill 的运行使用本机原有的 Hermes 主目录。
+- Hermes 使用单次执行的 `HERMES_HOME`。已有的本地配置仍然可以被读取，但绑定的 skill 与会话数据按运行隔离。这套隔离只在 Agent 绑定了 skill 时启用，没有绑定 skill 的运行使用本机原有的 Hermes 主目录。
 - OpenClaw 使用当前执行工作目录下的 `skills/`，并由单次执行配置把该目录设为工作区。
 
 如何创建和绑定 skill，见 [Skills](/skills)。
 
 ## 接下来
 
-- [创建和配置智能体](/agents-create) — 模型与思考强度设置。
+- [创建和配置 Agent](/agents-create) — 模型与思考强度设置。
 - [安装 AI 编程工具](/install-agent-runtime) — 安装与检测步骤。
 - [守护进程与运行时](/daemon-runtimes) — 运行时注册与并发。
