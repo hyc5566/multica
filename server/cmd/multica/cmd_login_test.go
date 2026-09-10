@@ -19,12 +19,12 @@ func newLoginTestCmd() *cobra.Command {
 	return cmd
 }
 
-func TestResolveLoginTokenServerURLDefaultsToCloud(t *testing.T) {
+func TestResolveLoginTokenServerURLDefaultsToTaiwan(t *testing.T) {
 	t.Setenv("HOME", t.TempDir())
 	t.Setenv("MULTICA_SERVER_URL", "")
 
-	if got := resolveLoginTokenServerURL(newLoginTestCmd()); got != defaultCloudServerURL {
-		t.Fatalf("resolveLoginTokenServerURL() = %q, want %q", got, defaultCloudServerURL)
+	if got := resolveLoginTokenServerURL(newLoginTestCmd()); got != defaultTaiwanServerURL {
+		t.Fatalf("resolveLoginTokenServerURL() = %q, want %q", got, defaultTaiwanServerURL)
 	}
 }
 

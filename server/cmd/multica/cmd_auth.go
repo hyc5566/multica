@@ -452,6 +452,9 @@ func runAuthLoginToken(cmd *cobra.Command, providedToken string) error {
 	cfg.WorkspaceID = ""
 	cfg.Token = token
 	cfg.ServerURL = serverURL
+	if cfg.AppURL == "" && serverURL == defaultTaiwanServerURL {
+		cfg.AppURL = defaultTaiwanAppURL
+	}
 	if cfg.AppURL == "" && serverURL == defaultCloudServerURL {
 		cfg.AppURL = defaultCloudAppURL
 	}
