@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { RuntimeProviderUsageWindow } from "@multica/core/types";
-import { prioritizeUsageWindows } from "./agent-usage-summary";
+import { AgentUsageSummary, prioritizeUsageWindows } from "./agent-usage-summary";
 
 const codexWindows: RuntimeProviderUsageWindow[] = [
   {
@@ -108,5 +108,76 @@ describe("prioritizeUsageWindows", () => {
       300,
       10080,
     ]);
+  });
+});
+
+// Refresh polling/failure matrices live in core/runtimes/provider-usage.test.ts.
+// These checks cover the user-visible wiring and stale-data regression.
+
+const mocks = vi.hoisted(() => ({ read: vi.fn(), start: vi.fn(), poll: vi.fn(), tokens: vi.fn() }));
+vi.mock("@multica/core/api", () => ({ api: {
+  getProviderUsageSnapshot: mocks.read,
+  initiateProviderUsage: mocks.start,
+  getProviderUsageResult: mocks.poll,
+  getRuntimeUsageByAgent: mocks.tokens,
+} }));
+vi.mock("../../common/use-viewing-timezone", () => ({ useViewingTimezone: () => "Asia/Taipei" }));
+
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { I18nProvider } from "@multica/core/i18n/react";
+import enCommon from "../../locales/en/common.json";
+import enAgents from "../../locales/en/agents.json";
+import type { Agent, AgentRuntime, RuntimeProviderUsage } from "@multica/core/types";
+
+const resources = { en: { common: enCommon, agents: enAgents } };
+const agent = { id: "agent-1", model: "gpt-6-astra" } as Agent;
+const runtime = { id: "rt-1", provider: "codex", status: "online" } as AgentRuntime;
+let client: QueryClient;
+let snapshot: RuntimeProviderUsage;
+function mountSummary() {
+  client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
+  return render(<QueryClientProvider client={client}><I18nProvider locale="en" resources={resources}>
+    <AgentUsageSummary agent={agent} runtime={runtime} />
+  </I18nProvider></QueryClientProvider>);
+}
+beforeEach(() => {
+  vi.resetAllMocks();
+  snapshot = { provider: "codex", status: "available", source: "official", observed_at: new Date().toISOString(), windows: [codexWindows[0]!] };
+  mocks.read.mockImplementation(async () => snapshot);
+  mocks.tokens.mockResolvedValue([]);
+});
+afterEach(() => { cleanup(); client?.clear(); });
+
+describe("AgentUsageSummary refresh", () => {
+  it("keeps opening cache-only, then the button requests a refresh and displays the new value", async () => {
+    mountSummary();
+    await screen.findByText("20% used");
+    expect(mocks.start).not.toHaveBeenCalled();
+    snapshot = { ...snapshot, windows: [{ ...codexWindows[0]!, used_percent: 42 }] };
+    mocks.start.mockResolvedValue({ id: "req-1", status: "completed", provider_usage: snapshot });
+    fireEvent.click(screen.getByRole("button", { name: "Refresh usage" }));
+    await screen.findByText("42% used");
+    expect(mocks.start).toHaveBeenCalledWith("rt-1");
+    await waitFor(() => expect(screen.getByRole("button", { name: "Refresh usage" })).toBeEnabled());
+  });
+  it("reports request failures while retaining the last successful observation", async () => {
+    mountSummary();
+    await screen.findByText("20% used");
+    mocks.start.mockRejectedValue(new Error("offline"));
+    fireEvent.click(screen.getByRole("button", { name: "Refresh usage" }));
+    await screen.findByText(enAgents.detail.usage.refresh_failed);
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+  });
+  it("shows stale/failure metadata, a dated observation and no current percentages for reset windows", async () => {
+    snapshot = { ...snapshot, status: "partial", stale: true, last_error_code: "error", observed_at: "2026-09-09T06:22:28Z",
+      windows: [{ ...codexWindows[0]!, used_percent: 41, resets_at: "2020-01-01T00:00:00Z" }] };
+    mountSummary();
+    await screen.findByText(enAgents.detail.usage.stale);
+    expect(screen.getByText(enAgents.detail.usage.refresh_failed)).toBeInTheDocument();
+    expect(screen.getByText(enAgents.detail.usage.window_expired)).toBeInTheDocument();
+    expect(screen.queryByText("41% used")).not.toBeInTheDocument();
+    expect(document.querySelector("time")?.textContent).toContain("2026");
+    expect(document.querySelector("time")?.textContent).toContain("02:22 PM");
   });
 });
