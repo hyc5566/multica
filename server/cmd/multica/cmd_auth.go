@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -444,7 +445,10 @@ func runAuthLoginToken(cmd *cobra.Command, providedToken string) error {
 		Email string `json:"email"`
 	}
 	if err := client.GetJSON(ctx, "/api/me", &me); err != nil {
-		return cli.WithUserMessage("Could not sign in with that token — make sure it is valid and not expired, then run `multica login --token <token>` again.", err)
+		if isInvalidAuthentication(err) {
+			return cli.WithUserMessage("Could not sign in with that token — make sure it is valid and not expired, then run `multica login --token <token>` again.", err)
+		}
+		return cli.WithUserMessage("Could not verify the token. Check the server URL, network and certificate trust; your saved configuration was not changed.", err)
 	}
 
 	profile := resolveProfile(cmd)
@@ -464,6 +468,11 @@ func runAuthLoginToken(cmd *cobra.Command, providedToken string) error {
 
 	fmt.Fprintf(os.Stderr, "Authenticated as %s (%s)\nToken saved to config.\n", me.Name, me.Email)
 	return nil
+}
+
+func isInvalidAuthentication(err error) bool {
+	var httpErr *cli.HTTPError
+	return errors.As(err, &httpErr) && httpErr.StatusCode == http.StatusUnauthorized
 }
 
 func runAuthStatus(cmd *cobra.Command, _ []string) error {
@@ -492,8 +501,10 @@ func runAuthStatus(cmd *cobra.Command, _ []string) error {
 		Email string `json:"email"`
 	}
 	if err := client.GetJSON(ctx, "/api/me", &me); err != nil {
-		fmt.Fprintf(os.Stderr, "Token is invalid or expired: %v\nRun 'multica login' to re-authenticate.\n", err)
-		return nil
+		if isInvalidAuthentication(err) {
+			return fmt.Errorf("token is invalid or expired; run 'multica login' to re-authenticate: %w", err)
+		}
+		return fmt.Errorf("could not verify authentication; check the server URL, network and certificate trust (token unchanged): %w", err)
 	}
 
 	if taskContext {

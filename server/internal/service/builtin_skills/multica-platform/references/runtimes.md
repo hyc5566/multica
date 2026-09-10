@@ -41,12 +41,18 @@ Self-host operators can set `MULTICA_DAEMON_INSTALL_URL` to a public HTTPS
 installer URL for their pinned CLI build. The public `/api/config` exposes it
 as `daemon_install_url`; credentials, query strings, fragments and shell
 metacharacters are rejected. With this override, the connect-computer dialog
-uses `"$HOME/.local/bin/multica-zh-tw"` for setup, token login, daemon status and
-logs. The operator installer must provide that wrapper with an isolated
-`multica-zh-tw` profile and disabled automatic binary updates/reloads. An empty
+uses `"$HOME/.local/bin/multica"` for setup, token login, daemon status and
+logs. The operator installer provides the default configuration under `~/.multica`
+without a named profile, combines public and internal CA trust, and disables
+automatic binary updates/reloads. Its default daemon uses an OS-assigned local
+port, discovered through a per-user state file, to isolate users on shared hosts. An empty
 or invalid URL retains the standard upstream installer and `multica` commands.
-Installing the wrapper does not connect the computer: setup or token login
-and daemon start remain explicit human actions on the target machine.
+Installing the wrapper alone does not connect the computer. Explicit installer
+`--login` prompts for a token and starts the daemon; Linux `--service` additionally
+installs and enables a systemd user service after login, waiting for readiness.
+Use `systemctl --user status|stop|restart multica.service` for that service.
+It starts with the user session; boot without login requires administrator-managed
+lingering. Existing configuration and installations are never overwritten.
 
 `runtime update` and `runtime delete` are writes. Starting a runtime update is
 limited to its owner or a workspace owner/admin; the original initiator may keep
@@ -147,3 +153,10 @@ Workspace repos and project resources are not the same thing:
 Do not add a project resource just because `repo checkout` failed. First
 determine whether the user asked for durable project context or just a task
 checkout.
+
+Re-running `multica setup` for the same server preserves local settings and the
+saved token. It verifies `/api/me` and skips login when the credential is valid.
+Switching servers clears the saved token and default workspace before login.
+A TLS, network, or server failure is not proof that a token expired: `auth status`
+returns a failed verification error and leaves the token unchanged; only HTTP
+401 requests re-authentication.

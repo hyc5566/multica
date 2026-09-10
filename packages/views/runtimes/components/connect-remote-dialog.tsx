@@ -265,7 +265,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
   const daemonInstallUrl = useConfigStore((s) => s.daemonInstallUrl);
   const installCmd = installCommand(daemonInstallUrl);
   const cli =
-    installCmd === INSTALL_CMD ? "multica" : '"$HOME/.local/bin/multica-zh-tw"';
+    installCmd === INSTALL_CMD ? "multica" : '"$HOME/.local/bin/multica"';
   const { setupCmd, tokenCmd } = daemonCommands(daemonServerUrl, daemonAppUrl, cli);
   return (
     <>

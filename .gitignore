@@ -78,3 +78,6 @@ data/
 # Python (agent tooling)
 __pycache__/
 *.pyc
+
+# Generated LAN release trust resource
+/apps/desktop/resources/s90-ca.crt
