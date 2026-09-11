@@ -159,6 +159,9 @@ importers:
       fix-path:
         specifier: ^5.0.0
         version: 5.0.0
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
     devDependencies:
       '@dnd-kit/core':
         specifier: ^6.3.1

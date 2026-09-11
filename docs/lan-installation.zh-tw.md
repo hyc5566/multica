@@ -27,6 +27,16 @@
 6. 偵測本機 Codex、Claude Code、Antigravity（agy）、Hermes；AI 工具須各自安裝與登入，測試一個實際 Agent 議題。
 7. 刪除目前 Desktop token 時提供重新產生確認：先建立新 token、讓 daemon 使用並驗證，再撤銷舊 token。取消保留原狀；有執行中任務或無法確認 daemon 狀態時不強制輪替。失敗顯示原因、保留可恢復狀態。
 
+### Desktop 每機器憑證歸屬
+
+Desktop 每個 OS 帳號以本機安裝 UUID 與 hostname 區分憑證歸屬，連線 profile 仍依 Server host 分開。相同機器、相同 OS 帳號與 Server 的 App 共用同一個受管理 daemon；本設計不新增另一份 runtime。
+
+新簽發的 PAT 名稱包含 hostname，僅供辨識。程式保存完整 token ID、SHA-256 摘要、使用者、Server URL 與本機歸屬，重用及輪替不以名稱或短 prefix 判斷。即使兩台登入時輸入同一枚 PAT，也只用它授權各自建立新的本機 PAT，不直接把輸入值當成 daemon 憑證。
+
+升級前的快取沒有歸屬證明：首次同步以有效 App 登入換發本機 PAT，保留舊 PAT 在 Server 上的狀態，不自動撤銷可能被其他機器使用的憑證。簽發失敗時保留原設定並回報錯誤；寫入中途失敗則可能已保存新憑證，重試時以歸屬資料重新檢查，不能保證回復舊憑證。確認各機器已換發後，使用者才可自行清理不再使用的舊 token。不要跨機複製整份可寫的 `.multica`；hostname 改名也會觸發保守換發。
+
+重建時保留 `apps/desktop/src/main/desktop-token.ts`、`daemon-manager.ts` 的歸屬驗證與輪替整合，以及相鄰 Desktop 測試。後端不需 schema 變更；`server/internal/handler/desktop_machine_isolation_test.go` 以真實認證及隔離 PostgreSQL 驗證兩台註冊、心跳及獨立續期／撤銷，不涵蓋 Redis 跨節點失效或真人操作驗收。
+
 第一批 Mac 目標為 Apple Silicon。ad-hoc 簽章不等於 Apple Developer ID／公證，未完成 Gatekeeper 驗收不得宣稱一般下載即可無提示開啟。Intel 未實機驗收前不列為穩定支援。
 
 ## Linux 無 App 安裝
