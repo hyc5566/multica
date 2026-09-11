@@ -85,9 +85,9 @@ systemctl --user disable --now multica.service
 Linux 建置（Go 依 `server/go.mod`）：
 
 ```bash
-bash scripts/lan-release/build.sh 0.4.41-zh-tw.5 \
+bash scripts/lan-release/build.sh 0.4.41-zh-tw.6 \
   /absolute/new/release-directory \
-  https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.41-zh-tw.5 \
+  https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.41-zh-tw.6 \
   /absolute/verified-public-s90-ca.crt
 ```
 
@@ -97,10 +97,10 @@ Apple Silicon 原生建置（Node 22–24、pnpm lockfile、Go、Xcode CLI tools
 
 ```bash
 MULTICA_ZH_TW_CA_FILE=/absolute/verified-public-s90-ca.crt \
-  bash scripts/build-desktop-zh-tw-macos.sh . 0.4.41-zh-tw.5
+  bash scripts/build-desktop-zh-tw-macos.sh . 0.4.41-zh-tw.6
 ```
 
-內嵌 CLI 強制同版本，不容許缺 Go 時回退到官方下載。保存 App 簽章／公證與 Gatekeeper 證據，再把 Mac ZIP 與校驗碼加入同一 Release。先建 draft 核對下載內容與版本，必要驗收未完成則維持 draft，不能標為穩定版。
+內嵌 CLI 強制同版本，不容許缺 Go 時回退到官方下載。保存 App 簽章／公證與 Gatekeeper 證據，再把 Mac ZIP 與校驗碼加入同一 Release。先建 draft 核對下載內容與版本，必要驗收未完成時可維持 draft，或明確標為可供真人驗收的 pre-release，不能標為穩定版。
 
 ## 驗收與回復
 
@@ -109,3 +109,11 @@ MULTICA_ZH_TW_CA_FILE=/absolute/verified-public-s90-ca.crt \
 升級前先確認沒有執行中任務，備份 launcher、既有 App、設定及 token（限制權限），保留前版成品。新版 binary 放不同版本目錄；在相同狀態根目錄與服務管理方式下切換 launcher。失敗停止新 daemon、恢復舊 launcher／App 與必要設定，再核對登入、註冊與 heartbeat。不要全域依程序名稱 kill。
 
 Server 部署前另核對正在運行的版本、images、設定／資料備份與相容性。此次 OTP 修改沒有新 schema migration；仍須以實際合併版本的 schema 檢查為準。切回 binary 不等於恢復資料。未核准正式服務更新前，發布 GitHub 成品不會自動變更 s90 服務。
+
+## 2026-09-11 交付狀態
+
+[0.4.41-zh-tw.6](https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.4.41-zh-tw.6) 為公開內網驗收版本。App 僅 Apple Silicon；CLI 可直接使用 repository 的 `scripts/install-zh-tw.sh`，或下載同版 Release 的 `install.sh`，兩者內容相同。既有安裝仍依上方升級步驟保留設定。
+
+s90 Server／Web 已部署來源 `aa863a493426d4f6d8df326e18ece5bc7d82ec95`；Gmail 寄信與新驗證碼 15 分鐘期限通過。共享 Redis 與雙入口代理已啟用；操作以 [Server 交接程序](server-handoff.zh-tw.md) 為準。
+
+Mac 原生 651 項測試、內嵌 CA 連線、codesign、新舊 Server 混版 HTTP／登入 WebSocket／Redis 演練通過。正式穩定版仍待新使用者實際完成 Mac 註冊登入→Agent 任務，以及 Linux systemd 常駐→領取任務；不以編譯通過代替這些驗收。
