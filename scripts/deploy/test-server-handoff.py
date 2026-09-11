@@ -24,6 +24,7 @@ prefix = "hyclv66-handoff-" + str(os.getpid())
 network = prefix
 containers = []
 image = sys.argv[1]
+candidate_image = sys.argv[2] if len(sys.argv) > 2 else image
 secret = "isolated-handoff-test-only-secret"
 uid = "00000000-0000-4000-8000-000000000001"
 wid = "00000000-0000-4000-8000-000000000002"
@@ -133,7 +134,7 @@ with tempfile.TemporaryDirectory(prefix=prefix) as temp:
                 time.sleep(.1)
         wrong_config = Path(temp) / "not-mounted-Caddyfile"
         wrong_config.write_text(config.read_text())
-        rejected = subprocess.run([sys.executable, str(Path(__file__).with_name("server-handoff.py")), "--active", blue, "--candidate", green, "--image", image, "--caddy", caddy, "--config", str(wrong_config), "--redis", redis], capture_output=True, text=True)
+        rejected = subprocess.run([sys.executable, str(Path(__file__).with_name("server-handoff.py")), "--active", blue, "--candidate", green, "--image", candidate_image, "--caddy", caddy, "--config", str(wrong_config), "--redis", redis], capture_output=True, text=True)
         assert rejected.returncode and "bind-mount source" in rejected.stderr, "wrong config path was not rejected"
         print("Wrong Caddyfile bind source: rejected before candidate startup")
         conn = ws(port)
@@ -150,7 +151,7 @@ with tempfile.TemporaryDirectory(prefix=prefix) as temp:
         probe_thread.start()
         containers.append(green)
         try:
-            output = run(sys.executable, str(Path(__file__).with_name("server-handoff.py")), "--active", blue, "--candidate", green, "--image", image, "--caddy", caddy, "--config", str(config), "--redis", redis, "--delay-seconds", "30", "--confirm-compatible", "--apply")
+            output = run(sys.executable, str(Path(__file__).with_name("server-handoff.py")), "--active", blue, "--candidate", green, "--image", candidate_image, "--caddy", caddy, "--config", str(config), "--redis", redis, "--delay-seconds", "30", "--confirm-compatible", "--apply")
             print(output)
             send(conn, "survived-cutover", opcode=9)
             expect_pong(conn, "survived-cutover")
