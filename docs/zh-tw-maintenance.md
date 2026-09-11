@@ -6,6 +6,14 @@ product behavior. Taiwan-only changes should stay in small, purpose-specific
 commits so the edition can be rebuilt when an upstream rebase becomes more
 expensive than replaying the customization.
 
+## Server deployment procedure
+
+For Taiwan-edition Server updates, follow the canonical
+[繁體中文版 Server 平順切換維運程序](server-handoff.zh-tw.md).
+Preserve that document, the `CLAUDE.md` reading requirement and `scripts/deploy/`
+when rebuilding this edition. Deployment state and authorization must be checked
+for each operation; a tested candidate is not proof of production initialization.
+
 ## Customization layers
 
 Apply these layers in order when rebuilding the branch:
@@ -55,8 +63,21 @@ Keep these invariants when replaying onto a newer upstream:
   custom runtime profile has its own key;
 - provider failures update attempt/error metadata but never replace the last
   successful snapshot;
-- opening or refreshing an Agent page reads the Server snapshot only and never
-  calls a provider or creates an agent task;
+- opening an Agent page and periodic reads use only the Server snapshot; the
+  usage card refresh button posts the existing throttled provider-usage request
+  and polls completion, then reads the durable result without creating a task;
+- manual refresh bypasses the five-minute scheduling bucket but shares a rolling
+  60-second database cooldown per probe target with all callers. Honor longer
+  provider Retry-After deadlines. Return `refresh_available_at` on cache reads;
+  show an inline countdown and keep the last successful quota visible during
+  cooldown or refresh. Do not auto-submit when the countdown ends. A completed
+  request is not proof of a new observation. Show full observation dates,
+  stale/error metadata, and hide percentages for expired reset windows;
+- the external provider HTTPS probe adds OpenSSL public roots when daemon
+  SSL_CERT_FILE supplies a private Server CA. Preserve that private CA and keep
+  hostname/CERT_REQUIRED verification; never disable TLS to recover quota;
+- reject Codex responses without a usable percentage window instead of replacing
+  the last-known-good snapshot with an empty partial result;
 - the page can show the last successful snapshot while a runtime is offline;
 - all provider payloads are normalized and validated before persistence, and
   no OAuth material is sent to the Server.
