@@ -509,6 +509,7 @@ describe("desktop production dependencies", () => {
       "@electron-toolkit/utils",
       "electron-updater",
       "fix-path",
+      "zod",
     ]);
   });
 });
