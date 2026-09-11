@@ -161,3 +161,11 @@ docker exec CADDY_CONTAINER caddy reload --config /etc/caddy/Caddyfile
 它使用獨立網路、隨機 loopback port、虛構會員與測試憑證，完成後清理測試容器、匿名 volume 與網路，不讀取正式環境檔。僅修改文件時核對內容、連結及命令參數即可，不為文件變更啟動服務演練。
 
 有 migration 差異的後續升級，另行設計向前／向後相容的 expand/contract 遷移與資料恢復；不可繞過本工具的相同 schema 門檻。
+
+本次版本交接演練可指定新舊兩個不可變 image ID：
+
+```sh
+python scripts/deploy/test-server-handoff.py sha256:OLD_IMAGE sha256:NEW_IMAGE
+```
+
+省略第二個參數時使用同版演練；正式升級應傳入實際新舊版本。
