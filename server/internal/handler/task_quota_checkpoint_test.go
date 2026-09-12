@@ -61,6 +61,51 @@ func TestAnnotateTaskQuotaWindowsMarksSharedAccountWindows(t *testing.T) {
 	}
 }
 
+func TestSelectAntigravityTaskQuotaProviderPools(t *testing.T) {
+	for _, tc := range []struct{ model, pool string }{
+		{"gemini-3.8-flash-high", "gemini"},
+		{"claude-opus-4-6-thinking", "3p"},
+		{"gpt-oss-120b-medium", "3p"},
+		{"custom-model", ""},
+		{"default", ""},
+		{"", ""},
+	} {
+		t.Run(tc.model, func(t *testing.T) {
+			snapshot := ProviderUsageSnapshot{Windows: []ProviderUsageWindow{
+				{ID: "gemini-5h", Label: "5h"},
+				{ID: "gemini-weekly", Label: "weekly"},
+				{ID: "3p-5h", Label: "5h"},
+				{ID: "3p-weekly", Label: "weekly"},
+			}}
+			annotateTaskQuotaWindows(&snapshot, "antigravity", tc.model)
+			for _, window := range snapshot.Windows {
+				wantMatch := "unknown"
+				if tc.pool != "" && (window.ID == tc.pool+"-5h" || window.ID == tc.pool+"-weekly") {
+					wantMatch = "shared"
+				}
+				if window.Scope != "provider" || window.ModelMatch != wantMatch {
+					t.Fatalf("pool annotation = %+v, want provider/%s", window, wantMatch)
+				}
+			}
+			selectTaskQuotaWindows(&snapshot, "antigravity", tc.model)
+			if tc.pool == "" {
+				if len(snapshot.Windows) != 0 {
+					t.Fatalf("unknown model must not select a pool: %+v", snapshot.Windows)
+				}
+				return
+			}
+			if len(snapshot.Windows) != 2 || snapshot.Windows[0].ID != tc.pool+"-5h" || snapshot.Windows[1].ID != tc.pool+"-weekly" {
+				t.Fatalf("expected both %s windows: %+v", tc.pool, snapshot.Windows)
+			}
+			for _, window := range snapshot.Windows {
+				if window.Scope != "provider" || window.ModelMatch != "shared" || window.Label == "" {
+					t.Fatalf("selected pool metadata = %+v", window)
+				}
+			}
+		})
+	}
+}
+
 func TestAnnotateTaskQuotaWindowsDoesNotGuessCodexModel(t *testing.T) {
 	snapshot := ProviderUsageSnapshot{Windows: []ProviderUsageWindow{
 		{ID: "codex-primary", Group: "Codex", Label: "5 hour"},

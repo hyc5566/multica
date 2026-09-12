@@ -199,6 +199,9 @@
       "remaining": "{{value}}% remaining",
       "window_5h": "5 hour limit",
       "window_weekly": "Weekly limit",
+      "antigravity_google": "Google models · shared pool",
+      "antigravity_third_party": "Claude / GPT · shared pool",
+      "window_value_unavailable": "Source did not provide a usable percentage.",
       "resets": "Resets {{when}}",
       "reset_unknown": "Reset time unavailable"
     }

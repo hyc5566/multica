@@ -190,6 +190,9 @@
       "remaining": "剩餘 {{value}}%",
       "window_5h": "5 小時額度",
       "window_weekly": "每週額度",
+      "antigravity_google": "Google 模型 · 共用額度",
+      "antigravity_third_party": "其他供應商（Claude／GPT）· 共用額度",
+      "window_value_unavailable": "來源未提供可用的百分比。",
       "resets": "{{when}} 重置",
       "reset_unknown": "無法取得重置時間"
     }

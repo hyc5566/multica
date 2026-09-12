@@ -18,6 +18,7 @@ import { Skeleton } from "@multica/ui/components/ui/skeleton";
 import { cn } from "@multica/ui/lib/utils";
 import { useViewingTimezone } from "../../common/use-viewing-timezone";
 import { useT } from "../../i18n";
+import { antigravityQuotaPool, prioritizeAntigravityWindows } from "./antigravity-usage";
 
 export function AgentUsageSummary({
   agent,
@@ -212,8 +213,15 @@ export function AgentUsageSummary({
                   key={`${window.id}:${window.resets_at ?? window.label}`}
                   window={window}
                   stale={stale}
+                  grouped={usage?.provider === "antigravity"}
                   current={current}
-                  displayLabel={displayLabel}
+                  displayLabel={usage?.provider === "antigravity"
+                    ? antigravityQuotaPool(window.id) === "google"
+                      ? t(($) => $.detail.usage.antigravity_google)
+                      : antigravityQuotaPool(window.id) === "other"
+                        ? t(($) => $.detail.usage.antigravity_third_party)
+                        : displayLabel
+                    : displayLabel}
                   locale={locale}
                   tz={tz}
                 />
@@ -252,6 +260,7 @@ function QuotaWindow({
   current,
   stale,
   displayLabel,
+  grouped,
   locale,
   tz,
 }: {
@@ -259,6 +268,7 @@ function QuotaWindow({
   current: boolean;
   stale: boolean;
   displayLabel: string;
+  grouped?: boolean;
   locale: string;
   tz: string;
 }) {
@@ -291,12 +301,17 @@ function QuotaWindow({
           : "bg-background",
       )}
     >
+      {grouped ? (
+        <p className="min-h-8 break-words text-[11px] leading-4 text-muted-foreground" title={displayLabel}>
+          {displayLabel}
+        </p>
+      ) : null}
       <div className="flex min-w-0 items-center gap-1.5">
         <p
           className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground"
           title={[displayLabel, windowLabel].filter(Boolean).join(" · ")}
         >
-          {displayLabel ? `${displayLabel} · ` : ""}{windowLabel}
+          {!grouped && displayLabel ? `${displayLabel} · ` : ""}{windowLabel}
         </p>
         {current ? (
           <span className="shrink-0 rounded-full bg-brand/15 px-1.5 py-0.5 text-[10px] font-semibold text-brand">
@@ -316,6 +331,11 @@ function QuotaWindow({
             : t(($) => $.detail.usage.remaining, { value: Math.round(remaining) })}
         </span>
       </div>
+      {used == null && !expired ? (
+        <p className="mt-1 text-[10px] text-muted-foreground">
+          {t(($) => $.detail.usage.window_value_unavailable)}
+        </p>
+      ) : null}
       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted">
         {used == null ? null : (
           <div
@@ -357,7 +377,7 @@ export function prioritizeUsageWindows(
     return prioritizeCodexWindows(windows, model, modelKey);
   }
   if (providerKey === "antigravity") {
-    return prioritizeAntigravityWindows(windows, model, modelKey);
+    return prioritizeAntigravityWindows(windows, model);
   }
   if (providerKey === "claude") {
     return windows
@@ -434,36 +454,6 @@ function prioritizeCodexWindows(
         a.index - b.index,
     )
     .map(({ window, current, displayLabel }) => ({ window, current, displayLabel }));
-}
-
-function prioritizeAntigravityWindows(
-  windows: RuntimeProviderUsageWindow[],
-  model: string | undefined,
-  modelKey: string,
-) {
-  const rows = windows
-    .filter((window) => {
-      const key = normalizeUsageKey(`${window.id} ${window.group}`);
-      return ["gemini", "claude", "gpt", "oss"].some((family) =>
-        key.includes(family),
-      );
-    })
-    .map((window, index) => ({
-      window,
-      current: usageWindowMatchesModel(window, modelKey),
-      displayLabel: window.group || window.id,
-      index,
-    }));
-  if (!rows.some((row) => row.current) && rows[0]) {
-    rows[0].current = true;
-  }
-  return rows
-    .sort((a, b) => Number(b.current) - Number(a.current) || a.index - b.index)
-    .map(({ window, current, displayLabel }) => ({
-      window,
-      current,
-      displayLabel: current && model?.trim() ? model.trim() : displayLabel,
-    }));
 }
 
 function usageWindowMatchesModel(

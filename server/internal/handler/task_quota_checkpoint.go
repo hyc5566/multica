@@ -381,6 +381,20 @@ func selectTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requested
 		return
 	}
 	model := strings.TrimSpace(requestedModel)
+	// Quota-summary buckets are provider pools, not model IDs. Keep both
+	// advertised windows without attributing the pool's usage to this run.
+	pool := antigravityTaskQuotaPool(model)
+	selected := []ProviderUsageWindow{}
+	for _, w := range snapshot.Windows {
+		if pool != "" && (w.ID == pool+"-5h" || w.ID == pool+"-weekly") {
+			w.Scope, w.ModelMatch = "provider", "shared"
+			selected = append(selected, w)
+		}
+	}
+	if len(selected) > 0 {
+		snapshot.Windows = selected
+		return
+	}
 	for _, w := range snapshot.Windows {
 		if model != "" && w.ID == model {
 			w.Label = w.Group
@@ -412,6 +426,17 @@ func selectTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requested
 	snapshot.Windows = []ProviderUsageWindow{}
 }
 
+func antigravityTaskQuotaPool(model string) string {
+	switch {
+	case strings.HasPrefix(model, "gemini-"):
+		return "gemini"
+	case strings.HasPrefix(model, "claude-"), strings.HasPrefix(model, "gpt-"):
+		return "3p"
+	default:
+		return ""
+	}
+}
+
 func annotateTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requestedModel string) {
 	provider = strings.ToLower(strings.TrimSpace(provider))
 	requestedModel = strings.TrimSpace(requestedModel)
@@ -421,6 +446,14 @@ func annotateTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, request
 		case "claude":
 			window.Scope, window.ModelMatch = "account", "shared"
 		case "antigravity":
+			switch window.ID {
+			case "gemini-5h", "gemini-weekly", "3p-5h", "3p-weekly":
+				window.Scope, window.ModelMatch = "provider", "unknown"
+				if pool := antigravityTaskQuotaPool(requestedModel); pool != "" && strings.HasPrefix(window.ID, pool+"-") {
+					window.ModelMatch = "shared"
+				}
+				continue
+			}
 			window.Scope = "model"
 			if requestedModel != "" && window.ID == requestedModel {
 				window.ModelMatch = "exact"
