@@ -128,17 +128,18 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { I18nProvider } from "@multica/core/i18n/react";
 import enCommon from "../../locales/en/common.json";
 import enAgents from "../../locales/en/agents.json";
+import zhAgents from "../../locales/zh-Hans/agents.json";
 import type { Agent, AgentRuntime, RuntimeProviderUsage } from "@multica/core/types";
 
-const resources = { en: { common: enCommon, agents: enAgents } };
+const resources = { en: { common: enCommon, agents: enAgents }, "zh-Hans": { common: enCommon, agents: zhAgents } };
 const agent = { id: "agent-1", model: "gpt-6-astra" } as Agent;
 const runtime = { id: "rt-1", provider: "codex", status: "online" } as AgentRuntime;
 let client: QueryClient;
 let snapshot: RuntimeProviderUsage;
-function mountSummary() {
+function mountSummary(provider = "codex", model = agent.model, locale: "en" | "zh-Hans" = "en") {
   client = new QueryClient({ defaultOptions: { queries: { retry: false }, mutations: { retry: false } } });
-  return render(<QueryClientProvider client={client}><I18nProvider locale="en" resources={resources}>
-    <AgentUsageSummary agent={agent} runtime={runtime} />
+  return render(<QueryClientProvider client={client}><I18nProvider locale={locale} resources={resources}>
+    <AgentUsageSummary agent={{ ...agent, model }} runtime={{ ...runtime, provider }} />
   </I18nProvider></QueryClientProvider>);
 }
 beforeEach(() => {
@@ -221,5 +222,38 @@ describe("AgentUsageSummary cooldown", () => {
     fireEvent.click(screen.getByRole("button", { name: "Refresh usage" }));
     await screen.findByText(enAgents.detail.usage.refresh_failed);
     expect(screen.getByText("20% used")).toBeInTheDocument();
+  });
+});
+
+// Pool classification and missing-window matrices live in antigravity-usage.test.ts.
+describe("AgentUsageSummary Antigravity", () => {
+  it("renders Google and third-party shared pools, actual windows and Taiwan copy", async () => {
+    snapshot = { ...snapshot, provider: "antigravity", windows: [
+      { ...codexWindows[0]!, id: "gemini-5h", group: "Gemini Models", used_percent: 26, remaining_percent: 74 },
+      { ...codexWindows[1]!, id: "gemini-weekly", group: "Gemini Models", used_percent: 9, remaining_percent: 91 },
+      { ...codexWindows[0]!, id: "3p-5h", group: "Claude and GPT models", used_percent: 0, remaining_percent: 100 },
+      { ...codexWindows[1]!, id: "3p-weekly", group: "Claude and GPT models", used_percent: 2, remaining_percent: 98 },
+    ] };
+    mountSummary("antigravity", "claude-sonnet-4-6", "zh-Hans");
+    await screen.findByText("已用 26%");
+    expect(screen.getByText("剩餘 74%")).toBeInTheDocument();
+    expect(screen.getByText("已用 0%")).toBeInTheDocument();
+    expect(screen.getAllByText(zhAgents.detail.usage.antigravity_google)).toHaveLength(2);
+    expect(screen.getAllByText(zhAgents.detail.usage.window_weekly)).toHaveLength(2);
+    expect(screen.getAllByText(zhAgents.detail.usage.antigravity_third_party)).toHaveLength(2);
+    expect(screen.getAllByText(zhAgents.detail.usage.window_5h)).toHaveLength(2);
+    expect(document.querySelectorAll('[data-current-model-usage="true"]')).toHaveLength(2);
+    expect(document.querySelector('[data-provider-quota-scroll]')).toHaveClass("overflow-x-auto");
+    expect(mocks.start).not.toHaveBeenCalled();
+  });
+  it("shows unavailable and expired windows without inventing percentages", async () => {
+    snapshot = { ...snapshot, provider: "antigravity", status: "partial", windows: [
+      { ...codexWindows[0]!, id: "gemini-5h", group: "Gemini Models", resets_at: "2020-01-01T00:00:00Z" },
+    ] };
+    mountSummary("antigravity", "gemini-pro");
+    await screen.findByText(enAgents.detail.usage.window_expired);
+    expect(screen.getAllByText(enAgents.detail.usage.window_value_unavailable)).toHaveLength(3);
+    expect(screen.queryByText(/% used/)).not.toBeInTheDocument();
+    expect(screen.getAllByText(enAgents.detail.usage.remaining_unknown)).toHaveLength(4);
   });
 });

@@ -55,39 +55,61 @@ class ProviderUsageNormalizerTests(unittest.TestCase):
         self.assertEqual(result["windows"][0]["remaining_percent"], 76.5)
         self.assertEqual(result["windows"][1]["window_duration_mins"], 10080)
 
-    def test_antigravity_preserves_model_identity_and_deduplicates(self) -> None:
-        result = probe.normalize_antigravity(
-            {
-                "models": {
-                    "gemini-a": {
-                        "displayName": "Gemini 2.5 Pro",
-                        "quotaInfo": {
-                            "remainingFraction": 0.75,
-                            "resetTime": "2026-09-01T00:00:00Z",
-                        },
-                    },
-                    "gemini-a-alias": {
-                        "displayName": "Gemini 2.5 Pro",
-                        "quotaInfo": {
-                            "remainingFraction": 0.75,
-                            "resetTime": "2026-09-01T00:00:00Z",
-                        },
-                    },
-                    "claude-b": {
-                        "displayName": "Claude Sonnet",
-                        "quotaInfo": {
-                            "remainingFraction": 0.4,
-                            "resetTime": "2026-09-02T00:00:00Z",
-                        },
-                    },
-                }
-            },
-            OBSERVED_AT,
-        )
-        self.assertEqual(result["provider"], "antigravity")
+    def test_antigravity_maps_explicit_shared_pools_and_windows(self) -> None:
+        result = probe.normalize_antigravity({"groups": [
+            {"displayName": "Gemini Models", "buckets": [
+                {"bucketId": "gemini-5h", "window": "5h", "remainingFraction": 0.75},
+                {"bucketId": "gemini-weekly", "window": "weekly", "remainingFraction": 0.4,
+                 "resetTime": "2026-08-31T11:00:00Z"},
+            ]},
+            {"displayName": "Claude and GPT models", "buckets": [
+                {"bucketId": "3p-5h", "window": "5h", "remainingFraction": 1},
+                {"bucketId": "3p-weekly", "window": "weekly", "remainingFraction": 0},
+            ]},
+        ]}, OBSERVED_AT)
+        self.assertEqual(result["status"], "available")
+        rows = result["windows"]
+        self.assertEqual([r["used_percent"] for r in rows], [25, 60, 0, 100])
+        self.assertEqual([r["window_duration_mins"] for r in rows], [300, 10080, 300, 10080])
+        self.assertEqual(rows[2]["group"], "Claude and GPT models")
+        # A weekly reset one hour away is still weekly, not a five-hour guess.
+        self.assertEqual(rows[1]["resets_at"], "2026-08-31T11:00:00Z")
+
+    def test_antigravity_missing_invalid_disabled_or_amount_never_becomes_percentage(self) -> None:
+        invalid = [{"remainingFraction": v} for v in
+                   (None, "0.5", True, -0.1, 1.1, float("nan"), float("inf"))]
+        invalid += [{}, {"remainingFraction": 0.5, "disabled": True},
+                    {"remainingAmount": 12}, {"remainingAmount": 12, "remainingFraction": 0.5}]
+        for fields in invalid:
+            with self.subTest(fields=fields):
+                result = probe.normalize_antigravity({"buckets": [{
+                    "bucketId": "gemini-5h", "window": "5h", **fields,
+                }]}, OBSERVED_AT)
+                row = result["windows"][0]
+                self.assertEqual(result["status"], "partial")
+                self.assertNotIn("used_percent", row)
+                self.assertNotIn("remaining_percent", row)
+                self.assertEqual(row["window_duration_mins"], 300)
+                self.assertEqual(len(result["windows"]), 1)
+
+    def test_antigravity_keeps_independent_and_unknown_buckets_without_inventing_windows(self) -> None:
+        result = probe.normalize_antigravity({"groups": [{"displayName": "New provider", "buckets": [
+            {"bucketId": "independent-a", "window": "daily", "remainingFraction": 0.8},
+            {"bucketId": "independent-b", "remainingFraction": 0.8, "resetTime": "bad-date"},
+        ]}]}, OBSERVED_AT)
+        self.assertEqual(result["status"], "partial")
         self.assertEqual(len(result["windows"]), 2)
-        groups = {item["group"] for item in result["windows"]}
-        self.assertEqual(groups, {"Gemini 2.5 Pro", "Claude Sonnet"})
+        for row in result["windows"]:
+            self.assertNotIn("window_duration_mins", row)
+            self.assertNotIn("resets_at", row)
+            self.assertEqual(row["remaining_percent"], 80)
+
+    def test_antigravity_rejects_unusable_or_ambiguous_summary(self) -> None:
+        for payload in ({}, {"models": {}}, {"groups": {}}, {"groups": [None]},
+                        {"buckets": [None]}, {"buckets": [{}]}, {"buckets": [
+                            {"bucketId": "same"}, {"bucketId": "same"}]}):
+            with self.subTest(payload=payload), self.assertRaises(probe.ProbeFailure):
+                probe.normalize_antigravity(payload, OBSERVED_AT)
 
     def test_codex_keeps_primary_and_model_specific_limits(self) -> None:
         result = probe.normalize_codex(
@@ -234,21 +256,14 @@ class ProviderFetchTests(unittest.TestCase):
         )
         self.assertEqual(result["windows"][0]["used_percent"], 7)
 
-    def test_antigravity_uses_direct_model_catalog_endpoint(self) -> None:
+    def test_antigravity_uses_direct_quota_summary_endpoint(self) -> None:
         limiter = mock.Mock()
         with (
             mock.patch.object(probe, "antigravity_token", return_value="test-token"),
             mock.patch.object(
                 probe,
                 "http_json",
-                return_value={
-                    "models": {
-                        "gemini": {
-                            "displayName": "Gemini",
-                            "quotaInfo": {"remainingFraction": 0.8},
-                        }
-                    }
-                },
+                return_value={"buckets": [{"bucketId": "gemini-5h", "window": "5h", "remainingFraction": 0.8}]},
             ) as request,
         ):
             result = probe.fetch_antigravity(limiter, OBSERVED_AT)
@@ -260,6 +275,7 @@ class ProviderFetchTests(unittest.TestCase):
         self.assertEqual(kwargs["headers"]["Authorization"], "Bearer test-token")
         self.assertEqual(kwargs["body"], {})
         self.assertEqual(result["windows"][0]["remaining_percent"], 80)
+        self.assertEqual(result["status"], "partial")
 
     def test_codex_uses_account_scoped_direct_usage_endpoint(self) -> None:
         limiter = mock.Mock()

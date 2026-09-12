@@ -9,12 +9,19 @@ Supported providers:
 | Provider | Local credential | Direct endpoint |
 |---|---|---|
 | Claude Code | `~/.claude/.credentials.json` (or `CLAUDE_CONFIG_DIR`) | `https://api.anthropic.com/api/oauth/usage` |
-| Antigravity | macOS Keychain or `~/.gemini/...` OAuth files | `https://daily-cloudcode-pa.googleapis.com/v1internal:fetchAvailableModels` |
+| Antigravity | macOS Keychain or `~/.gemini/...` OAuth files | `https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary` |
 | Codex | `~/.codex/auth.json` (or `CODEX_HOME`) | `https://chatgpt.com/backend-api/wham/usage` |
 
 These endpoints are provider-owned client backends rather than a stable public
 quota API contract. Schema changes fail closed with a credential-free error;
 the probe never substitutes a local usage cache and labels it fresh.
+
+Antigravity uses explicit quota-summary groups/buckets: Google `gemini-5h` /
+`gemini-weekly`, and the shared Claude/GPT pool `3p-5h` / `3p-weekly`.
+`remainingFraction` is remaining, not used; `window` identifies the period.
+Disabled, missing, invalid or amount-based values never become percentages.
+Do not infer periods from reset timestamps or fill a missing window with 100%.
+See [source evidence and rebuild rules](../../../docs/agy-quota.zh-tw.md).
 
 ## Standalone use
 
