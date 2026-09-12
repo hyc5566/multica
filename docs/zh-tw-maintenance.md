@@ -89,6 +89,14 @@ and the Agent usage component. During a future rebuild, prefer adapting those
 small seams to the latest upstream contracts over copying old surrounding
 files.
 
+### Antigravity explicit quota-summary layer (HYCLV-80)
+
+Replay the direct `retrieveUserQuotaSummary` probe, the Antigravity UI pool helper,
+translations and the task checkpoint pool selection together. Preserve explicit
+five-hour/weekly windows, unknown values and provider-confirmed shared bucket
+IDs. Do not replay agy-hud's reset-time inference or missing-value defaults.
+See [source evidence, tests and rebuilding](agy-quota.zh-tw.md).
+
 ### Task quota checkpoint layer
 
 Replay the task checkpoint feature after the two provider-usage commits above:

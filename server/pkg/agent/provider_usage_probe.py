@@ -7,6 +7,7 @@ import base64
 import contextlib
 import datetime as dt
 import json
+import math
 import os
 import pathlib
 import ssl
@@ -24,7 +25,7 @@ CLAUDE_REFRESH_URL = "https://platform.claude.com/v1/oauth/token"
 CLAUDE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 ANTIGRAVITY_USAGE_URL = (
     "https://daily-cloudcode-pa.googleapis.com/"
-    "v1internal:fetchAvailableModels"
+    "v1internal:retrieveUserQuotaSummary"
 )
 CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"
 
@@ -178,46 +179,55 @@ def normalize_claude(payload: Mapping[str, Any], observed_at: dt.datetime) -> Di
 def normalize_antigravity(
     payload: Mapping[str, Any], observed_at: dt.datetime
 ) -> Dict[str, Any]:
-    models = payload.get("models")
-    if not isinstance(models, Mapping):
-        raise ProbeFailure("error", "Google returned no model quota catalog.")
+    # The summary publishes explicit windows and shared buckets. Model catalog
+    # reset timestamps alone cannot identify a five-hour or weekly window.
+    groups = payload.get("groups", [])
+    buckets = payload.get("buckets", [])
+    if not isinstance(groups, list) or not isinstance(buckets, list):
+        raise ProbeFailure("error", "Google returned an invalid quota summary.")
     windows: List[Dict[str, Any]] = []
     seen = set()
-    for model_id in sorted(models):
-        value = models.get(model_id)
-        if not isinstance(value, Mapping):
-            continue
-        quota = value.get("quotaInfo")
-        if not isinstance(quota, Mapping):
-            continue
-        display_name = value.get("displayName")
-        if not isinstance(display_name, str) or not display_name.strip():
-            display_name = str(model_id)
-        remaining_fraction = number(quota.get("remainingFraction"))
-        remaining = (
-            clamp_percent(remaining_fraction * 100)
-            if remaining_fraction is not None
-            else None
-        )
-        used = clamp_percent(100 - remaining) if remaining is not None else None
-        reset = parse_reset(quota.get("resetTime"))
-        dedupe_key = (display_name, remaining, reset)
-        if dedupe_key in seen:
-            continue
-        seen.add(dedupe_key)
-        windows.append(
-            window(
-                str(model_id),
-                display_name.strip(),
-                "Model quota",
-                used_percent=used,
-                remaining_percent=remaining,
-                resets_at=reset,
+    for group in [{"buckets": buckets}, *groups]:
+        if not isinstance(group, Mapping) or not isinstance(group.get("buckets"), list):
+            raise ProbeFailure("error", "Google returned an invalid quota group.")
+        group_name = group.get("displayName")
+        group_name = group_name.strip() if isinstance(group_name, str) else ""
+        for bucket in group["buckets"]:
+            if not isinstance(bucket, Mapping):
+                raise ProbeFailure("error", "Google returned an invalid quota bucket.")
+            bucket_id = bucket.get("bucketId")
+            if not isinstance(bucket_id, str) or not bucket_id.strip() or bucket_id in seen:
+                raise ProbeFailure("error", "Google returned an ambiguous quota bucket.")
+            seen.add(bucket_id)
+            period = bucket.get("window")
+            duration = {"5h": 300, "weekly": 10080}.get(period) if isinstance(period, str) else None
+            fraction = number(bucket.get("remainingFraction"))
+            # remainingAmount is a different unit; disabled/missing/malformed
+            # values must not become 0% used or a full remaining allowance.
+            remaining = (
+                fraction * 100
+                if bucket.get("disabled", False) is False
+                and "remainingAmount" not in bucket
+                and fraction is not None and math.isfinite(fraction) and 0 <= fraction <= 1
+                else None
             )
-        )
-    status = "available" if windows else "partial"
-    message = "" if windows else "Google returned no model quota buckets."
-    return snapshot("antigravity", windows, observed_at, status=status, message=message)
+            label = bucket.get("displayName")
+            windows.append(window(
+                bucket_id,
+                group_name,
+                label.strip() if isinstance(label, str) and label.strip() else bucket_id,
+                used_percent=100 - remaining if remaining is not None else None,
+                remaining_percent=remaining,
+                duration_minutes=duration,
+                resets_at=bucket.get("resetTime"),
+            ))
+    if not windows:
+        raise ProbeFailure("error", "Google returned no quota summary buckets.")
+    expected = {"gemini-5h", "gemini-weekly", "3p-5h", "3p-weekly"}
+    complete = expected.issubset(seen) and all(
+        "used_percent" in item and "window_duration_mins" in item for item in windows
+    )
+    return snapshot("antigravity", windows, observed_at, status="available" if complete else "partial")
 
 
 def append_codex_windows(
