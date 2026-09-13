@@ -60,6 +60,14 @@ class AntigravityCredentialTests(unittest.TestCase):
                 {"token": {"access_token": "live", "expiry": "2026-08-31T18:00:01+08:00"}}), "live")
             self.assertEqual(probe.usable_antigravity_token({"access_token": "legacy"}), "legacy")
 
+    def test_go_fractional_expiry_on_python310(self):
+        with mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT):
+            for fraction in ["1", "12345", "123456789"]:
+                with self.subTest(fraction=fraction):
+                    self.assertEqual(probe.usable_antigravity_token({
+                        "accessToken": "live", "expiry": "2026-08-31T18:00:00." + fraction + "+08:00"
+                    }), "live")
+
     def test_does_not_use_unrelated_gemini_login(self):
         with tempfile.TemporaryDirectory() as directory:
             home = pathlib.Path(directory)

@@ -10,6 +10,7 @@ import json
 import math
 import os
 import pathlib
+import re
 import ssl
 import subprocess
 import sys
@@ -576,6 +577,9 @@ def usable_antigravity_token(value: Mapping[str, Any]) -> str:
         return ""
     expiry = value.get("expiry", value.get("expiry_date"))
     if expiry is not None:
+        if isinstance(expiry, str):
+            # Python 3.10 accepts only 3 or 6 fractional digits, unlike Go RFC3339Nano.
+            expiry = re.sub(r"\.(\d+)", lambda m: "." + m[1][:6].ljust(6, "0"), expiry)
         parsed = parse_reset(expiry)
         if parsed is None or dt.datetime.fromisoformat(parsed.replace("Z", "+00:00")) <= utc_now():
             return ""

@@ -88,3 +88,5 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 讀取 Keychain 與 agy 專用檔案時，忽略已過期或無法解析有效期的憑證；有效 Keychain 優先，其次為 Terminal 更新的 agy-hud-token.json，最後為 antigravity-oauth-token。HUD 列表跳過過期項目。舊格式未記錄有效期時維持相容，仍以官方 API 的驗證結果為準。
 不再拿通用 Gemini oauth_creds.json 作為 agy 憑證，避免查到其他產品／帳號的額度。不自行續期、改寫憑證或執行模型請求；所有來源失效時仍顯示 auth_required。
 回歸測試涵蓋過期檔遮蔽有效HUD、過期Keychain、時區／過期邊界／格式錯誤，以及不使用通用Gemini登入。
+
+憑證 expiry 的 Go RFC3339Nano 小數秒先正規化為六位，再解析，以相容 m2 Python 3.10；測試包含1、5、9位小數。
