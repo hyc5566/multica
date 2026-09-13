@@ -21,6 +21,56 @@ SPEC.loader.exec_module(probe)
 OBSERVED_AT = dt.datetime(2026, 8, 31, 10, 0, tzinfo=dt.timezone.utc)
 
 
+class AntigravityCredentialTests(unittest.TestCase):
+    def test_expired_file_does_not_hide_live_hud_token(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = pathlib.Path(directory)
+            folder = home / ".gemini" / "antigravity-cli"
+            folder.mkdir(parents=True)
+            (folder / "antigravity-oauth-token").write_text(json.dumps({
+                "token": {"access_token": "old", "expiry": "2026-08-31T09:00:00Z"}
+            }))
+            (folder / "agy-hud-token.json").write_text(json.dumps({"tokens": [
+                {"accessToken": "expired", "expiry": "2026-08-31T09:00:00Z"},
+                {"accessToken": "live", "expiry": "2026-08-31T11:00:00Z"},
+            ]}))
+            with mock.patch.object(probe.pathlib.Path, "home", return_value=home), mock.patch.object(
+                probe.sys, "platform", "linux"
+            ), mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT):
+                self.assertEqual(probe.antigravity_token(), "live")
+
+    def test_expired_keychain_falls_back_to_live_agy_file(self):
+        import base64
+        value = {"token": {"access_token": "old", "expiry": "2026-08-31T09:00:00Z"}}
+        raw = "go-keyring-base64:" + base64.b64encode(json.dumps(value).encode()).decode()
+        with mock.patch.object(probe.sys, "platform", "darwin"), mock.patch.object(
+            probe.subprocess, "run", return_value=mock.Mock(stdout=raw)
+        ), mock.patch.object(probe, "token_from_antigravity_file", return_value="live"), mock.patch.object(
+            probe, "utc_now", return_value=OBSERVED_AT
+        ):
+            self.assertEqual(probe.antigravity_token(), "live")
+
+    def test_expiry_and_legacy_formats(self):
+        with mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT):
+            for expiry in ["2026-08-31T10:00:00Z", "invalid", "2026-08-31T17:59:59+08:00"]:
+                with self.subTest(expiry=expiry):
+                    self.assertEqual(probe.usable_antigravity_token(
+                        {"access_token": "old", "expiry": expiry}), "")
+            self.assertEqual(probe.usable_antigravity_token(
+                {"token": {"access_token": "live", "expiry": "2026-08-31T18:00:01+08:00"}}), "live")
+            self.assertEqual(probe.usable_antigravity_token({"access_token": "legacy"}), "legacy")
+
+    def test_does_not_use_unrelated_gemini_login(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = pathlib.Path(directory)
+            (home / ".gemini").mkdir()
+            (home / ".gemini" / "oauth_creds.json").write_text('{"access_token":"other-account"}')
+            with mock.patch.object(probe.pathlib.Path, "home", return_value=home), mock.patch.object(
+                probe.sys, "platform", "linux"
+            ), self.assertRaises(probe.ProbeFailure):
+                probe.antigravity_token()
+
+
 class ProviderUsageNormalizerTests(unittest.TestCase):
     def test_codex_rejects_missing_or_unusable_windows(self) -> None:
         for payload in (

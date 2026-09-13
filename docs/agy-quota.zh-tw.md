@@ -82,3 +82,9 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 以及使用 Agents UI 的 Web／Desktop。僅改 UI 無法使舊 daemon 取得真實四窗口。
 不同帳號方案或未來 schema 仍須依實際回應確認；失敗不可回退到 HUD 的推算百分比。
 正式版本切換／恢復依 [Server 交接程序](server-handoff.zh-tw.md)，本候選不執行部署。
+
+## 2026-09-13：有效登入憑證選取
+
+讀取 Keychain 與 agy 專用檔案時，忽略已過期或無法解析有效期的憑證；有效 Keychain 優先，其次為 Terminal 更新的 agy-hud-token.json，最後為 antigravity-oauth-token。HUD 列表跳過過期項目。舊格式未記錄有效期時維持相容，仍以官方 API 的驗證結果為準。
+不再拿通用 Gemini oauth_creds.json 作為 agy 憑證，避免查到其他產品／帳號的額度。不自行續期、改寫憑證或執行模型請求；所有來源失效時仍顯示 auth_required。
+回歸測試涵蓋過期檔遮蔽有效HUD、過期Keychain、時區／過期邊界／格式錯誤，以及不使用通用Gemini登入。

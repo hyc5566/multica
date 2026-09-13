@@ -559,20 +559,35 @@ def fetch_claude(limiter: LocalRateLimiter, observed_at: dt.datetime) -> Dict[st
     return normalize_claude(payload, observed_at)
 
 
+def usable_antigravity_token(value: Mapping[str, Any]) -> str:
+    nested = value.get("token")
+    if isinstance(nested, Mapping):
+        value = nested
+    tokens = value.get("tokens")
+    if isinstance(tokens, list):
+        for item in tokens:
+            if isinstance(item, Mapping):
+                token = usable_antigravity_token(item)
+                if token:
+                    return token
+        return ""
+    token = value.get("access_token", value.get("accessToken"))
+    if not isinstance(token, str) or not token:
+        return ""
+    expiry = value.get("expiry", value.get("expiry_date"))
+    if expiry is not None:
+        parsed = parse_reset(expiry)
+        if parsed is None or dt.datetime.fromisoformat(parsed.replace("Z", "+00:00")) <= utc_now():
+            return ""
+    return token
+
+
 def token_from_antigravity_file(path: pathlib.Path) -> str:
     if not path.is_file():
         return ""
-    value = read_json(path, "Antigravity is not signed in on this machine.")
-    token = value.get("access_token")
-    nested = value.get("token")
-    if not isinstance(token, str) and isinstance(nested, Mapping):
-        token = nested.get("access_token")
-    tokens = value.get("tokens")
-    if not isinstance(token, str) and isinstance(tokens, list) and tokens:
-        first = tokens[0]
-        if isinstance(first, Mapping):
-            token = first.get("accessToken")
-    return token if isinstance(token, str) else ""
+    return usable_antigravity_token(
+        read_json(path, "Antigravity is not signed in on this machine.")
+    )
 
 
 def antigravity_token() -> str:
@@ -599,18 +614,14 @@ def antigravity_token() -> str:
                 decoded = base64.b64decode(raw.removeprefix("go-keyring-base64:"))
                 value = json.loads(decoded)
                 if isinstance(value, Mapping):
-                    nested = value.get("token")
-                    token = nested.get("access_token") if isinstance(nested, Mapping) else None
-                    if not isinstance(token, str):
-                        token = value.get("access_token")
-                    if isinstance(token, str) and token:
+                    token = usable_antigravity_token(value)
+                    if token:
                         return token
         except (OSError, subprocess.SubprocessError, ValueError, json.JSONDecodeError):
             pass
     candidates = (
-        pathlib.Path.home() / ".gemini" / "antigravity-cli" / "antigravity-oauth-token",
         pathlib.Path.home() / ".gemini" / "antigravity-cli" / "agy-hud-token.json",
-        pathlib.Path.home() / ".gemini" / "oauth_creds.json",
+        pathlib.Path.home() / ".gemini" / "antigravity-cli" / "antigravity-oauth-token",
     )
     for candidate in candidates:
         try:
