@@ -302,7 +302,7 @@ function QuotaWindow({
       )}
     >
       {grouped ? (
-        <p className="min-h-8 break-words text-[11px] leading-4 text-muted-foreground" title={displayLabel}>
+        <p className="truncate text-[11px] leading-4 text-muted-foreground" title={displayLabel}>
           {displayLabel}
         </p>
       ) : null}
