@@ -257,3 +257,22 @@ describe("AgentUsageSummary Antigravity", () => {
     expect(screen.getAllByText(enAgents.detail.usage.remaining_unknown)).toHaveLength(4);
   });
 });
+
+
+describe("quota failure identity", () => {
+  it("keeps last-known quota but explains provider credential failure", async () => {
+    snapshot = { ...snapshot, status: "partial", stale: true, last_error_code: "auth_required" };
+    mountSummary();
+    await screen.findByText(enAgents.detail.usage.auth_required);
+    expect(screen.getByText("20% used")).toBeInTheDocument();
+  });
+  it("shows offline even with retained quota and prevents a futile refresh", async () => {
+    client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    render(<QueryClientProvider client={client}><I18nProvider locale="en" resources={resources}>
+      <AgentUsageSummary agent={agent} runtime={{ ...runtime, status: "offline" }} />
+    </I18nProvider></QueryClientProvider>);
+    await screen.findByText("20% used");
+    expect(screen.getByText(enAgents.detail.usage.runtime_offline)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Refresh usage" })).toBeDisabled();
+  });
+});

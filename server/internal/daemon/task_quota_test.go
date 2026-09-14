@@ -6,6 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
+	"runtime"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -31,7 +34,11 @@ func quotaTestDaemon(probe func(context.Context, string, agent.Command) agent.Pr
 
 func TestObserveTaskQuotaCachesByProviderAccount(t *testing.T) {
 	var calls atomic.Int32
-	d := quotaTestDaemon(func(_ context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+	d := quotaTestDaemon(func(ctx context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+		deadline, ok := ctx.Deadline()
+		if !ok || time.Until(deadline) > taskQuotaProbeTimeout {
+			t.Error("task checkpoint must have a short probe deadline")
+		}
 		calls.Add(1)
 		return quotaUsage(provider, 12)
 	})
@@ -122,7 +129,11 @@ func TestScheduledProviderUsageSharesTaskCoordinator(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	}))
 	t.Cleanup(srv.Close)
-	d := quotaTestDaemon(func(_ context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+	d := quotaTestDaemon(func(ctx context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+		deadline, ok := ctx.Deadline()
+		if !ok || time.Until(deadline) < 20*time.Second {
+			t.Error("scheduled refresh must allow the full provider probe budget")
+		}
 		calls.Add(1)
 		return quotaUsage(provider, 31)
 	})
@@ -136,5 +147,133 @@ func TestScheduledProviderUsageSharesTaskCoordinator(t *testing.T) {
 	result := d.observeTaskQuota(context.Background(), rt, "codex")
 	if calls.Load() != 1 || result.state != "cached" {
 		t.Fatalf("calls=%d state=%q, want shared cached observation", calls.Load(), result.state)
+	}
+}
+
+func TestTaskQuotaJoiningLongRefreshKeepsShortDeadlineAndStaleCache(t *testing.T) {
+	started := make(chan struct{})
+	release := make(chan struct{})
+	finished := make(chan taskQuotaProbeResult, 1)
+	d := quotaTestDaemon(func(ctx context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+		close(started)
+		select {
+		case <-release:
+			return quotaUsage(provider, 35)
+		case <-ctx.Done():
+			return agent.ProviderUsage{Provider: provider, Status: "error"}
+		}
+	})
+	rt := Runtime{Provider: "antigravity"}
+	key := taskQuotaProbeKey(rt, rt.Provider)
+	d.taskQuotaCache[key] = taskQuotaCachedObservation{
+		snapshot: quotaUsage(rt.Provider, 20), cachedAt: time.Now().Add(-time.Minute),
+	}
+	go func() {
+		finished <- d.observeProviderQuota(context.Background(), rt, rt.Provider)
+	}()
+	<-started
+	// A larger parent deadline catches a task waiter that accidentally inherits
+	// the long refresh budget, while bounding the regression's failure time.
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	result := d.observeTaskQuota(ctx, rt, rt.Provider)
+	parentErr := ctx.Err()
+	close(release)
+	refreshed := <-finished
+	if parentErr != nil {
+		t.Error("task waited for its parent deadline instead of its three-second budget")
+	}
+	if result.state != "stale_cache" || result.errorCode != "timeout" ||
+		result.snapshot.Status != "available" || result.reportSnapshot.Status != "error" {
+		t.Fatalf("unexpected task result: %+v", result)
+	}
+	if refreshed.state != "fresh" || refreshed.snapshot.Status != "available" {
+		t.Fatalf("task timeout canceled the independent refresh: %+v", refreshed)
+	}
+	if cached := d.observeTaskQuota(context.Background(), rt, rt.Provider); cached.state != "cached" ||
+		*cached.snapshot.Windows[0].UsedPercent != 35 {
+		t.Fatalf("refresh did not update shared cache: %+v", cached)
+	}
+}
+
+func TestProviderQuotaNativeRenewalGuardsAndActualResult(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell fixture")
+	}
+	for _, tc := range []struct {
+		name, provider, profile, status, afterStatus                    string
+		missingHint, task, missing, emptyPath, nativeFailure, wantRenew bool
+	}{
+		{name: "expired native credential", wantRenew: true},
+		{name: "renewed but provider still rejects", afterStatus: "auth_required", wantRenew: true},
+		{name: "native failure", nativeFailure: true, wantRenew: true},
+		{name: "task checkpoint", task: true},
+		{name: "custom profile", profile: "profile-1"},
+		{name: "other provider", provider: "codex"},
+		{name: "missing refresh hint", missingHint: true},
+		{name: "rate limited", status: "rate_limited"},
+		{name: "no registered executable", missing: true},
+		{name: "empty registered path", emptyPath: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			provider, status, afterStatus := tc.provider, tc.status, tc.afterStatus
+			if provider == "" {
+				provider = "antigravity"
+			}
+			if status == "" {
+				status = "auth_required"
+			}
+			if afterStatus == "" {
+				afterStatus = "available"
+			}
+			marker := filepath.Join(t.TempDir(), "calls")
+			t.Setenv("MULTICA_TEST_RENEW_MARKER", marker)
+			path := filepath.Join(t.TempDir(), "fake-agy")
+			script := "#!/bin/sh\n[ \"$#\" = 1 ] && [ \"$1\" = models ] || exit 9\necho call >> \"$MULTICA_TEST_RENEW_MARKER\"\n"
+			if tc.nativeFailure {
+				script += "exit 1\n"
+			}
+			if err := os.WriteFile(path, []byte(script), 0700); err != nil {
+				t.Fatal(err)
+			}
+			calls := 0
+			d := quotaTestDaemon(func(_ context.Context, provider string, _ agent.Command) agent.ProviderUsage {
+				calls++
+				if calls == 1 {
+					return agent.ProviderUsage{Provider: provider, Status: status, Source: "unavailable", ObservedAt: time.Now().UTC(), CredentialRefreshNeeded: !tc.missingHint}
+				}
+				value := quotaUsage(provider, 38)
+				value.Status = afterStatus
+				return value
+			})
+			if !tc.missing {
+				if tc.emptyPath {
+					path = ""
+				}
+				d.cfg.Agents = map[string]AgentEntry{provider: {Path: path}}
+			}
+			rt := Runtime{Provider: provider, ProfileID: tc.profile}
+			var result taskQuotaProbeResult
+			if tc.task {
+				result = d.observeTaskQuota(context.Background(), rt, provider)
+			} else {
+				result = d.observeProviderQuota(context.Background(), rt, provider)
+			}
+			_, err := os.Stat(marker)
+			if (err == nil) != tc.wantRenew {
+				t.Fatalf("native ran=%v, want %v", err == nil, tc.wantRenew)
+			}
+			wantCalls, wantStatus := 1, status
+			if tc.wantRenew && !tc.nativeFailure {
+				wantCalls, wantStatus = 2, afterStatus
+			}
+			if calls != wantCalls || result.reportSnapshot.Status != wantStatus {
+				t.Fatalf("probes=%d report=%q, want %d %q", calls, result.reportSnapshot.Status, wantCalls, wantStatus)
+			}
+			_, cached := d.taskQuotaCache[taskQuotaProbeKey(rt, provider)]
+			if cached != (wantStatus == "available") {
+				t.Fatalf("cached=%v after %q", cached, wantStatus)
+			}
+		})
 	}
 }

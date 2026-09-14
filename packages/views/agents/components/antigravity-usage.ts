@@ -13,9 +13,10 @@ export function prioritizeAntigravityWindows(
   model: string | undefined,
 ) {
   const modelKey = model?.trim().toLowerCase() ?? "";
-  const currentPool = modelKey.startsWith("gemini-")
+  const exact = windows.some((row) => row.id.toLowerCase() === modelKey && !antigravityQuotaPool(row.id));
+  const currentPool = !exact && modelKey.startsWith("gemini-")
     ? "google"
-    : /^(claude-|gpt-)/.test(modelKey) ? "other" : undefined;
+    : !exact && /^(claude-|gpt-)/.test(modelKey) ? "other" : undefined;
   const rows = [...windows];
   for (const [id, group, duration] of [
     ["gemini-5h", "Gemini Models", 300],
@@ -23,7 +24,7 @@ export function prioritizeAntigravityWindows(
     ["3p-5h", "Claude and GPT models", 300],
     ["3p-weekly", "Claude and GPT models", 10080],
   ] as const) {
-    if (!rows.some((row) => row.id === id)) {
+    if (windows.some((row) => antigravityQuotaPool(row.id)) && !rows.some((row) => row.id === id)) {
       rows.push({ id, group, label: id, unit: "percent", window_duration_mins: duration });
     }
   }

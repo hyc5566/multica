@@ -141,7 +141,7 @@ export function AgentUsageSummary({
             variant="ghost"
             size="icon-sm"
             onClick={refresh}
-            disabled={!runtime || refreshing || cooldown > 0}
+            disabled={!runtime || runtime.status !== "online" || refreshing || cooldown > 0}
             aria-label={t(($) => $.detail.usage.refresh)}
             title={t(($) => $.detail.usage.refresh)}
           >
@@ -154,6 +154,11 @@ export function AgentUsageSummary({
         {t(($) => $.detail.usage.refresh_hint)}
       </p>
       {refreshFailed ? <UnavailableState message={t(($) => $.detail.usage.refresh_failed)} /> : null}
+      {runtime && runtime.status !== "online" ? (
+        <UnavailableState message={t(($) => $.detail.usage.runtime_offline)} />
+      ) : usage?.last_error_code === "auth_required" && Boolean(usage.windows?.length) ? (
+        <UnavailableState message={t(($) => $.detail.usage.auth_required)} />
+      ) : null}
       {stale ? <UnavailableState message={t(($) => $.detail.usage.stale)} /> : null}
 
       <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(220px,1fr)]">

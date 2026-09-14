@@ -9,9 +9,10 @@ import (
 )
 
 const (
-	taskQuotaCacheFreshFor = 30 * time.Second
-	taskQuotaProbeTimeout  = 3 * time.Second
-	taskQuotaReportTimeout = 2 * time.Second
+	taskQuotaCacheFreshFor    = 30 * time.Second
+	taskQuotaProbeTimeout     = 3 * time.Second
+	providerQuotaProbeTimeout = 45 * time.Second
+	taskQuotaReportTimeout    = 2 * time.Second
 )
 
 type taskQuotaCachedObservation struct {
@@ -64,6 +65,20 @@ func quotaErrorCode(status string) string {
 }
 
 func (d *Daemon) observeTaskQuota(ctx context.Context, rt Runtime, provider string) taskQuotaProbeResult {
+	ctx, cancel := context.WithTimeout(ctx, taskQuotaProbeTimeout)
+	defer cancel()
+	return d.observeQuota(ctx, rt, provider, false)
+}
+
+func (d *Daemon) observeProviderQuota(ctx context.Context, rt Runtime, provider string) taskQuotaProbeResult {
+	return d.observeQuota(ctx, rt, provider, true)
+}
+
+func (d *Daemon) observeQuota(ctx context.Context, rt Runtime, provider string, allowRenewal bool) taskQuotaProbeResult {
+	// Bound both new probes and callers joining an existing refresh. Task
+	// checkpoints supply their shorter deadline without limiting UI refreshes.
+	ctx, cancel := context.WithTimeout(ctx, providerQuotaProbeTimeout)
+	defer cancel()
 	provider = strings.ToLower(strings.TrimSpace(provider))
 	if !taskQuotaProviderSupported(provider) {
 		snapshot := agent.ProviderUsage{Provider: provider, Status: "unavailable", Source: "unavailable", ObservedAt: time.Now().UTC()}
@@ -83,7 +98,14 @@ func (d *Daemon) observeTaskQuota(ctx context.Context, rt Runtime, provider stri
 			return call.result
 		case <-ctx.Done():
 			snapshot := agent.ProviderUsage{Provider: provider, Status: "error", Source: "unavailable", ObservedAt: time.Now().UTC()}
-			return taskQuotaProbeResult{snapshot: snapshot, reportSnapshot: snapshot, state: "timeout", errorCode: "timeout"}
+			result := taskQuotaProbeResult{snapshot: snapshot, reportSnapshot: snapshot, state: "timeout", errorCode: "timeout"}
+			d.taskQuotaMu.Lock()
+			if cached, ok := d.taskQuotaCache[key]; ok {
+				result.snapshot = cached.snapshot
+				result.state = "stale_cache"
+			}
+			d.taskQuotaMu.Unlock()
+			return result
 		}
 	}
 	call := &taskQuotaProbeCall{done: make(chan struct{})}
@@ -97,10 +119,15 @@ func (d *Daemon) observeTaskQuota(ctx context.Context, rt Runtime, provider stri
 	}
 	d.taskQuotaMu.Unlock()
 
-	probeCtx, cancel := context.WithTimeout(ctx, taskQuotaProbeTimeout)
-	snapshot := probe(probeCtx, provider, agent.Command{})
-	probeErr := probeCtx.Err()
-	cancel()
+	snapshot := probe(ctx, provider, agent.Command{})
+	if allowRenewal && ctx.Err() == nil && provider == "antigravity" && rt.ProfileID == "" &&
+		snapshot.Status == "auth_required" && snapshot.CredentialRefreshNeeded {
+		if entry, ok := d.agents()[provider]; ok && strings.TrimSpace(entry.Path) != "" &&
+			agent.RefreshAntigravityCredential(ctx, agent.NewCommand(entry.Path, nil)) {
+			snapshot = probe(ctx, provider, agent.Command{})
+		}
+	}
+	probeErr := ctx.Err()
 	result := taskQuotaProbeResult{snapshot: snapshot, reportSnapshot: snapshot, state: "fresh", errorCode: quotaErrorCode(snapshot.Status)}
 	if probeErr != nil {
 		result.state = "timeout"

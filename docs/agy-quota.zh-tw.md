@@ -90,3 +90,37 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 回歸測試涵蓋過期檔遮蔽有效HUD、過期Keychain、時區／過期邊界／格式錯誤，以及不使用通用Gemini登入。
 
 憑證 expiry 的 Go RFC3339Nano 小數秒先正規化為六位，再解析，以相容 m2 Python 3.10；測試包含1、5、9位小數。
+
+
+## 2026-09-15：HYCLV-93 到期後續期與混合版本修復
+
+此次現場發現 m2／m5 的 App .14、daemon .12 均已安裝且運作；Multica 登入有效，
+但 Google access token 到期後，額度排程持續得到 auth_required，Server 保留過期快照。
+9/13 的選取修正只跳過過期來源，沒有後續續期流程；本節取代前節「不自行續期」對 daemon
+排程的限制，Python 直接 probe 仍不寫入憑證。
+
+- Python 只有在所有 access token 都無法使用，且原生 agy Keychain／專用檔案存在已到期、
+  可解析 expiry 與 refresh_token 時，回傳不含秘密的續期提示；不使用通用 Gemini 登入。
+- 手動／排程的內建 agy runtime 使用已註冊執行檔，固定執行一次未快取的 `models`，
+  最多10秒；由原生 CLI 管理 Google 更新。它不執行模型推論，stdout／stderr 不上報。
+  完成後重新查官方 quota，只有此查詢成功才更新成功快照。無憑證、無有效 refresh token、
+  撤銷授權或更新失敗仍明示失敗，不能把原生命令退出0當成額度成功。
+- 手動／排程總期限45秒；任務 checkpoint維持3秒，即使等待共用刷新也不能拖長任務。
+  不在任務前後自動續期，不變更其他provider或custom profile的憑證行為。
+- 最新zh-tw曾遺漏.14兩個既有判斷：只有真的共用池資料才補缺窗口；精確獨立model bucket
+  優先於推測的共用池。已恢復並加入回歸；不是重新設計畫面。
+- 一排額度卡片維持當前5h、weekly、其餘；offline仍顯示保留快照並停用手動按鈕，
+  授權失敗改說明額度憑證／續期，避免宣稱整個agent未登入。
+
+沒有新DB欄位、schema migration、provider端點或相依套件。`credential_refresh_needed`
+只供本地daemon判斷，既有Server忽略未知欄位即可接受結果。相容於既有.6 Server；
+仍需對發布成品完成真實兩機驗證，mock通過不代表Google續期／App重開已驗收。
+
+重建採兩條候選：最新zh-tw維護分支與從已部署.14基底c0f305ab4回補的發布候選，
+後者只帶本議題修復，避免把未部署的上游升級一起帶入兩台Mac。m5原autoStart=false
+另需核准改為true（autoStop=false）；此為原生偏好，並非程式版本能自行代替。
+
+限制：不自動切換不同帳號，不因401就遍歷可能屬於其他帳號的token。Custom profile
+續期未啟用；現有quota helper仍以daemon OS user取得資料，不能宣稱支援profile專屬帳號。
+Google撤銷refresh grant、Keychain不可讀且無專用檔案，仍可能需要使用者授權；兩機到期後
+更新、App重開、重連、CA持久性與跨至少一次真實expiry邊界的驗收均應分項記錄。

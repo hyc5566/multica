@@ -4747,7 +4747,7 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
 	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
 
-	result := d.observeTaskQuota(ctx, rt, rt.Provider)
+	result := d.observeProviderQuota(ctx, rt, rt.Provider)
 	d.reportModelListResult(ctx, rt, requestID, map[string]any{
 		"status":         "completed",
 		"supported":      true,

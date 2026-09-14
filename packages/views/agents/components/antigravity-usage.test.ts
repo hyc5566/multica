@@ -38,3 +38,17 @@ describe("Antigravity quota pools", () => {
     expect(rows.some((r) => r.current)).toBe(false);
   });
 });
+
+describe("mixed daemon versions", () => {
+  it("shows only real legacy model windows instead of prepending four empty pool cards", () => {
+    const legacy: RuntimeProviderUsageWindow[] = [{ id: "gemini-3.8-flash-high", label: "Legacy quota", used_percent: 12, unit: "percent" }];
+    const rows = prioritizeAntigravityWindows(legacy, "gemini-3.8-flash-high");
+    expect(rows).toEqual([{ window: legacy[0], current: true, displayLabel: "gemini-3.8-flash-high" }]);
+  });
+  it("prefers explicit independent model quota over a guessed shared pool", () => {
+    const own: RuntimeProviderUsageWindow = { id: "gemini-special", label: "Independent", used_percent: 73, unit: "percent" };
+    const rows = prioritizeAntigravityWindows([...windows, own], "gemini-special");
+    expect(rows[0]?.window).toEqual(own);
+    expect(rows.filter((row) => row.current)).toHaveLength(1);
+  });
+});

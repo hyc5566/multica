@@ -39,11 +39,14 @@ class ProbeFailure(Exception):
         status: str,
         message: str,
         retry_after_seconds: Optional[int] = None,
+        *,
+        credential_refresh_needed: bool = False,
     ) -> None:
         super().__init__(message)
         self.status = status
         self.message = message
         self.retry_after_seconds = retry_after_seconds
+        self.credential_refresh_needed = credential_refresh_needed
 
 
 def utc_now() -> dt.datetime:
@@ -441,7 +444,7 @@ def read_json(path: pathlib.Path, missing_message: str) -> Mapping[str, Any]:
         value = json.loads(path.read_text(encoding="utf-8"))
     except FileNotFoundError as exc:
         raise ProbeFailure("auth_required", missing_message) from exc
-    except (json.JSONDecodeError, OSError) as exc:
+    except (json.JSONDecodeError, UnicodeError, OSError) as exc:
         raise ProbeFailure("auth_required", "The local provider credential is unreadable.") from exc
     if not isinstance(value, Mapping):
         raise ProbeFailure("auth_required", "The local provider credential is invalid.")
@@ -578,7 +581,26 @@ def token_from_antigravity_file(path: pathlib.Path) -> str:
     )
 
 
+def antigravity_refresh_available(value: Mapping[str, Any]) -> bool:
+    # Only the native account credential can authorize native renewal. HUD
+    # mirrors are access-token caches and must never cause an interactive login.
+    value = value.get("token", value)
+    if not isinstance(value, Mapping):
+        return False
+    refresh = value.get("refresh_token")
+    if not isinstance(refresh, str) or not refresh:
+        return False
+    expiry = value.get("expiry", value.get("expiry_date"))
+    if expiry is None:
+        return False
+    if isinstance(expiry, str):
+        expiry = re.sub(r"\.(\d+)", lambda m: "." + m[1][:6].ljust(6, "0"), expiry)
+    parsed = parse_reset(expiry)
+    return parsed is not None and dt.datetime.fromisoformat(parsed.replace("Z", "+00:00")) <= utc_now()
+
+
 def antigravity_token() -> str:
+    refreshable = False
     if sys.platform == "darwin":
         try:
             result = subprocess.run(
@@ -602,6 +624,7 @@ def antigravity_token() -> str:
                 decoded = base64.b64decode(raw.removeprefix("go-keyring-base64:"))
                 value = json.loads(decoded)
                 if isinstance(value, Mapping):
+                    refreshable = antigravity_refresh_available(value)
                     token = usable_antigravity_token(value)
                     if token:
                         return token
@@ -618,7 +641,17 @@ def antigravity_token() -> str:
             continue
         if token:
             return token
-    raise ProbeFailure("auth_required", "Antigravity is not signed in on this machine.")
+    try:
+        native = read_json(candidates[1], "Antigravity is not signed in on this machine.")
+        refreshable = refreshable or antigravity_refresh_available(native)
+    except ProbeFailure:
+        pass
+    if refreshable:
+        raise ProbeFailure(
+            "auth_required", "The Antigravity access token expired; native credential renewal is needed.",
+            credential_refresh_needed=True,
+        )
+    raise ProbeFailure("auth_required", "No usable Antigravity quota credential is available on this machine.")
 
 
 def fetch_antigravity(
@@ -693,7 +726,7 @@ def fetch_provider(provider: str) -> Dict[str, Any]:
             return fetch_codex(limiter, observed_at)
         raise ProbeFailure("unavailable", "This provider has no direct usage probe.")
     except ProbeFailure as exc:
-        return snapshot(
+        result = snapshot(
             provider,
             [],
             observed_at,
@@ -702,6 +735,9 @@ def fetch_provider(provider: str) -> Dict[str, Any]:
             message=exc.message,
             retry_after_seconds=exc.retry_after_seconds,
         )
+        if exc.credential_refresh_needed:
+            result["credential_refresh_needed"] = True
+        return result
     except Exception:
         return snapshot(
             provider,

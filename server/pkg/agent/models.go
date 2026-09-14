@@ -2418,8 +2418,8 @@ func discoverAntigravityModels(ctx context.Context, runtimeCmd Command) ([]Model
 	if _, err := exec.LookPath(runtimeCmd.Path); err != nil {
 		return nil, nil
 	}
-	// `agy models` is a local enumeration (no network round-trip), so a
-	// short cap is plenty; keep it generous enough to absorb cold starts.
+	// `agy models` may renew its native OAuth credential over the network.
+	// Bound cold starts and provider requests without starting a model turn.
 	runCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	cmd := runtimeCmd.exec(runCtx, "models")
