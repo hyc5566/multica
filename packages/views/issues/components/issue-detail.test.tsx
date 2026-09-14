@@ -27,6 +27,7 @@ const descriptionSelectionAction = vi.hoisted(() => ({ current: undefined as { l
 // so the `useCommentDraftStore(s => s.getAttachments(key))` selector keeps a
 // stable identity. A fresh `[]` per call would loop useSyncExternalStore.
 const emptyDraftAttachments = vi.hoisted(() => [] as unknown[]);
+const mockAddAnnotation = vi.hoisted(() => vi.fn((_key: string, _annotation: Record<string, unknown>) => "annotation-1"));
 
 vi.mock("@multica/ui/hooks/use-mobile", () => ({
   useIsMobile: () => mockViewport.isMobile,
@@ -183,7 +184,7 @@ vi.mock("../../editor", async () => ({
     ref: any,
   ) {
     const initialValue = syncedValue ?? defaultValue ?? "";
-    if (syncedValue !== undefined) descriptionSelectionAction.current = selectionAction;
+    if (selectionAction) descriptionSelectionAction.current = selectionAction;
     const valueRef = useRef(initialValue);
     const baseRef = useRef(initialValue);
     const [editorValue, setEditorValue] = useState(initialValue);
@@ -390,6 +391,7 @@ vi.mock("@multica/core/issues/stores", async () => ({
         drafts: {} as Record<string, { content: string; attachments: unknown[]; updatedAt: number }>,
         getDraft: () => undefined,
         getAnnotations: () => emptyDraftAttachments,
+        addAnnotation: mockAddAnnotation,
         getAttachments: () => emptyDraftAttachments,
         getUploads: () => emptyDraftAttachments,
         setDraft: () => {},
@@ -407,6 +409,7 @@ vi.mock("@multica/core/issues/stores", async () => ({
         drafts: {} as Record<string, { content: string; attachments: unknown[]; updatedAt: number }>,
         getDraft: () => undefined,
         getAnnotations: () => emptyDraftAttachments,
+        addAnnotation: mockAddAnnotation,
         getAttachments: () => emptyDraftAttachments,
         getUploads: () => emptyDraftAttachments,
         setDraft: () => {},
@@ -2228,6 +2231,59 @@ describe("IssueDetail (shared)", () => {
     expect(editor).toHaveValue("Add JWT auth to the backend");
     expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
     expect(screen.queryByRole("button", { name: "Discard changes" })).toBeNull();
+  });
+
+  it("captures an unsaved description quote without saving it when the draft is discarded", async ({ onTestFinished }) => {
+    // Match the real annotation hook tests: jsdom has no viewport or Range layout.
+    const rectSpy = vi.spyOn(HTMLElement.prototype, "getBoundingClientRect")
+      .mockReturnValue(new DOMRect(10, 10, 600, 400));
+    const originals = [
+      [document.documentElement, "clientWidth", 1024],
+      [document.documentElement, "clientHeight", 768],
+      [Range.prototype, "getBoundingClientRect", () => new DOMRect(10, 10, 120, 20)],
+    ] as const;
+    const descriptors = originals.map(([target, key]) => Object.getOwnPropertyDescriptor(target, key));
+    originals.forEach(([target, key, value]) => Object.defineProperty(target, key, { configurable: true, value }));
+    onTestFinished(() => {
+      rectSpy.mockRestore();
+      originals.forEach(([target, key], index) => {
+        const original = descriptors[index];
+        if (original) Object.defineProperty(target, key, original);
+        else Reflect.deleteProperty(target, key);
+      });
+    });
+    const { container } = renderIssueDetail();
+    const editor = await screen.findByDisplayValue("Add JWT auth to the backend");
+    fireEvent.change(editor, { target: { value: "Unsaved quote" } });
+
+    // The textarea editor double cannot expose a DOM selection. Supply the
+    // rendered text that the real ContentEditor exposes to the annotation hook.
+    const source = container.querySelector('[data-comment-content="description:issue-1"]')!;
+    const renderedText = document.createElement("div");
+    renderedText.contentEditable = "true";
+    renderedText.textContent = "Unsaved quote";
+    source.appendChild(renderedText);
+    const range = document.createRange();
+    range.selectNodeContents(renderedText);
+    act(() => {
+      window.getSelection()!.removeAllRanges();
+      window.getSelection()!.addRange(range);
+      descriptionSelectionAction.current!.onSelect();
+    });
+    fireEvent.change(await screen.findByRole("textbox", { name: "Comment" }), {
+      target: { value: "Keep this question" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add annotation" }));
+    expect(mockAddAnnotation).toHaveBeenCalledWith("new:issue-1", expect.objectContaining({
+      sourceCommentId: "description:issue-1", quote: "Unsaved quote", note: "Keep this question",
+    }));
+
+    renderedText.remove();
+    fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
+    expect(editor).toHaveValue("Add JWT auth to the backend");
+    expect(mockApiObj.updateIssue).not.toHaveBeenCalled();
+    expect(mockAddAnnotation.mock.calls[0]?.[1]).toMatchObject({ quote: "Unsaved quote" });
+    window.getSelection()!.removeAllRanges();
   });
 
   // Descriptions are last-write-wins (MUL-6971). The baseline still ships as

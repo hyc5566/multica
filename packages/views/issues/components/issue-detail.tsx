@@ -1170,10 +1170,8 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
   // built-ins keep their fixed glyph and semantic token.
   const { categoryOf: resolveStatusCategory, colorOf: resolveStatusColor, iconOf: resolveStatusIcon } =
     useIssueStatuses(wsId);
-  // Description autosave is deliberately NOT gated (no explicit submit; the
-  // editor already strips `blob:` before serializing and binds ids on the
-  // later save). It still needs the failure toast, or a failed upload just
-  // erases its own placeholder and the file disappears unexplained.
+  // Description uploads bind attachment ids on explicit save. Report upload
+  // failures so a removed placeholder does not disappear without explanation.
   const { uploadWithToast } = useEditorUpload();
   const { defaultLayout, onLayoutChanged } = useDefaultLayout({
     id: layoutId,
@@ -3082,24 +3080,24 @@ export function IssueDetail({ issueId, onDelete, onDone, defaultSidebarOpen = tr
           >
             {descriptionAnnotations.popup}
             <div data-comment-content={descriptionSourceId}>
-            <ContentEditor
-              ref={descEditorRef}
-              key={id}
-              defaultValue={issue.description ?? ""}
-              placeholder={t(($) => $.detail.desc_placeholder)}
-              onUpdate={(markdown) => {
-                descriptionDraftRef.current = markdown;
-                const dirty = markdown !== descriptionBaseRef.current;
-                descriptionDirtyRef.current = dirty;
-                setDescriptionDirty(dirty);
-              }}
-              onUploadFile={handleDescriptionUpload}
-              onUploadingChange={setDescriptionUploading}
-              debounceMs={0}
-              currentIssueId={id}
-              selectionAction={descriptionSelectionAction}
-              attachments={descEditorAttachments}
-            />
+              <ContentEditor
+                ref={descEditorRef}
+                key={id}
+                defaultValue={issue.description ?? ""}
+                placeholder={t(($) => $.detail.desc_placeholder)}
+                onUpdate={(markdown) => {
+                  descriptionDraftRef.current = markdown;
+                  const dirty = markdown !== descriptionBaseRef.current;
+                  descriptionDirtyRef.current = dirty;
+                  setDescriptionDirty(dirty);
+                }}
+                onUploadFile={handleDescriptionUpload}
+                onUploadingChange={setDescriptionUploading}
+                debounceMs={0}
+                currentIssueId={id}
+                selectionAction={descriptionSelectionAction}
+                attachments={descEditorAttachments}
+              />
             </div>
 
             {descriptionDirty && (

@@ -17,6 +17,23 @@ func TestMigrationNumericPrefixesAreUnique(t *testing.T) {
 	// From 129 onward, keep the numeric sequence unique so release tooling and
 	// operators can identify one schema change unambiguously by its number.
 	const firstUniqueMigrationNumber = 129
+	// These exact Taiwan-edition stems were already released before upstream
+	// reused their numbers. The ledger keys full stems; renaming would replay
+	// non-idempotent SQL on installed databases. All new collisions still fail.
+	historicalTaiwanPairs := map[string]string{
+		"451_runtime_provider_usage_snapshot":        "451_agent_task_comment_thread",
+		"452_runtime_provider_usage_snapshot_key":    "452_agent_task_pending_thread_unique",
+		"453_provider_quota_observation":             "453_drop_pending_issue_agent_unique",
+		"454_provider_quota_observation_key":         "454_drop_comment_content_bigm_index",
+		"455_task_quota_checkpoint":                  "455_drop_comment_content_trgm_index",
+		"456_task_quota_checkpoint_key":              "456_cancel_comment_assignee_fallbacks",
+		"457_task_quota_checkpoint_workspace_time":   "457_task_message_output_truncated",
+		"458_provider_quota_observation_received_at": "458_agent_task_cancellation_actor",
+		"459_provider_quota_rollup":                  "459_chat_message_assistant_task_index",
+		"460_provider_quota_rollup_key":              "460_agent_task_queue_autopilot_run_created_at_index",
+		"461_provider_quota_rollup_workspace_time":   "461_channel_trigger_snapshot",
+		"462_provider_quota_observation_id":          "462_delete_reference_only_pr_links",
+	}
 	stemByNumber := make(map[int]string)
 	for _, file := range files {
 		stem, _, ok := splitMigrationFilename(filepath.Base(file))
@@ -32,6 +49,9 @@ func TestMigrationNumericPrefixesAreUnique(t *testing.T) {
 			continue
 		}
 		if previous, exists := stemByNumber[number]; exists {
+			if historicalTaiwanPairs[previous] == stem || historicalTaiwanPairs[stem] == previous {
+				continue
+			}
 			t.Errorf("migrations %s and %s share numeric prefix %s", previous, stem, prefix)
 			continue
 		}

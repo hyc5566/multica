@@ -48,7 +48,7 @@ describe("cancellationActorLabel", () => {
     expect(cancellationActorLabel({
       status: "cancelled",
       cancelled_by: { type: "system" },
-    }, fixedT("zh-Hans"))).toBe("已由系统取消");
+    }, fixedT("zh-Hans"))).toBe("系統已取消");
     expect(cancellationActorLabel({
       status: "cancelled",
       cancelled_by: { type: "member", name: "Jiayuan" },

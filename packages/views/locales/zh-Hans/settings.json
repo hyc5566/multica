@@ -16,10 +16,10 @@
       "archive": "歸檔",
       "reorder": "拖動排序 {{name}}"
     },
-    "reorder_hint": "拖动分类内的状态，调整看板、列表和状态菜单中的顺序。",
+    "reorder_hint": "拖曳分類內的狀態，調整看板、列表和狀態選單中的順序。",
     "built_in_dialog": {
-      "title": "无法修改内置状态",
-      "description": "内置状态用于 Multica 的系统行为，不能编辑或归档。你仍可调整它们在分类内的顺序。",
+      "title": "無法修改內建狀態",
+      "description": "內建狀態用於 Multica 的系統行為，不能編輯或歸檔。你仍可調整它們在分類內的順序。",
       "confirm": "知道了"
     },
     "editor": {
@@ -63,10 +63,10 @@
       "failed": "歸檔失敗。"
     },
     "category_labels": {
-      "unstarted": "未开始",
-      "started": "已开始",
+      "unstarted": "未開始",
+      "started": "已開始",
       "done": "已完成",
-      "closed": "已关闭"
+      "closed": "已關閉"
     },
     "categories": {
       "unstarted": "尚未開始的工作，包括待規劃和已規劃的任務。",

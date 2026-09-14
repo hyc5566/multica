@@ -1,24 +1,24 @@
 {
   "inline_run": {
-    "label": "{{name}} 的运行",
+    "label": "{{name}} 的執行",
     "stop": "停止",
     "stopping": "正在停止...",
-    "queued": "等待可用的智能体。",
-    "starting": "正在准备智能体会话。",
-    "waiting_directory": "等待其他运行释放工作目录。",
+    "queued": "等待可用的 Agent。",
+    "starting": "正在準備 Agent 對話。",
+    "waiting_directory": "等待其他執行釋放工作目錄。",
     "thinking": "思考中",
-    "waiting_response": "等待智能体响应。",
-    "view_activity": "查看执行过程",
-    "steps_other": "{{count}} 个步骤",
-    "loading": "正在加载执行过程...",
-    "load_failed": "无法加载执行过程。",
-    "try_again": "重试",
-    "empty": "暂无执行记录。",
-    "show_earlier": "显示前面的 {{count}} 个步骤",
-    "full_log": "打开完整日志",
-    "message": "智能体消息",
-    "error": "错误",
-    "waiting_result": "等待工具返回结果..."
+    "waiting_response": "等待 Agent 回應。",
+    "view_activity": "查看執行過程",
+    "steps_other": "{{count}} 個步驟",
+    "loading": "正在載入執行過程...",
+    "load_failed": "無法載入執行過程。",
+    "try_again": "重試",
+    "empty": "暫無執行記錄。",
+    "show_earlier": "顯示前面的 {{count}} 個步驟",
+    "full_log": "開啟完整日誌",
+    "message": "Agent 訊息",
+    "error": "錯誤",
+    "waiting_result": "等待工具傳回結果..."
   },
   "status_catalog_error": {
     "title": "狀態列表載入失敗",
@@ -112,10 +112,10 @@
     "cancelled": "已取消"
   },
   "status_category": {
-    "unstarted": "未开始",
-    "started": "已开始",
+    "unstarted": "未開始",
+    "started": "已開始",
     "done": "已完成",
-    "closed": "已关闭"
+    "closed": "已關閉"
   },
   "priority": {
     "urgent": "緊急",
