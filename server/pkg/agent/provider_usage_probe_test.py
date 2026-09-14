@@ -78,6 +78,82 @@ class AntigravityCredentialTests(unittest.TestCase):
             ), self.assertRaises(probe.ProbeFailure):
                 probe.antigravity_token()
 
+    def test_keychain_refresh_hint_and_live_hud_override(self):
+        import base64
+        value = {"token": {"access_token": "fixture", "refresh_token": "fixture-refresh",
+                           "expiry": "2026-08-31T09:00:00Z"}}
+        raw = "go-keyring-base64:" + base64.b64encode(json.dumps(value).encode()).decode()
+        with tempfile.TemporaryDirectory() as directory, mock.patch.object(
+            probe.pathlib.Path, "home", return_value=pathlib.Path(directory)
+        ), mock.patch.object(probe.sys, "platform", "darwin"), mock.patch.object(
+            probe.subprocess, "run", return_value=mock.Mock(stdout=raw)
+        ), mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT):
+            result = probe.fetch_provider("antigravity")
+            self.assertTrue(result["credential_refresh_needed"])
+            folder = pathlib.Path(directory) / ".gemini" / "antigravity-cli"
+            folder.mkdir(parents=True)
+            (folder / "agy-hud-token.json").write_text(json.dumps({"tokens": [{
+                "accessToken": "live-fixture", "expiry": "2026-08-31T11:00:00Z"
+            }]}))
+            self.assertEqual(probe.antigravity_token(), "live-fixture")
+
+    def test_expired_native_refresh_flag_and_recovery(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = pathlib.Path(directory)
+            folder = home / ".gemini" / "antigravity-cli"
+            folder.mkdir(parents=True)
+            path = folder / "antigravity-oauth-token"
+            expired = {"access_token": "expired-fixture", "refresh_token": "refresh-fixture",
+                       "expiry": "2026-08-31T09:00:00Z"}
+            path.write_text(json.dumps(expired))
+            with mock.patch.object(probe.pathlib.Path, "home", return_value=home), mock.patch.object(
+                probe.sys, "platform", "linux"
+            ), mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT), mock.patch.object(
+                probe, "http_json"
+            ) as http:
+                result = probe.fetch_provider("antigravity")
+                self.assertTrue(result["credential_refresh_needed"])
+                self.assertEqual(result["status"], "auth_required")
+                self.assertNotIn("refresh-fixture", json.dumps(result))
+                http.assert_not_called()
+                self.assertEqual(json.loads(path.read_text()), expired)
+                # Simulate the native client's update; the probe itself never writes credentials.
+                expired.update(access_token="renewed-fixture", expiry="2026-08-31T11:00:00Z")
+                path.write_text(json.dumps(expired))
+                self.assertEqual(probe.antigravity_token(), "renewed-fixture")
+
+    def test_hud_mirror_and_missing_refresh_never_authorize_native_login(self):
+        for native in [
+            {"access_token": "expired", "expiry": "2026-08-31T09:00:00Z"},
+            {"access_token": "expired", "refresh_token": "fixture", "expiry": "bad-date"},
+        ]:
+            with self.subTest(native=native), tempfile.TemporaryDirectory() as directory:
+                home = pathlib.Path(directory)
+                folder = home / ".gemini" / "antigravity-cli"
+                folder.mkdir(parents=True)
+                (folder / "antigravity-oauth-token").write_text(json.dumps(native))
+                (folder / "agy-hud-token.json").write_text(json.dumps({"tokens": [{
+                    "accessToken": "expired", "expiry": "2026-08-31T09:00:00Z", "refresh_token": "fixture"
+                }]}))
+                with mock.patch.object(probe.pathlib.Path, "home", return_value=home), mock.patch.object(
+                    probe.sys, "platform", "linux"
+                ), mock.patch.object(probe, "utc_now", return_value=OBSERVED_AT):
+                    result = probe.fetch_provider("antigravity")
+                    self.assertEqual(result["status"], "auth_required")
+                    self.assertNotIn("credential_refresh_needed", result)
+
+    def test_unreadable_hud_does_not_hide_native_credential(self):
+        with tempfile.TemporaryDirectory() as directory:
+            home = pathlib.Path(directory)
+            folder = home / ".gemini" / "antigravity-cli"
+            folder.mkdir(parents=True)
+            (folder / "agy-hud-token.json").write_bytes(bytes([255]))
+            (folder / "antigravity-oauth-token").write_text(json.dumps({"access_token": "fixture"}))
+            with mock.patch.object(probe.pathlib.Path, "home", return_value=home), mock.patch.object(
+                probe.sys, "platform", "linux"
+            ):
+                self.assertEqual(probe.antigravity_token(), "fixture")
+
 
 class ProviderUsageNormalizerTests(unittest.TestCase):
     def test_codex_rejects_missing_or_unusable_windows(self) -> None:

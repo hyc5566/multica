@@ -173,7 +173,7 @@
       "no_runtime": "請先綁定執行環境，才能讀取供應商用量。",
       "runtime_offline": "執行環境目前離線，無法重新整理用量。",
       "unavailable": "供應商未回傳可供程式讀取的額度資料。",
-      "auth_required": "請在此執行環境登入供應商 CLI，然後重新整理。",
+      "auth_required": "目前無法取得有效的額度憑證，請檢查此執行環境的供應商授權或憑證續期狀態。",
       "claude_unavailable": "目前還沒有 Claude Code 額度快照。請使用相容的 Multica 守護進程執行一次 Claude task，再回來重新整理。",
       "probe_error": "執行環境的 CLI 無法提供帳號額度快照。",
       "refresh_hint": "立即要求更新；每 60 秒最多查詢一次，供應商可能要求更長的等待時間。顯示時間為最後觀測時間。",

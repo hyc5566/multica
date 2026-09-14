@@ -17,14 +17,15 @@ import (
 // quota. Percentages are always in the 0..100 range; a provider that does not
 // publish a value leaves it nil rather than fabricating zero.
 type ProviderUsage struct {
-	Provider          string                `json:"provider"`
-	AccountScope      string                `json:"account_scope,omitempty"`
-	Status            string                `json:"status"`
-	Source            string                `json:"source"`
-	Windows           []ProviderUsageWindow `json:"windows,omitempty"`
-	ObservedAt        time.Time             `json:"observed_at"`
-	Message           string                `json:"message,omitempty"`
-	RetryAfterSeconds *int64                `json:"retry_after_seconds,omitempty"`
+	Provider                string                `json:"provider"`
+	AccountScope            string                `json:"account_scope,omitempty"`
+	Status                  string                `json:"status"`
+	Source                  string                `json:"source"`
+	Windows                 []ProviderUsageWindow `json:"windows,omitempty"`
+	ObservedAt              time.Time             `json:"observed_at"`
+	Message                 string                `json:"message,omitempty"`
+	RetryAfterSeconds       *int64                `json:"retry_after_seconds,omitempty"`
+	CredentialRefreshNeeded bool                  `json:"credential_refresh_needed,omitempty"`
 }
 
 type ProviderUsageWindow struct {
@@ -42,6 +43,22 @@ const providerUsageProbeMaxOutput = 2 * 1024 * 1024
 
 //go:embed provider_usage_probe.py
 var providerUsageProbeScript string
+
+// RefreshAntigravityCredential asks the registered native CLI to renew its own
+// OAuth credential through uncached model discovery, without a model turn.
+// Success only means the command completed; callers must re-probe quota.
+func RefreshAntigravityCredential(ctx context.Context, runtimeCmd Command) bool {
+	if strings.TrimSpace(runtimeCmd.Path) == "" {
+		return false
+	}
+	runCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	cmd := runtimeCmd.exec(runCtx, "models")
+	hideAgentWindow(cmd)
+	cmd.Stdout = io.Discard
+	cmd.Stderr = io.Discard
+	return runOwned(cmd, nil) == nil
+}
 
 // ProbeProviderUsage runs the bundled deterministic direct-HTTP probe. The
 // helper reads the runtime user's local OAuth credential and never starts an

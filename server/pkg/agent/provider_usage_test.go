@@ -1,6 +1,42 @@
 package agent
 
-import "testing"
+import (
+	"context"
+	"os"
+	"path/filepath"
+	"runtime"
+	"testing"
+)
+
+func TestRefreshAntigravityCredentialUsesExplicitUncachedModelsCommand(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("shell fixture")
+	}
+	marker := filepath.Join(t.TempDir(), "calls")
+	t.Setenv("MULTICA_TEST_RENEW_MARKER", marker)
+	path := filepath.Join(t.TempDir(), "fake-agy")
+	if err := os.WriteFile(path, []byte("#!/bin/sh\n[ \"$#\" = 1 ] && [ \"$1\" = models ] || exit 9\necho call >> \"$MULTICA_TEST_RENEW_MARKER\"\necho fixture-output\necho fixture-error >&2\n"), 0700); err != nil {
+		t.Fatal(err)
+	}
+	for range 2 {
+		if !RefreshAntigravityCredential(context.Background(), NewCommand(path, nil)) {
+			t.Fatal("native model command failed")
+		}
+	}
+	if data, err := os.ReadFile(marker); err != nil || string(data) != "call\ncall\n" {
+		t.Fatalf("renewal was cached: %q, %v", data, err)
+	}
+	for _, cmd := range []Command{{}, NewCommand(filepath.Join(t.TempDir(), "missing"), nil), NewCommand(path, []string{"unexpected"})} {
+		if RefreshAntigravityCredential(context.Background(), cmd) {
+			t.Fatal("missing or failing command reported success")
+		}
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if RefreshAntigravityCredential(ctx, NewCommand(path, nil)) {
+		t.Fatal("canceled renewal reported success")
+	}
+}
 
 func TestParseProviderUsageProbeAcceptsRateLimitMetadata(t *testing.T) {
 	t.Parallel()
@@ -18,6 +54,14 @@ func TestParseProviderUsageProbeAcceptsRateLimitMetadata(t *testing.T) {
 	}
 	if got.Status != "rate_limited" || got.RetryAfterSeconds == nil || *got.RetryAfterSeconds != 25 {
 		t.Fatalf("rate-limited snapshot = %+v", got)
+	}
+}
+
+func TestParseProviderUsageProbeAcceptsNativeRefreshHint(t *testing.T) {
+	raw := []byte(`{"provider":"antigravity","status":"auth_required","source":"unavailable","observed_at":"2026-08-31T10:00:00Z","credential_refresh_needed":true}`)
+	usage, err := parseProviderUsageProbe(raw, "antigravity")
+	if err != nil || !usage.CredentialRefreshNeeded {
+		t.Fatalf("refresh hint was lost: %+v, %v", usage, err)
 	}
 }
 

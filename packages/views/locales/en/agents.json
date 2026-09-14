@@ -182,7 +182,7 @@
       "no_runtime": "Bind a runtime to read provider usage.",
       "runtime_offline": "The runtime is offline. Usage cannot be refreshed.",
       "unavailable": "The provider did not return a machine-readable quota snapshot.",
-      "auth_required": "Sign in to the provider CLI on this runtime, then refresh.",
+      "auth_required": "No usable quota credential is available. Check provider authorization or credential renewal on this runtime.",
       "claude_unavailable": "No Claude Code quota snapshot is available yet. Run one Claude task with a compatible Multica daemon, then refresh.",
       "probe_error": "The runtime CLI could not provide an account-quota snapshot.",
       "refresh_hint": "Refresh now; checks are limited to once every 60 seconds, or longer if the provider requires it. The time shown is the last observation.",

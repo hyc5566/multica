@@ -101,6 +101,30 @@ python3 -m unittest server/pkg/agent/provider_usage_probe_test.py
 The script also exposes `--normalize <provider>` for fixture-driven parsing on
 stdin. The daemon never uses that mode.
 
+## Antigravity native renewal
+
+The direct Python probe remains read-only and never executes an agent CLI.
+If all access-token sources are unusable and the native Keychain/file credential
+has a parseable expired token and a refresh token, it emits the non-secret
+`credential_refresh_needed` hint. HUD mirrors alone cannot authorize renewal.
+
+Only the daemon's manual/scheduled built-in Antigravity refresh can then run
+its already registered executable with the fixed `models` argument (uncached,
+10-second deadline, no prompt/model turn, stdout/stderr discarded). The native
+client owns Google renewal and credential persistence; Multica does not copy a
+Google client secret, rewrite credentials, or use another provider's login.
+A subsequent direct quota query must succeed before the Server gets fresh data.
+A command failure, revoked grant, missing executable or custom profile retains
+the failed observation; it is not reported as a successful refresh.
+
+Manual/scheduled observations have a 45-second total budget (below the Server's
+60-second running-request timeout), including a possible native renewal.
+Task checkpoints retain their 3-second limit even while waiting for a shared
+refresh, and never initiate credential renewal. Native renewal therefore requires
+an installed client version that supports noninteractive `models`; agy 1.2.2
+was observed renewing its own credential in the earlier HYCLV-92 operation.
+This candidate still requires authorized expiry/reconnect acceptance on both Macs.
+
 ## Task checkpoint consumers
 
 The daemon may call this probe immediately before and after an agent backend
