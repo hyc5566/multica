@@ -124,3 +124,15 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 續期未啟用；現有quota helper仍以daemon OS user取得資料，不能宣稱支援profile專屬帳號。
 Google撤銷refresh grant、Keychain不可讀且無專用檔案，仍可能需要使用者授權；兩機到期後
 更新、App重開、重連、CA持久性與跨至少一次真實expiry邊界的驗收均應分項記錄。
+
+### 更新 App 後自動檢查憑證與額度
+
+維運更新可用 [`desktop-quota-check.py`](../scripts/deploy/desktop-quota-check.py)
+的 `--update-command` 包住已核准的安裝指令：安裝完成、預期版本 daemon 就緒後，
+自動要求一次額度刷新，必要時沿用 `.15` 原生續期，再驗證本次結果及 Server 快照。
+有效憑證直接沿用，不強制更新，也不把「有 refresh token」當作成功證據。
+失敗時回傳非零退出碼，保留舊快照但不判為通過。續期授權被撤銷時仍須重新登入。
+
+此入口供維運更新使用，並非 Electron 內建更新器已新增功能；單獨替換 App 後，
+若沒有呼叫此入口，仍由既有 daemon 額度排程處理。操作與測試方式見
+[部署工具說明](../scripts/deploy/README.md#desktop-update-credential-check)。
