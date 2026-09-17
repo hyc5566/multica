@@ -35,7 +35,13 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
     const archive = join(root, 'fixture.tar.gz');
     execFileSync('tar', ['-czf', archive, '-C', fixture, 'multica', 'LICENSE', 'NOTICE', 's90-ca.crt']);
     const bytes = readFileSync(archive), checksum = createHash('sha256').update(bytes).digest('hex');
-    server = https.createServer({key: readFileSync(join(root, 'leaf.key')), cert: readFileSync(join(root, 'leaf.crt'))}, (_req, res) => res.end(bytes));
+    let caBytes = readFileSync(join(root, 'trusted.crt'));
+    let caStatus = 200, archiveRequests = 0;
+    const caChecksum = createHash('sha256').update(caBytes).digest('hex');
+    server = https.createServer({key: readFileSync(join(root, 'leaf.key')), cert: readFileSync(join(root, 'leaf.crt'))}, (req, res) => {
+      if (req.url === '/s90-ca.crt') { res.statusCode = caStatus; res.end(caBytes); }
+      else { archiveRequests++; res.end(bytes); }
+    });
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const home = join(root, 'home'); mkdirSync(home);
     // Neither inherited CA nor curlrc can disable verification or hide public roots.
@@ -46,15 +52,31 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
       NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1'};
     const template = readFileSync(new URL('./install.sh.in', import.meta.url), 'utf8');
     const installer = join(root, 'install.sh');
-    const render = (host, ca = '') => template.replaceAll('@VERSION@', 'tls-test')
-      .replaceAll('@DOWNLOAD_CA_PEM@', ca)
+    const render = (host, pinnedChecksum = caChecksum) => template.replaceAll('@VERSION@', 'tls-test')
+      .replaceAll('@DOWNLOAD_CA_SHA256@', pinnedChecksum)
       .replaceAll('@BASE_URL@', `https://${host}:${server.address().port}`)
       .replace(/@(LINUX|DARWIN)_(AMD64|ARM64)@/g, checksum);
     writeFileSync(installer, render('localhost'));
-    const unknown = await run('bash', [installer], env);
-    assert.equal(unknown.status, 60, unknown.stderr);
-    assert.match(unknown.stderr, /MULTICA_INSTALL_CA_FILE/);
+    caBytes = readFileSync(join(root, 'unrelated.crt'));
+    const tampered = await run('bash', [installer], env);
+    assert.equal(tampered.status, 1, tampered.stderr);
+    assert.match(tampered.stderr, /CA checksum mismatch/);
+    assert.equal(archiveRequests, 0);
     assert.equal(existsSync(env.MULTICA_ZH_TW_INSTALL_ROOT), false);
+    // A correctly pinned different CA must not bypass artifact issuer checks.
+    writeFileSync(installer, render('localhost', createHash('sha256').update(caBytes).digest('hex')));
+    const unknownIssuer = await run('bash', [installer], env);
+    assert.equal(unknownIssuer.status, 60, unknownIssuer.stderr);
+    assert.equal(archiveRequests, 0);
+    assert.equal(existsSync(env.MULTICA_ZH_TW_INSTALL_ROOT), false);
+    writeFileSync(installer, render('localhost'));
+    caStatus = 404;
+    const absentCA = await run('bash', [installer], env);
+    assert.equal(absentCA.status, 22, absentCA.stderr);
+    assert.equal(archiveRequests, 0);
+    assert.equal(existsSync(env.MULTICA_ZH_TW_INSTALL_ROOT), false);
+    caStatus = 200;
+    caBytes = readFileSync(join(root, 'trusted.crt'));
     const missing = await run('bash', [installer], {...env, MULTICA_INSTALL_CA_FILE: join(root, 'absent')});
     assert.equal(missing.status, 1); assert.equal(existsSync(env.MULTICA_ZH_TW_INSTALL_ROOT), false);
     const privateKey = await run('bash', [installer], {...env, MULTICA_INSTALL_CA_FILE: join(root, 'trusted.key')});
@@ -69,8 +91,8 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
     const custom = await run('bash', [installer], {...env, HOME: customHome,
       MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'custom-install'), MULTICA_INSTALL_CA_FILE: join(root, 'trusted.crt')});
     assert.equal(custom.status, 0, custom.stderr);
-    // A bundled public CA also bootstraps LAN downloads without user configuration.
-    writeFileSync(installer, render('localhost', readFileSync(join(root, 'trusted.crt'), 'utf8')));
+    // Downloaded, hash-pinned public CA bootstraps without user configuration.
+    writeFileSync(installer, render('localhost'));
     const success = await run('bash', [installer], env);
     assert.equal(success.status, 0, success.stderr);
     const bundle = readFileSync(join(env.MULTICA_ZH_TW_INSTALL_ROOT, 'share/multica-zh-tw/tls-test/ca-bundle.crt'), 'utf8');
@@ -78,7 +100,7 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
     assert.ok(bundle.includes(readFileSync(join(root, 'unrelated.crt'), 'utf8').trim()));
     assert.ok((bundle.match(/BEGIN CERTIFICATE/g) || []).length > 3);
     const wrapper = readFileSync(join(env.MULTICA_ZH_TW_INSTALL_ROOT, 'bin/multica'), 'utf8');
-    assert.match(wrapper, /export SSL_CERT_FILE=/); assert.match(wrapper, /export CURL_CA_BUNDLE=/);
+    assert.match(wrapper, /export MULTICA_CA_CERT_FILE=/); assert.match(wrapper, /export SSL_CERT_FILE=/); assert.match(wrapper, /export CURL_CA_BUNDLE=/);
   } finally {
     if (server) await new Promise(resolve => server.close(resolve));
     rmSync(root, {recursive: true, force: true});

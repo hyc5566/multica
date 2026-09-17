@@ -80,7 +80,7 @@ systemctl --user disable --now multica.service
 
 ### 安裝時出現 curl (60)
 
-s90 的 `0.4.43-zh-tw.1` 成品另提供 `scripts/install-zh-tw-s90.sh`：安裝腳本從 GitHub 下載，CLI 成品從 s90 下載。腳本內嵌發行者核實的 s90 公開 CA，因此新機器不必先安裝內網 CA。需在能連到 `10.1.24.90` 的網路執行：
+s90 的 `0.4.43-zh-tw.1` 成品另提供 `scripts/install-zh-tw-s90.sh`：安裝腳本從 GitHub 下載，CLI 成品從 s90 下載。腳本從 s90 下載獨立的 `s90-ca.crt`，先比對腳本內固定的 SHA-256，再加入信任，因此新機器不必先安裝內網 CA。需在能連到 `10.1.24.90` 的網路執行：
 
 ```bash
 curl -q --fail --location --proto '=https' --proto-redir '=https' \
@@ -89,9 +89,9 @@ curl -q --fail --location --proto '=https' --proto-redir '=https' \
 bash install.sh --login
 ```
 
-建置腳本將已核實的公開 CA 填入模板的 `@DOWNLOAD_CA_PEM@`，保留系統公用根。CA 更新時須重新發布安裝腳本；不能從尚未受信任的 s90 下載另一張根憑證來自動取代它。GitHub 舊版 `.6` 的 `install-zh-tw.sh` 與新版 s90 的 `install-zh-tw-s90.sh` 對應不同版本／成品 checksum，不可互換名稱後假稱同一版本。
+建置腳本輸出獨立的 `s90-ca.crt`，並將其檔案 SHA-256 填入模板的 `@DOWNLOAD_CA_SHA256@`，保留系統公用根。首次取得 CA 時，僅該次下載使用 `--insecure`，以可信任 GitHub 腳本中的固定雜湊驗證內容；不跟隨轉址、不傳入帳號憑證，雜湊不符或下載失敗即停止，尚未核實的 CA 不會加入信任。之後下載 CLI 一律使用 `--cacert` 驗證憑證鏈與主機名稱。CA 更新時須經發行者核實後重新發布腳本中的雜湊，不能自動接受另一張根憑證。GitHub 舊版 `.6` 的 `install-zh-tw.sh` 與新版 s90 的 `install-zh-tw-s90.sh` 對應不同版本／成品 checksum，不可互換名稱後假稱同一版本。
 
-2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 同時設定這兩個變數，使用包含公用與 s90 CA 的憑證包；不修改系統信任，不關閉 TLS 驗證。請重新下載腳本，舊的本機副本不會自動更新。
+2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 設定這兩個變數及供新版 CLI 使用的 `MULTICA_CA_CERT_FILE`，使用包含公用與 s90 CA 的憑證包；不修改系統信任。只有上述 CA 初始下載使用固定雜湊驗證，CLI 成品與執行時連線仍驗證 TLS。請重新下載腳本，舊的本機副本不會自動更新。
 
 若公司代理需要額外的 CA，先向管理員取得並核實**公開 CA 憑證**，再執行：
 
@@ -115,7 +115,7 @@ bash install.sh --login
 
 若公司代理 CA 尚未受信任，上述下載仍會拒絕連線；應使用管理員核實、包含系統與公司公開 CA 的憑證包取代兩個 `--cacert`／`--proxy-cacert` 路徑。此修正的自動測試使用真正的 HTTPS 連線，檢查成功安裝、未知 CA、主機名稱不符與私鑰輸入；不代表 Desktop 或各 Agent 工具的完整 CA 相容性驗收已通過。
 
-首次下載來源必須已受信任，例如 GitHub HTTPS；不可使用 `curl -k` 從尚未信任的 LAN 網站抓 CA 後當成已驗證。公開根憑證與 binary 同屬固定 checksum 的包；私鑰不可分發。一般瀏覽器的 Web 入口仍需要系統／瀏覽器信任 CA，或由管理員提供已受信任的服務憑證；App 的內建信任不會改變瀏覽器。
+首次下載來源必須已受信任，例如 GitHub HTTPS；不可僅使用 `curl -k` 從尚未信任的 LAN 網站抓 CA 就當成已驗證；本安裝器先依可信任腳本中的固定 SHA-256 核實下載內容，才使用該 CA。公開根憑證與 binary 同屬固定 checksum 的包；私鑰不可分發。一般瀏覽器的 Web 入口仍需要系統／瀏覽器信任 CA，或由管理員提供已受信任的服務憑證；App 的內建信任不會改變瀏覽器。
 
 `setup` 對同 Server 保留既有設定與 token，驗證成功後跳過重登；換 Server 不沿用舊 token／workspace。TLS／網路失敗不再當成 token 過期，HTTP 401 才提示登入。
 
