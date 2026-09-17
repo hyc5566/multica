@@ -38,11 +38,47 @@ if [[ -e "$destination" || -L "$destination" || -e "$wrapper" || -L "$wrapper" ]
   echo 'Existing installation found. Review the upgrade procedure before replacing it.' >&2
   exit 2
 fi
-for required in curl tar; do command -v "$required" >/dev/null; done
+for required in curl tar grep; do command -v "$required" >/dev/null; done
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT
-curl --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
-  "$base_url/multica-$platform.tar.gz" -o "$tmp/archive.tar.gz"
+# Establish download trust before contacting GitHub. A private-only inherited
+# CA bundle must not hide the OS public roots. Keep explicitly provided roots.
+public_ca=''
+for candidate in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem; do
+  if [[ -f "$candidate" && -r "$candidate" && -s "$candidate" ]]; then public_ca="$candidate"; break; fi
+done
+[[ -n "$public_ca" ]] || { echo 'System CA bundle not found; install the OS ca-certificates package first.' >&2; exit 1; }
+if [[ -n ${MULTICA_INSTALL_CA_FILE:-} && ( ! -f "$MULTICA_INSTALL_CA_FILE" || ! -r "$MULTICA_INSTALL_CA_FILE" || ! -s "$MULTICA_INSTALL_CA_FILE" ) ]]; then
+  echo 'MULTICA_INSTALL_CA_FILE must name a readable, non-empty public CA certificate file.' >&2
+  exit 1
+fi
+if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$public_ca"; then
+  echo 'CA bundle contains a private key; use public CA certificates only.' >&2; exit 1
+fi
+cat "$public_ca" > "$tmp/download-ca.crt"
+for candidate in "${CURL_CA_BUNDLE:-}" "${SSL_CERT_FILE:-}" "${MULTICA_INSTALL_CA_FILE:-}"; do
+  if [[ -n "$candidate" && "$candidate" != "$public_ca" && -f "$candidate" && -r "$candidate" && -s "$candidate" ]]; then
+    if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$candidate"; then
+      echo 'CA bundle contains a private key; use public CA certificates only.' >&2; exit 1
+    fi
+    printf '\n' >> "$tmp/download-ca.crt"
+    cat "$candidate" >> "$tmp/download-ca.crt"
+  fi
+done
+# -q must be first: a user curlrc must not inject insecure or alternate downloads.
+# HTTPS proxies have their own TLS verification, using the same approved roots.
+if curl -q --cacert "$tmp/download-ca.crt" --proxy-cacert "$tmp/download-ca.crt" \
+  --fail --silent --show-error --location --proto '=https' --proto-redir '=https' \
+  "$base_url/multica-$platform.tar.gz" -o "$tmp/archive.tar.gz"; then
+  :
+else
+  status=$?
+  if [[ $status == 60 || $status == 77 ]]; then
+    echo 'TLS verification failed while downloading the CLI; no installation was written.' >&2
+    echo 'For a company TLS proxy, supply its administrator-verified public CA via MULTICA_INSTALL_CA_FILE and retry. TLS verification remains enabled.' >&2
+  fi
+  exit "$status"
+fi
 if command -v sha256sum >/dev/null; then
   actual=$(sha256sum "$tmp/archive.tar.gz")
 else
@@ -56,13 +92,8 @@ mkdir -p "$install_root/bin" "$(dirname "$destination")"
 mkdir "$destination"
 install -m 755 "$tmp/multica" "$destination/multica"
 install -m 644 "$tmp/LICENSE" "$tmp/NOTICE" "$tmp/s90-ca.crt" "$destination/"
-# Preserve public roots for provider tools inherited by the daemon.
-public_ca=''
-for candidate in /etc/ssl/certs/ca-certificates.crt /etc/pki/tls/certs/ca-bundle.crt /etc/ssl/cert.pem; do
-  if [[ -r "$candidate" ]]; then public_ca="$candidate"; break; fi
-done
-[[ -n "$public_ca" ]] || { echo 'System CA bundle not found; install the OS ca-certificates package first.' >&2; exit 1; }
-cat "$public_ca" > "$destination/ca-bundle.crt"
+# Reuse the verified download trust and add the archive's checksum-pinned s90 CA.
+cat "$tmp/download-ca.crt" > "$destination/ca-bundle.crt"
 printf '\n' >> "$destination/ca-bundle.crt"
 cat "$destination/s90-ca.crt" >> "$destination/ca-bundle.crt"
 # Bash %q quotes spaces and metacharacters in the user's installation path.
@@ -70,6 +101,7 @@ cat "$destination/s90-ca.crt" >> "$destination/ca-bundle.crt"
   printf '#!/usr/bin/env bash\n'
   printf 'export MULTICA_DAEMON_AUTO_UPDATE=false MULTICA_DAEMON_AUTO_RELOAD=false MULTICA_DAEMON_DYNAMIC_PORT=true\n'
   printf 'export SSL_CERT_FILE=%q\n' "$destination/ca-bundle.crt"
+  printf 'export CURL_CA_BUNDLE=%q\n' "$destination/ca-bundle.crt"
   printf 'export MULTICA_SERVER_URL=https://10.1.24.90:45671 MULTICA_APP_URL=https://10.1.24.90:45671\n'
   printf 'exec %q "$@"\n' "$destination/multica"
 } > "$tmp/wrapper"
