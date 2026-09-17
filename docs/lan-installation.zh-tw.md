@@ -78,6 +78,32 @@ systemctl --user disable --now multica.service
 
 一般同事使用 `https://10.1.24.90:45671`；s90 舊 daemon 的 `http://127.0.0.1:45673` 是同機直接連 backend，不能照抄到其他主機。安裝 launcher 固定一般入口，並把 OS 公用 CA 與隨包 s90 公開 CA 合併後提供給 CLI 及子程序。
 
+### 安裝時出現 curl (60)
+
+2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 同時設定這兩個變數，使用包含公用與 s90 CA 的憑證包；不修改系統信任，不關閉 TLS 驗證。請重新下載腳本，舊的本機副本不會自動更新。
+
+若公司代理需要額外的 CA，先向管理員取得並核實**公開 CA 憑證**，再執行：
+
+```bash
+MULTICA_INSTALL_CA_FILE=/absolute/company-public-ca.pem bash install.sh --login
+```
+
+這份公開 CA 也會加入安裝後的憑證包。不可提供私鑰；檔案不存在、沒有系統 CA、憑證不受信任或主機名稱不符時，安裝仍會停止。macOS 鑰匙圈中的額外公司 CA 不保證包含在系統 PEM 檔，必要時也用上述方式提供。
+
+若錯誤發生在**下載 install.sh 本身**，腳本尚未開始，無法自行修復第一個下載。可用已信任 GitHub 的瀏覽器下載後傳至目標機器。Debian／Ubuntu 類 Linux 若只是繼承到錯誤的 CA 環境變數，也可明確使用系統 CA 重新下載：
+
+```bash
+env -u CURL_CA_BUNDLE -u SSL_CERT_FILE -u SSL_CERT_DIR \
+  curl -q --cacert /etc/ssl/certs/ca-certificates.crt \
+  --proxy-cacert /etc/ssl/certs/ca-certificates.crt \
+  --fail --location --proto '=https' --proto-redir '=https' \
+  https://raw.githubusercontent.com/hyc5566/multica/zh-tw/scripts/install-zh-tw.sh \
+  -o install.sh
+bash install.sh --login
+```
+
+若公司代理 CA 尚未受信任，上述下載仍會拒絕連線；應使用管理員核實、包含系統與公司公開 CA 的憑證包取代兩個 `--cacert`／`--proxy-cacert` 路徑。此修正的自動測試使用真正的 HTTPS 連線，檢查成功安裝、未知 CA、主機名稱不符與私鑰輸入；不代表 Desktop 或各 Agent 工具的完整 CA 相容性驗收已通過。
+
 首次下載來源必須已受信任，例如 GitHub HTTPS；不可使用 `curl -k` 從尚未信任的 LAN 網站抓 CA 後當成已驗證。公開根憑證與 binary 同屬固定 checksum 的包；私鑰不可分發。一般瀏覽器的 Web 入口仍需要系統／瀏覽器信任 CA，或由管理員提供已受信任的服務憑證；App 的內建信任不會改變瀏覽器。
 
 `setup` 對同 Server 保留既有設定與 token，驗證成功後跳過重登；換 Server 不沿用舊 token／workspace。TLS／網路失敗不再當成 token 過期，HTTP 401 才提示登入。
