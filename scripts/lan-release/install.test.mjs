@@ -23,6 +23,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const installer = join(root, 'install.sh');
     const render = (checksum) => template.replaceAll('@VERSION@', '0.4.41-zh-tw.4-rc.1')
       .replaceAll('@BASE_URL@', 'https://example.com/release')
+      .replaceAll('@DOWNLOAD_CA_PEM@', '')
       .replace(/@(LINUX|DARWIN)_(AMD64|ARM64)@/g, checksum);
     const installRoot = join(root, "local space ' $literal");
     const home = join(root, 'home'); mkdirSync(home);
