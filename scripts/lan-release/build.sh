@@ -16,15 +16,10 @@ if grep -q 'PRIVATE KEY' "$ca_file"; then echo 'CA input must not contain a priv
 commit=$(git rev-parse HEAD)
 build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$out"
-while IFS= read -r line; do
-  if [[ "$line" == '@DOWNLOAD_CA_PEM@' ]]; then
-    cat "$ca_file"
-    printf '\n'
-  else
-    printf '%s\n' "$line"
-  fi
-done < "$repo/scripts/lan-release/install.sh.in" > "$out/install.sh"
-sed -i "s|@VERSION@|$version|g; s|@BASE_URL@|$base_url|g" "$out/install.sh"
+cp "$ca_file" "$out/s90-ca.crt"
+ca_checksum=$(sha256sum "$out/s90-ca.crt")
+sed "s|@VERSION@|$version|g; s|@BASE_URL@|$base_url|g; s|@DOWNLOAD_CA_SHA256@|${ca_checksum%% *}|g" \
+  "$repo/scripts/lan-release/install.sh.in" > "$out/install.sh"
 export CGO_ENABLED=0
 export GOMAXPROCS=${GOMAXPROCS:-4}
 export GOFLAGS="${GOFLAGS:-} -p=4"
@@ -55,5 +50,5 @@ cp "$repo/docs/lan-installation.zh-tw.md" "$out/INSTALL.md"
 printf 'version=%s\ncommit=%s\nbuild_date=%s\ngo=%s\n' \
   "$version" "$commit" "$build_date" "$(go version)" > "$out/BUILD.txt"
 cd "$out"
-sha256sum ./*.tar.gz install.sh INSTALL.md BUILD.txt > SHA256SUMS
+sha256sum ./*.tar.gz install.sh s90-ca.crt INSTALL.md BUILD.txt > SHA256SUMS
 echo "Release candidate: $out"
