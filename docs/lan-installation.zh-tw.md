@@ -165,15 +165,15 @@ s90 Server／Web 已部署來源 `aa863a493426d4f6d8df326e18ece5bc7d82ec95`；Gm
 
 Mac 原生 651 項測試、內嵌 CA 連線、codesign、新舊 Server 混版 HTTP／登入 WebSocket／Redis 演練通過。正式穩定版仍待新使用者實際完成 Mac 註冊登入→Agent 任務，以及 Linux systemd 常駐→領取任務；不以編譯通過代替這些驗收。
 
-## Mac App daemon 的 Caddy 憑證信任修正（候選，HYCLV-106）
+## Mac App daemon 的 Caddy 憑證信任修正（.43.2，HYCLV-106）
 
 2026-09-17 新使用者回報：App 可登入，但 Go daemon 取得 `/api/daemon/workspaces` 時回報 `x509: Caddy Local Authority - ECC Intermediate certificate is not trusted`。App 的 Node／Chromium 信任與 Go daemon 信任不同；Go 的 [SystemCertPool](https://pkg.go.dev/crypto/x509#SystemCertPool) 不在 macOS 讀取 `SSL_CERT_FILE`。AppTranslocation 路徑並非該錯誤的直接原因，因 CLI 已成功執行到 HTTPS 請求。
 
-候選修正由 Desktop 將已封裝的 CA bundle 設為 `MULTICA_CA_CERT_FILE`；CLI 在建立連線前讀取該檔案、將 CA 加入系統根憑證副本，再提供 API、下載及 daemon WebSocket 使用。缺檔或沒有有效憑證時明確失敗，不修改作業系統鑰匙圈，也不跳過 TLS／hostname 驗證。這是 Desktop 明確設定的變數；原有 `SSL_CERT_FILE` 保留給其他相容工具。
+修正由 Desktop 將已封裝的 CA bundle 設為 `MULTICA_CA_CERT_FILE`；CLI 在建立連線前讀取該檔案、將 CA 加入系統根憑證副本，再提供 API、下載及 daemon WebSocket 使用。缺檔或沒有有效憑證時明確失敗，不修改作業系統鑰匙圈，也不跳過 TLS／hostname 驗證。這是 Desktop 明確設定的變數；原有 `SSL_CERT_FILE` 保留給其他相容工具。
 
-候選尚需在未預裝 s90 根憑證的 Mac 驗收 App 啟動、daemon 註冊、heartbeat、WebSocket 與檔案傳輸，再完成原生封裝、簽章與發布。Linux 測試及 Darwin 交叉編譯不能代替這項驗收；本段不代表線上 App 已換版。
+`.43.2` 已在 m5 原生建置並通過 701 項 Desktop 測試與 Go TLS 測試；正式 m5 daemon 已使用新 CA 註冊並恢復 heartbeat。完整新帳號／乾淨 OS 的真人任務流程尚未另行驗收。App 採 ad-hoc 簽章，仍未完成 Apple 公證。
 
-既有 App 暫時處理：經使用者或管理員同意，將已核實的 App `Contents/Resources/s90-ca.crt` 匯入該使用者的登入鑰匙圈並信任 SSL，再重新啟動 App 與 daemon。應匯入根憑證，不能把錯誤訊息中提到的 Intermediate 任意設成信任錨。當時本站根憑證 SHA256 指紋：`56:1C:DE:F8:BA:02:8D:B3:02:7D:68:64:9E:94:36:DD:30:14:DB:B1:1F:B4:16:17:F6:65:C8:2A:FB:F5:7A:3A`。憑證更新後需重新向管理員核對，不能永久依賴此舊指紋。此步會改變該使用者的信任設定；受管電腦應交由管理員處理。
+舊 App 請改下載 `.43.2`，不再匯入舊的 `561C…F57A3A` CA。新版 App 隨附新 CA 並自行處理信任；一般瀏覽器則需由使用者／管理員更新瀏覽器或系統的 CA 信任。
 
 ### 2026-09-17 CA 輪替
 
@@ -181,4 +181,4 @@ Mac 原生 651 項測試、內嵌 CA 連線、codesign、新舊 Server 混版 HT
 
 `.43.2` 的 CA 檔案 SHA-256 為 `e1ffc707220f8dfa00ffa4b7c9699d9b93fd1d407d065bf8801c3cea67037e6d`。App 的 Go CLI 修正來源為 `304ba24077ca009558090900fac49a476c9b6fb8`，透過 `MULTICA_CA_CERT_FILE` 明確追加根憑證，涵蓋 HTTP、stall-aware transport 與 WebSocket。macOS 原生測試及 App 打包已完成。s90 已切換新 CA 並提供 `.43.2` 下載；daemon 遷移結果以維運紀錄為準，m2 與 lv-spark 由管理員另行手動更新。
 
-輪替須先分發新信任、確認所有納入的 daemon 可重連，再更換 Server CA；本次 m2 明確延後。Caddy 2.10.2 的隔離實測顯示，僅改 issuer 後 reload 仍會碰到既有 certificate cache，必須重啟 Caddy 程序後驗證實際送出的鏈。保留原 authority 與設定，失敗可還原。不可用仍存活的舊 WebSocket 連線當成新信任驗收。
+輪替須先分發新信任、確認所有納入的 daemon 可重連，再更換 Server CA；本次 m2 與 lv-spark 明確由使用者稍後手動處理。Caddy 2.10.2 的隔離實測顯示，僅改 issuer 後 reload 仍會碰到既有 certificate cache，必須重啟 Caddy 程序後驗證實際送出的鏈。保留原 authority 與設定，失敗可還原。不可用仍存活的舊 WebSocket 連線當成新信任驗收。
