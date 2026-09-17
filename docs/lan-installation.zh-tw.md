@@ -80,6 +80,17 @@ systemctl --user disable --now multica.service
 
 ### 安裝時出現 curl (60)
 
+s90 的 `0.4.43-zh-tw.1` 成品另提供 `scripts/install-zh-tw-s90.sh`：安裝腳本從 GitHub 下載，CLI 成品從 s90 下載。腳本內嵌發行者核實的 s90 公開 CA，因此新機器不必先安裝內網 CA。需在能連到 `10.1.24.90` 的網路執行：
+
+```bash
+curl -q --fail --location --proto '=https' --proto-redir '=https' \
+  https://raw.githubusercontent.com/hyc5566/multica/zh-tw/scripts/install-zh-tw-s90.sh \
+  -o install.sh
+bash install.sh --login
+```
+
+建置腳本將已核實的公開 CA 填入模板的 `@DOWNLOAD_CA_PEM@`，保留系統公用根。CA 更新時須重新發布安裝腳本；不能從尚未受信任的 s90 下載另一張根憑證來自動取代它。GitHub 舊版 `.6` 的 `install-zh-tw.sh` 與新版 s90 的 `install-zh-tw-s90.sh` 對應不同版本／成品 checksum，不可互換名稱後假稱同一版本。
+
 2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 同時設定這兩個變數，使用包含公用與 s90 CA 的憑證包；不修改系統信任，不關閉 TLS 驗證。請重新下載腳本，舊的本機副本不會自動更新。
 
 若公司代理需要額外的 CA，先向管理員取得並核實**公開 CA 憑證**，再執行：

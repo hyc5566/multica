@@ -16,7 +16,14 @@ if grep -q 'PRIVATE KEY' "$ca_file"; then echo 'CA input must not contain a priv
 commit=$(git rev-parse HEAD)
 build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$out"
-cp "$repo/scripts/lan-release/install.sh.in" "$out/install.sh"
+while IFS= read -r line; do
+  if [[ "$line" == '@DOWNLOAD_CA_PEM@' ]]; then
+    cat "$ca_file"
+    printf '\n'
+  else
+    printf '%s\n' "$line"
+  fi
+done < "$repo/scripts/lan-release/install.sh.in" > "$out/install.sh"
 sed -i "s|@VERSION@|$version|g; s|@BASE_URL@|$base_url|g" "$out/install.sh"
 export CGO_ENABLED=0
 export GOMAXPROCS=${GOMAXPROCS:-4}

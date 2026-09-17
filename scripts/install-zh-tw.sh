@@ -56,6 +56,22 @@ if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$public_ca"; then
   echo 'CA bundle contains a private key; use public CA certificates only.' >&2; exit 1
 fi
 cat "$public_ca" > "$tmp/download-ca.crt"
+# Public CA supplied and verified by the release builder, before LAN downloads.
+cat >> "$tmp/download-ca.crt" <<'MULTICA_DOWNLOAD_CA'
+
+-----BEGIN CERTIFICATE-----
+MIIBpDCCAUmgAwIBAgIQBMzH4q3sm0JG3DMcqijwWzAKBggqhkjOPQQDAjAwMS4w
+LAYDVQQDEyVDYWRkeSBMb2NhbCBBdXRob3JpdHkgLSAyMDI2IEVDQyBSb290MB4X
+DTI2MDkwNDE5MjEwOVoXDTM2MDcxMzE5MjEwOVowMDEuMCwGA1UEAxMlQ2FkZHkg
+TG9jYWwgQXV0aG9yaXR5IC0gMjAyNiBFQ0MgUm9vdDBZMBMGByqGSM49AgEGCCqG
+SM49AwEHA0IABHueFGIA/gjvqsFlvOeXeNVxRKSQXBSF94V2Wf6p62etJjU1Cgaj
+wgatnGGEcCIlwT4cHseEBpDf5anEY6hLHUejRTBDMA4GA1UdDwEB/wQEAwIBBjAS
+BgNVHRMBAf8ECDAGAQH/AgEBMB0GA1UdDgQWBBT/shYHT1B0kbRSCxbqYOdOnCwL
+5jAKBggqhkjOPQQDAgNJADBGAiEApyxe+2z3bbXpMkd8bqhjGyHwH2Mb49JAnzR7
+Ras7bvoCIQDPzMGl35J3BDxciHlk38PGbjgdLmrqJed/FXr+1+M2Hw==
+-----END CERTIFICATE-----
+
+MULTICA_DOWNLOAD_CA
 for candidate in "${CURL_CA_BUNDLE:-}" "${SSL_CERT_FILE:-}" "${MULTICA_INSTALL_CA_FILE:-}"; do
   if [[ -n "$candidate" && "$candidate" != "$public_ca" && -f "$candidate" && -r "$candidate" && -s "$candidate" ]]; then
     if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$candidate"; then
