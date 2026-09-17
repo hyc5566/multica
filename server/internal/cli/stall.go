@@ -127,6 +127,7 @@ func (e *StallError) Unwrap() error { return e.Err }
 func NewStallAwareHTTPClient() *http.Client {
 	idle := StallTimeout()
 	base := &http.Transport{
+		TLSClientConfig: DefaultTLSConfig(),
 		// ProxyFromEnvironment matches http.DefaultTransport. Dropping it
 		// would silently break every user behind a corporate proxy, which is
 		// a population that overlaps heavily with the slow links this change
