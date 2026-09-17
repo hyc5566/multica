@@ -46,7 +46,8 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
       NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1'};
     const template = readFileSync(new URL('./install.sh.in', import.meta.url), 'utf8');
     const installer = join(root, 'install.sh');
-    const render = host => template.replaceAll('@VERSION@', 'tls-test')
+    const render = (host, ca = '') => template.replaceAll('@VERSION@', 'tls-test')
+      .replaceAll('@DOWNLOAD_CA_PEM@', ca)
       .replaceAll('@BASE_URL@', `https://${host}:${server.address().port}`)
       .replace(/@(LINUX|DARWIN)_(AMD64|ARM64)@/g, checksum);
     writeFileSync(installer, render('localhost'));
@@ -64,7 +65,13 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
     assert.equal(wrongHost.status, 60, wrongHost.stderr);
     assert.equal(existsSync(env.MULTICA_ZH_TW_INSTALL_ROOT), false);
     writeFileSync(installer, render('localhost'));
-    const success = await run('bash', [installer], {...env, MULTICA_INSTALL_CA_FILE: join(root, 'trusted.crt')});
+    const customHome = join(root, 'custom-home'); mkdirSync(customHome);
+    const custom = await run('bash', [installer], {...env, HOME: customHome,
+      MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'custom-install'), MULTICA_INSTALL_CA_FILE: join(root, 'trusted.crt')});
+    assert.equal(custom.status, 0, custom.stderr);
+    // A bundled public CA also bootstraps LAN downloads without user configuration.
+    writeFileSync(installer, render('localhost', readFileSync(join(root, 'trusted.crt'), 'utf8')));
+    const success = await run('bash', [installer], env);
     assert.equal(success.status, 0, success.stderr);
     const bundle = readFileSync(join(env.MULTICA_ZH_TW_INSTALL_ROOT, 'share/multica-zh-tw/tls-test/ca-bundle.crt'), 'utf8');
     assert.ok(bundle.includes(readFileSync(join(root, 'trusted.crt'), 'utf8').trim()));

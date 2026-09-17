@@ -56,6 +56,11 @@ if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$public_ca"; then
   echo 'CA bundle contains a private key; use public CA certificates only.' >&2; exit 1
 fi
 cat "$public_ca" > "$tmp/download-ca.crt"
+# Public CA supplied and verified by the release builder, before LAN downloads.
+cat >> "$tmp/download-ca.crt" <<'MULTICA_DOWNLOAD_CA'
+
+@DOWNLOAD_CA_PEM@
+MULTICA_DOWNLOAD_CA
 for candidate in "${CURL_CA_BUNDLE:-}" "${SSL_CERT_FILE:-}" "${MULTICA_INSTALL_CA_FILE:-}"; do
   if [[ -n "$candidate" && "$candidate" != "$public_ca" && -f "$candidate" && -r "$candidate" && -s "$candidate" ]]; then
     if grep -Eq -- '-----BEGIN .*PRIVATE KEY-----' "$candidate"; then
