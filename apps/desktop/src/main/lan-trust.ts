@@ -46,6 +46,7 @@ export function installLanTrust(app: App): void {
   writeFileSync(bundle, roots.join("\n"), { mode: 0o600 });
   // Child Go CLIs retain public roots as well as the bundled LAN root.
   process.env.SSL_CERT_FILE = bundle;
+  process.env.MULTICA_CA_CERT_FILE = bundle;
   process.env.MULTICA_DAEMON_AUTO_UPDATE = "false";
   process.env.MULTICA_DAEMON_AUTO_RELOAD = "false";
   app.on("certificate-error", (event, _contents, url, _error, certificate, callback) => {

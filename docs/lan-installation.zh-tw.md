@@ -164,3 +164,13 @@ Server 部署前另核對正在運行的版本、images、設定／資料備份�
 s90 Server／Web 已部署來源 `aa863a493426d4f6d8df326e18ece5bc7d82ec95`；Gmail 寄信與新驗證碼 15 分鐘期限通過。共享 Redis 與雙入口代理已啟用；操作以 [Server 交接程序](server-handoff.zh-tw.md) 為準。
 
 Mac 原生 651 項測試、內嵌 CA 連線、codesign、新舊 Server 混版 HTTP／登入 WebSocket／Redis 演練通過。正式穩定版仍待新使用者實際完成 Mac 註冊登入→Agent 任務，以及 Linux systemd 常駐→領取任務；不以編譯通過代替這些驗收。
+
+## Mac App daemon 的 Caddy 憑證信任修正（候選，HYCLV-106）
+
+2026-09-17 新使用者回報：App 可登入，但 Go daemon 取得 `/api/daemon/workspaces` 時回報 `x509: Caddy Local Authority - ECC Intermediate certificate is not trusted`。App 的 Node／Chromium 信任與 Go daemon 信任不同；Go 的 [SystemCertPool](https://pkg.go.dev/crypto/x509#SystemCertPool) 不在 macOS 讀取 `SSL_CERT_FILE`。AppTranslocation 路徑並非該錯誤的直接原因，因 CLI 已成功執行到 HTTPS 請求。
+
+候選修正由 Desktop 將已封裝的 CA bundle 設為 `MULTICA_CA_CERT_FILE`；CLI 在建立連線前讀取該檔案、將 CA 加入系統根憑證副本，再提供 API、下載及 daemon WebSocket 使用。缺檔或沒有有效憑證時明確失敗，不修改作業系統鑰匙圈，也不跳過 TLS／hostname 驗證。這是 Desktop 明確設定的變數；原有 `SSL_CERT_FILE` 保留給其他相容工具。
+
+候選尚需在未預裝 s90 根憑證的 Mac 驗收 App 啟動、daemon 註冊、heartbeat、WebSocket 與檔案傳輸，再完成原生封裝、簽章與發布。Linux 測試及 Darwin 交叉編譯不能代替這項驗收；本段不代表線上 App 已換版。
+
+既有 App 暫時處理：經使用者或管理員同意，將已核實的 App `Contents/Resources/s90-ca.crt` 匯入該使用者的登入鑰匙圈並信任 SSL，再重新啟動 App 與 daemon。應匯入根憑證，不能把錯誤訊息中提到的 Intermediate 任意設成信任錨。當時本站根憑證 SHA256 指紋：`56:1C:DE:F8:BA:02:8D:B3:02:7D:68:64:9E:94:36:DD:30:14:DB:B1:1F:B4:16:17:F6:65:C8:2A:FB:F5:7A:3A`。憑證更新後需重新向管理員核對，不能永久依賴此舊指紋。此步會改變該使用者的信任設定；受管電腦應交由管理員處理。
