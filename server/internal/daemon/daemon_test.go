@@ -535,7 +535,7 @@ func TestTaskScopedAuthToken(t *testing.T) {
 }
 
 func TestTaskMulticaEnvironmentIncludesPrivateConfigRoot(t *testing.T) {
-	t.Parallel()
+	t.Setenv("MULTICA_CA_CERT_FILE", "")
 
 	const (
 		fakeToken      = "mat_task_environment_sentinel"
@@ -581,6 +581,41 @@ func TestTaskMulticaEnvironmentIncludesPrivateConfigRoot(t *testing.T) {
 	}
 	if env["MULTICA_TOKEN"] != fakeToken {
 		t.Fatal("custom env replaced task-scoped token")
+	}
+}
+
+func TestTaskMulticaEnvironmentPreservesTrustedCA(t *testing.T) {
+	for _, ca := range []string{"", "/daemon/Application Support/ca-bundle.crt"} {
+		t.Run(ca, func(t *testing.T) {
+			t.Setenv("MULTICA_CA_CERT_FILE", ca)
+			env := taskMulticaEnvironment(Task{}, "", "", "", "", "https://task.example", 0, 0, t.TempDir())
+			layerCustomEnvAndHermesHome(env, map[string]string{
+				"MULTICA_CA_CERT_FILE": "/untrusted/ca.crt",
+			}, "", nil)
+			got, present := env["MULTICA_CA_CERT_FILE"]
+			if got != ca || present != (ca != "") {
+				t.Fatalf("task CA = %q (present %v), want %q", got, present, ca)
+			}
+			codexHome := t.TempDir()
+			if err := configureCodexTaskShellEnvironment("codex", codexHome, os.Environ(), env, nil, slog.Default()); err != nil {
+				t.Fatal(err)
+			}
+			data, err := os.ReadFile(filepath.Join(codexHome, "config.toml"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			var config struct {
+				Policy struct {
+					IncludeOnly []string `toml:"include_only"`
+				} `toml:"shell_environment_policy"`
+			}
+			if err := toml.Unmarshal(data, &config); err != nil {
+				t.Fatal(err)
+			}
+			if slices.Contains(config.Policy.IncludeOnly, "MULTICA_CA_CERT_FILE") != (ca != "") {
+				t.Fatalf("Codex shell CA policy does not match daemon trust: %v", config.Policy.IncludeOnly)
+			}
+		})
 	}
 }
 

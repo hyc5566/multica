@@ -34,6 +34,9 @@ Apply these layers in order when rebuilding the branch:
    packaging outputs do not pollute the primary source checkout.
 5. CLI copy and regression tests: keep user-visible daemon hints and assertions
    aligned with the Taiwan locale.
+6. LAN trust: pass the daemon's `MULTICA_CA_CERT_FILE` into the explicit task
+   environment so macOS agent CLIs and Codex shell tools retain the bundled CA;
+   keep agent `custom_env` overrides of the `MULTICA_*` namespace blocked.
 
 Do not fold unrelated local product features into the localization commits.
 Develop each feature from `zh-tw` on its own branch, review it through a PR, and

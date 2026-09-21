@@ -612,9 +612,10 @@ func TestMergeEnvFiltersClaudeCodeVars(t *testing.T) {
 		"MULTICA_LLM_API_KEY=daemon-secret",
 		"MULTICA_SERVER_URL=https://daemon.example",
 	}, map[string]string{
-		"FOO":                "bar",
-		"MULTICA_SERVER_URL": "https://task.example",
-		"MULTICA_TOKEN":      "mat_task",
+		"FOO":                  "bar",
+		"MULTICA_SERVER_URL":   "https://task.example",
+		"MULTICA_TOKEN":        "mat_task",
+		"MULTICA_CA_CERT_FILE": "/daemon/Application Support/ca-bundle.crt",
 	})
 
 	// Internal runtime/session markers must be stripped so the child does not
@@ -662,6 +663,9 @@ func TestMergeEnvFiltersClaudeCodeVars(t *testing.T) {
 	}
 	if !found["FOO=bar"] {
 		t.Fatalf("expected extra env var to be appended, got %v", env)
+	}
+	if !found["MULTICA_CA_CERT_FILE=/daemon/Application Support/ca-bundle.crt"] {
+		t.Fatalf("expected explicit daemon CA to reach agent process, got %v", env)
 	}
 	if !found["MULTICA_SERVER_URL=https://task.example"] || !found["MULTICA_TOKEN=mat_task"] {
 		t.Fatalf("expected explicit task MULTICA_* values to be appended, got %v", env)

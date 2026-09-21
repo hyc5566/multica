@@ -172,7 +172,7 @@ func taskScopedAuthToken(task Task) (string, error) {
 }
 
 func taskMulticaEnvironment(task Task, agentName, token, configRoot, workspacesRoot, serverURL string, healthPort, slot int, tempDir string) map[string]string {
-	return map[string]string{
+	env := map[string]string{
 		"MULTICA_TOKEN":        token,
 		cli.TaskConfigRootEnv:  configRoot,
 		TaskWorkspacesRootEnv:  workspacesRoot,
@@ -187,6 +187,12 @@ func taskMulticaEnvironment(task Task, agentName, token, configRoot, workspacesR
 		"TMP":                  tempDir,
 		"TEMP":                 tempDir,
 	}
+	// macOS Go CLIs need explicit CA trust; inherited MULTICA_* values are
+	// otherwise stripped from agent processes and Codex shell tools.
+	if ca := os.Getenv("MULTICA_CA_CERT_FILE"); ca != "" {
+		env["MULTICA_CA_CERT_FILE"] = ca
+	}
+	return env
 }
 
 // taskRunner executes a single agent task and returns the result.
