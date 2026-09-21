@@ -192,6 +192,11 @@ func taskMulticaEnvironment(task Task, provider, agentName, token, configRoot, w
 		"TMP":                  tempDir,
 		"TEMP":                 tempDir,
 	}
+	// macOS Go CLIs need explicit CA trust; inherited MULTICA_* values are
+	// otherwise stripped from agent processes and Codex shell tools.
+	if ca := os.Getenv("MULTICA_CA_CERT_FILE"); ca != "" {
+		env["MULTICA_CA_CERT_FILE"] = ca
+	}
 	if runtime.GOOS != "windows" {
 		return env
 	}
