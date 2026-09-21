@@ -43,7 +43,11 @@ func ConfigureTLSFromEnv() error {
 // DefaultTLSConfig shares the CLI's explicit trust with independent transports.
 func DefaultTLSConfig() *tls.Config {
 	if transport, ok := http.DefaultTransport.(*http.Transport); ok && transport.TLSClientConfig != nil {
-		return transport.TLSClientConfig.Clone()
+		config := transport.TLSClientConfig.Clone()
+		// net/http adds h2 to its config after use. Each independent transport
+		// must choose its own ALPN protocols; gorilla WebSocket only speaks HTTP/1.1.
+		config.NextProtos = nil
+		return config
 	}
 	return nil
 }
