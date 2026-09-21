@@ -3,18 +3,24 @@ package daemon
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
+	"encoding/pem"
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 	"sync"
 	"testing"
 	"time"
 
+	"github.com/multica-ai/multica/server/internal/cli"
 	"github.com/multica-ai/multica/server/internal/daemon/repocache"
 )
 
@@ -263,6 +269,99 @@ func TestShutdownHandlerRejectsNonPost(t *testing.T) {
 	time.Sleep(10 * time.Millisecond)
 	if cancelled {
 		t.Fatal("GET request should not trigger cancellation")
+	}
+}
+
+func TestIdleRestartUsesClaimBarrier(t *testing.T) {
+	caPath := filepath.Join(t.TempDir(), "ca.pem")
+	bundle := []byte("updated public CA bundle")
+	if err := os.WriteFile(caPath, bundle, 0600); err != nil {
+		t.Fatal(err)
+	}
+	digest := fmt.Sprintf("%x", sha256.Sum256(bundle))
+	t.Setenv("MULTICA_CA_CERT_FILE", caPath)
+	for _, scenario := range []string{"idle", "active", "claim in flight", "barrier held", "wrong pid", "wrong CA", "missing CA", "wrong digest", "non-post", "origin", "oversized", "resolve failure"} {
+		t.Run(scenario, func(t *testing.T) {
+			d, calls := newSelfReloadTestDaemon(t, "test")
+			method, pid, ca := http.MethodPost, fmt.Sprint(os.Getpid()), caPath
+			expectedDigest := digest
+			want := http.StatusConflict
+			switch scenario {
+			case "idle":
+				want = http.StatusAccepted
+			case "active":
+				d.activeTasks.Store(1)
+			case "claim in flight":
+				d.claimsInFlight = 1
+			case "barrier held":
+				d.pauseClaims = true
+			case "wrong pid":
+				pid = "0"
+			case "wrong CA":
+				ca = "/other/ca.pem"
+			case "missing CA":
+				ca = ""
+			case "wrong digest":
+				expectedDigest = "outdated"
+			case "non-post":
+				method, want = http.MethodGet, http.StatusMethodNotAllowed
+			case "resolve failure":
+				resolveSelfExecutable = func() (string, error) { return "", errors.New("unavailable") }
+				want = http.StatusServiceUnavailable
+			}
+			rec := httptest.NewRecorder()
+			body := fmt.Sprintf(`{"expected_pid":%s,"expected_ca_path":%q,"expected_ca_sha256":%q}`, pid, ca, expectedDigest)
+			if scenario == "oversized" {
+				body = strings.Repeat(" ", 8192) + body
+				want = http.StatusBadRequest
+			}
+			req := httptest.NewRequest(method, "/restart/idle", strings.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			if scenario == "origin" {
+				req.Header.Set("Origin", "https://untrusted.invalid")
+				want = http.StatusForbidden
+			}
+			d.idleRestartHandler().ServeHTTP(rec, req)
+			if rec.Code != want {
+				t.Fatalf("status = %d, want %d", rec.Code, want)
+			}
+			if scenario == "idle" {
+				if calls.Load() != 1 || d.RestartBinary() == "" || d.tryEnterClaim() {
+					t.Fatal("restart must retain barrier against new claims")
+				}
+			} else if calls.Load() != 0 {
+				t.Fatal("unsafe restart cancelled the daemon")
+			}
+			if scenario == "resolve failure" && !d.tryEnterClaim() {
+				t.Fatal("failed restart must release barrier")
+			}
+		})
+	}
+}
+
+func TestIdleRestartSkipsAlreadyLoadedTrust(t *testing.T) {
+	original := http.DefaultTransport
+	t.Cleanup(func() { http.DefaultTransport = original })
+	server := httptest.NewTLSServer(http.NotFoundHandler())
+	defer server.Close()
+	path := filepath.Join(t.TempDir(), "ca.pem")
+	bundle := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw})
+	if err := os.WriteFile(path, bundle, 0600); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("MULTICA_CA_CERT_FILE", path)
+	if err := cli.ConfigureTLSFromEnv(); err != nil {
+		t.Fatal(err)
+	}
+	d, calls := newSelfReloadTestDaemon(t, "test")
+	d.activeTasks.Store(1)
+	body := fmt.Sprintf(`{"expected_pid":%d,"expected_ca_path":%q,"expected_ca_sha256":%q}`, os.Getpid(), path, cli.LoadedCASHA256())
+	req := httptest.NewRequest(http.MethodPost, "/restart/idle", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	d.idleRestartHandler().ServeHTTP(rec, req)
+	if rec.Code != http.StatusOK || calls.Load() != 0 || d.pauseClaims {
+		t.Fatal("unchanged trust must not restart or pause claims even while busy")
 	}
 }
 
