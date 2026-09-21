@@ -31,7 +31,7 @@ func TestExplicitCA(t *testing.T) {
 	if http.DefaultTransport != original {
 		t.Fatal("unset CA must preserve default transport")
 	}
-	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewUnstartedServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "/ws" {
 			u := websocket.Upgrader{}
 			c, err := u.Upgrade(w, r, nil)
@@ -47,6 +47,8 @@ func TestExplicitCA(t *testing.T) {
 		}
 		_, _ = io.WriteString(w, "ok")
 	}))
+	server.EnableHTTP2 = true
+	server.StartTLS()
 	defer server.Close()
 	untrusted := &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{}}, Timeout: time.Second}
 	if r, err := untrusted.Get(server.URL); err == nil {
@@ -65,6 +67,9 @@ func TestExplicitCA(t *testing.T) {
 		response, err := client.Get(server.URL)
 		if err != nil {
 			t.Fatal(err)
+		}
+		if response.ProtoMajor != 2 {
+			t.Fatalf("HTTP client must negotiate HTTP/2 before WSS, got %s", response.Proto)
 		}
 		body, err := io.ReadAll(response.Body)
 		response.Body.Close()
