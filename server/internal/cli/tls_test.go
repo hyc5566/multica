@@ -4,9 +4,11 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"crypto/x509"
 	"encoding/pem"
+	"fmt"
 	"io"
 	"math/big"
 	"net"
@@ -23,7 +25,8 @@ import (
 
 func TestExplicitCA(t *testing.T) {
 	original := http.DefaultTransport
-	t.Cleanup(func() { http.DefaultTransport = original })
+	originalDigest := loadedCASHA256
+	t.Cleanup(func() { http.DefaultTransport = original; loadedCASHA256 = originalDigest })
 	t.Setenv("MULTICA_CA_CERT_FILE", "")
 	if err := ConfigureTLSFromEnv(); err != nil {
 		t.Fatal(err)
@@ -62,6 +65,14 @@ func TestExplicitCA(t *testing.T) {
 	t.Setenv("MULTICA_CA_CERT_FILE", path)
 	if err := ConfigureTLSFromEnv(); err != nil {
 		t.Fatal(err)
+	}
+	loadedPEM, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	wantDigest := fmt.Sprintf("%x", sha256.Sum256(loadedPEM))
+	if LoadedCASHA256() != wantDigest {
+		t.Fatal("loaded digest must describe the trusted bytes")
 	}
 	for _, client := range []*http.Client{{Timeout: time.Second}, NewStallAwareHTTPClient()} {
 		response, err := client.Get(server.URL)
@@ -138,6 +149,9 @@ func TestExplicitCA(t *testing.T) {
 		}
 		if http.DefaultTransport != before {
 			t.Fatal("failed CA load changed transport")
+		}
+		if LoadedCASHA256() != wantDigest {
+			t.Fatal("disk replacement or failed reload changed loaded digest")
 		}
 	}
 	t.Setenv("MULTICA_CA_CERT_FILE", filepath.Join(t.TempDir(), "missing"))

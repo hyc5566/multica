@@ -1,5 +1,6 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createHash } from "crypto";
 
 const { files, handlers, cliState, machine } = vi.hoisted(() => ({
   machine: { home: "/test-home", host: "test-host" },
@@ -53,7 +54,7 @@ vi.mock("./cli-bootstrap", () => ({
 }));
 
 import { desktopTokenRecord } from "./desktop-token";
-import { setupDaemonManager } from "./daemon-manager";
+import { requestDaemonTrustRefresh, setupDaemonManager } from "./daemon-manager";
 import { DaemonOperationGate } from "./daemon-recovery";
 import { profileConfigPath, profileUserIdPath } from "./daemon-profile";
 
@@ -99,6 +100,84 @@ describe("Desktop daemon token synchronization", () => {
     vi.useRealTimers();
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
+    vi.unstubAllEnvs();
+  });
+
+  it("defers trust refresh until every counter is idle, retries refusal, and observes the replacement PID", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("MULTICA_CA_CERT_FILE", "/test/ca-bundle.crt");
+    files.set("/test/ca-bundle.crt", "test public CA");
+    vi.mocked(DaemonOperationGate.prototype.runBackground).mockRestore();
+    let health = {
+      status: "running", pid: 100, active_task_count: 1,
+      running_task_count: 0, resource_wait_task_count: 0,
+      os: process.platform, server_url: server, profile, launched_by: "desktop",
+    };
+    let restartStatus = 409;
+    const requests: unknown[] = [];
+    fetchMock.mockImplementation(async (url: string, options?: {body?: string}) => {
+      if (url.endsWith("/restart/idle")) {
+        requests.push(JSON.parse(options!.body!));
+        return { status: restartStatus };
+      }
+      return { ok: true, json: async () => health };
+    });
+    const poll = async () => {
+      await invoke("daemon:start");
+      await vi.advanceTimersByTimeAsync(1);
+    };
+    requestDaemonTrustRefresh();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(requests).toEqual([]);
+    for (const counts of [
+      { active_task_count: 0, running_task_count: 1, resource_wait_task_count: 0 },
+      { active_task_count: 0, running_task_count: 0, resource_wait_task_count: 1 },
+      { active_task_count: 0, running_task_count: undefined, resource_wait_task_count: 0 },
+    ]) {
+      Object.assign(health, counts);
+      await poll();
+      expect(requests).toEqual([]);
+    }
+    health = { ...health, active_task_count: 0, running_task_count: 0, resource_wait_task_count: 0 };
+    await poll();
+    expect(requests).toEqual([{
+      expected_pid: 100, expected_ca_path: "/test/ca-bundle.crt",
+      expected_ca_sha256: createHash("sha256").update("test public CA").digest("hex"),
+    }]);
+    restartStatus = 202;
+    await poll();
+    expect(requests).toHaveLength(2);
+    await poll();
+    expect(requests).toHaveLength(2);
+    health.pid = 101;
+    restartStatus = 200;
+    await poll();
+    await poll();
+    expect(requests).toHaveLength(3); // Confirm replacement's loaded digest.
+    expect(requests[2]).toMatchObject({expected_pid:101});
+    expect(cliState.pid).toBe(100); // No CLI stop/start or forced kill was used.
+    restartStatus = 200;
+    requestDaemonTrustRefresh();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(requests).toHaveLength(4);
+    await poll();
+    expect(requests).toHaveLength(4); // Unchanged loaded trust clears pending.
+  });
+
+  it.each([
+    { os: "foreign" }, { profile: "someone-else" },
+    { launched_by: "" }, { server_url: "https://other.invalid" },
+  ])("does not refresh another daemon boundary: %j", async (override) => {
+    vi.useFakeTimers();
+    vi.mocked(DaemonOperationGate.prototype.runBackground).mockRestore();
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({
+      status: "running", pid: 100, active_task_count: 0,
+      running_task_count: 0, resource_wait_task_count: 0,
+      os: process.platform, profile, launched_by: "desktop", server_url: server, ...override,
+    }) });
+    requestDaemonTrustRefresh();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetchMock.mock.calls.every(call => call[1]?.method !== "POST")).toBe(true);
   });
 
   it.each(["success", "mint failure", "restart failure", "revoke failure"])("rotation ordering: %s", async (scenario) => {
