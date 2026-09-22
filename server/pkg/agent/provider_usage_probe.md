@@ -54,8 +54,8 @@ not execute `claude`, `agy`, `codex`, or any other agent executable.
 ## Local request limit
 
 Every outbound provider HTTP request reserves a local request slot before the
-refresh starts. A Claude refresh with an expired token reserves two slots (one
-OAuth exchange and one usage query). The state file contains request timestamps only and defaults to
+usage query starts. An expired Claude credential returns `auth_required` without
+contacting the provider or reserving a slot. The state file contains request timestamps only and defaults to
 `~/.multica/provider-usage/request-history.json` with mode `0600`; its directory
 and lock file use restrictive permissions too.
 
@@ -80,8 +80,11 @@ does not contact the provider and returns `status: "rate_limited"` with
 ## Credential boundary
 
 - Credentials are read only on the runtime host and kept in process memory.
-- Claude refresh tokens may be exchanged for an access token in memory; the
-  helper does not rewrite the credential file.
+- Claude token renewal belongs to the native Claude Code CLI. The helper never
+  exchanges refresh tokens or rewrites credentials: discarding a rotated refresh
+  token could invalidate the CLI session. Expired or unknown expiry returns
+  `auth_required`; renew the session in Claude Code before refreshing quota.
+  This observation failure does not block agent task execution.
 - The daemon discards helper stderr and exposes only validated normalized JSON.
 - Client input cannot select an endpoint, credential path, or command.
 - Do not enable shell tracing around the helper or copy credentials into

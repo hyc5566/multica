@@ -22,8 +22,6 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional
 
 
 CLAUDE_USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
-CLAUDE_REFRESH_URL = "https://platform.claude.com/v1/oauth/token"
-CLAUDE_CLIENT_ID = "9d1c250a-e61b-44d9-88ed-5944d1962f5e"
 ANTIGRAVITY_USAGE_URL = (
     "https://daily-cloudcode-pa.googleapis.com/"
     "v1internal:retrieveUserQuotaSummary"
@@ -521,32 +519,18 @@ def fetch_claude(limiter: LocalRateLimiter, observed_at: dt.datetime) -> Dict[st
     if not isinstance(oauth, Mapping):
         raise ProbeFailure("auth_required", "Claude Code OAuth credentials are missing.")
     access_token = oauth.get("accessToken")
-    refresh_token = oauth.get("refreshToken")
     expires_at = number(oauth.get("expiresAt")) or 0
     if not isinstance(access_token, str) or not access_token:
         raise ProbeFailure("auth_required", "Claude Code OAuth credentials are missing.")
     now_ms = observed_at.timestamp() * 1000
-    limiter.admit(
-        "claude",
-        request_count=2 if expires_at <= now_ms else 1,
-    )
     if expires_at <= now_ms:
-        if not isinstance(refresh_token, str) or not refresh_token:
-            raise ProbeFailure("auth_required", "Claude Code OAuth credentials have expired.")
-        refreshed = http_json(
-            CLAUDE_REFRESH_URL,
-            method="POST",
-            headers={"Content-Type": "application/json"},
-            body={
-                "grant_type": "refresh_token",
-                "refresh_token": refresh_token,
-                "client_id": CLAUDE_CLIENT_ID,
-            },
+        # The native CLI owns refresh-token rotation and credential persistence.
+        # A quota observation must not invalidate the CLI's saved refresh token.
+        raise ProbeFailure(
+            "auth_required",
+            "Claude Code OAuth credentials have expired. Renew the session in Claude Code.",
         )
-        refreshed_token = refreshed.get("access_token")
-        if not isinstance(refreshed_token, str) or not refreshed_token:
-            raise ProbeFailure("auth_required", "Claude Code OAuth refresh failed.")
-        access_token = refreshed_token
+    limiter.admit("claude", request_count=1)
     payload = http_json(
         CLAUDE_USAGE_URL,
         method="GET",
