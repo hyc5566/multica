@@ -279,40 +279,25 @@ class ProviderFetchTests(unittest.TestCase):
         )
         self.assertEqual(result["windows"][0]["used_percent"], 12)
 
-    def test_claude_expiry_reserves_refresh_and_usage_requests(self) -> None:
-        limiter = mock.Mock()
-        with (
-            mock.patch.object(
-                probe,
-                "read_json",
-                return_value={
-                    "claudeAiOauth": {
-                        "accessToken": "expired-access-token",
-                        "refreshToken": "test-refresh-token",
-                        "expiresAt": 1,
-                    }
-                },
-            ),
-            mock.patch.object(
-                probe,
-                "http_json",
-                side_effect=[
-                    {"access_token": "refreshed-access-token"},
-                    {"five_hour": {"utilization": 7}},
-                ],
-            ) as request,
-        ):
-            result = probe.fetch_claude(limiter, OBSERVED_AT)
-
-        limiter.admit.assert_called_once_with("claude", request_count=2)
-        self.assertEqual(request.call_count, 2)
-        self.assertEqual(request.call_args_list[0].args, (probe.CLAUDE_REFRESH_URL,))
-        self.assertEqual(request.call_args_list[1].args, (probe.CLAUDE_USAGE_URL,))
-        self.assertEqual(
-            request.call_args_list[1].kwargs["headers"]["Authorization"],
-            "Bearer refreshed-access-token",
-        )
-        self.assertEqual(result["windows"][0]["used_percent"], 7)
+    def test_claude_expiry_does_not_rotate_or_modify_credentials(self) -> None:
+        for expiry in (1, OBSERVED_AT.timestamp() * 1000, None):
+            with self.subTest(expiry=expiry), tempfile.TemporaryDirectory() as directory:
+                path = pathlib.Path(directory) / ".credentials.json"
+                original = json.dumps({"claudeAiOauth": {
+                    "accessToken": "expired-access-token",
+                    "refreshToken": "test-refresh-token",
+                    "expiresAt": expiry,
+                }})
+                path.write_text(original)
+                limiter = mock.Mock()
+                with mock.patch.object(probe, "claude_credential_path", return_value=path), mock.patch.object(
+                    probe, "http_json"
+                ) as request, self.assertRaises(probe.ProbeFailure) as raised:
+                    probe.fetch_claude(limiter, OBSERVED_AT)
+                self.assertEqual(raised.exception.status, "auth_required")
+                request.assert_not_called()
+                limiter.admit.assert_not_called()
+                self.assertEqual(path.read_text(), original)
 
     def test_antigravity_uses_direct_quota_summary_endpoint(self) -> None:
         limiter = mock.Mock()
