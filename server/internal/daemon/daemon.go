@@ -8768,6 +8768,40 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	if err != nil {
 		return TaskResult{}, err
 	}
+	if result.Status != "completed" && taskfailure.Classify(result.Error) == taskfailure.ReasonAgentProviderAuthOrAccess {
+		_, manualCommand := providerAuthLoginArgs(provider)
+		var loginErr error
+		attempted := false
+		if !usesCustomProfileCommand {
+			attempted, loginErr = runProviderAuthLogin(ctx, provider, entry.Path, agentEnv)
+		}
+		if attempted && loginErr == nil {
+			if tools > 0 {
+				result.Error += fmt.Sprintf("\n\nAuthentication login completed. The agent had already run tools, so this task was not replayed automatically to avoid duplicate actions. Retry this task to resume it; if needed, run `%s` in a terminal under the same OS account as this daemon first.", manualCommand)
+			} else {
+				// Login output remains in the user's terminal. Retry the original
+				// provider request once, with the same task/session and options.
+				retried, retriedTools, retryErr := d.executeAndDrain(ctx, backend, prompt, execOpts, taskLog, task.ID, env.CodexHome, &msgSeq)
+				if retryErr == nil {
+					result, tools = retried, retriedTools
+					if result.Status != "completed" && taskfailure.Classify(result.Error) == taskfailure.ReasonAgentProviderAuthOrAccess {
+						result.Error += fmt.Sprintf("\n\nProvider authentication is still unavailable. Run `%s` in a terminal under the same OS account as this daemon, then retry this task.", manualCommand)
+					}
+				} else {
+					result.Error += fmt.Sprintf("\n\nAuthentication login completed, but the task retry could not start. Run `%s` in a terminal under the same OS account as this daemon, then retry this task.", manualCommand)
+				}
+			}
+		} else {
+			reason := "interactive login was unavailable"
+			if loginErr != nil {
+				reason = loginErr.Error()
+			}
+			if manualCommand == "" || usesCustomProfileCommand {
+				manualCommand = provider + " provider's official login command"
+			}
+			result.Error += fmt.Sprintf("\n\nProvider authentication is required (%s). Run `%s` in a terminal under the same OS account as this daemon, then retry this task. No login output was captured.", reason, manualCommand)
+		}
+	}
 
 	// retiredSessionID is the session this run was told to resume and then
 	// abandoned. Captured before the retry clears task.PriorSessionID, and
