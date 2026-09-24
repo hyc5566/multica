@@ -271,6 +271,20 @@ func updatedAgentCLIPath(provider string, entry AgentEntry) (string, error) {
 	// Do not resolve the old path again: its file may have been removed or
 	// replaced by a link during the update. Its original owner is still fixed.
 	previous := filepath.Clean(entry.Path)
+	// Default discovery retains the private launcher so rediscovery never
+	// falls back to PATH. Resolve that launcher before identifying its owner.
+	if provider == "claude" {
+		if home, err := os.UserHomeDir(); err == nil && previous == filepath.Join(home, ".local", "bin", "claude") {
+			if _, err := agentCLIUpdateCommand(provider, entry); err != nil {
+				return "", err
+			}
+			var err error
+			previous, err = filepath.EvalSymlinks(previous)
+			if err != nil {
+				return "", err
+			}
+		}
+	}
 	owner, launcher := "", ""
 	packageName := "@openai/codex"
 	if provider == "claude" {
