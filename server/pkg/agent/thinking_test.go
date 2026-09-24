@@ -132,15 +132,9 @@ func TestProjectClaudeLevels_PerModelSubset(t *testing.T) {
 //
 // Elon's PR1 review found that `codex debug models --output json` is
 // rejected by codex-cli 0.131.0 — there is no `--output` flag on the
-// subcommand. The fix was to drop the flag and add `--bundled` (which
-// just skips network refresh). These two tests pin the contract:
-//
-//   - TestCodexDebugModelsArgs_Pinned asserts the literal argv we pass
-//     so a future "let's add a flag" refactor breaks loudly instead of
-//     silently swallowing the discovery output.
-//   - TestRunCodexDebugModels_ArgvSeenByBinary plugs a fake `codex`
-//     binary on PATH and verifies that what *actually* reaches the
-//     process matches the pinned argv, not just what the var holds.
+// subcommand. Discovery now also omits --bundled so new account-visible
+// models need not wait for a CLI release. The subprocess test pins the exact
+// argv rather than only testing catalog parsing.
 
 // TestRunCodexDebugModels_ArgvSeenByBinary executes runCodexDebugModels
 // against a shell-script stand-in for `codex` that records its argv to
@@ -166,7 +160,7 @@ func TestRunCodexDebugModels_ArgvSeenByBinary(t *testing.T) {
 	// Linux ETXTBSY when we exec the file (Go #22315).
 	writeTestExecutable(t, fake, []byte(script))
 
-	raw, err := runCodexDebugModels(context.Background(), Command{Path: fake})
+	raw, err := runCodexDebugModels(context.Background(), Command{Path: fake}, false)
 	if err != nil {
 		t.Fatalf("runCodexDebugModels: %v (output=%q)", err, raw)
 	}
@@ -176,7 +170,7 @@ func TestRunCodexDebugModels_ArgvSeenByBinary(t *testing.T) {
 		t.Fatalf("read argv file: %v", err)
 	}
 	got := splitNonEmptyLines(string(data))
-	want := []string{"debug", "models", "--bundled"}
+	want := []string{"debug", "models"}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("fake codex received argv %v, want %v", got, want)
 	}
@@ -343,7 +337,7 @@ func TestDiscoverCodexModelsVersionGateAndFallback(t *testing.T) {
 		t.Skip("shell-script fake binary requires a POSIX shell")
 	}
 
-	t.Run("supported version uses bundled catalog", func(t *testing.T) {
+	t.Run("supported version uses effective catalog", func(t *testing.T) {
 		dir := t.TempDir()
 		fake := filepath.Join(dir, "codex")
 		script := `#!/bin/sh
@@ -356,7 +350,11 @@ echo '{"models":[{"slug":"runtime-model","display_name":"Runtime Model","visibil
 `
 		writeTestExecutable(t, fake, []byte(script))
 
-		got := discoverCodexModels(context.Background(), Command{Path: fake})
+		catalog := discoverCodexCatalog(context.Background(), Command{Path: fake})
+		got := catalog.Models
+		if catalog.Fallback {
+			t.Fatal("discovered catalog marked fallback")
+		}
 		if len(got) != 1 || got[0].ID != "runtime-model" || got[0].Thinking == nil || !hasThinkingLevel(got[0].Thinking, "high") {
 			t.Fatalf("expected runtime catalog, got %+v", got)
 		}
@@ -373,7 +371,11 @@ echo '{"models":[{"slug":"runtime-model","display_name":"Runtime Model","visibil
 			"exit 99\n"
 		writeTestExecutable(t, fake, []byte(script))
 
-		got := discoverCodexModels(context.Background(), Command{Path: fake})
+		catalog := discoverCodexCatalog(context.Background(), Command{Path: fake})
+		got := catalog.Models
+		if !catalog.Fallback {
+			t.Fatal("old CLI static catalog must be marked fallback")
+		}
 		if len(got) == 0 || got[0].ID != "gpt-6-astra" {
 			t.Fatalf("expected static fallback, got %+v", got)
 		}
@@ -390,7 +392,11 @@ echo '{"models":[{"slug":"runtime-model","display_name":"Runtime Model","visibil
 			"exit 1\n"
 		writeTestExecutable(t, fake, []byte(script))
 
-		got := discoverCodexModels(context.Background(), Command{Path: fake})
+		catalog := discoverCodexCatalog(context.Background(), Command{Path: fake})
+		got := catalog.Models
+		if !catalog.Fallback {
+			t.Fatal("failed discovery must be marked fallback")
+		}
 		if len(got) == 0 || got[0].ID != "gpt-6-astra" || got[0].Thinking == nil {
 			t.Fatalf("expected model + thinking fallback, got %+v", got)
 		}

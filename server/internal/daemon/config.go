@@ -133,6 +133,7 @@ type Config struct {
 	AutoUpdateEnabled              bool                  // periodically check for a newer CLI release and self-update when idle (default: true on Multica Cloud, false on self-host)
 	AutoUpdateCheckInterval        time.Duration         // how often the auto-update loop polls for a new release (default: 6h)
 	AutoReloadEnabled              bool                  // restart when the multica binary on disk no longer matches the running version (default: true for CLI-launched daemons)
+	AgentAutoUpdateEnabled         bool                  // maintain installed agent CLIs at startup and local midnight/noon, independently of Multica self-update
 	PollInterval                   time.Duration
 	WSClaimPollInterval            time.Duration // upper bound for healthy WS batch-claim safety polls; actual sleeps use downward-only jitter
 	HeartbeatInterval              time.Duration
@@ -650,6 +651,7 @@ func LoadConfig(overrides Overrides) (Config, error) {
 		AutoUpdateEnabled:               autoUpdateEnabled,
 		AutoUpdateCheckInterval:         autoUpdateInterval,
 		AutoReloadEnabled:               autoReloadEnabled,
+		AgentAutoUpdateEnabled:          boolFromEnv("MULTICA_AGENT_AUTO_UPDATE", true),
 		HealthPort:                      healthPort,
 		MaxConcurrentTasks:              maxConcurrentTasks,
 		PollInterval:                    pollInterval,

@@ -245,7 +245,7 @@ func projectClaudeLevels(superset []string, allow map[string]bool) []ThinkingLev
 
 // ── Codex ────────────────────────────────────────────────────────────
 //
-// `codex debug models --bundled` is the structured discovery hook for the
+// `codex debug models` is the structured discovery hook for the
 // visible model catalog, each model's reasoning catalog, and service tiers. OpenAI added
 // the command and `--bundled` flag together in Codex 0.122.0 (openai/codex
 // #18625). Older versions, failed invocations, and malformed/empty payloads
@@ -258,12 +258,9 @@ func projectClaudeLevels(superset []string, allow map[string]bool) []ThinkingLev
 //
 // The subcommand emits JSON on stdout by default — there is no
 // `--output json` flag (a prior version of this code passed one and
-// silently failed on 0.131.0). We add `--bundled` to skip the network
-// refresh: discovery runs on every daemon poll and a network hop here
-// would block the picker behind whatever the user's connection allows.
-// The bundled catalog is what determines which `model_reasoning_effort`
-// tokens the local binary actually accepts, which is the only thing we
-// need for validation.
+// silently failed on 0.131.0). Do not pass --bundled: it suppresses the
+// account's refreshed catalog and hides newly released models until a CLI
+// upgrade. A timeout bounds discovery and the caller caches successful results.
 //
 // The static fallback deliberately mirrors a recently verified bundled
 // model/thinking catalog. It does not guess service-tier availability.
@@ -316,32 +313,34 @@ type codexDebugServiceTier struct {
 	Description string `json:"description"`
 }
 
-// discoverCodexModels returns the installed Codex binary's bundled visible
+// discoverCodexCatalog returns the installed Codex binary's effective visible
 // catalog, including reasoning metadata. Version detection happens before the
 // debug command so old binaries do not log a predictable "unknown command"
 // failure on every cache refresh.
-func discoverCodexModels(ctx context.Context, cmd Command) []Model {
+func discoverCodexCatalog(ctx context.Context, cmd Command) Catalog {
+	ctx, cancel := context.WithTimeout(ctx, 20*time.Second)
+	defer cancel()
 	if cmd.Path == "" {
 		cmd.Path = "codex"
 	}
 	version, err := DetectVersion(ctx, cmd)
 	if err != nil {
-		return codexStaticModels()
+		return Catalog{Models: codexStaticModels(), Fallback: true}
 	}
 	supportsExplicitStandard := codexSupportsExplicitStandardServiceTier(version)
-	if !codexSupportsDebugModels(version) {
-		return annotateCodexExplicitStandardServiceTier(codexStaticModels(), supportsExplicitStandard)
+	if codexSupportsDebugModels(version) {
+		for _, bundled := range []bool{false, true} {
+			raw, err := runCodexDebugModels(ctx, cmd, bundled)
+			if err != nil {
+				continue
+			}
+			models, err := parseCodexModelCatalog(raw)
+			if err == nil && len(models) > 0 {
+				return Catalog{Models: annotateCodexExplicitStandardServiceTier(models, supportsExplicitStandard), Fallback: bundled}
+			}
+		}
 	}
-
-	raw, err := runCodexDebugModels(ctx, cmd)
-	if err != nil {
-		return annotateCodexExplicitStandardServiceTier(codexStaticModels(), supportsExplicitStandard)
-	}
-	models, err := parseCodexModelCatalog(raw)
-	if err != nil || len(models) == 0 {
-		return annotateCodexExplicitStandardServiceTier(codexStaticModels(), supportsExplicitStandard)
-	}
-	return annotateCodexExplicitStandardServiceTier(models, supportsExplicitStandard)
+	return Catalog{Models: annotateCodexExplicitStandardServiceTier(codexStaticModels(), supportsExplicitStandard), Fallback: true}
 }
 
 func codexSupportsDebugModels(version string) bool {
@@ -380,10 +379,18 @@ func annotateCodexExplicitStandardServiceTier(models []Model, supported bool) []
 // not just the parser behavior on a fixture string. The argv shape is
 // the contract that broke under PR1 review; the test that pins it sits
 // in thinking_test.go.
-var codexDebugModelsArgs = []string{"debug", "models", "--bundled"}
+var codexDebugModelsArgs = []string{"debug", "models"}
 
-func runCodexDebugModels(ctx context.Context, runtimeCmd Command) ([]byte, error) {
-	cmd := runtimeCmd.exec(ctx, codexDebugModelsArgs...)
+func runCodexDebugModels(ctx context.Context, runtimeCmd Command, bundled bool) ([]byte, error) {
+	args := append([]string(nil), codexDebugModelsArgs...)
+	timeout := 15 * time.Second
+	if bundled {
+		args = append(args, "--bundled")
+		timeout = 5 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
+	defer cancel()
+	cmd := runtimeCmd.exec(ctx, args...)
 	hideAgentWindow(cmd)
 	return outputOwned(cmd, runtimeCmd.logger)
 }

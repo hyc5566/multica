@@ -38,6 +38,21 @@ multica repo checkout <url> --fresh
 Runtime and repo commands affect active agent execution. Do not restart daemons,
 update runtimes, or check out arbitrary repos just to test.
 
+The Taiwan-edition daemon maintains supported installed Codex/Claude CLIs in
+the background after startup and at local midnight/noon. It waits for its own
+tasks and claims to finish, serializes installers across profiles, and reports
+actual versions after probing. `MULTICA_AGENT_AUTO_UPDATE=false` disables this
+third-party CLI maintenance independently of Multica self-update. Unknown or
+unwritable installations are skipped or fail without privilege escalation;
+inspect local `/health`'s `agent_maintenance` and daemon logs. Updated daemons
+hold a shared installation lease across claiming and executing tasks; installers
+require its exclusive counterpart. Old daemons, other OS users and independently
+launched CLIs do not participate in this per-user lease.
+Server registration/heartbeats also request model discovery at most every ten
+minutes per runtime, without requiring someone to open the picker. Discovery
+fallbacks never replace the last successful Server catalog. Neither operation
+requires an agent run, and model IDs still come from each runtime's own CLI.
+
 Self-host operators can set `MULTICA_DAEMON_INSTALL_URL` to a public HTTPS
 installer URL for their pinned CLI build. The public `/api/config` exposes it
 as `daemon_install_url`; credentials, query strings, fragments and shell
