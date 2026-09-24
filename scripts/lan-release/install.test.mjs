@@ -101,7 +101,7 @@ test('repository entry points fetch the fixed release with verified HTTPS and fo
         assert.ok(curlArgs.includes('--proto-redir'));
         assert.ok(curlArgs.includes('=https'));
         assert.ok(!curlArgs.includes('--insecure'));
-        assert.ok(curlArgs.includes('https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.6/install.sh'));
+        assert.ok(curlArgs.includes('https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.7/install.sh'));
         assert.equal(existsSync(curlArgs.at(-1)), false, 'temporary installer is cleaned up');
       }
       const failure = spawnSync('bash', [script, '--login'], {env: {...env, FIXTURE_CURL_STATUS: '60'}, encoding: 'utf8'});
