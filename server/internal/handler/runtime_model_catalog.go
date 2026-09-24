@@ -17,10 +17,10 @@ import (
 // people open repeatedly while filling in one form — switch runtime, look at the
 // models, switch back.
 //
-// The catalog itself changes only when the user upgrades a CLI, logs into a
-// different account, or edits a provider config, so it is a textbook
-// stale-while-revalidate candidate: answer from the last known good snapshot
-// immediately, and refresh in the background so the NEXT open is also warm.
+// Catalogs change with provider releases, CLI upgrades, account changes, and
+// provider configuration. Registration and heartbeats attempt discovery every
+// ten minutes even without a picker open; failed attempts share that backoff.
+// UI reads also use stale-while-revalidate for a warm, more recent answer.
 //
 // The two windows do different jobs, and only one of them governs freshness:
 //   - modelCatalogRevalidateAfter is the freshness knob. Serving a snapshot
@@ -28,11 +28,8 @@ import (
 //     converges after one open no matter how long the serve window is.
 //   - modelCatalogServeWindow only bounds how long an UNUSED snapshot survives,
 //     and how stale the answer is for someone who opens the picker exactly once
-//     and never returns. It is deliberately day-scale: nothing keeps an entry
-//     warm in the background, the browser's own react-query cache dies with the
-//     tab, and agent CLIs are upgraded on a scale of days — so a minutes-scale
-//     window made every first-open-of-the-day a cold miss (the exact multi-second
-//     wait this cache exists to remove) while buying no real freshness.
+//     and never returns. It is deliberately day-scale so temporary discovery
+//     failures and offline hosts do not discard the last known good catalog.
 //
 // The window is not unbounded because a *failed* report deliberately leaves the
 // snapshot in place (a transient discovery failure must not empty the picker).
@@ -90,6 +87,9 @@ type ModelCatalogCache interface {
 	// Invalidate drops any snapshot for the runtime. Used when the cached
 	// catalog can no longer be trusted (e.g. the runtime row was deleted).
 	Invalidate(ctx context.Context, runtimeID string) error
+	// ReserveRefresh admits at most one automatic attempt per interval, including
+	// failures and empty catalogs. Redis shares this reservation across replicas.
+	ReserveRefresh(ctx context.Context, runtimeID string, interval time.Duration) (bool, error)
 }
 
 // cacheableModelCatalog reports whether a completed discovery result is worth
@@ -184,14 +184,32 @@ func cloneUnavailableModelEntries(models []UnavailableModelEntry) []UnavailableM
 type InMemoryModelCatalogCache struct {
 	mu        sync.Mutex
 	entries   map[string]ModelCatalogSnapshot
+	refreshes map[string]time.Time
 	retainFor time.Duration
 }
 
 func NewInMemoryModelCatalogCache() *InMemoryModelCatalogCache {
 	return &InMemoryModelCatalogCache{
 		entries:   make(map[string]ModelCatalogSnapshot),
+		refreshes: make(map[string]time.Time),
 		retainFor: modelCatalogServeWindow,
 	}
+}
+
+func (c *InMemoryModelCatalogCache) ReserveRefresh(_ context.Context, runtimeID string, interval time.Duration) (bool, error) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	now := time.Now()
+	if now.Before(c.refreshes[runtimeID]) {
+		return false, nil
+	}
+	for id, expiry := range c.refreshes {
+		if !now.Before(expiry) {
+			delete(c.refreshes, id)
+		}
+	}
+	c.refreshes[runtimeID] = now.Add(interval)
+	return true, nil
 }
 
 func (c *InMemoryModelCatalogCache) Get(_ context.Context, runtimeID string) (*ModelCatalogSnapshot, error) {

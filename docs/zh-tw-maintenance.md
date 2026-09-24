@@ -42,6 +42,13 @@ Do not fold unrelated local product features into the localization commits.
 Develop each feature from `zh-tw` on its own branch, review it through a PR, and
 merge it back into `zh-tw` only after verification.
 
+## Agent CLI and model catalog maintenance
+
+Keep HYCLV-159 as a separate feature layer: startup/local midnight-noon CLI
+maintenance, installation provenance checks, idle claim barrier, and proactive
+per-runtime model catalog refresh. See [behavior, limits and rebuilding](agent-cli-maintenance.zh-tw.md).
+This layer updates third-party CLIs, not the Taiwan-edition Multica binary.
+
 ## Provider usage feature layer
 
 Provider quota display is a Taiwan-edition feature, not part of the locale
@@ -309,4 +316,3 @@ feature commit to remove it; stale persisted layout values are harmless to older
 clients. Validate with the layout/store, board interaction and swimlane suites,
 locale parity, and `pnpm typecheck`. Before release, visually check long titles,
 large counts, horizontal scrolling and drag/drop at both widths.
-
