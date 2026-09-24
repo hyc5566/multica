@@ -24,12 +24,18 @@ HYCLV-159 的功能層，基底為 `zh-tw` 的
 
 ## 支援範圍與權限
 
+Claude 預設只使用 daemon 執行帳號的 `$HOME/.local/bin/claude`，不依 PATH
+或登入 shell 尋找共用安裝；私人入口不存在或符號連結指向家目錄外時，不登錄 Claude。
+保留該私人入口供後續重新偵測。`MULTICA_CLAUDE_PATH` 仍可明確指定自訂入口，
+但 Claude 自動更新一律限制在該帳號家目錄內，並檢查符號連結的實際目的地。
+其他使用者也採相同預設，不寫死 hungyu 或 s90 的路徑。
+
 目前更新器針對 Codex 與 Claude，依**實際執行檔的安裝來源**選擇更新方式：
 
 | 安裝方式 | 行為 |
 | --- | --- |
-| 全域 npm | 核對 package.json、宣告的 bin 與實際檔案，明確指定原 prefix 更新既有套件 |
-| Homebrew | 核對 Cellar／Caskroom 與安裝紀錄，使用該 prefix 的 brew 更新對應 formula／cask |
+| npm | 核對 package.json、宣告的 bin 與實際檔案，明確指定原 prefix；Claude 限私人 HOME 內的 prefix 與 bin |
+| Homebrew | 僅 Codex：核對 Cellar／Caskroom 與安裝紀錄，使用該 prefix 的 brew 更新對應 formula／cask |
 | Claude 原生版 | 核對使用者的版本目錄及穩定入口，再執行官方 `claude update` |
 | Codex 獨立版 | 核對 standalone 安裝中繼資料、current 及穩定入口，再執行官方 `codex update` |
 | Windows、未知 wrapper、自訂 runtime profile、其他 provider | 不猜測更新方式；CLI 更新不支援，模型探索仍沿用既有 provider 能力 |

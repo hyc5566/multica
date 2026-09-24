@@ -874,6 +874,9 @@ func agentExecutablePresent(path string) bool {
 // path has disappeared — so the login-shell cost is paid rarely, never on a
 // normal launch.
 func reresolveAgentCommand(cmd string) (string, bool) {
+	if home, err := os.UserHomeDir(); err == nil && cmd == filepath.Join(home, ".local", "bin", "claude") && !claudeExecutableInHome(cmd) {
+		return "", false
+	}
 	if cmd == "" {
 		return "", false
 	}
