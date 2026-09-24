@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log/slog"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"runtime"
@@ -222,4 +223,33 @@ func TestMaintainAgentCLIAdoptsRetainedNativeRelease(t *testing.T) {
 	if got.Path != newPath || version != "2.2.0 (Claude Code)" {
 		t.Fatalf("next launch stayed stale: %+v %q", got, version)
 	}
+}
+
+func TestAgentInstallationReleaseSurvivesInheritedDescriptor(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("POSIX descriptor inheritance")
+	}
+	path := filepath.Join(t.TempDir(), "lease")
+	lease, err := lockAgentInstallation(path, false)
+	if err != nil || lease == nil {
+		t.Fatalf("lease: %v", err)
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+	child := exec.CommandContext(ctx, "/bin/sh", "-c", "read signal")
+	child.ExtraFiles = []*os.File{lease}
+	input, err := child.StdinPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := child.Start(); err != nil {
+		t.Fatal(err)
+	}
+	defer func() { input.Close(); _ = child.Wait() }()
+	releaseAgentInstallation(lease)
+	update, err := lockAgentMaintenance(path)
+	if err != nil || update == nil {
+		t.Fatalf("child inherited descriptor retained parent lease: %v", err)
+	}
+	releaseAgentInstallation(update)
 }

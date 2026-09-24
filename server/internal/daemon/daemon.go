@@ -5497,7 +5497,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 		installationUsers.Store(1)
 		releaseInstallation := func() {
 			if installationUsers.Add(-1) == 0 && installation != nil {
-				_ = installation.Close()
+				releaseAgentInstallation(installation)
 			}
 		}
 
