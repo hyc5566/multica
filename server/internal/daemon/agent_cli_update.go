@@ -19,6 +19,29 @@ import (
 // ErrAgentUpdateUnsupported means the installed CLI has no verified update path.
 var ErrAgentUpdateUnsupported = errors.New("agent CLI installation does not support automatic updates")
 
+// pathInUserHome checks the actual destination, including symlinked ancestors.
+func pathInUserHome(path string) bool {
+	home, err := os.UserHomeDir()
+	if err != nil || !filepath.IsAbs(path) {
+		return false
+	}
+	home, err = filepath.EvalSymlinks(home)
+	if err != nil {
+		return false
+	}
+	resolved, err := filepath.EvalSymlinks(path)
+	if err != nil {
+		return false
+	}
+	rel, err := filepath.Rel(home, resolved)
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator)) && !filepath.IsAbs(rel)
+}
+
+func claudeExecutableInHome(path string) bool {
+	resolved, err := exec.LookPath(path)
+	return err == nil && pathInUserHome(resolved)
+}
+
 // updateAgentCLI updates the installation behind Path, never another copy found
 // by resolving Command again. Callers serialize this with agent task starts.
 func updateAgentCLI(ctx context.Context, provider string, entry AgentEntry) error {
@@ -60,6 +83,9 @@ func agentCLIUpdateCommand(provider string, entry AgentEntry) (*exec.Cmd, error)
 	if _, err := exec.LookPath(resolved); err != nil {
 		return nil, fmt.Errorf("check installed %s CLI: %w", provider, err)
 	}
+	if provider == "claude" && !claudeExecutableInHome(resolved) {
+		return unsupported()
+	}
 
 	// Recognize Homebrew before npm: a formula may itself contain node_modules.
 	for dir := filepath.Dir(resolved); dir != filepath.Dir(dir); dir = filepath.Dir(dir) {
@@ -67,6 +93,9 @@ func agentCLIUpdateCommand(provider string, entry AgentEntry) (*exec.Cmd, error)
 		kind := filepath.Base(parent)
 		if kind != "Cellar" && kind != "Caskroom" {
 			continue
+		}
+		if provider == "claude" {
+			return unsupported()
 		}
 		pkg := filepath.Base(dir)
 		if !(provider == "codex" && pkg == "codex" || provider == "claude" && (pkg == "claude-code" || pkg == "claude-code@latest")) {
@@ -137,6 +166,9 @@ func agentCLIUpdateCommand(provider string, entry AgentEntry) (*exec.Cmd, error)
 		prefix := strings.TrimSuffix(root, string(filepath.Separator)+suffix)
 		if prefix == "" {
 			prefix = string(filepath.Separator)
+		}
+		if provider == "claude" && (!pathInUserHome(prefix) || !pathInUserHome(filepath.Join(prefix, "bin"))) {
+			return unsupported()
 		}
 		// Bind npm's --prefix explicitly. A daemon's PATH may select a different
 		// node version or global prefix than the CLI originally discovered.
@@ -216,7 +248,7 @@ func agentCLIUpdateCommand(provider string, entry AgentEntry) (*exec.Cmd, error)
 			return unsupported()
 		}
 		launcher, err := filepath.EvalSymlinks(filepath.Join(home, ".local", "bin", "claude"))
-		if err != nil || launcher != resolved {
+		if err != nil || launcher != resolved || !pathInUserHome(filepath.Join(home, ".local", "bin")) {
 			return unsupported()
 		}
 		cmd := exec.Command(resolved, "update")
@@ -248,6 +280,9 @@ func updatedAgentCLIPath(provider string, entry AgentEntry) (string, error) {
 		parent := filepath.Dir(dir)
 		kind := filepath.Base(parent)
 		if kind == "Cellar" || kind == "Caskroom" {
+			if provider == "claude" {
+				return "", ErrAgentUpdateUnsupported
+			}
 			owner, launcher = dir, filepath.Join(filepath.Dir(parent), "bin", provider)
 			break
 		}
@@ -281,6 +316,9 @@ func updatedAgentCLIPath(provider string, entry AgentEntry) (string, error) {
 		}
 	}
 	if launcher == "" {
+		return "", ErrAgentUpdateUnsupported
+	}
+	if provider == "claude" && !pathInUserHome(owner) {
 		return "", ErrAgentUpdateUnsupported
 	}
 	resolved, err := filepath.EvalSymlinks(launcher)

@@ -48,6 +48,12 @@ omit response IDs retain best-effort per-event input/cache accounting. These
 fallback figures can be incomplete; use the provider's billing records for
 actual charges. This correction applies to new runs, not historical usage rows.
 
+Claude discovery defaults to the daemon user's `$HOME/.local/bin/claude`, without
+falling back to a shared PATH or login-shell installation. A missing launcher or
+symlink outside that user's home is not discovered. `MULTICA_CLAUDE_PATH` remains
+an explicit override; Claude automatic updates are restricted to installations
+and npm prefixes within that user's canonical home, and do not use Homebrew.
+
 The Taiwan-edition daemon maintains supported installed Codex/Claude CLIs in
 the background after startup and at local midnight/noon. It waits for its own
 tasks and claims to finish, serializes installers across profiles, and reports
