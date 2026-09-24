@@ -316,3 +316,34 @@ feature commit to remove it; stale persisted layout values are harmless to older
 clients. Validate with the layout/store, board interaction and swimlane suites,
 locale parity, and `pnpm typecheck`. Before release, visually check long titles,
 large counts, horizontal scrolling and drag/drop at both widths.
+
+## Movable chat launcher (HYCLV-162)
+
+The floating chat launcher can be dragged with a finger or mouse to avoid
+covering the issue comment send button. A 6px movement threshold preserves taps;
+releasing a drag does not open chat. Focused arrow keys move it by 24px, and Home
+restores the bottom-right corner. Chat window placement is unchanged.
+
+Rebuild this layer after localization from the HYCLV-162 base
+`e26c9f821644672501bfded8397077eecc660a15`: preserve the shared
+`packages/views/chat/components/use-chat-fab-position.ts` hook, its wiring in
+`chat-fab.tsx`, the `fab.move_hint` locale keys, and the `fabPosition` slice in
+`packages/core/chat/store.ts`. This layer needs no new dependencies or backend
+changes. If upstream adds its own movable launcher, compare its tap suppression,
+keyboard access, resize bounds, and persistence before retaining this layer.
+
+The client preference `multica:chat:fabPosition` uses the existing StorageAdapter
+and stores normalized x/y travel fractions globally per client. It is independent
+of workspace/server data. CSS derives the available travel area from the existing
+launcher size/inset tokens, so container resizing keeps the button inside its
+bounds. Invalid preferences fall back to the default corner. An old build ignores
+this key; rollback requires no data migration. Web and Desktop share the UI;
+the native mobile app is outside this change.
+
+Verify with `pnpm --filter @multica/core exec vitest run chat/store.test.ts`,
+`pnpm --filter @multica/views exec vitest run chat/components/use-chat-fab-position.test.tsx`,
+and the core/views typecheck scripts. Also check drag-versus-tap in a browser,
+reload persistence, resized containers, and iPhone Safari with the software
+keyboard visible before production acceptance. Build through the existing Web
+or Desktop scripts and use the Server handoff runbook for an authorized release;
+this feature does not authorize deployment.

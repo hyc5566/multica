@@ -5,6 +5,7 @@
     "agent_link_no_access": "你沒有許可權與該 Agent 聊天。"
   },
   "fab": {
+    "move_hint": "拖曳可移動位置。聚焦後可用方向鍵移動，Home 鍵重設位置。",
     "running": "Multica 正在工作...",
     "unread_other": "{{count}} 條未讀對話",
     "default": "問 Multica"

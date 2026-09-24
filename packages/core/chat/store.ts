@@ -74,6 +74,20 @@ const OPEN_KEY = "multica:chat:isOpen";
  * be turned off from the Settings → Chat tab.
  */
 const FLOATING_KEY = "multica:chat:floatingChatEnabled";
+const FAB_POSITION_KEY = "multica:chat:fabPosition";
+
+/** Fractions of the available travel area; resize without losing the launcher. */
+export interface ChatFabPosition { x: number; y: number }
+
+function readFabPosition(storage: StorageAdapter): ChatFabPosition {
+  try {
+    const value = JSON.parse(storage.getItem(FAB_POSITION_KEY) ?? "null");
+    if (value && Number.isFinite(value.x) && Number.isFinite(value.y)) {
+      return { x: Math.max(0, Math.min(1, value.x)), y: Math.max(0, Math.min(1, value.y)) };
+    }
+  } catch { /* Ignore invalid client preferences. */ }
+  return { x: 1, y: 1 };
+}
 
 function readDrafts(storage: StorageAdapter, key: string): Record<string, string> {
   const raw = storage.getItem(key);
@@ -304,6 +318,8 @@ export interface ChatState {
   isOpen: boolean;
   /** Settings preference: is the floating chat window available at all. */
   floatingChatEnabled: boolean;
+  fabPosition: ChatFabPosition;
+  setFabPosition: (position: ChatFabPosition) => void;
   activeSessionId: string | null;
   selectedAgentId: string | null;
   /** Project context for the next session. Existing sessions remain bound to
@@ -391,6 +407,11 @@ export function createChatStore(options: ChatStoreOptions) {
   const store = create<ChatState>((set, get) => ({
     isOpen: initialIsOpen,
     floatingChatEnabled: initialFloatingEnabled,
+    fabPosition: readFabPosition(storage),
+    setFabPosition: (fabPosition) => {
+      storage.setItem(FAB_POSITION_KEY, JSON.stringify(fabPosition));
+      set({ fabPosition });
+    },
     activeSessionId: storage.getItem(wsKey(SESSION_STORAGE_KEY)),
     selectedAgentId: initialAgentId,
     selectedProjectId: storage.getItem(wsKey(PROJECT_STORAGE_KEY)),

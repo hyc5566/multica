@@ -403,3 +403,25 @@ describe("chat store — draft upload ops", () => {
     );
   });
 });
+
+describe("chat launcher position", () => {
+  it("persists the position across store recreation", () => {
+    const storage = memStorage();
+    const store = createChatStore({ storage });
+    expect(store.getState().fabPosition).toEqual({ x: 1, y: 1 });
+    store.getState().setFabPosition({ x: 0.2, y: 0.4 });
+    expect(createChatStore({ storage }).getState().fabPosition).toEqual({ x: 0.2, y: 0.4 });
+  });
+
+  it.each(['null', '{', '{"x":"0","y":1}', '{"x":1e999,"y":0}'])("ignores invalid preference %s", (value) => {
+    const storage = memStorage();
+    storage.setItem("multica:chat:fabPosition", value);
+    expect(createChatStore({ storage }).getState().fabPosition).toEqual({ x: 1, y: 1 });
+  });
+
+  it("clamps stored positions into the available travel area", () => {
+    const storage = memStorage();
+    storage.setItem("multica:chat:fabPosition", '{"x":-4,"y":8}');
+    expect(createChatStore({ storage }).getState().fabPosition).toEqual({ x: 0, y: 1 });
+  });
+});
