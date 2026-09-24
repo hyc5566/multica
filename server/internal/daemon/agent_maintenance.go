@@ -121,7 +121,7 @@ func (d *Daemon) tryAgentMaintenance(ctx context.Context, update func(context.Co
 		d.logger.Debug("agent CLI maintenance lock unavailable", "error", err)
 		return false
 	}
-	defer lock.Close()
+	defer releaseAgentInstallation(lock)
 
 	started := time.Now()
 	d.agentMaintenance.Store(&AgentMaintenanceStatus{Enabled: true, State: "running", LastAttemptAt: started})

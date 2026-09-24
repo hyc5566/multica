@@ -13,6 +13,14 @@ func lockAgentMaintenance(path string) (*os.File, error) {
 	return lockAgentInstallation(path, true)
 }
 
+func releaseAgentInstallation(f *os.File) {
+	if f == nil {
+		return
+	}
+	_ = windows.UnlockFileEx(windows.Handle(f.Fd()), 0, 1, 0, &windows.Overlapped{})
+	_ = f.Close()
+}
+
 func lockAgentInstallation(path string, exclusive bool) (*os.File, error) {
 	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0o600)
 	if err != nil {
