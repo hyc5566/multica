@@ -497,6 +497,25 @@ func (h *Handler) cachedModelCatalog(ctx context.Context, runtimeID string) *Mod
 	return snapshot
 }
 
+// refreshModelCatalogAutomatically keeps online runtimes warm without a UI
+// request. The reservation survives failed/empty discovery, avoiding a provider
+// process on every heartbeat when an account is logged out or unsupported.
+func (h *Handler) refreshModelCatalogAutomatically(ctx context.Context, runtimeID string) {
+	if h.ModelCatalogCache == nil || h.ModelListStore == nil {
+		return
+	}
+	ctx, cancel := context.WithTimeout(ctx, heartbeatHasPendingTimeout)
+	defer cancel()
+	admitted, err := h.ModelCatalogCache.ReserveRefresh(ctx, runtimeID, 10*time.Minute)
+	if err != nil {
+		slog.Debug("model catalog refresh reservation failed", "runtime_id", runtimeID, "error", err)
+		return
+	}
+	if admitted {
+		h.revalidateModelCatalog(ctx, runtimeID)
+	}
+}
+
 // revalidateModelCatalog enqueues a background discovery request whose result
 // only updates the cache. No client polls it; the store's own timeout sweeps the
 // record if the daemon never answers.

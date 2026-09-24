@@ -75,3 +75,41 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     assert.equal(readFileSync(config, 'utf8'), '{"workspaces_root":"/keep"}');
   } finally { rmSync(root, {recursive: true, force: true}); }
 });
+
+test('repository entry points fetch the fixed release with verified HTTPS and forward arguments', () => {
+  const root = mkdtempSync(join(tmpdir(), 'multica-installer-entry-'));
+  try {
+    const fakebin = join(root, 'bin'); mkdirSync(fakebin);
+    const home = join(root, 'home'); mkdirSync(home);
+    const log = join(root, 'curl.log');
+    const fixture = join(root, 'release-installer');
+    writeFileSync(fixture, '#!/usr/bin/env bash\nprintf "%s\\n" "$@"\nexit "${FIXTURE_INSTALL_STATUS:-0}"\n');
+    writeFileSync(join(fakebin, 'curl'), '#!/usr/bin/env bash\nprintf "%s\\n" "$@" > "$FIXTURE_CURL_LOG"\nfor arg do destination="$arg"; done\ncp "$FIXTURE_INSTALLER" "$destination"\nexit "${FIXTURE_CURL_STATUS:-0}"\n', {mode: 0o755});
+    const env = {...process.env, HOME: home, PATH: `${fakebin}:${process.env.PATH}`,
+      CURL_CA_BUNDLE: '', SSL_CERT_FILE: '', MULTICA_INSTALL_CA_FILE: '',
+      FIXTURE_CURL_LOG: log, FIXTURE_INSTALLER: fixture};
+    for (const name of ['install-zh-tw.sh', 'install-zh-tw-s90.sh']) {
+      const script = new URL(`../${name}`, import.meta.url).pathname;
+      for (const args of [[], ['--login'], ['--service']]) {
+        const result = spawnSync('bash', [script, ...args], {env, encoding: 'utf8'});
+        assert.equal(result.status, 0, result.stderr);
+        assert.equal(result.stdout.trim(), args.join('\n'));
+        const curlArgs = readFileSync(log, 'utf8').trim().split('\n');
+        assert.equal(curlArgs[0], '-q');
+        assert.ok(curlArgs.includes('--cacert'));
+        assert.ok(curlArgs.includes('--proxy-cacert'));
+        assert.ok(curlArgs.includes('--proto-redir'));
+        assert.ok(curlArgs.includes('=https'));
+        assert.ok(!curlArgs.includes('--insecure'));
+        assert.ok(curlArgs.includes('https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.6/install.sh'));
+        assert.equal(existsSync(curlArgs.at(-1)), false, 'temporary installer is cleaned up');
+      }
+      const failure = spawnSync('bash', [script, '--login'], {env: {...env, FIXTURE_CURL_STATUS: '60'}, encoding: 'utf8'});
+      assert.equal(failure.status, 60);
+      assert.equal(failure.stdout, '', 'failed download must never execute');
+      assert.equal(spawnSync('bash', [script], {env: {...env, FIXTURE_INSTALL_STATUS: '7'}}).status, 7);
+      assert.equal(spawnSync('bash', [script, '--invalid'], {env}).status, 2);
+      assert.equal(spawnSync('bash', [script, '--login', '--service'], {env}).status, 2);
+    }
+  } finally { rmSync(root, {recursive: true, force: true}); }
+});

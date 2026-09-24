@@ -662,6 +662,9 @@ func (h *Handler) DaemonRegister(w http.ResponseWriter, r *http.Request) {
 				"runtime_id", uuidToString(registered.ID), "error", err)
 		}
 
+		if registered.Status == "online" {
+			h.refreshModelCatalogAutomatically(r.Context(), uuidToString(registered.ID))
+		}
 		resp = append(resp, runtimeToResponse(registered))
 	}
 	for _, failed := range req.FailedProfiles {
@@ -1413,6 +1416,7 @@ func (h *Handler) processHeartbeat(ctx context.Context, runtimeID string, suppor
 	// queues below — a slow shared store cannot stall the heartbeat on
 	// empty-queue ticks, but the claim itself runs unbounded because its
 	// Lua side effects cannot be safely aborted mid-script.
+	h.refreshModelCatalogAutomatically(ctx, runtimeID)
 	probeModelStart := time.Now()
 	probeModelCtx, cancelProbeModel := context.WithTimeout(ctx, heartbeatHasPendingTimeout)
 	hasModel, probeModelErr := h.ModelListStore.HasPending(probeModelCtx, runtimeID)

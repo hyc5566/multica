@@ -389,11 +389,13 @@ type repoCacheBackend interface {
 
 // Daemon is the local agent runtime that polls for and executes tasks.
 type Daemon struct {
-	cfg        Config
-	client     *Client
-	repoCache  repoCacheBackend
-	skillCache *SkillBundleCache
-	logger     *slog.Logger
+	cfg                   Config
+	client                *Client
+	repoCache             repoCacheBackend
+	skillCache            *SkillBundleCache
+	logger                *slog.Logger
+	agentMaintenance      atomic.Pointer[AgentMaintenanceStatus]
+	agentInstallationLock string // initialized before pollers; all profiles use the same per-user lock
 
 	mu           sync.Mutex
 	workspaces   map[string]*workspaceState
@@ -2070,9 +2072,15 @@ func (d *Daemon) clearWSHeartbeatAcks() {
 func (d *Daemon) Run(ctx context.Context) error {
 	// Wrap context so handleUpdate can cancel the daemon for restart.
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	d.cancelFunc = cancel
 	d.setLifecycleCtx(ctx)
 	d.rootCtx = ctx
+	installationLock, err := agentInstallationLockPath()
+	if err != nil {
+		return fmt.Errorf("prepare agent installation lock: %w", err)
+	}
+	d.agentInstallationLock = installationLock
 
 	// Bind health port early to detect another running daemon.
 	healthLn, err := d.listenHealth()
@@ -2158,6 +2166,17 @@ func (d *Daemon) Run(ctx context.Context) error {
 	// workspace sync loop because that one runs on a thirty-minute consistency
 	// interval — far too slow for "install a CLI, see it under Runtimes".
 	go d.agentDiscoveryLoop(ctx)
+	// Join maintenance on shutdown: never leave an installer replacing files
+	// after the daemon has exited or handed control to a replacement process.
+	maintenanceDone := make(chan struct{})
+	go func() {
+		defer close(maintenanceDone)
+		d.agentMaintenanceLoop(ctx)
+	}()
+	defer func() {
+		cancel()
+		<-maintenanceDone
+	}()
 
 	taskWakeups := make(chan taskWakeup, 256)
 	go d.taskWakeupLoop(ctx, taskWakeups)
@@ -4756,7 +4775,9 @@ func (d *Daemon) handleModelList(ctx context.Context, rt Runtime, requestID stri
 		return
 	}
 
-	catalog, err := listModels(ctx, rt.Provider, agent.NewCommand(execPath, fixedArgs))
+	command := agent.NewCommand(execPath, fixedArgs)
+	agent.InvalidateModelCache(rt.Provider, command)
+	catalog, err := listModels(ctx, rt.Provider, command)
 	if err != nil {
 		d.reportModelListResult(ctx, rt, requestID, map[string]any{
 			"status": "failed",
@@ -5455,10 +5476,35 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			continue
 		}
 		slots := append([]int{slot}, drainAvailableSlots(sem, d.cfg.MaxConcurrentTasks-1)...)
+		// Hold a shared installation lease from before the network claim until
+		// every task in this batch has finished. Sibling profiles/desktop cannot
+		// replace a shared CLI while it is executing, even with auto-update off.
+		var installation *os.File
+		if d.agentInstallationLock != "" {
+			installation, err = lockAgentInstallation(d.agentInstallationLock, false)
+			if err != nil || installation == nil {
+				releaseSlots(slots)
+				if err != nil {
+					d.logger.Warn("agent installation lease failed", "error", err)
+				}
+				if err := sleepWithContextOrWakeup(pollerCtx, d.cfg.PollInterval, wakeup); err != nil {
+					return
+				}
+				continue
+			}
+		}
+		var installationUsers atomic.Int32
+		installationUsers.Store(1)
+		releaseInstallation := func() {
+			if installationUsers.Add(-1) == 0 && installation != nil {
+				releaseAgentInstallation(installation)
+			}
+		}
 
 		// Auto-update barrier: refuse to claim while an update prepares to roll
 		// the process (paired with the re-check in tryAutoUpdate).
 		if !d.tryEnterClaim() {
+			releaseInstallation()
 			releaseSlots(slots)
 			if err := sleepWithContextOrWakeup(pollerCtx, d.cfg.PollInterval, wakeup); err != nil {
 				return
@@ -5469,6 +5515,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 		claimResult, err := d.claimTasksWSFirst(pollerCtx, d.cfg.DaemonID, runtimeIDs, len(slots))
 		if err != nil {
 			d.exitClaim()
+			releaseInstallation()
 			releaseSlots(slots)
 			if pollerCtx.Err() == nil {
 				d.logger.Warn("batch claim failed", "error", err)
@@ -5497,6 +5544,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			d.logger.Info("task received", "task", t.ID, "target", taskTarget)
 			taskWG.Add(1)
 			d.activeTasks.Add(1)
+			installationUsers.Add(1)
 			if cache, ok := d.repoCache.(interface{ CancelMaintenance() }); ok {
 				// A task can reuse an existing worktree and never enter the
 				// checkout path that normally preempts repository maintenance.
@@ -5506,6 +5554,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			}
 			go func(t Task, slot int) {
 				defer taskWG.Done()
+				defer releaseInstallation()
 				defer d.activeTasks.Add(-1)
 				defer func() {
 					// Release local capacity before waking the poller. The task's
@@ -5521,6 +5570,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			dispatched++
 		}
 		d.exitClaim()
+		releaseInstallation()
 		if dispatched < len(slots) {
 			releaseSlots(slots[dispatched:])
 		}
