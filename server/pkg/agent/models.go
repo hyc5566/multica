@@ -175,6 +175,13 @@ var (
 
 const modelCacheTTL = 60 * time.Second
 
+// InvalidateModelCache forces the next discovery for this command to read the CLI.
+func InvalidateModelCache(providerType string, runtimeCmd Command) {
+	modelCacheMu.Lock()
+	delete(modelCache, discoveryCacheKey(providerType, runtimeCmd))
+	modelCacheMu.Unlock()
+}
+
 // ListModels returns the models supported by the given agent provider.
 // For providers with a known static catalog it returns the baked-in
 // list; for providers with a CLI discovery mechanism (claude, codex,

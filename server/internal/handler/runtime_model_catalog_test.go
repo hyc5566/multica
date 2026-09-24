@@ -335,6 +335,10 @@ func TestInitiateListModels_ForceSkipsCatalogCache(t *testing.T) {
 // failingModelCatalogCache reports a backend error on every read.
 type failingModelCatalogCache struct{}
 
+func (failingModelCatalogCache) ReserveRefresh(context.Context, string, time.Duration) (bool, error) {
+	return false, errors.New("cache unavailable")
+}
+
 func (failingModelCatalogCache) Get(context.Context, string) (*ModelCatalogSnapshot, error) {
 	return nil, errors.New("redis down")
 }
@@ -503,5 +507,81 @@ func TestInMemoryModelCatalogCache_RoundTripsUnavailableModels(t *testing.T) {
 	}
 	if again.UnavailableModels[0].Label != "Fable 5.1 (disabled)" {
 		t.Errorf("cache was corrupted by a caller mutation: %q", again.UnavailableModels[0].Label)
+	}
+}
+
+func TestAutomaticModelCatalogRefreshWarmsAndBacksOff(t *testing.T) {
+	ctx := context.Background()
+	cache := NewInMemoryModelCatalogCache()
+	store := NewInMemoryModelListStore()
+	h := &Handler{ModelCatalogCache: cache, ModelListStore: store}
+	h.refreshModelCatalogAutomatically(ctx, "runtime-new")
+	first, err := store.PopPending(ctx, "runtime-new")
+	if err != nil || first == nil {
+		t.Fatalf("cold runtime must warm without UI: %+v %v", first, err)
+	}
+	if err := store.Fail(ctx, first.ID, "offline provider"); err != nil {
+		t.Fatal(err)
+	}
+	for i := 0; i < 3; i++ {
+		h.refreshModelCatalogAutomatically(ctx, "runtime-new")
+	}
+	if next, err := store.PopPending(ctx, "runtime-new"); err != nil || next != nil {
+		t.Fatalf("failure must back off: %+v %v", next, err)
+	}
+	h.refreshModelCatalogAutomatically(ctx, "other-runtime")
+	if other, err := store.PopPending(ctx, "other-runtime"); err != nil || other == nil {
+		t.Fatalf("different runtime must refresh independently: %+v %v", other, err)
+	}
+	cache.mu.Lock()
+	cache.refreshes["runtime-new"] = time.Now().Add(-time.Second)
+	cache.mu.Unlock()
+	h.refreshModelCatalogAutomatically(ctx, "runtime-new")
+	if retry, err := store.PopPending(ctx, "runtime-new"); err != nil || retry == nil {
+		t.Fatalf("expired reservation must retry: %+v %v", retry, err)
+	}
+}
+
+func TestModelCatalogRefreshReservationIsConcurrent(t *testing.T) {
+	cache := NewInMemoryModelCatalogCache()
+	var wg sync.WaitGroup
+	admitted := make(chan bool, 20)
+	for i := 0; i < 20; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			ok, _ := cache.ReserveRefresh(context.Background(), "runtime", time.Minute)
+			admitted <- ok
+		}()
+	}
+	wg.Wait()
+	close(admitted)
+	count := 0
+	for ok := range admitted {
+		if ok {
+			count++
+		}
+	}
+	if count != 1 {
+		t.Fatalf("got %d concurrent reservations, want 1", count)
+	}
+}
+
+func TestHeartbeatDiscoversModelsWithoutPicker(t *testing.T) {
+	if testHandler == nil {
+		t.Skip("database not available")
+	}
+	runtimeID := dbfx.Runtime(t, "Automatic model discovery")
+	h := *testHandler
+	h.ModelCatalogCache = NewInMemoryModelCatalogCache()
+	h.ModelListStore = NewInMemoryModelListStore()
+	ctx := context.Background()
+	first, _, err := h.processHeartbeat(ctx, runtimeID, false)
+	if err != nil || first.PendingModelList == nil {
+		t.Fatalf("first heartbeat did not dispatch discovery: %+v %v", first, err)
+	}
+	second, _, err := h.processHeartbeat(ctx, runtimeID, false)
+	if err != nil || second.PendingModelList != nil {
+		t.Fatalf("heartbeat duplicated running discovery: %+v %v", second, err)
 	}
 }
