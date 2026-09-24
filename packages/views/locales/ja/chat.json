@@ -5,6 +5,7 @@
     "agent_link_no_access": "このエージェントとチャットする権限がありません。"
   },
   "fab": {
+    "move_hint": "ドラッグで移動。フォーカス中は矢印キーで移動、Home キーで位置をリセット。",
     "running": "Multica が作業中です...",
     "unread_other": "未読のチャット {{count}}件",
     "default": "Multica に質問"

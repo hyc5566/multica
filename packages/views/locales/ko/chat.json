@@ -5,6 +5,7 @@
     "agent_link_no_access": "이 에이전트와 채팅할 권한이 없습니다."
   },
   "fab": {
+    "move_hint": "드래그하여 이동하세요. 포커스 상태에서 방향키로 이동하고 Home 키로 위치를 초기화하세요.",
     "running": "Multica가 작업 중입니다...",
     "unread_other": "읽지 않은 채팅 {{count}}개",
     "default": "Multica에 묻기"
