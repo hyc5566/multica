@@ -80,7 +80,7 @@ systemctl --user disable --now multica.service
 
 ### 安裝時出現 curl (60)
 
-`scripts/install-zh-tw.sh` 與 `scripts/install-zh-tw-s90.sh` 目前都是 `0.4.43-zh-tw.6` 的固定版本入口：以完整 HTTPS 驗證下載 GitHub Release 的 `install.sh`，再傳遞原有 `--login`／`--service` 參數。版本化安裝器包含各平台成品與公開 CA 的固定 SHA-256；下載基址依該 Release 的建置設定決定。首次安裝仍拒絕覆寫既有設定；這兩個入口不是升級工具。登入及 daemon 連線需能連到 `10.1.24.90`：
+`scripts/install-zh-tw.sh` 與 `scripts/install-zh-tw-s90.sh` 目前都是 `0.4.43-zh-tw.7` 的固定版本入口：以完整 HTTPS 驗證下載 GitHub Release 的 `install.sh`，再傳遞原有 `--login`／`--service` 參數。版本化安裝器包含各平台成品與公開 CA 的固定 SHA-256；下載基址依該 Release 的建置設定決定。首次安裝仍拒絕覆寫既有設定；這兩個入口不是升級工具。登入及 daemon 連線需能連到 `10.1.24.90`：
 
 ```bash
 curl -q --fail --location --proto '=https' --proto-redir '=https' \

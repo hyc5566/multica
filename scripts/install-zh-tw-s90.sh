@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Delegate to the immutable release installer, whose artifact hashes are generated
 # after this source commit is built. Both repository entry points target s90.
-version='0.4.43-zh-tw.6'
+version='0.4.43-zh-tw.7'
 installer_url="https://github.com/hyc5566/multica/releases/download/zh-tw-v$version/install.sh"
 [[ ${1:-} == "" || ${1:-} == --login || ${1:-} == --service ]] || { echo 'Usage: install.sh [--login|--service]' >&2; exit 2; }
 [[ $# -le 1 ]] || { echo 'Usage: install.sh [--login|--service]' >&2; exit 2; }

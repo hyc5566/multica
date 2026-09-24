@@ -136,6 +136,15 @@ func TestAgentCLIUpdateNativeClaudeAndUnsupported(t *testing.T) {
 	if !reflect.DeepEqual(cmd.Args, []string{path, "update"}) {
 		t.Fatal(cmd.Args)
 	}
+	t.Setenv("MULTICA_CLAUDE_PATH", "")
+	t.Setenv("SHELL", filepath.Join(home, "fish"))
+	entry, ok := probeAgentCLIs()["claude"]
+	if !ok {
+		t.Fatal("private Claude not discovered")
+	}
+	if got, err := updatedAgentCLIPath("claude", entry); err != nil || got != path {
+		t.Fatalf("default discovery must support maintenance: %q, %v", got, err)
+	}
 	for _, tc := range []struct{ provider, path string }{{"codex", path}, {"gemini", path}, {"claude", updateFixture(t, filepath.Join(home, "wrapper"), "#!/bin/sh\nexit 0\n")}, {"claude", "claude"}} {
 		if _, err := agentCLIUpdateCommand(tc.provider, AgentEntry{Path: tc.path}); !errors.Is(err, ErrAgentUpdateUnsupported) {
 			t.Errorf("%s %s: %v", tc.provider, tc.path, err)
