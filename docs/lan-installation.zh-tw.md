@@ -80,7 +80,7 @@ systemctl --user disable --now multica.service
 
 ### 安裝時出現 curl (60)
 
-s90 的 `0.4.43-zh-tw.2` 成品提供 `scripts/install-zh-tw-s90.sh`：安裝腳本從 GitHub 下載，CLI 成品從 s90 下載。腳本從 s90 下載獨立的 `s90-ca.crt`，先比對腳本內固定的 SHA-256，再加入信任，因此新機器不必先安裝內網 CA。需在能連到 `10.1.24.90` 的網路執行：
+`scripts/install-zh-tw.sh` 與 `scripts/install-zh-tw-s90.sh` 目前都是 `0.4.43-zh-tw.6` 的固定版本入口：以完整 HTTPS 驗證下載 GitHub Release 的 `install.sh`，再傳遞原有 `--login`／`--service` 參數。版本化安裝器包含各平台成品與公開 CA 的固定 SHA-256；下載基址依該 Release 的建置設定決定。首次安裝仍拒絕覆寫既有設定；這兩個入口不是升級工具。登入及 daemon 連線需能連到 `10.1.24.90`：
 
 ```bash
 curl -q --fail --location --proto '=https' --proto-redir '=https' \
@@ -159,7 +159,7 @@ Server 部署前另核對正在運行的版本、images、設定／資料備份�
 
 ## 2026-09-11 交付狀態
 
-[0.4.41-zh-tw.6](https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.4.41-zh-tw.6) 為公開內網驗收版本。App 僅 Apple Silicon；CLI 可直接使用 repository 的 `scripts/install-zh-tw.sh`，或下載同版 Release 的 `install.sh`，兩者內容相同。既有安裝仍依上方升級步驟保留設定。
+[0.4.41-zh-tw.6](https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.4.41-zh-tw.6) 為公開內網驗收版本。App 僅 Apple Silicon；該歷史版本的 CLI 安裝器可從同版 Release 下載；repository 的 `scripts/install-zh-tw.sh` 現已指向較新版本，不再與該歷史安裝器相同。既有安裝仍依上方升級步驟保留設定。
 
 s90 Server／Web 已部署來源 `aa863a493426d4f6d8df326e18ece5bc7d82ec95`；Gmail 寄信與新驗證碼 15 分鐘期限通過。共享 Redis 與雙入口代理已啟用；操作以 [Server 交接程序](server-handoff.zh-tw.md) 為準。
 
