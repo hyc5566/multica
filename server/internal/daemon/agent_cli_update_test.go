@@ -29,6 +29,9 @@ func updateNPMFixture(t *testing.T, provider, pkg string) (string, AgentEntry) {
 		t.Skip("Unix installation layouts")
 	}
 	prefix := t.TempDir()
+	if provider == "claude" {
+		t.Setenv("HOME", prefix)
+	}
 	root := filepath.Join(prefix, "lib", "node_modules", filepath.FromSlash(pkg))
 	path := updateFixture(t, filepath.Join(root, "bin", provider), "#!/bin/sh\nexit 91\n")
 	updateFixture(t, filepath.Join(root, "package.json"), `{"name":"`+pkg+`","bin":{"`+provider+`":"bin/`+provider+`"}}`)
@@ -84,6 +87,12 @@ func TestAgentCLIUpdateBrewProvenance(t *testing.T) {
 			}
 			updateFixture(t, receipt, "{}")
 			cmd, err := agentCLIUpdateCommand(tc.provider, AgentEntry{Path: path})
+			if tc.provider == "claude" {
+				if !errors.Is(err, ErrAgentUpdateUnsupported) {
+					t.Fatalf("shared Homebrew installation: %v", err)
+				}
+				return
+			}
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -137,6 +146,70 @@ func TestAgentCLIUpdateNativeClaudeAndUnsupported(t *testing.T) {
 	}
 	if _, err := agentCLIUpdateCommand("claude", AgentEntry{Path: link}); !errors.Is(err, os.ErrNotExist) {
 		t.Fatalf("missing CLI: %v", err)
+	}
+}
+
+func TestClaudeUpdateRequiresPrivateInstallation(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("Unix installation layouts")
+	}
+	for _, kind := range []string{"shared-npm", "prefix-outside-home", "bin-outside-home", "native-symlink-outside-home", "brew-in-home"} {
+		t.Run(kind, func(t *testing.T) {
+			home := t.TempDir()
+			t.Setenv("PATH", t.TempDir())
+			var entry AgentEntry
+			switch kind {
+			case "shared-npm", "prefix-outside-home", "bin-outside-home":
+				prefix, installed := updateNPMFixture(t, "claude", "@anthropic-ai/claude-code")
+				entry = installed
+				if kind == "prefix-outside-home" {
+					home = filepath.Join(prefix, "lib", "node_modules")
+				}
+				if kind == "bin-outside-home" {
+					home = prefix
+					bin := filepath.Join(prefix, "bin")
+					external := filepath.Join(t.TempDir(), "bin")
+					if err := os.Rename(bin, external); err != nil {
+						t.Fatal(err)
+					}
+					if err := os.Symlink(external, bin); err != nil {
+						t.Fatal(err)
+					}
+				}
+			case "native-symlink-outside-home":
+				versions := filepath.Join(t.TempDir(), "versions")
+				path := updateFixture(t, filepath.Join(versions, "1.0"), "#!/bin/sh\nexit 91\n")
+				privateVersions := filepath.Join(home, ".local", "share", "claude", "versions")
+				if err := os.MkdirAll(filepath.Dir(privateVersions), 0755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(versions, privateVersions); err != nil {
+					t.Fatal(err)
+				}
+				entry.Path = filepath.Join(home, ".local", "bin", "claude")
+				if err := os.MkdirAll(filepath.Dir(entry.Path), 0755); err != nil {
+					t.Fatal(err)
+				}
+				if err := os.Symlink(path, entry.Path); err != nil {
+					t.Fatal(err)
+				}
+			case "brew-in-home":
+				entry.Path = updateFixture(t, filepath.Join(home, "Caskroom", "claude-code", "1.0", "claude"), "#!/bin/sh\nexit 91\n")
+				updateFixture(t, filepath.Join(home, "bin", "brew"), "#!/bin/sh\nexit 91\n")
+				updateFixture(t, filepath.Join(home, "Caskroom", "claude-code", ".metadata", "receipt"), "{}")
+			}
+			t.Setenv("HOME", home)
+			if _, err := agentCLIUpdateCommand("claude", entry); !errors.Is(err, ErrAgentUpdateUnsupported) {
+				t.Fatalf("unsafe updater accepted: %v", err)
+			}
+			resolved, err := filepath.EvalSymlinks(entry.Path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := updatedAgentCLIPath("claude", AgentEntry{Path: resolved}); !errors.Is(err, ErrAgentUpdateUnsupported) {
+				t.Fatalf("unsafe updated path accepted: %v", err)
+			}
+		})
 	}
 }
 

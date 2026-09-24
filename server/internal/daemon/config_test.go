@@ -463,6 +463,7 @@ func stageFakeAgent(t *testing.T) string {
 	}
 	binDir := t.TempDir()
 	fake := filepath.Join(binDir, "claude")
+	t.Setenv("MULTICA_CLAUDE_PATH", fake)
 	if err := os.WriteFile(fake, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
 		t.Fatalf("write fake claude: %v", err)
 	}
@@ -524,6 +525,14 @@ func TestLoadConfig_SkipsMulticaHooksShadowingAgentBinaries(t *testing.T) {
 		t.Fatalf("create hooks dir: %v", err)
 	}
 	realBinDir := t.TempDir()
+	privateClaude := filepath.Join(home, ".local", "bin", "claude")
+	if err := os.MkdirAll(filepath.Dir(privateClaude), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(privateClaude, []byte("#!/bin/sh\nexit 0\n"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("MULTICA_CLAUDE_PATH", "")
 
 	for _, name := range []string{"claude", "codex", "hermes"} {
 		hookPath := filepath.Join(hooksDir, name)
@@ -559,6 +568,9 @@ func TestLoadConfig_SkipsMulticaHooksShadowingAgentBinaries(t *testing.T) {
 			t.Fatalf("expected %s agent in config, got %#v", provider, cfg.Agents)
 		}
 		want := canonicalExecutablePath(filepath.Join(realBinDir, binary))
+		if provider == "claude" {
+			want = privateClaude
+		}
 		if got.Path != want {
 			t.Errorf("%s path = %q, want unshadowed real binary %q", provider, got.Path, want)
 		}
@@ -1326,6 +1338,7 @@ func TestLoadConfig_SkipsLoginShellWhenLookPathSucceeds(t *testing.T) {
 	}
 
 	t.Setenv("PATH", pathDir)
+	t.Setenv("MULTICA_CLAUDE_PATH", fakeClaude)
 	t.Setenv("SHELL", shellPath)
 	// Pin a non-existent agent to a bare name so it would normally trip
 	// the fallback — except `claude` already resolves, and the user hasn't
