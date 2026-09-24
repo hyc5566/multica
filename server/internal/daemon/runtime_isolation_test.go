@@ -170,6 +170,7 @@ func TestRunBatchPollerClaimsAcrossRuntimes(t *testing.T) {
 	d.runtimeIndex["rt-1"] = Runtime{ID: "rt-1", Provider: "codex"}
 	d.runtimeIndex["rt-2"] = Runtime{ID: "rt-2", Provider: "claude"}
 	d.cancelPollInterval = time.Hour // no server-side cancellation polling in this test
+	d.taskQuotaProbeFn = nil         // Claim routing must not probe the host's provider accounts.
 
 	var mu sync.Mutex
 	dispatched := map[string]int{}
