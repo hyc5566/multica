@@ -185,7 +185,7 @@ describe("IssueRunsDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: /Provider quota/ }));
 
     expect(screen.getByText("Account-level snapshots; changes may include other runs.")).toBeInTheDocument();
-    expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
+    expect(screen.getByText(/\+2\.0 pp/)).toBeInTheDocument();
   });
 
   it("gives every terminal run a status a screen reader can read", () => {

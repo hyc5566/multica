@@ -143,7 +143,7 @@ export function IssueRunsDialog({
                 item sizes to its content and the list never scrolls. */}
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-5">
               {tasks.some((task) => (task.quota_checkpoints?.length ?? 0) > 0) && (
-                <section className="mb-4 space-y-2" aria-label={t(($) => $.usage_detail.quota_title)}>
+                <section className="mb-4 space-y-2" aria-label={t(($) => $.runs_timeline.title)}>
                   {tasks.filter((task) => (task.quota_checkpoints?.length ?? 0) > 0).map((task) => (
                     <div key={task.id} className="rounded-md border px-3 py-2">
                       <p className="mb-1 truncate text-caption font-medium">

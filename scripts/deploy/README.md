@@ -12,5 +12,8 @@ single document; this directory is the tool entry point.
   old Server.
 - [test-server-handoff.py](test-server-handoff.py): isolated real-Server,
   PostgreSQL, Redis and Caddy exercise with authenticated WebSockets and rollback.
+- [update-daemon.sh](update-daemon.sh): one-host Linux daemon updater; requires
+  an idle daemon whose PID is owned by the named active user service, plus a
+  staged executable and its reviewed SHA-256. Run separately on each host.
 
 The tool does not migrate live sockets or permit incompatible database changes.

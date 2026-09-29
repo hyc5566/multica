@@ -208,6 +208,7 @@
   },
   "inspector": {
     "section_profile": "Profile",
+    "section_profile_hint": "Set how this Agent appears across the workspace.",
     "section_execution": "Execution",
     "section_access": "Access",
     "section_properties": "Properties",
