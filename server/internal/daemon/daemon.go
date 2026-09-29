@@ -755,7 +755,6 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 	// server can split logs/metrics by client version (parallel to the CLI).
 	client.SetVersion(cfg.CLIVersion)
 	d := &Daemon{
-<<<<<<< HEAD
 		cfg:                         cfg,
 		client:                      client,
 		repoCache:                   repocache.New(cacheRoot, logger),

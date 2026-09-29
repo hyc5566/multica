@@ -2,7 +2,7 @@
 
 import { act, cleanup, fireEvent, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AgentTask, TaskUsage } from "@multica/core/types";
+import type { AgentTask, TaskQuotaCheckpoint, TaskUsage } from "@multica/core/types";
 import { useCustomPricingStore } from "@multica/core/runtimes/custom-pricing-store";
 import { renderWithI18n } from "../../test/i18n";
 
@@ -57,6 +57,32 @@ function usage(overrides: Partial<TaskUsage> = {}): TaskUsage {
     cache_read_tokens: 0,
     cache_write_tokens: 0,
     ...overrides,
+  };
+}
+
+function quota(phase: "before" | "after", used: number): TaskQuotaCheckpoint {
+  return {
+    phase,
+    boundary_at: `2026-09-27T${phase === "before" ? "09:00" : "09:30"}:00Z`,
+    provider: "codex",
+    capture_state: "fresh",
+    observation_id: phase,
+    overlapping_task_count: 0,
+    snapshot: {
+      provider: "codex",
+      status: "available",
+      source: "official",
+      observed_at: `2026-09-27T${phase === "before" ? "09:00" : "09:30"}:00Z`,
+      windows: [{
+        id: "weekly",
+        label: "Weekly",
+        used_percent: used,
+        resets_at: "2026-10-01T00:00:00Z",
+        unit: "percent",
+        scope: "account",
+        model_match: "shared",
+      }],
+    },
   };
 }
 
@@ -149,6 +175,17 @@ describe("IssueRunsDialog", () => {
     expect(screen.getByTitle("No usage recorded")).toHaveTextContent("—");
     expect(screen.queryByText("$0.00")).not.toBeInTheDocument();
     expect(screen.getByText("Cancelled")).toBeInTheDocument();
+  });
+
+  it("shows provider quota checkpoints in the timeline when they are available", () => {
+    open([makeTask({
+      quota_checkpoints: [quota("before", 15), quota("after", 17)],
+    })]);
+
+    fireEvent.click(screen.getByRole("button", { name: /Provider quota/ }));
+
+    expect(screen.getByText("Account-level snapshots; changes may include other runs.")).toBeInTheDocument();
+    expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
   });
 
   it("gives every terminal run a status a screen reader can read", () => {
