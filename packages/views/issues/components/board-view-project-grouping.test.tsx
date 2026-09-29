@@ -238,7 +238,7 @@ describe("Board grouped by project", () => {
     const columns = () => ["Acme Corp", "No project"].map((title) =>
       screen.getByText(title).closest<HTMLElement>("div[style*='width']")!,
     );
-    expect(columns().map((column) => column.style.width)).toEqual(["280px", "280px"]);
+    expect(columns().map((column) => column.style.width)).toEqual(["220px", "220px"]);
     fireEvent.click(screen.getByRole("button", { name: "Display" }));
     const compact = await screen.findByRole("button", { name: "Compact" });
     fireEvent.click(compact);

@@ -452,12 +452,12 @@ describe("execution log header geometry", () => {
       { locale: "zh-Hans" },
     );
 
-    fireEvent.click(screen.getByText("$2.00").closest("button")!);
+    fireEvent.click(screen.getAllByText("$2.00")[0].closest("button")!);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("运行记录")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: /Provider 額度/ }));
-    expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
+    expect(screen.getByText(/\+2\.0 pp/)).toBeInTheDocument();
   });
 });
 

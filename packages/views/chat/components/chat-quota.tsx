@@ -59,12 +59,12 @@ export function ChatTaskQuota({
         <div className="mb-2 space-y-1 rounded-md border p-2 text-caption">
           {summary ? (
             <>
-              <p className="font-medium">{ti(($) => $.usage_detail.kpi_tokens)}: {summary.tokens.toLocaleString()}</p>
+              <p className="font-medium">{t(($) => $.message_list.token_count, { value: summary.tokens.toLocaleString() })}</p>
               <dl className="grid grid-cols-2 gap-x-3 gap-y-1">
-                <dt>{ti(($) => $.usage_detail.col_input)}</dt><dd>{summary.input.toLocaleString()}</dd>
-                <dt>{ti(($) => $.usage_detail.col_output)}</dt><dd>{summary.output.toLocaleString()}</dd>
-                <dt>{ti(($) => $.usage_detail.col_cache_read)}</dt><dd>{summary.cacheRead.toLocaleString()}</dd>
-                <dt>{ti(($) => $.usage_detail.col_cache_write)}</dt><dd>{summary.cacheWrite.toLocaleString()}</dd>
+                <dt>{ti(($) => $.runs_timeline.cost_input)}</dt><dd>{summary.input.toLocaleString()}</dd>
+                <dt>{ti(($) => $.runs_timeline.cost_output)}</dt><dd>{summary.output.toLocaleString()}</dd>
+                <dt>{ti(($) => $.runs_timeline.cost_cache_read)}</dt><dd>{summary.cacheRead.toLocaleString()}</dd>
+                <dt>{ti(($) => $.runs_timeline.cost_cache_write)}</dt><dd>{summary.cacheWrite.toLocaleString()}</dd>
               </dl>
               {usage?.map((slice, index) => (
                 <p key={index} className="break-words text-muted-foreground">

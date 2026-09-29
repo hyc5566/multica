@@ -171,14 +171,6 @@ export function AgentDetailInspector({
     <div className="space-y-8">
       <SettingsSection
         title={t(($) => $.inspector.section_profile)}
-        action={
-          <SettingsSaveState
-            status={profileAutoSave.status}
-            savingLabel={ts(($) => $.auto_save.saving)}
-            savedLabel={ts(($) => $.auto_save.saved)}
-            errorLabel={ts(($) => $.auto_save.failed)}
-          />
-        }
         description={t(($) => $.inspector.section_profile_hint)}
       >
         <SettingsCard>
