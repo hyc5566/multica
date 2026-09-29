@@ -455,8 +455,8 @@ describe("execution log header geometry", () => {
     fireEvent.click(screen.getByText("$2.00").closest("button")!);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("用量明細")).toBeInTheDocument();
-    expect(screen.getByText("供應商額度快照")).toBeInTheDocument();
+    expect(screen.getByText("运行记录")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Provider 額度/ }));
     expect(screen.getByText("+2.0 pp")).toBeInTheDocument();
   });
 });
