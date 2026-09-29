@@ -251,7 +251,7 @@ Multica 不內建模型。它會呼叫你已安裝並登入的 Agent CLI，因�
 
 想参与贡献，先看[贡献指南](CONTRIBUTING.md)。
 
-**环境要求：**[Node.js](https://nodejs.org/) 22、[pnpm](https://pnpm.io/) 10.28.2、[Go](https://go.dev/) 1.26.6、[Docker](https://www.docker.com/)
+**环境要求：**[Node.js](https://nodejs.org/) 22、[pnpm](https://pnpm.io/) 10.28.2、[Go](https://go.dev/) 1.26.9、[Docker](https://www.docker.com/)
 
 ```bash
 make dev

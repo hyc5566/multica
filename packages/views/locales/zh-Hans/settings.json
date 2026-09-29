@@ -567,7 +567,9 @@
       "checkbox": "勾選",
       "url": "連結",
       "actor": "成員",
-      "multi_actor": "成員（多選）"
+      "multi_actor": "成員（多選）",
+      "multi_text": "文字清單",
+      "multi_url": "連結清單"
     },
     "actions": {
       "open": "{{name}} 的操作",
