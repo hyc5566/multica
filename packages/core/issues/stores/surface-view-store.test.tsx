@@ -140,7 +140,7 @@ describe("issue surface view store registry", () => {
 
     expect(projectA.getState().viewMode).toBe("list");
     expect(projectB.getState().viewMode).toBe("board");
-    expect(projectB.getState().boardLayout).toBe("default");
+    expect(projectB.getState().boardLayout).toBe("compact");
     expect(projectB.getState().priorityFilters).toEqual([]);
 
     const raw = localStorage.getItem(`${ISSUE_SURFACE_VIEW_STORAGE_KEY}:acme`);

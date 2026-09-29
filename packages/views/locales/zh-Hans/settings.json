@@ -1,7 +1,6 @@
 {
   "issue_statuses": {
     "title": "任務狀態",
-    "description": "以四個生命週期分類組織任務狀態。",
     "loading": "正在載入狀態…",
     "add": "新增狀態",
     "show_archived": "顯示已歸檔（{{count}}）",
@@ -82,7 +81,27 @@
       "blocked": "被外部依賴阻塞。",
       "done": "已完成。",
       "cancelled": "決定不做。"
-    }
+    },
+    "pr_auto_complete_badge": "PR 合并后自动进入",
+    "built_in_locked": "内置状态驱动系统行为，不能编辑或归档，但可以调整顺序。",
+    "description": "以四個生命週期分類組織任務狀態。"
+  },
+  "wakeups": {
+    "description": "平台对所有任务生效的规则。每个任务可以在自己的「唤醒」区域单独修改。",
+    "child_done_title": "子任务结束时",
+    "child_done_description": "某个阶段的子任务全部结束、且后面还有阶段在等待时，唤醒父任务的负责人；全部子任务结束时再唤醒一次。负责人是成员时，改为发送收件箱通知。",
+    "enabled": "默认开启",
+    "instruction": "默认指令",
+    "instruction_hint": "发给被唤醒的智能体。留空则使用下方的内置指令。",
+    "instruction_placeholder": "留空则使用内置指令",
+    "builtin": "内置指令",
+    "instruction_invalid": "指令最多 4,000 字节。",
+    "save": "保存",
+    "saving": "保存中…",
+    "save_error": "无法保存默认值。",
+    "customized_other": "{{count}} 个进行中的任务使用了自己的设置，不跟随此默认值。",
+    "admin_only": "只有所有者和管理员可以修改默认值。",
+    "load_error": "无法加载唤醒默认值。"
   },
   "quick_actions": {
     "title": "快捷操作",
@@ -138,7 +157,6 @@
     "toast_saved": "更改已儲存"
   },
   "preferences": {
-    "general_title": "常規",
     "theme": {
       "title": "主題",
       "light": "淺色",
@@ -151,21 +169,40 @@
       "chinese": "繁體中文",
       "korean": "한국어",
       "japanese": "日本語",
+      "french": "Français",
       "sync_failed": "語言已在本裝置儲存，但同步到帳號失敗。其他裝置可能仍顯示舊語言。"
     },
     "timezone": {
       "title": "檢視時區",
       "browser_suffix": "（瀏覽器）",
       "hint": "用於儀表盤、圖表和\"今天\"標籤。這是個人偏好，在你的所有工作區中通用。",
-      "sync_failed": "儲存時區偏好失敗。"
+      "sync_failed": "儲存時區偏好失敗。",
+      "search": "搜索时区...",
+      "empty": "没有匹配的时区"
     },
     "sticky_comment_bar": {
       "title": "固定評論欄",
       "hint": "滾動任務頁面時，評論欄始終固定在底部。"
     },
+    "running_agent_reply": {
+      "title": "回复正在运行的智能体时",
+      "steer": "插话到当前运行",
+      "after_run": "本轮结束后开始",
+      "hint": "只决定默认选项，每条消息发送前仍可单独修改。"
+    },
+    "comments_title": "評論",
+    "region_title": "语言与地区",
+    "appearance_title": "外观",
+    "issue_fields_title": "创建任务时显示的字段",
+    "issue_fields": {
+      "field": "字段",
+      "quick": "智能体创建",
+      "manual": "手动创建",
+      "unsupported": "智能体创建时不支持此字段"
+    },
+    "general_title": "常規",
     "description": "調整你在 Multica 中的使用偏好。",
     "issue_title": "任務建立",
-    "comments_title": "評論",
     "device_hint": "儲存在目前裝置上。",
     "issue_scope": "這些偏好只對目前裝置上的目前工作區生效，只影響建立任務時顯示的欄位。"
   },
@@ -302,16 +339,19 @@
     }
   },
   "chat": {
-    "floating_title": "懸浮窗",
     "floating_label": "懸浮聊天窗",
-    "floating_hint": "在每個頁面右下角顯示懸浮聊天按鈕。預設關閉——開啟後可隨處召喚聊天；關閉時，聊天只在此標籤頁中可用。"
+    "floating_hint": "在每個頁面右下角顯示懸浮聊天按鈕。預設關閉——開啟後可隨處召喚聊天；關閉時，聊天只在此標籤頁中可用。",
+    "floating_title": "懸浮窗"
   },
   "issue": {
+    "opening": {
+      "title": "打开任务",
+      "click": "点击卡片或行时打开",
+      "page": "详情页",
+      "peek": "悬浮预览",
+      "hint": "按住 Shift 点击会打开另一种。"
+    },
     "description": "選擇各建立方式的工具欄中常駐顯示的欄位。隱藏的欄位仍可從 ⋯ 選單使用，有值時會自動顯示。",
-    "quick_create_title": "通過 Agent 建立",
-    "quick_create_description": "快速建立工具欄中顯示的欄位。",
-    "manual_create_title": "手動建立",
-    "manual_create_description": "手動建立工具欄中顯示的欄位。",
     "fields": {
       "status": "狀態",
       "priority": "優先順序",
@@ -320,10 +360,13 @@
       "project": "專案",
       "due_date": "截止日期",
       "start_date": "開始日期"
-    }
+    },
+    "quick_create_title": "通過 Agent 建立",
+    "quick_create_description": "快速建立工具欄中顯示的欄位。",
+    "manual_create_title": "手動建立",
+    "manual_create_description": "手動建立工具欄中顯示的欄位。"
   },
   "mcp": {
-    "title": "MCP",
     "description": "在這裡集中管理工作區的 MCP Server。新增後不會自動分配；Agent owner 可在對應 Agent 的 MCP 頁面中分配並單獨啟停。",
     "servers_title": "共享 MCP Server",
     "write_only_note": "為保護敏感資訊，配置儲存後不會再次顯示。需要調整時，請填寫一份完整的新配置；只修改名稱不會影響當前配置和 Agent 分配。",
@@ -339,9 +382,7 @@
     "remove_server": "移除 MCP Server",
     "remove_action": "刪除",
     "empty_title": "暫無共享 MCP Server",
-    "empty_description": "先在這裡新增 MCP Server，再前往對應 Agent 的 MCP 頁面完成分配。",
     "disabled_badge": "已停用",
-    "admin_only_note": "只有工作區 owner 和 admin 可以管理共享 MCP Server。",
     "delete_title": "移除共享 MCP Server？",
     "delete_description": "這會將 {{name}} 從工作區服務庫和所有已分配的 Agent 中移除，從各 Agent 的下一次執行起生效。",
     "delete_confirm": "移除",
@@ -352,7 +393,10 @@
     "removed_toast": "已移除共享 MCP Server",
     "save_failed_toast": "無法儲存共享 MCP Server",
     "rename_failed_toast": "無法重新命名共享 MCP Server",
-    "remove_failed_toast": "無法移除共享 MCP Server"
+    "remove_failed_toast": "無法移除共享 MCP Server",
+    "title": "MCP",
+    "empty_description": "先在這裡新增 MCP Server，再前往對應 Agent 的 MCP 頁面完成分配。",
+    "admin_only_note": "只有工作區 owner 和 admin 可以管理共享 MCP Server。"
   },
   "page": {
     "title": "設定",
@@ -363,22 +407,26 @@
       "preferences": "偏好設定",
       "shortcuts": "快捷鍵",
       "issue": "任務",
-      "chat": "聊天",
       "notifications": "通知",
       "tokens": "API Token",
       "general": "常規",
-      "repositories": "程式碼倉庫",
       "github": "GitHub",
-      "integrations": "整合",
       "labs": "實驗室",
       "members": "成員",
       "labels": "標籤",
       "issue_statuses": "任務狀態",
+      "wakeups": "唤醒",
       "properties": "屬性",
       "quick_actions": "快捷操作",
       "plugins": "Plugins",
       "mcp": "MCP",
-      "billing": "賬單與套餐"
+      "billing": "賬單與套餐",
+      "code": "代码",
+      "channels": "消息渠道",
+      "apps": "已连接应用",
+      "chat": "聊天",
+      "repositories": "程式碼倉庫",
+      "integrations": "整合"
     },
     "groups": {
       "personal": "個人設定",
@@ -388,16 +436,18 @@
       "device": "桌面應用程式"
     },
     "navigate": "前往設定頁面",
+    "search": "搜索设置",
+    "search_clear": "清除搜索",
+    "search_empty": "没有匹配的设置",
+    "search_results_other": "{{count}} 个结果",
+    "admin_only": "只有所有者和管理员可以修改",
     "device_scope": "目前裝置"
   },
   "plugins": {
     "title": "Plugins",
-    "description": "在這個工作區裡釋出外掛，然後安裝某個具體版本，並逐條確認它能訪問什麼。",
     "loading": "正在載入 Plugins",
     "load_failed": "無法載入 Plugins",
     "load_failed_description": "請重試。已安裝的 Plugin 不受影響。",
-    "read_only": "只讀訪問",
-    "read_only_description": "工作區 owner 和 admin 可以安裝、配置和移除 Plugin。",
     "empty": "還沒有安裝任何 Plugin。",
     "action_failed": "Plugin 操作失敗",
     "enabled": "Plugin 已啟用",
@@ -472,7 +522,6 @@
     },
     "publish": {
       "title": "釋出外掛",
-      "description": "上傳外掛產物包。Multica 負責儲存和分發，作者不需要自己的伺服器。",
       "hint": "一個 .zip，包含 multica.plugin.json 和它引用的所有檔案。",
       "upload": "上傳產物包",
       "published": "已釋出 {{name}} {{version}}",
@@ -481,8 +530,12 @@
       "deleted": "已刪除釋出的外掛",
       "installed_version": "使用中",
       "review_install": "檢視並安裝",
-      "review_upgrade": "檢視並升級"
-    }
+      "review_upgrade": "檢視並升級",
+      "description": "上傳外掛產物包。Multica 負責儲存和分發，作者不需要自己的伺服器。"
+    },
+    "description": "在這個工作區裡釋出外掛，然後安裝某個具體版本，並逐條確認它能訪問什麼。",
+    "read_only": "只讀訪問",
+    "read_only_description": "工作區 owner 和 admin 可以安裝、配置和移除 Plugin。"
   },
   "properties": {
     "title": "屬性",
@@ -608,10 +661,10 @@
     "profile_description_too_long": "資料過長（最多 {{max}} 字元，當前 {{count}}）。",
     "save": "更新資料",
     "saving": "更新中...",
-    "toast_avatar_updated": "頭像已更新",
     "toast_avatar_failed": "上傳頭像失敗",
-    "toast_profile_updated": "資料已更新",
-    "toast_profile_failed": "更新資料失敗"
+    "toast_profile_failed": "更新資料失敗",
+    "toast_avatar_updated": "頭像已更新",
+    "toast_profile_updated": "資料已更新"
   },
   "notifications": {
     "title": "收件匣通知",
@@ -700,6 +753,8 @@
       "copy_command_tooltip": "複製命令",
       "done": "完成"
     },
+    "purpose": "用于 CLI 和 API 身份验证。",
+    "usage_help": "使用方法",
     "desktop_rotation": {
       "title": "是否重新生成 Desktop API token？",
       "description": "這台 App 的 daemon 正在使用此 token。是否重新生成並重新連線？新 token 連線成功後才會撤銷舊 token。請先等待執行中的任務完成；取消會保留原 token。",
@@ -712,7 +767,6 @@
     "logo_label": "工作區標誌",
     "change_logo_aria": "更換工作區圖示",
     "click_logo_hint": "點選圖示上傳新圖片",
-    "toast_logo_updated": "工作區圖示已更新",
     "toast_logo_failed": "上傳工作區圖示失敗",
     "name_label": "名稱",
     "description_label": "描述",
@@ -722,12 +776,8 @@
     "slug_label": "Slug",
     "issue_prefix_label": "任務字首",
     "issue_prefix_hint": "用於任務編號，例如 {{example}}。",
-    "prefix_confirm_title": "確認修改任務字首？",
-    "prefix_confirm_description": "所有任務將從 {{oldPrefix}}-N 重新命名為 {{newPrefix}}-N。任何使用舊編號的外部引用——PR 標題、分支名、文件與聊天中的連結——都會失效。",
     "save": "儲存",
     "saving": "儲存中...",
-    "manage_hint": "只有管理員和所有者可以修改工作區設定。",
-    "toast_saved": "已儲存工作區設定",
     "toast_save_failed": "儲存工作區設定失敗",
     "danger_zone": "危險操作",
     "leave_title": "離開工作區",
@@ -745,7 +795,23 @@
     "deleting": "刪除中...",
     "toast_delete_failed": "刪除工作區失敗",
     "confirm_cancel": "取消",
-    "confirm_action": "確認"
+    "confirm_action": "確認",
+    "context_hint": "每次运行都会提供给这个工作区里的智能体。",
+    "slug_hint": "用于所有工作区链接，创建后不能修改。",
+    "copy_slug": "复制 slug",
+    "copy_failed": "复制失败",
+    "change_prefix": "修改前缀...",
+    "prefix_dialog_title": "修改任务前缀",
+    "prefix_dialog_description": "所有任务都会重新编号，包括已完成和已取消的任务。",
+    "prefix_new_label": "新前缀",
+    "prefix_rule": "只能使用字母和数字，最多 10 个字符。",
+    "prefix_confirm_action": "修改为 {{prefix}}",
+    "prefix_external_warning": "PR 标题、分支名、文档和聊天里的旧编号（如 {{oldExample}}）不会自动更新，这些链接会失效。",
+    "toast_logo_updated": "工作區圖示已更新",
+    "prefix_confirm_title": "確認修改任務字首？",
+    "prefix_confirm_description": "所有任務將從 {{oldPrefix}}-N 重新命名為 {{newPrefix}}-N。任何使用舊編號的外部引用——PR 標題、分支名、文件與聊天中的連結——都會失效。",
+    "manage_hint": "只有管理員和所有者可以修改工作區設定。",
+    "toast_saved": "已儲存工作區設定"
   },
   "delete_workspace_dialog": {
     "title": "刪除工作區",
@@ -762,20 +828,10 @@
     "toast_failed": "更新設定失敗"
   },
   "github": {
-    "page_description": "連線 GitHub App、控制 Pull Request 如何出現在 Multica 中，並決定 Agent 在 commit 記錄裡留下哪些痕跡。",
-    "section_master": "啟用 GitHub 功能",
-    "master_description_on": "關閉後，所有 GitHub 入口都會被隱藏，也不再產生新的副作用。後臺已有資料不會被刪除。團隊不使用 GitHub？在這裡直接關掉即可。",
     "master_description_off": "GitHub 功能已關閉。PR 側欄、Co-authored-by trailer 與自動關聯都已暫停。後臺資料未刪除。",
-    "section_connection": "連線",
-    "connection_title": "GitHub App",
-    "connection_description_prefix": "自動將任務關聯到 Pull Request。只要 PR 的分支名稱或標題中出現",
-    "connection_description_suffix": "或正文中寫了 Closes MUL-123，PR 就會關聯到對應任務；只有帶有關閉關鍵字的 PR 合併後，任務才會轉為",
-    "connection_description_done": "已完成",
-    "connection_identifier_example": "MUL-123",
     "connected_to": "已連線到 {{login}}",
     "connect_github": "連線 GitHub",
     "connect_opening": "正在開啟…",
-    "connect_disabled_tooltip": "服務端未配置 GitHub App",
     "disconnect": "斷開",
     "disconnecting": "斷開中...",
     "disconnect_confirm_title": "斷開 GitHub App",
@@ -784,25 +840,38 @@
     "disconnect_confirm_action": "斷開",
     "not_configured": "當前部署沒有配置 GitHub 整合。運維需要設定",
     "not_configured_and": "和",
-    "read_only_hint": "只讀檢視。只有管理員和所有者可以連線或斷開 GitHub。",
     "contact_admin_to_connect": "當前工作區尚未連線 GitHub。請讓管理員或所有者完成 GitHub App 的配置。",
     "connected_by": "由 {{name}} 連線",
     "toast_not_configured": "當前部署未配置 GitHub 整合",
     "toast_open_failed": "開啟 GitHub 安裝頁失敗",
     "toast_disconnect_failed": "斷開 GitHub App 失敗",
     "toast_disconnected": "已斷開 GitHub App",
-    "section_features": "功能",
     "feature_pr_sidebar_label": "Pull Request 側欄",
     "feature_pr_sidebar_description": "在任務詳情側欄中展示關聯的 Pull Request。",
     "feature_co_author_label": "Co-authored-by trailer",
     "feature_co_author_description_prefix": "在 Agent 提交的 commit 中追加",
     "feature_co_author_description_suffix": "。",
     "feature_auto_link_label": "任務 ↔ PR 自動關聯",
+    "toast_failed": "更新 GitHub 設定失敗",
     "feature_auto_link_description": "根據 PR 標題和分支名稱比對任務編號，正文中只比對關閉關鍵字後面的編號，並自動建立連結。",
+    "status_paused": "已暂停",
+    "pause": "暂停 GitHub 功能",
+    "resume": "恢复 GitHub 功能",
+    "page_description": "連線 GitHub App、控制 Pull Request 如何出現在 Multica 中，並決定 Agent 在 commit 記錄裡留下哪些痕跡。",
+    "section_master": "啟用 GitHub 功能",
+    "master_description_on": "關閉後，所有 GitHub 入口都會被隱藏，也不再產生新的副作用。後臺已有資料不會被刪除。團隊不使用 GitHub？在這裡直接關掉即可。",
+    "section_connection": "連線",
+    "connection_title": "GitHub App",
+    "connection_description_prefix": "自動將任務關聯到 Pull Request。只要 PR 的分支名稱或標題中出現",
+    "connection_description_suffix": "或正文中寫了 Closes MUL-123，PR 就會關聯到對應任務；只有帶有關閉關鍵字的 PR 合併後，任務才會轉為",
+    "connection_description_done": "已完成",
+    "connection_identifier_example": "MUL-123",
+    "connect_disabled_tooltip": "服務端未配置 GitHub App",
+    "read_only_hint": "只讀檢視。只有管理員和所有者可以連線或斷開 GitHub。",
+    "section_features": "功能",
     "section_repositories": "程式碼倉庫",
     "repositories_shortcut_label": "倉庫 URL 仍在\"程式碼倉庫\"標籤頁中管理",
-    "repositories_shortcut_link": "前往管理 →",
-    "toast_failed": "更新 GitHub 設定失敗"
+    "repositories_shortcut_link": "前往管理 →"
   },
   "vcs": {
     "section_title": "Git 程式碼託管（自託管）",
@@ -832,7 +901,6 @@
     "disconnect_confirm_description": "該連線映象的 Pull Request 及其任務關聯將被移除。此操作無法撤銷。",
     "disconnect_confirm_cancel": "取消",
     "disconnect_confirm_action": "斷開",
-    "toast_connected": "已連線程式碼託管",
     "toast_connect_failed": "無法連線程式碼託管",
     "toast_disconnected": "已斷開程式碼託管連線",
     "toast_disconnect_failed": "斷開連線失敗",
@@ -842,8 +910,13 @@
     "rotate_confirm_cancel": "取消",
     "rotate_confirm_action": "重新生成",
     "rotating": "重新生成中…",
-    "toast_rotated": "已重新生成 Webhook 金鑰",
-    "toast_rotate_failed": "重新生成 Webhook 金鑰失敗"
+    "toast_rotate_failed": "重新生成 Webhook 金鑰失敗",
+    "hosts_hint": "GitLab、Gitea 或 Forgejo。",
+    "connect_another": "再连接一个",
+    "connection_actions": "{{url}} 的操作",
+    "webhook_done": "我已保存",
+    "toast_connected": "已連線程式碼託管",
+    "toast_rotated": "已重新生成 Webhook 金鑰"
   },
   "lark": {
     "section_title": "飛書",
@@ -884,6 +957,8 @@
     "agent_bot_connected_label_lark": "已連線到 Lark",
     "agent_bot_manage_link_feishu": "在飛書中管理",
     "agent_bot_manage_link_lark": "在 Lark 中管理",
+    "agent_bot_silent_hint": "Bot 已连接但不回复？确认应用的事件订阅方式是长连接。",
+    "agent_bot_silent_hint_link": "排查指南",
     "agent_bot_manage_tooltip_feishu": "開啟飛書開發者控制台中該 Bot 的應用頁面——管理權限、修改名稱、申請新的權限範圍。",
     "agent_bot_manage_tooltip_lark": "開啟 Lark 開發者控制台中該 Bot 的應用頁面——管理權限、修改名稱、申請新的權限範圍。",
     "agent_bot_disconnect_tooltip": "將該飛書 Bot 與 Agent 解綁，Bot 將停止接收飛書訊息。",
@@ -901,8 +976,6 @@
     "install_open_link_fallback": "或點這裡直接在飛書中開啟",
     "install_success": "安裝完成，Bot 已上線。",
     "install_success_toast": "飛書 Bot 已安裝",
-    "install_scan_hint_feishu": "飛書 → 掃一掃 → 授權新 PersonalAgent。",
-    "install_scan_hint_lark": "Lark → 掃一掃 → 授權新 PersonalAgent。",
     "install_open_link_fallback_feishu": "或點這裡直接在飛書中開啟",
     "install_open_link_fallback_lark": "或點這裡直接在 Lark 中開啟",
     "install_success_toast_feishu": "飛書 Bot 已安裝",
@@ -918,10 +991,11 @@
     "install_error_installer_bind": "已安裝 Bot，但未能繫結你的飛書身份。請重試或聯絡管理員。",
     "install_error_session_lost": "安裝會話已失效或丟失，請重新掃碼。",
     "install_error_forbidden": "你已沒有在此工作區安裝飛書 Bot 的許可權，請聯絡工作區管理員。",
-    "install_error_generic": "安裝失敗，請重試。"
+    "install_error_generic": "安裝失敗，請重試。",
+    "install_scan_hint_feishu": "飛書 → 掃一掃 → 授權新 PersonalAgent。",
+    "install_scan_hint_lark": "Lark → 掃一掃 → 授權新 PersonalAgent。"
   },
   "composio": {
-    "section_title": "Composio",
     "page_description": "連線你的 Agent 可以操作的 Composio 應用。這裡只展示你在 Composio 專案裡已配置（啟用了 auth config）的應用。",
     "not_enabled_title": "Composio 整合未啟用",
     "not_enabled_description_prefix": "在伺服器上設定",
@@ -948,7 +1022,8 @@
     "last_used": "最近使用 {{when}}",
     "last_used_never": "從未使用",
     "expired": "令牌已過期",
-    "reconnect": "重新連線"
+    "reconnect": "重新連線",
+    "section_title": "Composio"
   },
   "slack": {
     "section_title": "Slack",
@@ -999,7 +1074,6 @@
     "agent_page_description": "通過專屬釘釘機器人私聊該 Agent、在群內 @ 它，或輸入 /issue 建立 Multica 任務。",
     "groups_title": "近期釘群",
     "groups_description": "工作區成員關聯釘釘帳號並在群內 @ 該機器人後，群會顯示在這裡。預設展示最近 90 天活躍的群。",
-    "groups_overview_description": "每條連線顯示 Agent、釘釘機器人和近期有互動的群。",
     "groups_loading": "正在載入釘群…",
     "groups_empty": "尚未觀察到群訊息。",
     "groups_no_recent": "最近 90 天沒有活躍群。",
@@ -1055,7 +1129,8 @@
     "byo_submitting": "連線中…",
     "byo_cancel": "取消",
     "byo_success_toast": "釘釘機器人已連線",
-    "byo_failed_toast": "無法連線釘釘機器人"
+    "byo_failed_toast": "無法連線釘釘機器人",
+    "groups_overview_description": "每條連線顯示 Agent、釘釘機器人和近期有互動的群。"
   },
   "wecom": {
     "section_title": "企業微信",
@@ -1152,7 +1227,6 @@
     "section_title": "程式碼倉庫",
     "description": "與該工作區關聯的 Git 倉庫。Agent 會從這裡 clone 程式碼並完成工作。",
     "url_placeholder": "https://git.example.com/org/repo.git 或 git@git.example.com:org/repo.git",
-    "url_empty": "（空 URL）",
     "description_placeholder": "描述（例如：Go 後端 + Next.js 前端）",
     "add": "新增倉庫",
     "connect_github": "連線 GitHub",
@@ -1175,21 +1249,30 @@
     "github_selected_count": "已選擇 {{count}} 個",
     "github_cancel": "取消",
     "github_import": "新增倉庫",
-    "complete_manual_entry_first": "請先補全或刪除空的手動倉庫配置，再從 GitHub 匯入。",
     "save": "儲存",
     "saving": "儲存中...",
     "saved_hint": "所有改動已儲存",
     "empty": "暫無倉庫。",
     "edit_aria": "編輯倉庫",
     "cancel_aria": "取消編輯",
-    "delete_aria": "刪除倉庫",
     "delete_confirm_title": "刪除程式碼倉庫？",
     "delete_confirm_description": "此程式碼倉庫將立即從工作區中移除。",
     "delete_confirm_cancel": "取消",
     "delete_confirm_action": "刪除倉庫",
     "manage_hint": "只有管理員和所有者可以管理程式碼倉庫。",
-    "toast_saved": "已儲存程式碼倉庫",
-    "toast_save_failed": "儲存程式碼倉庫失敗"
+    "toast_save_failed": "儲存程式碼倉庫失敗",
+    "add_manually": "输入 URL...",
+    "add_title": "添加仓库",
+    "edit_title": "编辑仓库",
+    "edit": "编辑",
+    "url_label": "仓库 URL",
+    "description_label": "描述",
+    "duplicate": "这个仓库已经添加过了。",
+    "actions_aria": "{{url}} 的操作",
+    "url_empty": "（空 URL）",
+    "complete_manual_entry_first": "請先補全或刪除空的手動倉庫配置，再從 GitHub 匯入。",
+    "delete_aria": "刪除倉庫",
+    "toast_saved": "已儲存程式碼倉庫"
   },
   "desktop": {
     "tabs": {
@@ -1197,7 +1280,6 @@
     },
     "updates": {
       "title": "更新",
-      "description": "控制後臺自動更新，或手動檢查新版本。",
       "current_version": "當前版本",
       "automatic_updates_title": "後臺自動更新",
       "automatic_updates_description": "開啟後，桌面端會在啟動後和每小時檢查更新，並在後臺下載可用版本。",
@@ -1207,11 +1289,11 @@
       "up_to_date": "已是最新版本。",
       "downloading": "v{{version}} 正在後臺下載——準備好安裝時會通知你。",
       "check_now": "立即檢查",
-      "checking": "檢查中..."
+      "checking": "檢查中...",
+      "description": "控制後臺自動更新，或手動檢查新版本。"
     },
     "daemon": {
       "title": "守護程序",
-      "description": "配置本地 Agent 守護程序與桌面應用協同工作的方式。",
       "settings_saved": "守護程序設定已儲存",
       "settings_save_failed": "儲存守護程序設定失敗",
       "signin_expired": "登入已過期",
@@ -1229,7 +1311,6 @@
       "cli_missing": "未找到 multica CLI。安裝後才能管理守護程序。",
       "installation_guide": "安裝指南",
       "diagnostics_title": "診斷資訊",
-      "diagnostics_description": "裝置標識與連線詳情，可用於提交錯誤報告或排查執行時未顯示的問題。",
       "state": "狀態",
       "uptime": "執行時長",
       "daemon_id": "守護程序 ID",
@@ -1278,14 +1359,15 @@
       "not_running": "守護程序未執行",
       "not_running_description": "啟動守護程序後，日誌會顯示在這裡。",
       "waiting_logs": "正在等待日誌...",
-      "waiting_logs_description": "新日誌會實時顯示在這裡。",
       "reconnect_failed": "無法重新連線守護程序",
       "try_again_moment": "請稍後重試。",
-      "try_again": "請重試。"
+      "try_again": "請重試。",
+      "description": "配置本地 Agent 守護程序與桌面應用協同工作的方式。",
+      "diagnostics_description": "裝置標識與連線詳情，可用於提交錯誤報告或排查執行時未顯示的問題。",
+      "waiting_logs_description": "新日誌會實時顯示在這裡。"
     }
   },
   "members": {
-    "section_title": "成員（{{count}}）",
     "invite_title": "邀請成員",
     "invite_email_placeholder": "user@company.com",
     "invite_button": "邀請",
@@ -1302,9 +1384,6 @@
     "seat_purchase_timeout": "席位購買已提交，但確認時間超出預期。邀請尚未傳送；請在“賬單”顯示有可用席位後重新邀請。",
     "seat_purchase_capacity_taken": "新購買的席位已不可用，因此沒有傳送邀請。請檢查當前席位後重試。",
     "no_members": "未找到成員。",
-    "pending_title": "待處理邀請（{{count}}）",
-    "pending_status": "待處理",
-    "revoke_invitation_tooltip": "撤銷邀請",
     "revoke_invitation_title": "撤銷邀請",
     "revoke_invitation_description": "撤銷發給 {{email}} 的邀請？對方將不能再加入該工作區。",
     "toast_invitation_revoked": "已撤銷邀請",
@@ -1335,9 +1414,6 @@
         "description": "建立並處理任務"
       }
     },
-    "share_links_title": "分享連結",
-    "role_field": "角色：",
-    "expiry_field": "有效期：",
     "share_links_create_title": "建立分享連結",
     "share_links_create_button": "生成",
     "share_links_creating": "生成中...",
@@ -1354,9 +1430,38 @@
     "expiry_24h": "24 小時",
     "expiry_7d": "7 天",
     "expiry_30d": "30 天",
-    "expiry_never": "永久有效"
+    "expiry_never": "永久有效",
+    "members_label": "成员",
+    "pending_label": "待接受邀请",
+    "share_links_label": "分享链接",
+    "share_links_description": "拿到链接的人都可以以所选角色加入，直到链接过期或被撤销。",
+    "search_placeholder": "搜索姓名或邮箱",
+    "no_results": "没有匹配的成员。",
+    "no_invitations": "没有待接受的邀请。",
+    "no_share_links": "还没有分享链接。",
+    "email_label": "邮箱",
+    "role_label": "角色",
+    "expiry_label": "有效期",
+    "you": "你",
+    "joined": "{{date}} 加入",
+    "member_actions": "{{name}} 的操作",
+    "invitation_meta": "{{sent}} 发送 · {{expires}} 过期",
+    "revoke_invitation_aria": "撤销发给 {{email}} 的邀请",
+    "seats_used": "已用 {{used}} / {{purchased}} 个席位",
+    "manage_seats": "管理席位",
+    "section_title": "成員（{{count}}）",
+    "pending_title": "待處理邀請（{{count}}）",
+    "pending_status": "待處理",
+    "revoke_invitation_tooltip": "撤銷邀請",
+    "share_links_title": "分享連結",
+    "role_field": "角色：",
+    "expiry_field": "有效期："
   },
   "integrations": {
+    "status_connected": "已連線",
+    "status_not_connected": "未連線",
+    "status_loading": "正在檢查...",
+    "status_unknown": "暫時無法取得狀態",
     "description": "連線常用工具，分別管理每項整合。",
     "code_title": "程式碼與儲存庫",
     "messaging_title": "訊息頻道",
@@ -1366,10 +1471,45 @@
     "vcs_hint": "連線 GitLab、Gitea 或 Forgejo。",
     "apps_hint": "透過 Composio 授權 Agent 使用應用程式。",
     "back": "所有整合",
-    "status_connected": "已連線",
-    "status_not_connected": "未連線",
-    "status_loading": "正在檢查...",
-    "status_unknown": "暫時無法取得狀態",
     "channel_hint": "在 {{channel}} 中與 Agent 對話、建立任務。"
+  },
+  "pr_merge_status": {
+    "label": "PR 合并后，任务状态改为",
+    "description": "关联的 PR 全部合并后生效，只影响之后合并的 PR。",
+    "none": "不改变"
+  },
+  "layout": {
+    "scope": {
+      "account": "账号 · 所有设备同步",
+      "device": "仅本设备",
+      "device_workspace": "仅本设备 · {{name}}",
+      "workspace": "{{name}} 工作区",
+      "workspace_only": "仅对 {{name}} 生效"
+    },
+    "read_only": {
+      "title": "你只能查看此页",
+      "description": "只有工作区所有者和管理员可以修改这些设置。",
+      "contact": "只有所有者和管理员可以修改这些设置。如需修改，请联系 {{names}}。",
+      "separator": "、"
+    }
+  },
+  "code": {
+    "hosting_title": "代码托管",
+    "pr_linking_title": "PR 与任务联动",
+    "github_actions": "GitHub 操作"
+  },
+  "channels": {
+    "breadcrumb": "路径"
+  },
+  "mcp_usage": {
+    "agent_count_other": "已分配给 {{count}} 个智能体",
+    "none": "未分配给任何智能体"
+  },
+  "mcp_sources": {
+    "title": "为智能体接入工具的方式",
+    "current": "当前页面",
+    "mcp": "由管理员添加、在工作区内共享，再按智能体分配。",
+    "apps": "用你自己的账号通过 Composio 授权，在你拥有的智能体上启用。",
+    "plugins": "安装后可提供工具、定时 hook 和存储，每个插件单独授权。"
   }
 }

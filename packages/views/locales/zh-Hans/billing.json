@@ -103,6 +103,7 @@
     "errors": {
       "action_title": "賬單操作失敗",
       "temporarily_unavailable": "賬單服務暫時不可用，請稍後重試。",
+      "not_enabled": "此部署未启用工作区订阅，请联系管理员。",
       "permission_changed": "你的工作區角色已不允許執行此操作。重新整理頁面可檢視當前許可權。",
       "checkout_response": "服務端響應無法讀取，無法開啟 Checkout。請保留當前週期並重試。",
       "already_subscribed": "這個工作區已經有訂閱，當前套餐已重新整理。",
@@ -115,12 +116,12 @@
       "cancel_title": "已取消 Checkout",
       "cancel_description": "套餐沒有發生變化。",
       "portal_title": "賬單資訊已重新整理",
-      "portal_description": "下方顯示最新的訂閱快照。",
       "syncing_title": "正在啟用訂閱",
       "syncing_description": "付款已完成，正在等待 Stripe 確認套餐變化。",
       "timeout_description": "付款已收到，但訂閱仍在同步。請稍後重新整理頁面。",
       "active_title": "Pro 已啟用",
-      "active_description": "這個工作區現在可以使用 Pro。"
+      "active_description": "這個工作區現在可以使用 Pro。",
+      "portal_description": "下方顯示最新的訂閱快照。"
     },
     "past_due": {
       "title": "付款資訊需要處理",
@@ -145,13 +146,13 @@
     "current": {
       "title": "當前套餐",
       "plan": "工作區套餐",
-      "plan_description": "這個工作區當前生效的 entitlement。",
       "members": "成員席位",
       "members_description": "Agent 和待接受的邀請不計入席位。",
       "member_count_other": "{{count}} 位成員",
       "billing_interval": "付款週期",
-      "billing_interval_description": "當前訂閱儲存的付款週期。",
       "period_end": "當前週期結束時間",
+      "plan_description": "這個工作區當前生效的 entitlement。",
+      "billing_interval_description": "當前訂閱儲存的付款週期。",
       "period_end_description": "當前訂閱快照報告的日期。"
     },
     "upgrade": {
@@ -169,16 +170,13 @@
       "title": "訂閱管理",
       "description": "Stripe 會安全地管理付款方式、發票和取消訂閱。",
       "portal": "Stripe Billing Portal",
-      "portal_description": "前往 Stripe 管理這個工作區的訂閱。",
-      "portal_unavailable": "這個工作區暫時沒有可用的 Stripe Billing Portal。"
+      "portal_unavailable": "這個工作區暫時沒有可用的 Stripe Billing Portal。",
+      "portal_description": "前往 Stripe 管理這個工作區的訂閱。"
     },
     "limits": {
       "title": "用量與限額",
-      "description": "限額和用量來自伺服器目前的 entitlement 與額度統計。",
       "issues": "任務數量",
-      "issues_description": "目前任務用量和伺服器回傳的生效限額。",
       "autopilots": "自動化執行",
-      "autopilots_description": "目前自動化用量和伺服器回傳的重置時間。",
       "unlimited": "不限",
       "per_month": "每月 {{count}} 次",
       "usage_loading": "正在載入自動化用量",
@@ -188,15 +186,16 @@
       "usage_total": "{{total}} / {{limit}}",
       "usage_breakdown": "已完成 {{used}} · 進行中 {{reserved}}",
       "resets_at": "{{date}} 重置",
-      "usage_unavailable": "用量暫時不可用"
+      "usage_unavailable": "用量暫時不可用",
+      "description": "限額和用量來自伺服器目前的 entitlement 與額度統計。",
+      "issues_description": "目前任務用量和伺服器回傳的生效限額。",
+      "autopilots_description": "目前自動化用量和伺服器回傳的重置時間。"
     },
     "seats": {
       "title": "席位",
       "description": "已購席位用於當前成員和待接受邀請，Agent 不佔席位。",
       "human_members": "已用席位",
-      "human_members_description": "已確認佔用已購容量的工作區成員。成員變化後可重新整理對賬。",
       "billed": "已購席位",
-      "billed_description": "當前通過 Stripe 購買的席位數量。",
       "pending_invitations": "待接受邀請",
       "pending_invitations_description": "有效邀請在接受或過期前會預留已購席位。",
       "available": "可用席位",
@@ -214,7 +213,10 @@
       "members_over_capacity_title": "成員數超過已購席位",
       "members_over_capacity_description": "當前工作區有 {{actual}} 名成員，但只購買了 {{purchased}} 個席位。繼續邀請前，請補足席位或移除成員。",
       "occupancy_over_capacity_description": "當前工作區已佔用 {{occupied}} 個席位，但只購買了 {{purchased}} 個（{{members}} 名成員和 {{reserved}} 個待接受邀請）。繼續邀請前，請補足席位、移除成員或撤銷待接受邀請。",
-      "updated": "席位購買已提交"
+      "updated": "席位購買已提交",
+      "available_help": "可用席位如何计算",
+      "human_members_description": "已確認佔用已購容量的工作區成員。成員變化後可重新整理對賬。",
+      "billed_description": "當前通過 Stripe 購買的席位數量。"
     },
     "seat_purchase": {
       "title": "新增席位",

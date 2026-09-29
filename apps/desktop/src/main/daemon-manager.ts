@@ -2,6 +2,7 @@ import { z } from "zod";
 import { parseWithFallback } from "@multica/core/api/schema";
 import { app, ipcMain, BrowserWindow, shell } from "electron";
 import { execFile } from "child_process";
+import { createHash } from "crypto";
 import {
   readFile,
   writeFile,
@@ -106,6 +107,10 @@ let cachedCliBinaryVersion: string | null | undefined = undefined;
 // busy executing tasks. The poll loop retries the check on each tick and
 // fires the restart once active_task_count drops to 0.
 let pendingVersionRestart = false;
+let pendingTrustRefresh = 0;
+let trustRefreshGeneration = 0;
+let trustRestartPID: number | null = null;
+let trustRestartRequestedAt = 0;
 let targetApiBaseUrl: string | null = null;
 let activeProfile: ActiveProfile | null = null;
 // Recovery is intentionally process-local: it keeps a daemon alive while the
@@ -190,6 +195,10 @@ interface HealthPayload {
   server_url?: string;
   cli_version?: string;
   active_task_count?: number;
+  running_task_count?: number;
+  resource_wait_task_count?: number;
+  profile?: string;
+  launched_by?: string;
   agents?: string[];
   workspaces?: unknown[];
 }
@@ -1002,6 +1011,59 @@ function scheduleStatusRefresh(): void {
   setTimeout(() => void pollOnce(), 0);
 }
 
+// Safe before setup: pending trust is retained until the Desktop profile exists.
+export function requestDaemonTrustRefresh(): void {
+  pendingTrustRefresh = ++trustRefreshGeneration;
+  trustRestartPID = null;
+  scheduleStatusRefresh();
+}
+
+async function refreshDaemonTrustWhenIdle(): Promise<void> {
+  const generation = pendingTrustRefresh;
+  if (!generation) return;
+  const active = await ensureActiveProfile();
+  if (!active) return;
+  const running = await fetchHealthAtPort(active.port);
+  if (generation !== pendingTrustRefresh) return;
+  if (!running) {
+    if (await daemonPidIsConfirmedAbsent(active.name) && generation === pendingTrustRefresh) {
+      pendingTrustRefresh = 0;
+      trustRestartPID = null;
+    }
+    return;
+  }
+  if (running.status !== "running" || running.os !== normalizeHostOS(process.platform) ||
+      running.profile !== active.name || running.launched_by !== "desktop" ||
+      !urlsMatch(running.server_url ?? "", targetApiBaseUrl ?? "") ||
+      !Number.isSafeInteger(running.pid) || !running.pid || running.pid < 1) return;
+  if (trustRestartPID !== null && running.pid !== trustRestartPID) {
+    // A different PID may also be an unrelated restart; confirm loaded digest.
+    trustRestartPID = null;
+  }
+  if (trustRestartPID !== null && Date.now() - trustRestartRequestedAt < 30_000) return;
+  if (running.active_task_count !== 0 ||
+      running.running_task_count !== 0 || running.resource_wait_task_count !== 0) return;
+  const ca = process.env.MULTICA_CA_CERT_FILE;
+  if (!ca) return;
+  trustRestartPID = running.pid;
+  trustRestartRequestedAt = Date.now();
+  try {
+    const digest = createHash("sha256").update(await readFile(ca)).digest("hex");
+    const response = await fetch(`http://127.0.0.1:${active.port}/restart/idle`, {
+      method: "POST", signal: AbortSignal.timeout(HEALTH_PROBE_TIMEOUT_MS),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expected_pid: running.pid, expected_ca_path: ca, expected_ca_sha256: digest }),
+    });
+    if (response.status === 200 && generation === pendingTrustRefresh) pendingTrustRefresh = 0;
+    if (response.status !== 202 && generation === pendingTrustRefresh) trustRestartPID = null;
+    // Busy, mismatched paths, and older daemons stay pending; never fall back
+    // to the CLI stop command, which can force-kill an active daemon.
+  } catch {
+    // Shutdown can close the response connection. Check for a new PID before
+    // retrying so a successful handoff is not mistaken for a failed request.
+  }
+}
+
 async function startDaemon(
   recoveryProfile?: ActiveProfile,
 ): Promise<{ success: boolean; error?: string }> {
@@ -1269,7 +1331,11 @@ async function pollOnce(): Promise<void> {
     }
     // Retry a deferred version-mismatch restart once the daemon drains. Route
     // it through the same singleflight guard as user and recovery operations.
-    if (pendingVersionRestart && status.state === "running") {
+    if (pendingTrustRefresh) {
+      void lifecycleOperations
+        .runBackground(() => refreshDaemonTrustWhenIdle())
+        .catch((err) => console.warn("[daemon] deferred trust refresh failed:", err));
+    } else if (pendingVersionRestart && status.state === "running") {
       void lifecycleOperations
         .runBackground(() => ensureRunningDaemonVersionMatches())
         .catch((err) => {

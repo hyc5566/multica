@@ -80,7 +80,7 @@ systemctl --user disable --now multica.service
 
 ### 安裝時出現 curl (60)
 
-s90 的 `0.4.43-zh-tw.1` 成品另提供 `scripts/install-zh-tw-s90.sh`：安裝腳本從 GitHub 下載，CLI 成品從 s90 下載。腳本內嵌發行者核實的 s90 公開 CA，因此新機器不必先安裝內網 CA。需在能連到 `10.1.24.90` 的網路執行：
+`scripts/install-zh-tw.sh` 與 `scripts/install-zh-tw-s90.sh` 目前都是 `0.4.43-zh-tw.7` 的固定版本入口：以完整 HTTPS 驗證下載 GitHub Release 的 `install.sh`，再傳遞原有 `--login`／`--service` 參數。版本化安裝器包含各平台成品與公開 CA 的固定 SHA-256；下載基址依該 Release 的建置設定決定。首次安裝仍拒絕覆寫既有設定；這兩個入口不是升級工具。登入及 daemon 連線需能連到 `10.1.24.90`：
 
 ```bash
 curl -q --fail --location --proto '=https' --proto-redir '=https' \
@@ -89,9 +89,9 @@ curl -q --fail --location --proto '=https' --proto-redir '=https' \
 bash install.sh --login
 ```
 
-建置腳本將已核實的公開 CA 填入模板的 `@DOWNLOAD_CA_PEM@`，保留系統公用根。CA 更新時須重新發布安裝腳本；不能從尚未受信任的 s90 下載另一張根憑證來自動取代它。GitHub 舊版 `.6` 的 `install-zh-tw.sh` 與新版 s90 的 `install-zh-tw-s90.sh` 對應不同版本／成品 checksum，不可互換名稱後假稱同一版本。
+建置腳本輸出獨立的 `s90-ca.crt`，並將其檔案 SHA-256 填入模板的 `@DOWNLOAD_CA_SHA256@`，保留系統公用根。首次取得 CA 時，僅該次下載使用 `--insecure`，以可信任 GitHub 腳本中的固定雜湊驗證內容；不跟隨轉址、不傳入帳號憑證，雜湊不符或下載失敗即停止，尚未核實的 CA 不會加入信任。之後下載 CLI 一律使用 `--cacert` 驗證憑證鏈與主機名稱。CA 更新時須經發行者核實後重新發布腳本中的雜湊，不能自動接受另一張根憑證。本次兩份安裝器統一指向 s90 的 `.43.2` 成品與其 checksum；GitHub 歷史發行的檔案不會自動改變，勿混用舊版腳本。
 
-2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 同時設定這兩個變數，使用包含公用與 s90 CA 的憑證包；不修改系統信任，不關閉 TLS 驗證。請重新下載腳本，舊的本機副本不會自動更新。
+2026-09-17 起的安裝腳本會在下載 CLI **之前**，合併系統公用 CA、既有 `CURL_CA_BUNDLE`／`SSL_CERT_FILE` 指向的公開憑證，再明確指定下載與 HTTPS proxy 使用這份信任。只有內網 CA 的舊環境設定不再遮蔽 GitHub 所需的公用 CA。安裝後 launcher 設定這兩個變數及供新版 CLI 使用的 `MULTICA_CA_CERT_FILE`，使用包含公用與 s90 CA 的憑證包；不修改系統信任。只有上述 CA 初始下載使用固定雜湊驗證，CLI 成品與執行時連線仍驗證 TLS。請重新下載腳本，舊的本機副本不會自動更新。
 
 若公司代理需要額外的 CA，先向管理員取得並核實**公開 CA 憑證**，再執行：
 
@@ -115,7 +115,7 @@ bash install.sh --login
 
 若公司代理 CA 尚未受信任，上述下載仍會拒絕連線；應使用管理員核實、包含系統與公司公開 CA 的憑證包取代兩個 `--cacert`／`--proxy-cacert` 路徑。此修正的自動測試使用真正的 HTTPS 連線，檢查成功安裝、未知 CA、主機名稱不符與私鑰輸入；不代表 Desktop 或各 Agent 工具的完整 CA 相容性驗收已通過。
 
-首次下載來源必須已受信任，例如 GitHub HTTPS；不可使用 `curl -k` 從尚未信任的 LAN 網站抓 CA 後當成已驗證。公開根憑證與 binary 同屬固定 checksum 的包；私鑰不可分發。一般瀏覽器的 Web 入口仍需要系統／瀏覽器信任 CA，或由管理員提供已受信任的服務憑證；App 的內建信任不會改變瀏覽器。
+首次下載來源必須已受信任，例如 GitHub HTTPS；不可僅使用 `curl -k` 從尚未信任的 LAN 網站抓 CA 就當成已驗證；本安裝器先依可信任腳本中的固定 SHA-256 核實下載內容，才使用該 CA。公開根憑證與 binary 同屬固定 checksum 的包；私鑰不可分發。一般瀏覽器的 Web 入口仍需要系統／瀏覽器信任 CA，或由管理員提供已受信任的服務憑證；App 的內建信任不會改變瀏覽器。
 
 `setup` 對同 Server 保留既有設定與 token，驗證成功後跳過重登；換 Server 不沿用舊 token／workspace。TLS／網路失敗不再當成 token 過期，HTTP 401 才提示登入。
 
@@ -159,8 +159,26 @@ Server 部署前另核對正在運行的版本、images、設定／資料備份�
 
 ## 2026-09-11 交付狀態
 
-[0.4.41-zh-tw.6](https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.4.41-zh-tw.6) 為公開內網驗收版本。App 僅 Apple Silicon；CLI 可直接使用 repository 的 `scripts/install-zh-tw.sh`，或下載同版 Release 的 `install.sh`，兩者內容相同。既有安裝仍依上方升級步驟保留設定。
+[0.4.41-zh-tw.6](https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.4.41-zh-tw.6) 為公開內網驗收版本。App 僅 Apple Silicon；該歷史版本的 CLI 安裝器可從同版 Release 下載；repository 的 `scripts/install-zh-tw.sh` 現已指向較新版本，不再與該歷史安裝器相同。既有安裝仍依上方升級步驟保留設定。
 
 s90 Server／Web 已部署來源 `aa863a493426d4f6d8df326e18ece5bc7d82ec95`；Gmail 寄信與新驗證碼 15 分鐘期限通過。共享 Redis 與雙入口代理已啟用；操作以 [Server 交接程序](server-handoff.zh-tw.md) 為準。
 
 Mac 原生 651 項測試、內嵌 CA 連線、codesign、新舊 Server 混版 HTTP／登入 WebSocket／Redis 演練通過。正式穩定版仍待新使用者實際完成 Mac 註冊登入→Agent 任務，以及 Linux systemd 常駐→領取任務；不以編譯通過代替這些驗收。
+
+## Mac App daemon 的 Caddy 憑證信任修正（.43.2，HYCLV-106）
+
+2026-09-17 新使用者回報：App 可登入，但 Go daemon 取得 `/api/daemon/workspaces` 時回報 `x509: Caddy Local Authority - ECC Intermediate certificate is not trusted`。App 的 Node／Chromium 信任與 Go daemon 信任不同；Go 的 [SystemCertPool](https://pkg.go.dev/crypto/x509#SystemCertPool) 不在 macOS 讀取 `SSL_CERT_FILE`。AppTranslocation 路徑並非該錯誤的直接原因，因 CLI 已成功執行到 HTTPS 請求。
+
+修正由 Desktop 將已封裝的 CA bundle 設為 `MULTICA_CA_CERT_FILE`；CLI 在建立連線前讀取該檔案、將 CA 加入系統根憑證副本，再提供 API、下載及 daemon WebSocket 使用。缺檔或沒有有效憑證時明確失敗，不修改作業系統鑰匙圈，也不跳過 TLS／hostname 驗證。這是 Desktop 明確設定的變數；原有 `SSL_CERT_FILE` 保留給其他相容工具。
+
+`.43.2` 已在 m5 原生建置並通過 701 項 Desktop 測試與 Go TLS 測試；正式 m5 daemon 已使用新 CA 註冊並恢復 heartbeat。完整新帳號／乾淨 OS 的真人任務流程尚未另行驗收。App 採 ad-hoc 簽章，仍未完成 Apple 公證。
+
+舊 App 請改下載 `.43.2`，不再匯入舊的 `561C…F57A3A` CA。新版 App 隨附新 CA 並自行處理信任；一般瀏覽器則需由使用者／管理員更新瀏覽器或系統的 CA 信任。
+
+### 2026-09-17 CA 輪替
+
+公開 `.crt` 是供用戶端驗證服務身分的資料，本來就可以分發；公開根憑證不等於公開 CA 私鑰。本次依管理員要求重新產生 CA，私鑰僅保留在受保護的 Caddy 儲存，不進入 repository、下載目錄或 App。
+
+`.43.2` 的 CA 檔案 SHA-256 為 `e1ffc707220f8dfa00ffa4b7c9699d9b93fd1d407d065bf8801c3cea67037e6d`。App 的 Go CLI 修正來源為 `304ba24077ca009558090900fac49a476c9b6fb8`，透過 `MULTICA_CA_CERT_FILE` 明確追加根憑證，涵蓋 HTTP、stall-aware transport 與 WebSocket。macOS 原生測試及 App 打包已完成。s90 已切換新 CA 並提供 `.43.2` 下載；daemon 遷移結果以維運紀錄為準，m2 與 lv-spark 由管理員另行手動更新。
+
+輪替須先分發新信任、確認所有納入的 daemon 可重連，再更換 Server CA；本次 m2 與 lv-spark 明確由使用者稍後手動處理。Caddy 2.10.2 的隔離實測顯示，僅改 issuer 後 reload 仍會碰到既有 certificate cache，必須重啟 Caddy 程序後驗證實際送出的鏈。保留原 authority 與設定，失敗可還原。不可用仍存活的舊 WebSocket 連線當成新信任驗收。

@@ -93,11 +93,11 @@
     "update_updating": "更新中 {{done}}/{{total}}...",
     "updated_toast_other": "已從來源更新 {{count}} 個 skill",
     "update_partial_toast": "已更新 {{count}} 個，{{failed}} 個失敗",
-    "add_dialog_description": "選擇要獲得所選 skill 的 Agent。",
     "cancel": "取消",
     "add_confirm": "新增（{{num}}）",
     "adding": "新增中...",
-    "added_multi_toast_other": "已新增到 {{count}} 個 Agent"
+    "added_multi_toast_other": "已新增到 {{count}} 個 Agent",
+    "add_dialog_description": "選擇要獲得所選 skill 的 Agent。"
   },
   "toolbar": {
     "result_count_title": "當前結果 / 全部 skill",
@@ -105,11 +105,17 @@
     "filter_active_count_other": "{{count}} 項篩選",
     "clear_filters": "清除篩選",
     "section_usage": "使用狀態",
+    "section_labels": "标签",
+    "filter_search_placeholder": "筛选...",
+    "no_labels": "还没有标签",
+    "no_results": "无结果",
     "display": "顯示",
     "sort_by": "排序",
     "direction_asc": "升序",
     "direction_desc": "降序",
-    "section_columns": "顯示列"
+    "section_columns": "顯示列",
+    "manage_labels": "管理标签...",
+    "manage_labels_title": "Skill 标签"
   },
   "detail": {
     "all_skills": "全部 skill",
@@ -211,7 +217,9 @@
       "used_by_empty": "還未分配給任何 Agent。開啟某個 Agent 的 Skills 標籤頁進行分配。",
       "permissions_owner": "你可以編輯和刪除該技能。改動將在 Agent 下次執行環境生效。",
       "permissions_locked_creator": "只有建立者（{{name}}）或工作區管理員可以編輯該技能。",
-      "permissions_locked": "只有建立者或工作區管理員可以編輯該技能。"
+      "permissions_locked": "只有建立者或工作區管理員可以編輯該技能。",
+      "properties_help": "关于 skill 属性",
+      "character_count": "{{count}} 个字符"
     },
     "files": {
       "list_aria": "技能檔案",
@@ -306,9 +314,7 @@
     "load_failed": "載入本地 skill 失敗",
     "not_supported": "這個 provider 暫不支援本地 skill 列表。",
     "no_skills_title": "未找到本地 skill",
-    "no_skills_hint": "這個執行環境上還沒有可發現的本地 skill。",
     "search_placeholder": "搜尋本地 skill",
-    "no_search_results_title": "沒有匹配的本地 skill",
     "no_search_results_hint": "沒有本地 skill 匹配 \"{{query}}\"。",
     "ignored_files_hint": "匯入時會忽略軟鏈、不可讀檔案、超大檔案以及超大目錄。",
     "ready": "準備匯入",
@@ -350,7 +356,9 @@
     "conflict_footer": "還有 {{count}} 個衝突決策待處理。",
     "conflict_apply_button": "應用決策",
     "conflict_missing_resolution": "請選擇如何處理這個衝突。",
-    "conflict_name_still_exists": "這個名稱仍然已存在。請換一個名稱或跳過。"
+    "conflict_name_still_exists": "這個名稱仍然已存在。請換一個名稱或跳過。",
+    "no_skills_hint": "這個執行環境上還沒有可發現的本地 skill。",
+    "no_search_results_title": "沒有匹配的本地 skill"
   },
   "file_tree": {
     "no_files": "無檔案",

@@ -13,12 +13,12 @@
   "delete_issue": {
     "title": "刪除任務",
     "description": "將永久刪除該任務及其所有評論。此操作不可撤銷。",
-    "hint": "工作區任何成員都可以刪除任務。",
     "cancel": "取消",
     "confirm": "刪除",
     "deleting": "刪除中...",
     "toast_deleted": "已刪除任務",
-    "toast_delete_failed": "刪除任務失敗"
+    "toast_delete_failed": "刪除任務失敗",
+    "hint": "工作區任何成員都可以刪除任務。"
   },
   "feedback": {
     "title": "反饋",
@@ -36,7 +36,9 @@
     "search_placeholder": "搜尋任務...",
     "searching": "搜尋中...",
     "no_results": "未找到任務。",
-    "prompt_to_search": "輸入關鍵詞搜尋任務"
+    "prompt_to_search": "輸入關鍵詞搜尋任務",
+    "suggested_similar": "标题相似",
+    "suggested_recent": "最近查看"
   },
   "set_parent": {
     "title": "設定父任務",
@@ -136,7 +138,8 @@
     "local_clear": "清除",
     "local_pick_failed": "無法開啟目錄選擇器。",
     "local_invalid_dir": "該目錄不可用，請重新選擇。",
-    "local_hint": "其他機器上的 Agent 看不到這個路徑，會啟動失敗。需要協作請用倉庫模式。"
+    "local_hint": "其他機器上的 Agent 看不到這個路徑，會啟動失敗。需要協作請用倉庫模式。",
+    "repos_ref_default": "默认分支"
   },
   "create_issue": {
     "sr_manual": "新建任務",
@@ -184,6 +187,7 @@
     "toast_link_subissues_partial": "{{total}} 個子任務中有 {{failed}} 個關聯失敗",
     "toast_link_labels_failed": "關聯標籤失敗",
     "toast_set_properties_failed": "有 {{count}} 個自定義屬性設定失敗",
+    "unavailable_property_removed": "一个已不可用的自定义属性已从草稿移除，请确认后重新提交。",
     "switch_to_agent": "切換到 Agent",
     "switch_to_agent_tooltip": "切換到通過 Agent 建立——一句話描述，讓它替你建",
     "switch_to_manual": "切換到手動",
@@ -243,5 +247,13 @@
       "error_unknown": "提交失敗，請重試。",
       "sub_issue_of": "作為 {{identifier}} 的子任務"
     }
+  },
+  "mark_duplicate": {
+    "title": "标记为重复",
+    "description": "搜索原始任务。当前任务会被取消，并关联到它。",
+    "toast_success": "已标记为 {{identifier}} 的重复",
+    "toast_failed": "无法标记为重复",
+    "error_target_is_duplicate": "{{identifier}} 本身是重复任务，请选择它的原始任务",
+    "error_has_duplicates": "已有任务被标记为此任务的重复，请先解除这些标记"
   }
 }

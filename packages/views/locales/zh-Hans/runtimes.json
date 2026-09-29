@@ -33,8 +33,8 @@
     "action": "和 Mika 開始",
     "failed": "無法啟動 Mika",
     "dialog_title": "讓 Mika 在哪臺電腦上執行？",
-    "dialog_description": "選擇 Mika 使用的執行環境。之後可以在設定裡更改。",
-    "cancel": "取消"
+    "cancel": "取消",
+    "dialog_description": "選擇 Mika 使用的執行環境。之後可以在設定裡更改。"
   },
   "machine": {
     "search_placeholder": "搜尋機器...",
@@ -191,10 +191,12 @@
     "title": "新增電腦",
     "description": "在要新增的電腦上執行這兩條命令。守護程序一上線，這裡就會自動識別。",
     "step1_label": "安裝 Multica CLI",
+    "platform_group": "选择你的系统",
+    "platform_macos_linux": "macOS / Linux",
+    "platform_windows": "Windows",
     "step2_label": "啟動守護程序",
     "step2_hint": "會開啟瀏覽器登入，然後在後臺保持守護程序執行。",
     "live_listening": "等待你的電腦上線",
-    "live_listening_hint": "守護程序一啟動就會被識別，通常不到一分鐘。",
     "troubleshooting": "那臺電腦打不開瀏覽器？",
     "trouble_intro": "改用 token 登入替代第 2 步，適用於任何有終端的環境。",
     "trouble_token_hint_prefix": "在 ",
@@ -207,14 +209,14 @@
     "success_title": "電腦已連線",
     "success_description": "電腦已經上線就緒。建立一個 Agent，執行就可以派發到這裡。",
     "view_runtime": "檢視執行環境",
-    "create_agent": "建立 Agent"
+    "create_agent": "建立 Agent",
+    "live_listening_hint": "守護程序一啟動就會被識別，通常不到一分鐘。"
   },
   "cloud_runtime": {
     "action": "雲端執行環境",
     "title": "雲端執行環境",
     "description": "建立託管雲端節點，並檢視它的 Fleet 狀態。",
     "create_title": "新節點",
-    "create_hint": "只需要填寫名稱、例項規格和磁碟大小，其餘配置由 Fleet 預設處理。",
     "nodes_title": "Fleet 節點",
     "refresh": "重新整理",
     "nodes_empty": "還沒有雲端節點",
@@ -247,7 +249,8 @@
     "validation": {
       "instance_type_required": "例項規格不能為空",
       "disk_size_invalid": "磁碟大小必須是正整數"
-    }
+    },
+    "create_hint": "只需要填寫名稱、例項規格和磁碟大小，其餘配置由 Fleet 預設處理。"
   },
   "update": {
     "cli_version_label": "CLI 版本：",

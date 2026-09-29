@@ -29,7 +29,7 @@ import { Callout } from "fumadocs-ui/components/callout";
 
 企业微信目前只处理文字消息。语音、图片和文件消息会收到一句说明，不会转交给 Agent。
 
-Telegram 目前只处理文字消息。不支持的媒体消息会收到一句说明，不会转交给 Agent。
+Telegram 會將圖片、檔案、影片和音訊以附件形式轉交給 Agent，也會把 Agent 產生的檔案傳回聊天。這兩個方向都需要在伺服器設定物件儲存；未設定時，媒體訊息仍會顯示不支援提示。貼圖等非檔案訊息也會收到相同提示，不會轉交給 Agent。
 
 详细步骤：
 

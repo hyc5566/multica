@@ -117,6 +117,18 @@ var probeAgentCLIs = func() map[string]AgentEntry {
 	getShellResolved := cachedShellResolvedAgents
 	probe := func(envVar, defaultCmd, modelEnv string) (AgentEntry, bool) {
 		cmd := envOrDefault(envVar, defaultCmd)
+		if defaultCmd == "claude" && cmd == "claude" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				return AgentEntry{}, false
+			}
+			// Persist the private launcher for later rediscovery too. Missing
+			// private installs must never fall back to a shared PATH binary.
+			cmd = filepath.Join(home, ".local", "bin", "claude")
+			if !claudeExecutableInHome(cmd) {
+				return AgentEntry{}, false
+			}
+		}
 		if path, err := resolveAgentExecutablePath(cmd); err == nil {
 			return AgentEntry{
 				Path:    path,

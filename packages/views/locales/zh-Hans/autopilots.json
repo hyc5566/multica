@@ -80,6 +80,7 @@
     "run_blocked_invocation_not_allowed": "未觸發——你沒有該自動化所用 Agent 的使用權限",
     "run_blocked_runtime_offline": "未觸發——該 Agent 的執行環境已離線",
     "run_blocked_agent_runtime_required": "未觸發——該 Agent 未繫結執行環境，繫結後才能執行",
+    "run_blocked_runtime_access_denied": "未触发——该智能体无法在其私有运行时上运行。请将该运行时设为公开，或重新绑定/复制智能体",
     "run_blocked_target_unavailable": "未觸發——該 Agent 不可用",
     "run_blocked_attribution": "未觸發——無法確定本次執行的負責成員",
     "run_blocked_already_active": "未觸發——最近已有一次執行覆蓋了本次",
@@ -175,6 +176,7 @@
     "copy_url": "複製 URL",
     "url_copied": "已複製 Webhook URL",
     "url_copy_failed": "複製失敗",
+    "edit_schedule": "编辑时间表",
     "rotate_url": "重新生成 URL",
     "rotate_confirm_title": "重新生成 Webhook URL",
     "rotate_confirm_description": "當前 URL 將立即失效。所有呼叫它的外部系統都需要更新為新 URL。繼續嗎？",
@@ -254,6 +256,16 @@
     "toast_added_webhook": "已新增 Webhook 觸發器",
     "toast_add_failed": "新增觸發器失敗"
   },
+  "edit_trigger_dialog": {
+    "title": "编辑时间表",
+    "label_field": "标签（可选）",
+    "label_placeholder": "例如：工作日早晨",
+    "enabled_label": "已启用",
+    "submit": "保存",
+    "submitting": "保存中...",
+    "toast_updated": "时间表已更新",
+    "toast_update_failed": "更新时间表失败"
+  },
   "dialog": {
     "sr_create": "新建自動化",
     "sr_edit": "編輯自動化",
@@ -314,7 +326,7 @@
     "event_filter_add": "新增",
     "event_filter_remove_label": "移除過濾條件",
     "event_filter_hint": "只處理匹配這些事件的 webhook。留空則接受所有事件。",
-    "schedule_disabled_reason": "該自動化有多個時間表——請到詳情頁編輯。",
+    "schedule_multiple_notice": "该自动化有 {{count}} 条时间表。关闭此弹窗，在下方「触发器」中逐条编辑。",
     "schedule_empty": "還沒有時間表——這個自動化只在手動觸發時執行。",
     "schedule_add": "新增時間表",
     "error_title_required": "請填寫自動化名稱。",
@@ -328,7 +340,8 @@
         "label": "僅執行",
         "description": "靜默執行，不建立任務"
       }
-    }
+    },
+    "schedule_disabled_reason": "該自動化有多個時間表——請到詳情頁編輯。"
   },
   "schedule_editor": {
     "time_label": "時間",
@@ -458,5 +471,69 @@
       "confirm": "永久刪除",
       "deleting": "刪除中…"
     }
+  },
+  "wakeups": {
+    "title": "任务唤醒",
+    "scope": "范围",
+    "issue": "任务",
+    "trigger": "触发条件",
+    "enabled": "开启",
+    "all_triggers": "所有触发方式",
+    "event": "事件",
+    "at": "单次定时",
+    "recurring": "周期",
+    "all_agents": "所有智能体",
+    "search": "搜索任务或智能体",
+    "running": "运行中",
+    "active_runs": "{{count}} 个运行未结束",
+    "issue_closed": "任务已关闭",
+    "read_only": "仅创建者或工作区管理员可管理此唤醒",
+    "select_row": "选择 {{issue}}，{{agent}}",
+    "select_page": "选择本页已开启的唤醒",
+    "load_error": "无法加载唤醒",
+    "loading": "正在加载唤醒…",
+    "empty": "暂无唤醒规则",
+    "selected": "已选择 {{count}} 项",
+    "disable_selected": "关闭所选",
+    "clear": "清除选择",
+    "results": "第 {{page}} 页 · 共 {{count}} 项",
+    "previous": "上一页",
+    "next_page": "下一页",
+    "confirm_title": "关闭 {{count}} 个唤醒？",
+    "confirm_body": "关闭后将停止后续唤醒，并撤回仍在排队、尚未交给智能体的运行。已交给智能体的运行会继续，可在执行日志中停止。",
+    "cancel": "取消",
+    "confirm": "关闭",
+    "disabling": "正在关闭…",
+    "batch_result": "已关闭 {{succeeded}} 项，失败 {{failed}} 项。",
+    "scopes": {
+      "active": "待唤醒或执行中",
+      "all": "全部",
+      "disabled": "已关闭",
+      "ended": "已结束",
+      "paused": "已暂停"
+    },
+    "target_agent": "唤醒对象",
+    "empty_filtered": "没有匹配的唤醒",
+    "clear_filters": "清除筛选",
+    "batch_success": "已关闭 {{count}} 条唤醒",
+    "batch_partial": "已关闭 {{succeeded}} 条，{{failed}} 条失败；失败项仍保留选中，可重试。",
+    "source": "来源",
+    "sources": {
+      "all": "来源：全部",
+      "member": "成员",
+      "agent": "智能体",
+      "system": "系统"
+    },
+    "runs_7d": "近 7 天运行",
+    "ends": "有效期",
+    "until_issue_ends": "任务结束前",
+    "fires_once": "触发一次",
+    "assignee_target": "负责人 · {{name}}",
+    "no_target": "没有智能体负责人",
+    "banner_other": "{{count}} 条唤醒已自动暂停：{{issue}}「{{condition}}」——{{reason}}",
+    "banner_view": "查看",
+    "create": "新建唤醒",
+    "create_pick_issue": "选择要添加唤醒的任务",
+    "create_pick_issue_description": "唤醒属于该任务，并随任务结束而停止。"
   }
 }

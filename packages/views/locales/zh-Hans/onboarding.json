@@ -22,12 +22,10 @@
     "headline_emphasis": "同一個工作區。",
     "lede": "像給同事派活一樣把任務交給它們——它們會接手、更新狀態，做完還會留下評論。",
     "lede_web": "桌面端自帶執行環境，無需安裝。在 web 端繼續可以連線你自己的 CLI。",
-    "lede_desktop": "走完這幾步，就會有真實的 Agent 來回復你的第一個任務。",
     "download_desktop": "下載桌面端",
     "continue_on_web": "在 web 端繼續",
     "start_exploring": "開始探索",
     "skip_existing": "我已經用過了",
-    "illustration_caption": "每個任務、每條對話、每個決策——團隊和 Agent 共享同一份上下文。",
     "illustration": {
       "card1_actor_name": "你",
       "card1_actor_initial": "N",
@@ -47,7 +45,9 @@
       "card5_body_suffix": " 標記的匯出功能，PR 裡附了預覽連結。",
       "card5_mention_you": "@你",
       "card5_timestamp": "剛剛"
-    }
+    },
+    "lede_desktop": "走完這幾步，就會有真實的 Agent 來回復你的第一個任務。",
+    "illustration_caption": "每個任務、每條對話、每個決策——團隊和 Agent 共享同一份上下文。"
   },
   "common": {
     "back": "返回",
@@ -61,8 +61,8 @@
     "eyebrow": "順便問一句",
     "lede": "就一個小問題——幫我們瞭解都是哪些人在用 Multica。回答一次，馬上回到手上的事。",
     "submit": "提交",
-    "hint_ready": "看起來不錯，準備好就點提交。",
-    "save_failed_toast": "儲存失敗"
+    "save_failed_toast": "儲存失敗",
+    "hint_ready": "看起來不錯，準備好就點提交。"
   },
   "questions": {
     "about_you": {
@@ -124,6 +124,9 @@
     "copy_aria": "複製",
     "intro": "這臺電腦上需要安裝一個 Agent 執行時（Claude Code、Codex、Cursor 等）才能執行你的 Agent。也支援伺服器和遠端開發機。",
     "step1_label": "安裝 Multica CLI",
+    "platform_group": "选择你的系统",
+    "platform_macos_linux": "macOS / Linux",
+    "platform_windows": "Windows",
     "step2_label": "啟動守護程序"
   },
   "cloud_waitlist": {
@@ -175,7 +178,6 @@
     "issue_prefix_suffix": "。之後可以在設定裡修改。",
     "issue_prefix_pending": "填好上面的 URL，任務編號會跟著它生成；也可以直接在這裡輸入字首。",
     "create_new_title": "建立一個新工作區",
-    "create_new_subtitle": "另起一個——把另一類工作放進單獨的空間。",
     "hint_opening": "正在開啟 {{name}}。",
     "hint_creating": "正在建立 {{name}}。",
     "hint_creating_pending": "正在建立 {{name}}...",
@@ -197,14 +199,14 @@
     "creation_disabled_logout": "退出登入",
     "creation_disabled_eyebrow_resume": "你的工作區",
     "creation_disabled_headline_resume": "繼續使用 {{name}}。",
-    "creation_disabled_lede_resume": "該例項已停用建立工作區，繼續進入你已有的工作區即可。"
+    "creation_disabled_lede_resume": "該例項已停用建立工作區，繼續進入你已有的工作區即可。",
+    "create_new_subtitle": "另起一個——把另一類工作放進單獨的空間。"
   },
   "step_runtime": {
     "scanning_headline": "正在連線這臺電腦...",
     "scanning_lede_prefix": "你的 Agent 藉助本機已安裝的 AI 程式設計工具執行，例如 ",
     "scanning_lede_suffix": " 等。我們正在檢測這臺電腦上裝了哪些。",
     "found_headline": "讓 Mika 在哪臺電腦上執行？",
-    "found_lede": "以下是在這臺電腦上找到的 Agent 執行時。之後可以隨時切換，或新增更多。",
     "runtime_count_other": "{{count}} 個 Agent 執行時",
     "status_all_online": "全部線上",
     "status_none_online": "全部離線",
@@ -226,8 +228,9 @@
     "hint_selected": "已選擇：{{name}}",
     "hint_pick": "在上方選擇一個 Agent 執行時，就可以開始使用 Mika。",
     "hint_waiting": "等待第一個結果...",
-    "hint_skip_or_refresh": "裝好後點重新整理，或跳過進入工作區。",
-    "continue": "開始使用 Mika"
+    "continue": "開始使用 Mika",
+    "found_lede": "以下是在這臺電腦上找到的 Agent 執行時。之後可以隨時切換，或新增更多。",
+    "hint_skip_or_refresh": "裝好後點重新整理，或跳過進入工作區。"
   },
   "step_platform": {
     "eyebrow": "連線一臺電腦",
@@ -244,7 +247,6 @@
     "cloud_subtitle": "我們會在雲上為你執行一臺電腦。尚未上線。",
     "cloud_action": "即將推出",
     "cli_dialog_title": "通過終端連線",
-    "cli_dialog_description": "和桌面端相同的連線，通過終端配置。適用於伺服器、遠端開發機或任意無頭電腦。",
     "cli_dialog_pick_hint": "在上方選一臺電腦。",
     "cli_dialog_connect": "連線並繼續",
     "runtimes_connected_other": "已連線 {{count}} 臺電腦",
@@ -257,7 +259,8 @@
     "stage_slow_suffix": " 的終端是否有錯誤。",
     "stage_stalled_prefix": "目前還沒有收到連線。如果你不太習慣終端，",
     "stage_stalled_term": "桌面端",
-    "stage_stalled_suffix": " 更順手——一鍵搞定，這臺電腦就連線好了。關閉這個對話方塊選擇桌面端，或點跳過繼續。"
+    "stage_stalled_suffix": " 更順手——一鍵搞定，這臺電腦就連線好了。關閉這個對話方塊選擇桌面端，或點跳過繼續。",
+    "cli_dialog_description": "和桌面端相同的連線，通過終端配置。適用於伺服器、遠端開發機或任意無頭電腦。"
   },
   "errors": {
     "skip_failed": "完成上手引導失敗",

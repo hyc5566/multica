@@ -28,6 +28,7 @@
     "open_in_new_tab": "在新標籤頁開啟"
   },
   "list": {
+    "loading_selection": "正在加载通知…",
     "empty": "暫無通知",
     "mark_done_tooltip": "標為已完成",
     "archive_tooltip": "歸檔",
@@ -40,7 +41,10 @@
     "archived_title": "已歸檔",
     "archived_empty": "暫無已歸檔通知",
     "unarchive_tooltip": "取消歸檔",
-    "actions_aria": "通知操作"
+    "actions_aria": "通知操作",
+    "load_more": "加载更多",
+    "loading_more": "加载中...",
+    "retry": "重试"
   },
   "detail": {
     "select_prompt": "選擇一條通知檢視詳情",
@@ -74,6 +78,7 @@
     "quick_create_failed": "通過 Agent 建立失敗",
     "quick_create_unconfirmed": "通過 Agent 建立結果未確認",
     "autopilot_paused": "自動化已暫停",
+    "children_done": "子任务已全部结束",
     "autopilot_quota_exceeded": "自動化執行次數已用完"
   },
   "labels": {
@@ -88,7 +93,8 @@
     "reacted_to_comment": "用 {{emoji}} 回應了你的評論",
     "created_with_agent": "通過 Agent 建立：{{identifier}}",
     "failed_with_detail": "失敗：{{detail}}",
-    "autopilot_quota_blocked": "執行已被阻止：額度已用完"
+    "autopilot_quota_blocked": "執行已被阻止：額度已用完",
+    "children_done_stage": "第 {{stage}} 阶段的子任务已全部结束"
   },
   "toasts": {
     "source_context_retry_started": "已使用原始上下文開始重試",
@@ -96,6 +102,7 @@
     "unarchived": "已恢復通知"
   },
   "errors": {
+    "archived_lookup_failed": "无法加载链接指向的通知",
     "source_context_retry_failed": "無法使用原始上下文重試",
     "source_context_retry_unavailable": "該上下文已無法重試，請從派生起點重新發起。",
     "mark_read_failed": "標為已讀失敗",
@@ -107,6 +114,7 @@
     "archive_all_read_failed": "歸檔已讀失敗",
     "archive_completed_failed": "歸檔已完成失敗",
     "unarchive_failed": "取消歸檔失敗",
-    "archived_load_failed": "無法載入已歸檔通知"
+    "archived_load_failed": "無法載入已歸檔通知",
+    "filters_load_failed": "无法加载筛选项"
   }
 }

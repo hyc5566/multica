@@ -5,6 +5,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -169,6 +170,7 @@ func TestRunBatchPollerClaimsAcrossRuntimes(t *testing.T) {
 	d.runtimeIndex["rt-1"] = Runtime{ID: "rt-1", Provider: "codex"}
 	d.runtimeIndex["rt-2"] = Runtime{ID: "rt-2", Provider: "claude"}
 	d.cancelPollInterval = time.Hour // no server-side cancellation polling in this test
+	d.taskQuotaProbeFn = nil         // Claim routing must not probe the host's provider accounts.
 
 	var mu sync.Mutex
 	dispatched := map[string]int{}
@@ -301,6 +303,7 @@ func testRunBatchPollerTaskExitWakeup(t *testing.T, maxConcurrent int, releaseDe
 	d.workspaces["ws-1"] = &workspaceState{workspaceID: "ws-1", runtimeIDs: []string{"rt-1"}}
 	d.runtimeIndex["rt-1"] = Runtime{ID: "rt-1"}
 	d.cancelPollInterval = time.Hour
+	d.agentInstallationLock = filepath.Join(t.TempDir(), "agent-cli-update.lock")
 	d.taskSlotWait = 50 * time.Millisecond
 	d.runner = taskRunnerFunc(func(ctx context.Context, task Task, provider string, slot int, log *slog.Logger) (TaskResult, error) {
 		switch task.ID {
@@ -337,6 +340,12 @@ func testRunBatchPollerTaskExitWakeup(t *testing.T, maxConcurrent int, releaseDe
 
 	// Give the poller time to enter the sleep branch under test. No websocket
 	// wakeup is sent; only the task-exit signal may resume the poller.
+	if lock, err := lockAgentMaintenance(d.agentInstallationLock); err != nil || lock != nil {
+		cancel()
+		<-pollDone
+		taskWG.Wait()
+		t.Fatalf("installer admitted while first task runs: %v", err)
+	}
 	time.Sleep(releaseDelay)
 	close(releaseFirst)
 
@@ -351,6 +360,11 @@ func testRunBatchPollerTaskExitWakeup(t *testing.T, maxConcurrent int, releaseDe
 	cancel()
 	<-pollDone
 	taskWG.Wait()
+	lock, err := lockAgentMaintenance(d.agentInstallationLock)
+	if err != nil || lock == nil {
+		t.Fatalf("installation lease leaked after tasks finished: %v", err)
+	}
+	lock.Close()
 }
 
 func TestSignalPollerWakeupCoalescesAndIsNilSafe(t *testing.T) {

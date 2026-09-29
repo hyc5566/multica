@@ -2,9 +2,12 @@
 
 import {
   issueStatusCategory,
+  statusColumnKeys,
 } from "@multica/core/issues";
 import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
 import { memo, useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { cn } from "@multica/ui/lib/utils";
+import { useIssuePeekActions } from "../surface/peek-context";
 import {
   DndContext,
   DragOverlay,
@@ -657,6 +660,9 @@ function SwimLaneViewImpl({
   const wsId = useWorkspaceId();
   const statusCatalog = useIssueStatuses(wsId);
   const { categoryOf, entryOf } = statusCatalog;
+  // Board order for `sort=status`, archived included: an issue can still sit
+  // on an archived status and has to rank with the rest (MUL-7379).
+  const statusSortOrder = useMemo(() => statusColumnKeys(statusCatalog, true), [statusCatalog]);
 
   const activeFilters = useMemo(() => ({
     // Status is enforced by visible-column rendering, not by filterIssues
@@ -672,6 +678,10 @@ function SwimLaneViewImpl({
     creatorFilters: activeFiltersProp?.creatorFilters ?? [],
     projectFilters: activeFiltersProp?.projectFilters ?? [],
     includeNoProject: activeFiltersProp?.includeNoProject ?? false,
+    projectStatusFilters: activeFiltersProp?.projectStatusFilters ?? [],
+    // Needed to evaluate the project-status predicate: an Issue only carries
+    // `project_id`. Absent → the predicate is a no-op, never match-none.
+    projectStatusById: activeFiltersProp?.projectStatusById,
     labelFilters: activeFiltersProp?.labelFilters ?? [],
     // Carry the "Show sub-issues" toggle through to the extra-children merge
     // path (see `filterIssues(extra, activeFilters)` below); otherwise batch /
@@ -868,7 +878,7 @@ function SwimLaneViewImpl({
         : null;
 
     const issueSource = swimlaneGrouping === "parent" ? mergedIssues : issues;
-    const sorted = sortIssues(issueSource, sortBy, sortDirection);
+    const sorted = sortIssues(issueSource, sortBy, sortDirection, statusSortOrder);
     for (const issue of sorted) {
       let placed = false;
       for (const lane of laneGroups) {
@@ -904,7 +914,7 @@ function SwimLaneViewImpl({
       }
     }
     return result;
-  }, [issues, mergedIssues, laneGroups, sortedStatuses, sortBy, sortDirection, headerIssueIds, swimlaneGrouping]);
+  }, [issues, mergedIssues, laneGroups, sortedStatuses, sortBy, sortDirection, statusSortOrder, headerIssueIds, swimlaneGrouping]);
 
   const laneByKey = useMemo(() => {
     const map = new Map<string, LaneGroup>();
@@ -1024,6 +1034,21 @@ function SwimLaneViewImpl({
     });
     return () => cancelAnimationFrame(id);
   }, [localCells]);
+
+  // Side peek: a status column runs down through every expanded lane, so J / K
+  // cross lane boundaries the way the eye reads the grid, and H / L change
+  // status.
+  const peek = useIssuePeekActions();
+  useEffect(() => {
+    peek?.publishColumns(
+      sortedStatuses.map((status) =>
+        laneGroups.flatMap((lane) =>
+          collapsedLanes.has(lane.key) ? [] : (localCells[lane.key]?.[status] ?? []),
+        ),
+      ),
+    );
+  }, [peek, sortedStatuses, laneGroups, collapsedLanes, localCells]);
+  useEffect(() => () => peek?.publishColumns(null), [peek]);
 
   const collisionDetection = useMemo(
     () => makeSwimLaneCollision(cellSet),
@@ -1403,7 +1428,16 @@ function SwimLaneViewImpl({
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div ref={attachScroller} data-tab-scroll-root="swimlane" className="flex flex-1 min-h-0 gap-4 overflow-auto p-4">
+      <div
+        ref={attachScroller}
+        data-tab-scroll-root="swimlane"
+        data-board-scroller=""
+        className={cn(
+          "flex flex-1 min-h-0 gap-4 overflow-auto p-4",
+          // Room to scroll the last status clear of an open side peek (see BoardView).
+          "group-data-[peek-open]/peek:after:w-(--issue-peek-width) group-data-[peek-open]/peek:after:shrink-0 group-data-[peek-open]/peek:after:content-['']",
+        )}
+      >
         <div className="flex shrink-0 flex-col" style={{ width: `${trackWidth}px` }}>
         {groupBranches?.isError && laneGroups.length === 0 && (
           <button

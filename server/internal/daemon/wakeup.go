@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/multica-ai/multica/server/internal/cli"
 	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
@@ -128,6 +129,7 @@ func (d *Daemon) runTaskWakeupConnection(ctx context.Context, runtimeIDs []strin
 	// proxy variables set, ProxyFromEnvironment returns nil and the connection
 	// is direct, exactly as before.
 	dialer := websocket.Dialer{
+		TLSClientConfig:  cli.DefaultTLSConfig(),
 		HandshakeTimeout: 10 * time.Second,
 		Proxy:            http.ProxyFromEnvironment,
 	}
@@ -144,6 +146,10 @@ func (d *Daemon) runTaskWakeupConnection(ctx context.Context, runtimeIDs []strin
 
 	d.logger.Info("task wakeup websocket connected", "runtimes", len(runtimeIDs))
 	signalTaskWakeup(taskWakeups, "")
+	// A healthy reconnect is the strongest signal that a terminal callback
+	// stranded during an outage may now succeed. The buffered wakeup also
+	// preserves a connect that races replay-loop startup.
+	d.signalTerminalReportReplay()
 	// signalTaskWakeup only wakes idle ClaimTask pollers. In-flight tasks and
 	// the workspace sync loop park on coarse tickers (5s and 30s) that do not
 	// observe the wakeup channel, so anything the server changed during the
@@ -403,6 +409,17 @@ func (d *Daemon) readTaskWakeupMessagesForConnection(conn *websocket.Conn, taskW
 				d.logger.Debug("task wakeup received", "runtime_id", payload.RuntimeID, "task_id", payload.TaskID)
 			}
 			signalTaskWakeup(taskWakeups, payload.RuntimeID)
+		case protocol.EventDaemonTaskSupplementAvailable:
+			var payload protocol.TaskAvailablePayload
+			if err := json.Unmarshal(msg.Payload, &payload); err != nil {
+				d.logger.Debug("task supplement websocket invalid payload", "error", err)
+				continue
+			}
+			if payload.TaskID == "" {
+				d.logger.Debug("task supplement websocket missing task_id")
+				continue
+			}
+			d.taskSupplementSignals.notify(payload.TaskID)
 		case protocol.EventDaemonRuntimeProfilesChanged:
 			var payload protocol.RuntimeProfilesChangedPayload
 			if err := json.Unmarshal(msg.Payload, &payload); err != nil {

@@ -2,9 +2,11 @@ package daemon
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -13,13 +15,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/multica-ai/multica/server/internal/cli"
 	"github.com/multica-ai/multica/server/internal/daemon/repocache"
 )
 
 // HealthResponse is returned by the daemon's local health endpoint.
 type HealthResponse struct {
-	Status string `json:"status"`
-	PID    int    `json:"pid"`
+	AgentMaintenance *AgentMaintenanceStatus `json:"agent_maintenance,omitempty"`
+	Status           string                  `json:"status"`
+	PID              int                     `json:"pid"`
 	// OS is the daemon's runtime.GOOS. The desktop app compares it against its
 	// own host OS to detect a daemon it cannot manage — e.g. a Windows desktop
 	// reaching a Linux daemon inside WSL2 over localhost forwarding. The
@@ -58,9 +62,16 @@ type HealthResponse struct {
 	// Repo maintenance stays a liveness-safe background activity, so health
 	// remains HTTP 200/running. These additive counters explain degraded repo
 	// checkout capacity to operators without exposing local cache paths.
-	RepoMaintenanceActive int      `json:"repo_maintenance_active,omitempty"`
-	RepoCheckoutWaiters   int      `json:"repo_checkout_waiters,omitempty"`
-	Agents                []string `json:"agents"`
+	RepoMaintenanceActive int `json:"repo_maintenance_active,omitempty"`
+	RepoCheckoutWaiters   int `json:"repo_checkout_waiters,omitempty"`
+	// Terminal report queue diagnostics are additive and expose only counts and
+	// bytes, never payloads or local paths. Failed records require operator
+	// attention; pending records are still being replayed automatically.
+	PendingTerminalReportCount int      `json:"pending_terminal_report_count"`
+	PendingTerminalReportBytes int64    `json:"pending_terminal_report_bytes"`
+	FailedTerminalReportCount  int      `json:"failed_terminal_report_count"`
+	FailedTerminalReportBytes  int64    `json:"failed_terminal_report_bytes"`
+	Agents                     []string `json:"agents"`
 	// SkippedAgents maps a provider that WAS discovered on this machine to the
 	// reason the last registration round dropped it (version undetectable,
 	// below the minimum supported version). Purely diagnostic, and omitted when
@@ -332,6 +343,7 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 		}
 
 		resp := HealthResponse{
+			AgentMaintenance:      d.agentMaintenance.Load(),
 			Status:                status,
 			PID:                   os.Getpid(),
 			OS:                    runtime.GOOS,
@@ -355,6 +367,14 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 			activity := reporter.Activity()
 			resp.RepoMaintenanceActive = activity.MaintenanceActive
 			resp.RepoCheckoutWaiters = activity.ForegroundWaiters
+		}
+		if stats, err := d.terminalReports.stats(); err != nil {
+			d.logger.Warn("health: scan terminal report queue", "error", err)
+		} else {
+			resp.PendingTerminalReportCount = stats.PendingCount
+			resp.PendingTerminalReportBytes = stats.PendingBytes
+			resp.FailedTerminalReportCount = stats.FailedCount
+			resp.FailedTerminalReportBytes = stats.FailedBytes
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -384,12 +404,70 @@ func (d *Daemon) shutdownHandler() http.HandlerFunc {
 	}
 }
 
+// idleRestartHandler never cancels a claimed task: the same claim barrier used
+// by self-update closes the race between a Desktop health probe and restart.
+func (d *Daemon) idleRestartHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		if r.Header.Get("Origin") != "" || r.Header.Get("Content-Type") != "application/json" {
+			http.Error(w, "local JSON request required", http.StatusForbidden)
+			return
+		}
+		var request struct {
+			ExpectedPID      int    `json:"expected_pid"`
+			ExpectedCAPath   string `json:"expected_ca_path"`
+			ExpectedCASHA256 string `json:"expected_ca_sha256"`
+		}
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8192))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&request); err != nil || decoder.Decode(&struct{}{}) != io.EOF {
+			http.Error(w, "invalid restart request", http.StatusBadRequest)
+			return
+		}
+		if request.ExpectedPID != os.Getpid() {
+			http.Error(w, "daemon identity changed", http.StatusConflict)
+			return
+		}
+		if ca := request.ExpectedCAPath; ca == "" || ca != os.Getenv("MULTICA_CA_CERT_FILE") {
+			http.Error(w, "daemon CA path differs; start it from Desktop to apply trust", http.StatusConflict)
+			return
+		}
+		if request.ExpectedCASHA256 != "" && request.ExpectedCASHA256 == cli.LoadedCASHA256() {
+			w.WriteHeader(http.StatusOK)
+			return
+		}
+		bundle, err := os.ReadFile(request.ExpectedCAPath)
+		if err != nil || request.ExpectedCASHA256 != fmt.Sprintf("%x", sha256.Sum256(bundle)) {
+			http.Error(w, "CA bundle changed or is unavailable", http.StatusConflict)
+			return
+		}
+		if d.cancelFunc == nil {
+			http.Error(w, "restart unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		if !d.trySetClaimBarrier() {
+			http.Error(w, "daemon is busy", http.StatusConflict)
+			return
+		}
+		if !d.triggerRestart() {
+			d.releaseClaimBarrier()
+			http.Error(w, "restart unavailable", http.StatusServiceUnavailable)
+			return
+		}
+		w.WriteHeader(http.StatusAccepted)
+	}
+}
+
 // serveHealth runs the health HTTP server on the given listener.
 // Blocks until ctx is cancelled.
 func (d *Daemon) serveHealth(ctx context.Context, ln net.Listener, startedAt time.Time) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", d.healthHandler(startedAt))
 	mux.HandleFunc("/shutdown", d.shutdownHandler())
+	mux.HandleFunc("/restart/idle", d.idleRestartHandler())
 	mux.HandleFunc("/repo/checkout", d.repoCheckoutHandler())
 
 	srv := &http.Server{Handler: mux}

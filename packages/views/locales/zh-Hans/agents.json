@@ -199,11 +199,8 @@
   },
   "inspector": {
     "section_profile": "資料",
-    "section_profile_hint": "管理該 Agent 在工作區內的展示方式。",
     "section_execution": "執行配置",
-    "section_execution_hint": "選擇執行時、模型、思考強度、速度和並行執行上限。",
     "section_access": "訪問許可權",
-    "section_access_hint": "控制誰可以執行該 Agent 並使用它已連線的能力。",
     "section_properties": "屬性",
     "section_details": "詳情",
     "section_details_hint": "只讀的所有權和生命週期資訊。",
@@ -220,7 +217,6 @@
     "prop_updated": "更新時間",
     "no_description_placeholder": "暫無描述",
     "avatar_label": "頭像",
-    "avatar_hint": "顯示在任務分配、動態和聊天中。",
     "name_label": "名稱",
     "description_label": "描述",
     "change_avatar_aria": "更換頭像",
@@ -234,7 +230,11 @@
     "discard_changes": "放棄變更",
     "save_changes": "保留變更",
     "save": "儲存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "section_profile_hint": "管理該 Agent 在工作區內的展示方式。",
+    "section_execution_hint": "選擇執行時、模型、思考強度、速度和並行執行上限。",
+    "section_access_hint": "控制誰可以執行該 Agent 並使用它已連線的能力。",
+    "avatar_hint": "顯示在任務分配、動態和聊天中。"
   },
   "overview": {
     "agent_context": "Agent",
@@ -325,7 +325,6 @@
     "back": "返回",
     "eyebrow": "建立 Agent",
     "choose_title": "你想從哪裡開始？",
-    "choose_description": "從空白配置開始，或者直接描述需求，通過對話完成建立。",
     "recommended": "推薦",
     "continue": "繼續",
     "step_choose": "選擇起點",
@@ -347,12 +346,12 @@
     },
     "sections": {
       "identity": "身份",
-      "identity_hint": "為 Agent 設定容易識別的名稱和簡潔的用途。",
       "behavior": "行為與能力",
-      "behavior_hint": "定義它的工作方式，並新增可使用的工作區 skill。",
       "execution": "執行配置",
       "execution_hint": "選擇 Agent 使用的執行環境，也可以覆蓋執行環境的預設模型、思考等級和速度。",
       "access": "訪問許可權",
+      "identity_hint": "為 Agent 設定容易識別的名稱和簡潔的用途。",
+      "behavior_hint": "定義它的工作方式，並新增可使用的工作區 skill。",
       "access_hint": "控制誰可以執行此 Agent，建立後仍可修改。"
     },
     "thinking_label": "思考",
@@ -384,7 +383,6 @@
       "switch_runtime_pending": "停止當前回覆後即可切換執行環境。",
       "switch_runtime_success": "已切換執行環境。配置草稿保留，後續對話將在新執行環境上重新開始一段模型會話。",
       "chat_title": "Agent 構建器",
-      "chat_hint": "通過對話梳理需求，並持續完善右側配置。",
       "runtime_online": "執行環境線上",
       "runtime_offline": "執行環境離線",
       "empty_title": "這個 Agent 需要做什麼？",
@@ -394,7 +392,8 @@
       "prompt_assistant": "幫助團隊規劃和撰寫專案",
       "thinking": "正在更新草稿…",
       "placeholder": "描述你需要的 Agent…",
-      "send": "傳送訊息"
+      "send": "傳送訊息",
+      "chat_hint": "通過對話梳理需求，並持續完善右側配置。"
     },
     "live_draft": "Agent 配置",
     "live_draft_hint": "對話生成的建議會更新到這裡，你也可以隨時直接調整。",
@@ -415,12 +414,12 @@
       "discard_cancel": "繼續編輯",
       "banner": "您有 {{count}} 條未完成的建立",
       "pick_hint": "選一條繼續。"
-    }
+    },
+    "choose_description": "從空白配置開始，或者直接描述需求，通過對話完成建立。"
   },
   "create_dialog": {
     "title_create": "建立 Agent",
     "title_duplicate": "複製 Agent",
-    "description_create": "為工作區建立一個新的 AI Agent。",
     "description_duplicate": "基於\"{{name}}\"建立一個新 Agent。指令、環境變數和 skill 會一併複製。",
     "name_label": "名稱",
     "name_placeholder": "例如：深度研究 Agent",
@@ -480,7 +479,8 @@
       "remove_aria": "移除頭像",
       "select_image_toast": "請選擇圖片檔案。",
       "upload_failed_toast": "頭像上傳失敗"
-    }
+    },
+    "description_create": "為工作區建立一個新的 AI Agent。"
   },
   "conversation_starters": {
     "label": "對話開場建議",
@@ -558,11 +558,11 @@
       "input_aria": "引數 {{index}}",
       "new_argument_aria": "新引數",
       "empty_title": "還沒有引數",
-      "empty_hint": "新增第一個 token，開始構建啟動命令。",
       "edit_aria": "編輯引數 {{index}}",
       "remove_aria": "移除引數 {{index}}",
       "saved_toast": "已儲存自定義引數",
-      "save_failed_toast": "儲存自定義引數失敗"
+      "save_failed_toast": "儲存自定義引數失敗",
+      "empty_hint": "新增第一個 token，開始構建啟動命令。"
     },
     "mcp_config": {
       "managed_title": "由 Multica 管理",
@@ -613,7 +613,6 @@
       "dialog_edit_title": "編輯 MCP Server",
       "dialog_edit_title_named": "編輯 {{name}} 的配置",
       "dialog_replace_title": "替換 {{name}} 的配置",
-      "dialog_description": "選擇連線方式並填寫配置資訊。如需編輯完整配置，可切換到 JSON。",
       "dialog_replace_description": "為保護敏感資訊，已儲存的內容不會再次顯示。請填寫一份完整的新配置；替換後，現有的 Agent 分配不會改變。",
       "dialog_name_label": "名稱",
       "dialog_name_hint": "可使用字母、數字、連字元和下劃線。",
@@ -662,14 +661,15 @@
       "invalid_json": "JSON 無效：{{error}}",
       "save_failed_toast": "無法儲存 MCP 配置",
       "redacted_title": "已配置，但當前不可見",
-      "redacted_hint": "只有 Agent owner 或工作區 admin 可以檢視此配置。"
+      "redacted_hint": "只有 Agent owner 或工作區 admin 可以檢視此配置。",
+      "dialog_json_help": "以 JSON 编辑完整的服务器配置。",
+      "dialog_description": "選擇連線方式並填寫配置資訊。如需編輯完整配置，可切換到 JSON。"
     },
     "composio_mcp": {
       "subtitle": "勾選 toolkit，只在你自己（這個 Agent 的建立者）直接或透過下級 Agent 鏈路觸發這個 Agent 時，才把它掛載為 MCP server。",
       "loading": "正在載入你的連線…",
       "load_failed": "無法載入你已連線的應用，請稍後重試。",
       "empty_title": "還沒有已連線的應用",
-      "empty_hint": "你還沒連線任何第三方服務。先去授權一個，再回到這裡勾選允許。",
       "empty_link_to_settings": "去 \"設定 → 整合\" 連一個",
       "connected": "已連線",
       "toggle_aria": "允許該 Agent 使用 {{toolkit}}",
@@ -678,10 +678,10 @@
       "redacted_title": "已配置——對你隱藏",
       "redacted_hint": "只有該 Agent 的建立者才能檢視或修改它可使用的應用。",
       "shared_warning": "該 Agent 已共享。能夠執行該 Agent 的人可以通過它使用你在此啟用的 Composio 應用。如果這些應用涉及敏感資料，請改用\"私有\"或縮小訪問範圍。",
-      "workspace_warning": "公開給工作區：工作區內任何成員都可以通過該 Agent 使用這些 Composio 應用。"
+      "workspace_warning": "公開給工作區：工作區內任何成員都可以通過該 Agent 使用這些 Composio 應用。",
+      "empty_hint": "你還沒連線任何第三方服務。先去授權一個，再回到這裡勾選允許。"
     },
     "runtime_config": {
-      "intro": "選擇 OpenClaw 執行時執行該 Agent 每一回合的方式。Local 模式讓 Agent 直接在守護程序內執行；Gateway 模式則把每一回合轉發到一個 OpenClaw Gateway——適合守護程序宿主只是輕量協調機、希望真正算力落在更強的遠端機器上的場景。",
       "mode_label": "路由模式",
       "mode_local": "Local",
       "mode_gateway": "Gateway",
@@ -698,10 +698,10 @@
       "tls_label": "啟用 TLS",
       "tls_hint": "用 https:// 代替 http:// 連線",
       "saved_toast": "路由配置已儲存",
-      "save_failed_toast": "儲存路由配置失敗"
+      "save_failed_toast": "儲存路由配置失敗",
+      "intro": "選擇 OpenClaw 執行時執行該 Agent 每一回合的方式。Local 模式讓 Agent 直接在守護程序內執行；Gateway 模式則把每一回合轉發到一個 OpenClaw Gateway——適合守護程序宿主只是輕量協調機、希望真正算力落在更強的遠端機器上的場景。"
     },
     "skills": {
-      "intro": "這裡展示該 Agent 實際擁有的全部 skill。工作區 skill 可在此管理；從 Codex 和 Claude Code 繼承的 skill 也可以按 Agent 單獨關閉。",
       "assigned_title": "分配給 Agent",
       "assigned_hint": "工作區 skill 會跟隨 Agent。你可以臨時關閉，而不必將其移除。",
       "runtime_title": "從執行環境繼承",
@@ -731,10 +731,8 @@
       "detail_supporting_files": "附屬檔案",
       "add_action": "新增 skill",
       "empty_title": "尚未分配 skill",
-      "empty_hint": "新增工作區 skill，把團隊知識共享給這個 Agent。",
       "remove_failed_toast": "移除 skill 失敗",
       "add_dialog_title": "新增 skill",
-      "add_dialog_description": "選擇一個工作區 skill 分配給該 Agent。",
       "add_dialog_search_placeholder": "搜尋 skill",
       "add_dialog_empty": "全部工作區 skill 都已分配。",
       "add_dialog_no_match": "沒有匹配的 skill。",
@@ -743,11 +741,14 @@
       "add_dialog_confirm_default": "新增",
       "add_dialog_confirm_other": "新增 {{count}} 個 skill",
       "add_dialog_cancel": "取消",
-      "add_failed_toast": "新增 skill 失敗"
+      "add_failed_toast": "新增 skill 失敗",
+      "intro": "這裡展示該 Agent 實際擁有的全部 skill。工作區 skill 可在此管理；從 Codex 和 Claude Code 繼承的 skill 也可以按 Agent 單獨關閉。",
+      "empty_hint": "新增工作區 skill，把團隊知識共享給這個 Agent。",
+      "add_dialog_description": "選擇一個工作區 skill 分配給該 Agent。"
     },
     "integrations": {
-      "intro": "把這個 Agent 連線到外部聊天平臺，讓大家在自己熟悉的工具裡直接與它協作。",
-      "members_note": "只有工作區的所有者和管理員可以管理此連線。你可以在\"設定 → 整合\"中檢視已連線的 Bot。"
+      "members_note": "只有工作區的所有者和管理員可以管理此連線。你可以在\"設定 → 整合\"中檢視已連線的 Bot。",
+      "intro": "把這個 Agent 連線到外部聊天平臺，讓大家在自己熟悉的工具裡直接與它協作。"
     },
     "activity": {
       "status": {
@@ -775,6 +776,9 @@
       "runs_other": "次執行",
       "success_pct": "{{percent}}% 成功",
       "success_label": "成功",
+      "success_hint": "成功率按已完成和失败的运行计算，不包含已取消的运行。",
+      "success_unavailable": "本期间没有已完成或失败的运行，无法计算成功率。",
+      "cancelled_count": "{{count}} 次已取消",
       "avg_duration": "平均 {{value}}",
       "avg_duration_label": "平均耗時",
       "failed_count": "{{count}} 次失敗",
@@ -876,7 +880,6 @@
     "copy_filtered": "複製篩選結果",
     "copied": "已複製",
     "waiting_events": "等待事件中...",
-    "antigravity_live_unavailable": "Antigravity 暫不提供實時執行事件。執行完成後即可檢視執行記錄。",
     "no_data": "未記錄執行資料。",
     "sort_chronological": "最早在前",
     "sort_newest_first": "最新在前",
@@ -892,6 +895,7 @@
     "status_cancelled": "已取消",
     "status_waiting": "等待中",
     "trigger_initial": "初次執行",
+    "trigger_text": "触发内容",
     "trigger_comment": "評論觸發",
     "trigger_autopilot": "自動化",
     "trigger_retry": "重試",
@@ -948,7 +952,9 @@
     "tool_kind_command": "命令",
     "tool_kind_write": "編輯",
     "tool_kind_read": "讀取",
-    "tool_kind_misc": "其他"
+    "tool_kind_misc": "其他",
+    "trigger_wakeup": "唤醒触发",
+    "antigravity_live_unavailable": "Antigravity 暫不提供實時執行事件。執行完成後即可檢視執行記錄。"
   },
   "task_failure": {
     "cancelled_by_system": "系統已取消",
@@ -965,6 +971,7 @@
       "skill_bundle_unavailable": "無法下載 Agent 的 skill",
       "runtime_cli_timeout": "本地執行環境 CLI 超時",
       "environment_prepare_failed": "無法準備執行環境",
+      "runtime_access_denied": "该智能体无法在其私有运行时上运行，暂时无法回复。请将该运行时设为公开，或将智能体重新绑定/复制到其所有者可用的运行时。",
       "invalid_task_identity": "執行身份不匹配",
       "agent_error_provider_auth_or_access": "提供商認證失敗",
       "agent_error_provider_quota_limit": "提供商配額已用盡",

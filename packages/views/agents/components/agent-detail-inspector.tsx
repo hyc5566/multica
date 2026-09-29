@@ -176,7 +176,6 @@ export function AgentDetailInspector({
         <SettingsCard>
           <SettingsRow
             label={t(($) => $.inspector.avatar_label)}
-            description={t(($) => $.inspector.avatar_hint)}
             size="none"
           >
             <div className="flex justify-start sm:justify-end">
@@ -272,7 +271,6 @@ export function AgentDetailInspector({
 
       <SettingsSection
         title={t(($) => $.inspector.section_execution)}
-        description={t(($) => $.inspector.section_execution_hint)}
       >
         <SettingsCard>
           <SettingsRow
