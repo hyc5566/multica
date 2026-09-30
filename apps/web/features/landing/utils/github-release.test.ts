@@ -79,6 +79,23 @@ describe("fetchLatestRelease", () => {
     expect(result.assets.macArm64Zip).toBe(`${installerUrl}/mac.zip`);
   });
 
+  it("rejects an installer URL from a different release tag", async () => {
+    const otherInstallerUrl =
+      "https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.42-zh-tw.6/install.sh";
+    mockFetchWithReleases([
+      releasePayload({
+        tag: "zh-tw-v0.4.43-zh-tw.7",
+        assets: [
+          { name: "install.sh", browser_download_url: otherInstallerUrl },
+          ...macOnlyAssets("0.4.43-zh-tw.7"),
+        ],
+      }),
+    ]);
+
+    const result = await fetchLatestRelease();
+    expect(result.installerUrl).toBeUndefined();
+  });
+
   it("uses the latest release when its desktop assets are complete", async () => {
     mockFetchWithReleases([
       releasePayload({ tag: "zh-tw-v0.2.14", assets: completeAssets("0.2.14") }),
