@@ -1,5 +1,4 @@
 import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { CliSection } from "./cli-section";
 
@@ -7,6 +6,7 @@ vi.mock("../../i18n", () => ({
   useLocale: () => ({
     t: {
       download: {
+        allPlatforms: { unavailable: "Unavailable" },
         cli: {
           title: "Prefer the CLI?",
           sub: "For servers and headless setups.",
@@ -24,19 +24,17 @@ vi.mock("../../i18n", () => ({
   }),
 }));
 
-const WINDOWS_CMD =
-  "irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex";
-
 describe("CliSection", () => {
-  // The switch itself is covered in @multica/views; this checks the landing
-  // dictionary is wired into it and the daemon block stays shared.
-  it("wires the platform switch into the install block", async () => {
-    const user = userEvent.setup();
+  it("shows the published installer without an unsupported Windows command", () => {
+    render(<CliSection installerUrl="https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.7/install.sh" />);
+
+    expect(screen.getByText(/bash install.sh --login/)).toBeInTheDocument();
+    expect(screen.getByText("macOS / Linux")).toBeInTheDocument();
+    expect(screen.queryByText("Windows")).not.toBeInTheDocument();
+  });
+
+  it("does not offer an installer when the release lacks one", () => {
     render(<CliSection />);
-
-    await user.click(screen.getByRole("tab", { name: "Windows" }));
-
-    expect(screen.getByText(WINDOWS_CMD)).toBeInTheDocument();
-    expect(screen.getByText("multica setup")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
   });
 });
