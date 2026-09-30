@@ -241,7 +241,7 @@ describe("installContextMenu — image items", () => {
     const wc = makeWebContents();
     installContextMenu(wc as never);
     wc.fire(baseSelection({ mediaType: "image", hasImageContents: true }));
-    expect(lastMenuLabels()).toContain("复制图片");
+    expect(lastMenuLabels()).toContain("複製圖片");
   });
 });
 
