@@ -1,5763 +1,3807 @@
 import { githubUrl, discordUrl } from "../components/shared";
 import type { LandingDict } from "./types";
+
 export function createZhDict(allowSignup: boolean, docsHref: string): LandingDict {
-    return {
-        header: {
-            github: heade,
-            hero: {
-                headlineLine1: b, ",: na,: headlineLine2, bfc, u822,
-                subheading: "\u6253\u5f00\u5bfc\u822a\u83dc\u5355",
-                closeMenu: "\u5173\u95ed\u5bfc\u8,,,
-                cta: u5355, ",,: downloadDesktop, eadlineL,: talkToSales, 4: , \u4e0b,
-                worksWith: 58, \u5de5, ",: headli,: imageAlt, d\u662f\u4eba\u7c7b, u3002, ",: : 
-            },
-            features: {
-                teammates: {
-                    label: \u7801,
-                    title: 10, \u771f\u6b63, u76,
-                    description: \u5206\u914d\u4efb\u52a1, u3001\u8ddf\u8e2a\u8fdb\u5ea6, u3001\u79ef\u7d2f\u6280, u8,
-                    cards: [
-                        {
-                            title: b9\u7ba1\u7406, u4,
-                            description: 智能体, \u56e2\u961f, u3002, ",: cta, ": 免费开始, ": ,: downloadDeskt
-                        },
-                        {
-                            title: work,
-                            description: ",,,
-                            imageAlt: "Multica \u770b\u677f\u89c6\u56fe
-                        },
-                        {
-                            title: 4, f\u540c, u7,
-                            description: 
-                        },
-                        features, {
-                            teammates: {
-                                label: "\u56e2\u
-                            }
-                        }
-                    ]
-                },
-                autonomous: {
-                    label: 540, c, u4,
-                    title: 7, \u5206\u914d\u7ed9, 智能体,
-                    description: ,
-                    "智能体 \u4e0d\u662f\u88ab\u52a8\u5de5\u5177\u2014\u2014\u5b83\u4eec\u662f\u,: cards, [{: title, eec\u62e5, u6,
-                    description: 599, u3001\u62a5\u544a\u72b6\u6001, u3001\u521b\u5efa\u4efb\u52a1
-                },
-            }
-        }
-    };
-    {
-        title: f4\u65b0,
-            description;
-        u7684\u6d3b\u52a8\u6d41\u5c55\u793a\u4eba\u7c7b\u548c;
-    }
-    {
-        title: card,
-            description;
-        title, "智能体 \u51fa\u73b0\u5728\u6307\u6d3e\u4eba\u9009\u62e9\u: ;
-    }
-}
-skills: {
-    label: \u7c7b,
-        title;
-    1, fa\u73b0\u5728\u540c,
-        description;
-    62, c9\u83dc\u5355\u91cc, u3002\u628a\u4efb\u52a1\u5206\u914d\u7ed9, 智能体, \u548c,
-        cards;
-    [
+  return {
+  header: {
+    github: "GitHub",
+    cta: "開始使用",
+    dashboard: "進入工作臺",
+    docs: "檔案",
+    changelog: "更新日誌",
+    useCases: "案例",
+    navigation: "主導航",
+    openMenu: "開啟導航選單",
+    closeMenu: "關閉導航選單",
+  },
+
+  hero: {
+    headlineLine1: "你的下一批員工",
+    headlineLine2: "不是人類。",
+    subheading:
+      "Multica 是原始碼公開的平臺，讓程式設計 Agent 成為真正的隊友。分配任務、追蹤進度、累積技能，在同一處管理人與 Agent 的團隊。",
+    cta: "免費開始",
+    downloadDesktop: "下載桌面端",
+    talkToSales: "聯絡商務",
+    worksWith: "支援 20+ 種 AI 程式開發工具",
+    imageAlt: "Multica 看板檢視——人類和 Agent 協同管理任務",
+  },
+
+  features: {
+    teammates: {
+      label: "團隊協作",
+      title: "像分配給同事一樣分配給 Agent",
+      description:
+        "Agent 不是被動工具——它們是主動參與者。它們擁有個人資料、報告狀態、建立任務、發表評論、更新狀態。你的活動流展示人類和 Agent 並肩工作。",
+      cards: [
         {
-            title: u4efb\u4f55,
-            description: 
+          title: "Agent 出現在指派人選擇器中",
+          description:
+            "人類和 Agent 出現在同一個下拉選單裡。把任務分配給 Agent 和分配給同事沒有任何區別。",
         },
         {
-            title: "\u81ea\u4e3b\u53c2\u4e0e",
+          title: "自主參與",
+          description:
+            "Agent 主動建立任務、發表評論、更新狀態——而不是隻在被提示時才行動。",
         },
         {
-            title: \u4e3b
+          title: "統一的活動時間線",
+          description:
+            "整個團隊共用一個活動流。人類和 Agent 的操作交替展示，你始終知道發生了什麼、是誰做的。",
         },
-        description, u52a1, u3001\u53d1\u8868\u8bc4\u8bba, u3001, u66
-    ];
-}
-;
-{
-    title: u4e0d;
-    u,
-        description;
-    63;
-    d0\u793a\u65f6\u624d\u884c\u52a8;
-    u3002;
-    ",;;
-}
-{
-}
-runtimes: {
-    label: bf;
-    ",
-        ,
-            title;
-    iption: 
-        ,
-            description;
-    u56e2\u961f\u5171\u7528\u4e00\u4e2a\u6d3b\u52a8\u6d41;
-    u3002\u4eba\u7c7b\u548c;
-    智能体;
-    u768,
-        cards;
-    [
+      ],
+    },
+    autonomous: {
+      label: "自主執行",
+      title: "設定後無需管理——Agent 在你睡覺時工作",
+      description:
+        "不只是提示-響應。完整的 task 生命週期管理：入隊、領取、啟動、完成或失敗。Agent 主動報告阻塞，你透過 WebSocket 獲取實時進度。",
+      cards: [
         {
-            title: \u4f60, u59,
-            description: d1\u751f\u4e86\u4ec0\u4e48, u3001\u662f\u8c01, u50
+          title: "完整的任務生命週期",
+          description:
+            "每個任務經歷入隊 → 領取 → 啟動 → 完成/失敗。沒有無聲失敗——每次狀態轉換都被跟蹤和廣播。",
         },
         {
-            title: 
+          title: "主動報告阻塞",
+          description:
+            "當 Agent 遇到困難時，會立即發出警報。不用等幾個小時後才發現什麼都沒發生。",
         },
-        ,
-        description, bel, "\u81ea\u4e3b\u6267\u884c",
-        title, "\
-                    },,,
         {
-            title: 6, u2014, u2,
-            description: 1, \u89c9\u65f6\u5de5\u4f5c, ",: description,: "不只是提示-响应。完整的 task 生命周期管理：入队、领取、启动、完成或失败。智能体 主动报告阻塞，你通过 WebSocket 获取实时进度。"
+          title: "實時進度推送",
+          description:
+            "基於 WebSocket 的實時更新。實時觀看 Agent 工作，或隨時檢視——時間線始終是最新的。",
         },
-        cards, [
-            {
-                title: "\u5b8c\u6574\u7684\u4efb\u52a1\u751f\u547d\u5468\u671f",
-                description: "\u6bcf\u4e2a\u4efb\u52a1\u
-            }
-        ]
-    ];
-}
-;
-howItWorks: {
-    label: 8;
-    u219,
-        headlineMain;
-    31;
-    \u8d25;
-    u3002;
-    u,
-        headlineFaded;
-    f0\u5931;
+      ],
+    },
+    skills: {
+      label: "技能庫",
+      title: "每個解決方案都成為全團隊可複用的技能",
+      description:
+        "技能是可複用的能力定義——程式碼、設定和上下文打包在一起。只需編寫一次，團隊中每個 Agent 都能使用。你的技能庫隨時間不斷積累。",
+      cards: [
+        {
+          title: "可複用的技能定義",
+          description:
+            "將知識封裝成任何 Agent 都能執行的技能。部署到測試環境、編寫遷移、審查 PR——全部程式碼化。",
+        },
+        {
+          title: "全團隊共享",
+          description:
+            "一個人的技能就是每個 Agent 的技能。編寫一次，全團隊受益。",
+        },
+        {
+          title: "複合增長",
+          description:
+            "第 1 天：你教 Agent 部署。第 30 天：每個 Agent 都能部署、寫測試、做程式碼審查。團隊能力指數級增長。",
+        },
+      ],
+    },
+    runtimes: {
+      label: "執行時",
+      title: "一個控制檯管理所有算力",
+      description:
+        "本地守護程序和雲端執行時，在同一個面板中管理。實時監控線上/離線狀態、使用量圖表和活動熱力圖。自動檢測本機已安裝的 26 款支援的 AI 程式設計工具。",
+      cards: [
+        {
+          title: "統一執行時面板",
+          description:
+            "本地守護程序和雲端執行時在同一檢視中。無需在不同管理介面之間切換。",
+        },
+        {
+          title: "實時監控",
+          description:
+            "線上/離線狀態、使用量圖表和活動熱力圖。隨時瞭解你的算力在做什麼。",
+        },
+        {
+          title: "首次啟動自動註冊",
+          description:
+            "Multica 掃描本機的 26 款支援的 AI 程式設計工具——Antigravity、Claude Code、CodeBuddy、CodeArts、Codex、Copilot、Cursor、DeepSeek Harness、DevEco Code、Dim、Grok、Hermes、Kimi、Kiro CLI、MiniMax Code、Oh-My-Pi、OpenClaw、OpenCode、Pi、Qoder、Qoder CN、Qwen Code、QwenPaw、Reasonix、Trae CLI、ZeroClaw——併為每款已安裝的工具註冊一個執行時。",
+        },
+      ],
+    },
+  },
+
+  howItWorks: {
+    label: "開始使用",
+    headlineMain: "招募你的第一個 AI 員工",
+    headlineFaded: "只需一小時。",
     steps: [
-        {
-            title: allowSignup ? 62 : , \u90fd\u88ab: 8, ddf\u8e2a, u,
-            description: allowSignup ? title : "\u4e3b\u52a8\u62a5\u544a\u :,,
-            description: "\u5f
-        },
-        {
-            title: 65, f6, uff0c\u4f1a
-        },
-        description, a\u8b66\u62a5, u3002\u4e0d\u7528\u7b49\u51e0\u4e2a\u5c0f\u65f6\u540e\u624d\u53d1\u73b0\u4ec0\u4e48\u90fd\u6ca1\u53d1\u751f, u3002, ",
-    ];
-}
-{
-    title: "\u5b9e\u65f6\u8fdb\u5ea6\u63a8\u9001",
-        description;
-    "\u57fa\u4e8e WebSocket \u7684\u5b9e\u65f6\u66f4\u65b0\u3002\u5b9e\u65f6\u89c2\u;;
-}
-{
-    title: \u968f\u65f6;
-    u,
-        description;
-    \u65f6\u95f4\u7ebf\u59cb\u7ec8\u662f\u6700\u65b0\u7684;
-    u3002;
-    ";;
-}
-{
-    title: skills: {
-        description: u5e93;
-        ",;;
-        title: "\u6bcf\u4e2a\u89e3\u51b3\u65b9\u6848\u90fd\
-                };;
-        cta: 61;
-        f;
-        u53,
-            ctaGithub;
-        7684;
-        \u6280;
-        u80f,
-            ctaDocs;
-        ription;
-    }
-    openSource: {
-        label: f;
-        u59,
-            headlineLine1;
-        u529,
-            headlineLine2;
-        u2014;
-        u4,
-            description;
-        14;
-        d\u7f6e\u548c\u4e0a\u4e0b\u6587\u6253\u5305\u5728\u4e00,
-            cta;
-        2;
-        \u53ea\u9700;
-        u7f,
-            licensingCta;
-        "了解授权方式 →",
-            highlights;
-        [
-            {
-                title: 2, d\u6bcf,
-                description: d\u4f7f\u7528, u3002\u4f60\u7684\u6280\u80fd\u5e93\u968f\u65f6\u95f4\u4e0d\u65ad, u79e
-            },
-            {
-                title: {},
-                description: f\u590d\u7528\u7684\u6280\u80fd\u5b9a\u4e49, ",: : 
-            },
-            {
-                title: u77e5, u,
-                description: \u4efb\u4f55, 智能体, \u90fd\u80fd\u6267\u884c\u7684\u6280, u
-            },
-            {
-                title: b\u8bd5,
-                description: 16, \u5199\u8fc1\u79fb, u3001\u5ba1\u67e5, PR, u2014, u2014, u
-            }
-        ];
-    }
-    faq: {
-        label: ;
-    }
-    headline: titl,
-        items;
-    [
-        {
-            question: description
-        },
-        answer, \u4e2a\u4eba\u7684\u6280\u80fd\u5c31\u662f\u6bcf\u4e2a, 智能体, \u7684\u6280\u80fd, u3002\u7f16\u5199\u4e00\u6b21, uff0c\u5168\u56e2\u961f\u53d7\u76ca, u3002, ",
-    ];
-}
-{
-    title: "\u590d\u5408\u589e\u957f",
-        description;
-    "\u7b2c 1 \u5929\uff1a\u4f60\u6559 智能体 \u90e8\u7f72\u3002\u7b2c ;;
-}
-{
-    question: fd\u80fd\u90e8;
-    u7,
-        answer;
-    6;
-    d4b\u8bd5;
-    u3001\u505a\u4ee3\u7801\u5ba1\u67e5;
-    u3002\u56e2\u961f\u80fd\u529b\u6307\u6570\u7ea7;
-}
-{
-    question: "可以商用吗？",
-        answer;
-    "可以。在你自己的组织内部使用 Multica 是免费的，包括为整个团队自托管。只有两种情况需要商业授权：把 Multica 提供给组织外部的人使用（比如作为托管服务或代运维服务），或者把它嵌入你销售或分发的产品中。常见场景见[授权说明](/licensing)。",
-    ;
-}
-{
-    question: ;
-}
-runtimes: {
-    answer: u884c\u65f6;
-    ",;;
-    title: "\u4e00\u4e2a\u63a7\u5236\u53f0\u7ba1\u7406\u6240\u6709\u7b97\u529b",
-    ;
-}
-{
-    question: 30;
-    \u5b88\u62a4;
-    u8fd,
-        answer;
-    91;
-    \u7aef\u8fd0\u884c\u65f6;
-    uff0c\u5728\u540c\u4e00\u4e2a\u9762\u677f\u4e2d\u7ba1\u7406;
-    u3;
-}
-{
-    question: ebf / \u79bb\u7ebf\u72b6,
-        answer;
-    f\u7528\u91cf\u56fe\u8868\u548c\u6d3b\u52a8\u70ed\u529b\u56fe;
-    u3002\u81ea\u52a8;
-    u;
-}
-{
-    question: 88;
-    c5\u7684;
-    26;
-    u,
-        answer;
-    u7684;
-    AI;
-    \u7f16\u7a0b\u5de5\u5177;
-    u3002;
-    ",;;
-    cards: [
-        {}
-    ];
-}
-footer: {
-    tagline: 6;
-    \u9762\u677f;
-    ",;;
-    description: 
-        ,
-            cta;
-    72;
-    c;
-    u57,
-        groups;
-    {
-        product: {
-            label: fd0;
-            u,
-                links;
-            [
-                { label: 6, fe, u4e, href: 2, \u65e0, u970 },
-                { label: ba1, u74, href: c\u9762\u4e4b, u9 },
-                { label: , },
-                href, {},
-                { label: e\u65f6, href: u63a7, ",: : 
-                },
-                { label: , href: 728, \u7ebf } / , u
-            ];
-        }
-    }
-    resources: {
-        label: 8;
-        u54,
-            links;
-        [
-            { label: 2, u96, href: 6, \u4e86, u89 },
-            { label: 529, b, u, href: githubUrl },
-            { label:  },
-            {},
-            href, title, "\u9996\u6b21\u54 },,,
-            { label: 6, ce8\u518c, href: discordUrl }
-        ];
-    }
-    company: {
-        label: 7684,
-            links;
-        [
-            { label: \u7a0b }, href, 5177, u201
-        ];
-    }
-    {
-        label: "授权说明", href;
-        "/licensing";
-    }
-    {
-        label: "隐私政策", href;
-        "/privacy";
-    }
-    {
-        label: odex;
-        u3, href;
-        lot;
-        u3001Cursor;
-        u;
-    }
-    {
-        label: "GitHub", href;
-        githubUrl;
-    }
-}
-copyright: u3001MiniMax;
-Code;
-u3001Oh - My;
-about: {
-    title: de;
-    u3001Pi;
-    u3,
-        nameLine;
-    {
-        prefix: n;
-        Code;
-        u3001,
-            mult;
-        "Mult",
-            iplexed;
-        "iplexed ",
-            i;
-        2014,
-            nformationAnd;
-        3e;
-        \u5df2\u5b89;
-        u88,
-            c;
-        5;
-        de5,
-            omputing;
-        c\u4e00;
-        u4e2,
-            a;
-        84;
-        c;
-        gent: ;
-    }
+      {
+        title: allowSignup ? "註冊並建立您的工作空間" : "登入到您的工作空間",
+        description: allowSignup
+          ? "輸入您的電子郵件，驗證程式碼後即可使用。工作空間會自動建立——無需設定嚮導或設定表單。"
+          : "輸入您的電子郵件，驗證程式碼後即可登入到您的工作空間——無需設定嚮導或設定表單。",
+      },
+      {
+        title: "安裝 CLI 並連線你的機器",
+        description:
+          "執行 multica setup——它會引導你完成 OAuth 登入、啟動守護程序、並掃描 26 款支援的 AI 程式設計工具（Antigravity、Claude Code、CodeBuddy、CodeArts、Codex、Copilot、Cursor、DeepSeek Harness、DevEco Code、Dim、Grok、Hermes、Kimi、Kiro CLI、MiniMax Code、Oh-My-Pi、OpenClaw、OpenCode、Pi、Qoder、Qoder CN、Qwen Code、QwenPaw、Reasonix、Trae CLI、ZeroClaw）。本機已安裝的工具會被自動註冊成執行時。",
+      },
+      {
+        title: "建立你的第一個 Agent",
+        description:
+          "給它起個名字，寫好指令，附加技能，設定觸發器。選擇它何時啟用：被指派時、有評論時、被 @提及時。",
+      },
+      {
+        title: "指派一個任務並觀察它工作",
+        description:
+          "從指派人下拉選單中選擇你的 Agent——就像指派給同事一樣。task 自動入隊、領取、執行。實時觀看進度。",
+      },
+    ],
+    cta: "開始使用",
+    ctaGithub: "在 GitHub 上檢視",
+    ctaDocs: "閱讀檔案",
+  },
+
+  openSource: {
+    label: "原始碼公開",
+    headlineLine1: "每一行程式碼，",
+    headlineLine2: "都由你掌控。",
+    description:
+      "Multica 的原始碼公開，可免費自行架設。若將 Multica 作為代管服務提供給他人，則需要商業授權。",
+    cta: "在 GitHub 上 Star",
+    licensingCta: "了解授權方式 →",
+    highlights: [
+      {
+        title: "隨處自託管",
+        description:
+          "在你自己的基礎設施上執行 Multica。Docker Compose、單個二進位制或 Kubernetes——你的資料永遠不會離開你的網路。",
+      },
+      {
+        title: "無供應商鎖定",
+        description:
+          "自帶 LLM 提供商、更換 Agent 後端、擴充套件 API。你擁有整個技術棧的控制權。",
+      },
+      {
+        title: "預設透明",
+        description:
+          "每一行程式碼都可審計。確切瞭解你的 Agent 如何做決策、任務如何路由、資料流向何方。",
+      },
+      {
+        title: "社群驅動",
+        description:
+          "與社群一起建設，而不僅僅是為社群建設。貢獻技能、整合和 Agent 後端，讓每個人受益。",
+      },
+    ],
+  },
+
+  faq: {
+    label: "常見問題",
+    headline: "問與答。",
+    items: [
+      {
+        question: "Multica 支援哪些編碼 Agent？",
+        answer:
+          "Multica 開箱即用支援 26 款 AI 程式設計工具：Antigravity、Claude Code、CodeBuddy、CodeArts、Codex、Copilot、Cursor、DeepSeek Harness、DevEco Code、Dim、Grok、Hermes、Kimi、Kiro CLI、MiniMax Code、Oh-My-Pi、OpenClaw、OpenCode、Pi、Qoder、Qoder CN、Qwen Code、QwenPaw、Reasonix、Trae CLI、ZeroClaw。守護程序會自動檢測本機已安裝的 CLI 併為每款註冊一個執行時。因為開源，你也可以自己新增後端。",
+      },
+      {
+        question: "需要自託管嗎，還是有云版本？",
+        answer:
+          "兩者都有。你可以用 Docker Compose 或 Kubernetes 在自己的基礎設施上自託管 Multica，也可以使用我們的託管雲版本。你的資料，你選擇。",
+      },
+      {
+        question:
+          "這和直接用編碼 Agent 有什麼區別？",
+        answer:
+          "編碼 Agent 擅長執行。Multica 新增的是管理層：任務佇列、團隊協作、技能複用、執行時監控，以及每個 Agent 在做什麼的統一檢視。把它想象成你的 Agent 的專案經理。",
+      },
+      {
+        question: "Agent 能自主處理長時間任務嗎？",
+        answer:
+          "可以。Multica 管理完整的任務生命週期——入隊、領取、執行、完成或失敗。Agent 主動報告阻塞並實時推送進度。你可以隨時檢視，也可以讓它們執行整晚。",
+      },
+      {
+        question: "我的程式碼安全嗎？Agent 在哪裡執行？",
+        answer:
+          "Agent 在你的機器（本地守護程序）或你自己的雲基礎設施上執行。程式碼永遠不會經過 Multica 伺服器。平臺只協調任務狀態和廣播事件。",
+      },
+      {
+        question: "我可以執行多少個 Agent？",
+        answer:
+          "取決於你的硬體。每個 Agent 有可設定的併發限制，你可以連線多臺機器作為執行時。開源版本沒有任何人為限制。",
+      },
+    ],
+  },
+
+  footer: {
+    tagline:
+      "人類 + Agent 團隊的專案管理。開源、可自託管、為未來的工作方式而建。",
+    cta: "開始使用",
+    groups: {
+      product: {
+        label: "產品",
+        links: [
+          { label: "功能特性", href: "#features" },
+          { label: "如何工作", href: "#how-it-works" },
+          { label: "案例", href: "/usecases" },
+          { label: "更新日誌", href: "/changelog" },
+          { label: "下載", href: "/download" },
+        ],
+      },
+      resources: {
+        label: "資源",
+        links: [
+          { label: "檔案", href: docsHref },
+          { label: "API", href: githubUrl },
+          { label: "X (Twitter)", href: "https://x.com/MulticaAI" },
+          { label: "Discord", href: discordUrl },
+        ],
+      },
+      company: {
+        label: "關於",
+        links: [
+          { label: "關於我們", href: "/about" },
+          { label: "開源", href: "#open-source" },
+          { label: "聯絡商務", href: "/contact-sales" },
+          { label: "GitHub", href: githubUrl },
+        ],
+      },
+    },
+    copyright: "© {year} Multica. 保留所有權利。",
+  },
+
+  about: {
+    title: "關於 Multica",
+    nameLine: {
+      prefix: "Multica——",
+      mult: "Mul",
+      iplexed: "tiplexed ",
+      i: "I",
+      nformationAnd: "nformation and ",
+      c: "C",
+      omputing: "omputing ",
+      a: "A",
+      gent: "gent。",
+    },
     paragraphs: [
-        howItWorks, {
-            label: "\u5f00\u59cb\u4f7f\u7528",
-            headlineMain: "\u62db\u52df\u4f60\u7684\u7b2c\u4e00\u4e2a AI \u5458\u5de5",
-            headline, aded: "\u53ea\u9700\u4e00\u5c0f\u65f6\u3002",
-            steps: [
-                {
-                    title: allowSignup ? "注册并创建您的工作空间" : "登录到您的工作空间",
-                    description: allowS, gnup, "输入您的邮箱，验证代码后即可使用。工作空间会自动创建——无需设置向导或配置表单。": "输入您的邮箱，验证代码后即可登录到您的工作空间——无需设置向导或配置表单。",
-                },
-                ,
-                {
-                    title: "\u5b89\u88c5 CLI \u5e76\u8fde\u63a5\u4f60\u7684\u673a\u5668",
-                    description: ,
-                    "运行 multica setup——它会引导你完成 OAuth 登录、启动守护进程、并扫描 26 款支持的 AI 编程工具（Antigravity、Claude Code、Co: : 
-                }
-            ],
-            cta: Codex, Copilot, C,
-            team: {
-                title: "Multica 背后的团队",
-                paragraphs: [
-                    "Multica 由一支从 2021 年起就一起工作的小团队打造。在 Multica 之前，我们做过面向开发者的 AI 搜索引擎 devv.ai。2025 年，我们开始解决自己反复遇到的问题：一个小团队到底该怎样和 AI 智能体一起把事情做完。这就是 Multica。",
-                    "Multica 的源代码公开，也可以自托管：在基于它构建之前，你可以读完每一行代码；自托管的部署完全运行在你自己的基础设施上。商业使用的规则，我们在[授权说明](/licensing)里写清楚了。",
-                ],
-                contacts: [
-                    { label: "商业授权与合作", linkLabel: "联系商务", href: "/contact-sales" },
-                    { label: "授权规则", linkLabel: "授权说明", href: "/licensing" },
-                    { label: "社区与支持", linkLabel: "Discord", href: discordUrl },
-                    { label: "源代码与问题反馈", linkLabel: "GitHub", href: githubUrl },
-                ],
-            }
-        },
-        licensing, {
-            title: "授权说明",
-            intro: [
-                "Multica 采用 [Multica License](https://github.com/multica-ai/multica/blob/main/LICENSE) 发布：在 Apache License 2.0 的基础上附加了几项条件。源代码公开，在你自己的组织内部使用 Multica 是免费的，包括为整个团队自托管。",
-                "最主要的附加条件针对托管使用：把 Multica 提供给组织外部的人使用，需要商业授权。这一页用大家最常问的问题，说明这条线划在哪里。这是一份通俗说明，不构成法律意见；如与 LICENSE 原文不一致，以 LICENSE 为准。",
-            ],
-            rule: {
-                title: "一条判断标准",
-                text: "看组织外部的人有没有在驱动这个实例——创建任务、和智能体对话、触发工作。只要有，不管通过什么界面（Web、Slack 还是 API），都算托管服务；如果他们只是收到你的团队用 Multica 做出来的成果，就属于内部使用。",
-            },
-            scenarios: {
-                title: "常见场景",
-                scenarioColumn: "场景",
-                licenseColumn: "商业授权",
-                required: "需要",
-                notRequired: "不需要",
-                items: [
-                    {
-                        scenario: "你的组织内部使用 Multica",
-                        example: "自托管，不限工作区数量。",
-                        required: false,
-                    },
-                    {
-                        scenario: "你帮客户部署 Multica，由客户自己拥有、在其组织内部使用",
-                        example: "实施、培训、咨询或定制开发。",
-                        required: false,
-                    },
-                    {
-                        scenario: "你的团队用 Multica 为客户干活，客户只收到交付物",
-                        example: "例如 agency 在 Multica 里管理内容生产，向客户交付成品。",
-                        required: false,
-                    },
-                    {
-                        scenario: "智能体只向客户的 Slack 频道单向推送报告或通知",
-                        example: "客户只看消息，不与实例做任何交互。",
-                        required: false,
-                    },
-                    {
-                        scenario: "你在自己的基础设施上替客户运行和管理 Multica 实例",
-                        example: "即代运维服务（managed service），无论是否收费。",
-                        required: true,
-                    },
-                    {
-                        scenario: "组织外部的人登录你的实例",
-                        example: "客户、合作伙伴或公众拥有自己的账号。",
-                        required: true,
-                    },
-                    {
-                        scenario: "组织外部的人通过其他入口驱动你的实例",
-                        example: "例如接入 Multica 后端的公开网站、Slack 集成或 API，免费提供也一样。",
-                        required: true,
-                    },
-                    {
-                        scenario: "你把 Multica 嵌入到你销售或分发的产品中",
-                        example: "Multica 作为另一个商业产品的组件一起交付。",
-                        required: true,
-                    },
-                ],
-            },
-            sections: [
-                {
-                    heading: "其他条件",
-                    bullets: [
-                        "品牌：除非获得我们的书面品牌豁免，请保留 Multica 界面中显示的 Multica Logo、产品名称以及版权和署名信息。",
-                        "署名：如果你只基于 Multica 的后端、守护进程或 CLI 构建产品、不使用 Multica 界面，需要保留版权和 NOTICE 信息，并在面向用户的文档中注明产品基于 Multica 构建，附上 [GitHub 仓库](https://github.com/multica-ai/multica)链接。",
-                        "Fork：公开发布 fork 的源代码不算托管服务，不需要商业授权。但任何用这个 fork 运营托管服务的人，都需要各自获得商业授权。",
-                        "商业授权和品牌豁免是两项独立的授权，获得其中一项不代表获得另一项。",
-                    ],
-                },
-                {
-                    heading: "获取商业授权",
-                    paragraphs: [
-                        "通过[联系商务](/contact-sales)告诉我们你的使用场景，我们会在三个工作日内回复。不确定自己的情况是否需要授权？可以在 [Discord](" + discordUrl + ") 上问我们，也可以通过同一个表单咨询。",
-                    ],
-                },
-            ],
-        },
-        privacy, {
-            title: "隐私政策",
-            lastUpdated: "最后更新：2026 年 9 月 24 日",
-            intro: [
-                "本隐私政策说明 Index Labs (Hong Kong) Limited（下称「Multica」或「我们」）在你访问 multica.ai、联系我们或使用我们的托管服务 Multica Cloud（包括网页端、桌面端和移动端）时，如何收集、使用和共享个人信息。",
-                "本政策不适用于你自行部署的 Multica。自托管部署的数据由部署方控制，它使用哪些 AI 服务商、集成或分析工具，取决于部署方的配置。自托管服务器唯一会发送给我们的是每天一次的使用快照，内容包括：一个随机生成的部署 ID（用于关联同一台服务器的历次快照）、服务器版本、工作区、成员、智能体和已连接守护进程的大致数量，以及当天开始、完成、失败和取消的运行次数。快照不含任何姓名、邮箱或内容。设置 DO_NOT_TRACK=1 即可关闭这份快照。",
-                "本政策以英文版本为准。如中文版本与英文版本不一致，以英文版本为准。",
-            ],
-            sections: [
-                {
-                    heading: "我们收集的信息",
-                    bullets: [
-                        "账户信息：你的姓名、邮箱地址和头像。如果你使用 Google 登录，我们会从 Google 获得你的姓名、邮箱地址和头像。你也可以填写语言、时区、个人简介等资料，以及回答上手引导中的问题，例如你的角色、使用场景、从哪里了解到 Multica。",
-                        "你创建的内容：工作区、任务、评论、聊天消息、附件、智能体指令，以及你或你的智能体放进 Multica Cloud 的其他内容。",
-                        "联系商务表单：你的姓名、工作邮箱、公司名称和规模、国家或地区、使用场景、目标，以及你的沟通偏好。为了防止滥用，我们还会记录提交表单时的 IP 地址和浏览器 user agent。",
-                        "账单信息：订阅付款由 Stripe 在其托管的页面上处理，我们不会接收或存储你的完整银行卡信息。",
-                        "使用和设备信息：应用版本、操作系统、客户端类型和一个随机生成的安装 ID；你连接为运行时的每台机器的名称（默认是其主机名）；以及崩溃和错误报告。报告发送前，我们会从错误信息中过滤掉能识别出的邮箱地址和凭据，但报告仍可能包含与出错情况相关的其他细节。",
-                        "反馈：你提交反馈时，我们会收到反馈内容，以及所在页面、应用版本、操作系统和相关的错误信息。",
-                    ],
-                },
-                {
-                    heading: "我们如何使用信息",
-                    bullets: [
-                        "提供、运营和保护 Multica Cloud，包括登录、同步工作区、发送通知和邀请。",
-                        "回复联系商务表单和支持请求。",
-                        "发送服务消息，例如登录验证码和工作区邀请。只有在你主动同意后，我们才会发送产品动态或营销信息，你可以随时退订。",
-                        "了解 Multica 的使用情况、修复问题并改进产品。",
-                        "防止滥用，并履行法律义务。",
-                    ],
-                },
-                {
-                    heading: "法律依据",
-                    paragraphs: [
-                        "在法律要求说明处理依据的地区，我们依据以下几点处理个人信息：履行与你之间的合同，以提供 Multica Cloud；我们在保障安全、提供支持、改进 Multica 和回复咨询方面的正当利益；你对接收营销信息的同意；以及履行我们的法律义务。",
-                    ],
-                },
-                {
-                    heading: "AI 功能",
-                    paragraphs: [
-                        "你的编码智能体运行在你自己的机器或你连接的运行时上，使用的是你配置的编码工具和账户。智能体在本机运行，不代表模型也在本机推理：这些工具会把提示词、代码、文件和工具调用结果发送给各自的模型服务商，并受你所用工具和账户的条款约束。Multica 负责协调智能体的工作。",
-                        "Multica Cloud 的部分功能（如生成聊天标题和推荐后续操作）会把你的第一条聊天消息或最近几条消息，发送给我们选用的第三方大语言模型服务商来生成结果。Multica 不会用你的内容训练 AI 模型。",
-                    ],
-                },
-                {
-                    heading: "Cookie 与分析",
-                    paragraphs: [
-                        "我们使用必要的 Cookie 来保持你的登录状态、防范跨站请求伪造，以及让你访问自己上传的文件。我们还会用 Cookie 记住你是通过哪个推广活动或网站来到这里的（最长 30 天），以及你选择的语言和最近打开的工作区。",
-                        "我们使用 PostHog 了解产品使用情况并收集崩溃报告。你登录后，PostHog 会收到你账户的姓名和邮箱，以便我们把报告和你的账户对应起来。我们不使用广告 Cookie，也不出售你的个人信息。",
-                    ],
-                },
-                {
-                    heading: "我们与谁共享信息",
-                    paragraphs: [
-                        "你放进工作区的信息，会按工作区的权限设置，被其他成员和管理员，以及他们授权的智能体和集成看到。如果你的工作区属于某个组织，其中的内容由该组织管理，相关请求也可能由该组织处理。",
-                        "在法律要求时，我们会披露相关信息；如果 Multica 发生合并、收购或资产出售，相关信息也可能转移给买方或继任方。",
-                        "除此之外，我们只会与帮助我们运营 Multica 的服务商，以及你选择连接的集成共享个人信息：",
-                    ],
-                    bullets: [
-                        "Amazon Web Services：托管、文件存储和内容分发",
-                        "Vercel：网站和网页应用托管",
-                        "Stripe：付款和账单",
-                        "Resend：登录和邀请邮件",
-                        "PostHog：产品分析和崩溃报告",
-                        "Google：当你选择使用 Google 登录时",
-                        "大语言模型服务商：上文所述的 AI 功能",
-                        "你连接的集成，如 Slack、飞书、钉钉、企业微信、Telegram、GitHub、GitLab、通过 Composio 连接的应用：你选择通过它们收发的数据，同时受这些服务商自身条款的约束",
-                    ],
-                },
-                {
-                    heading: "信息的存储位置",
-                    paragraphs: [
-                        "Multica Cloud 托管在 Amazon Web Services 和 Vercel 上。我们和我们的服务商可能会在美国及其他国家或地区处理你的信息。无论在哪里处理，我们都会按照本政策保护这些信息。",
-                    ],
-                },
-                {
-                    heading: "信息的保留期限",
-                    paragraphs: [
-                        "账户信息和工作区内容会在你的账户或工作区存在期间一直保留。工作区所有者删除工作区后，其中的任务、评论等内容会从 Multica Cloud 中移除，但用于恢复的备份在之后一段时间内仍可能包含副本。如需从我们的文件存储中清除已删除工作区里上传的文件，请发邮件至 [support@multica.ai](mailto:support@multica.ai)。账单记录按会计和税务规定要求的期限保留；产品分析数据、崩溃报告、联系商务表单和反馈，会在为你提供支持和改进 Multica 所需的期间内保留。你可以要求我们删除联系商务表单和反馈。",
-                    ],
-                },
-                {
-                    heading: "你的选择和权利",
-                    paragraphs: [
-                        "根据你所在地的法律，你可能有权访问、更正、删除或导出你的个人信息，反对或限制某些处理，撤回你已给出的同意（例如接收营销信息的同意），以及向当地的数据保护机构投诉。你可以随时在 Multica 中更新个人资料，也可以在设置中删除你拥有的工作区。其他请求（包括删除账户），请发邮件至 [support@multica.ai](mailto:support@multica.ai)，我们会在 30 天内回复。",
-                    ],
-                },
-                {
-                    heading: "安全",
-                    paragraphs: [
-                        "我们通过传输加密、访问控制以及对集成凭据的加密存储来保护你的信息。没有任何系统是绝对安全的；如果你认为自己的账户已被盗用，请尽快联系我们。",
-                    ],
-                },
-                {
-                    heading: "儿童",
-                    paragraphs: [
-                        "Multica 并非面向 16 岁以下的儿童，我们也不会在知情的情况下收集他们的个人信息。",
-                    ],
-                },
-                {
-                    heading: "政策变更",
-                    paragraphs: [
-                        "我们可能会不时更新本政策。新版本会发布在本页面，并更新页首的日期。如有重大变更，我们会在生效前通知你。",
-                    ],
-                },
-                {
-                    heading: "联系我们",
-                    paragraphs: [
-                        "Multica 由 Index Labs (Hong Kong) Limited 运营，并由其负责你的个人信息。如有隐私相关的问题或请求，请发邮件至 [support@multica.ai](mailto:support@multica.ai)。",
-                    ],
-                },
-            ],
-        },
-        changelog, {
-            title: e, Dim, G,
-            subtitle: , Kiro, CLI, MiniMax, Co,
-            toc: i, OpenC,
-            categories: {
-                features: Code
-            },
-            improvements: CLI
-        },
-        fixes, 装的工具会被自
-    ];
-}
-entries: [
-    {
-        version: 1, b\u5efa
+      "這個名字是在向 20 世紀 60 年代具有開創意義的作業系統 Multics 致意。Multics 首創了分時系統，讓多個使用者能夠共享同一臺機器，同時又像各自獨佔它一樣使用。Unix 則是在有意簡化 Multics 的基礎上誕生的，強調一個使用者、一個任務、一種優雅的哲學。",
+      "我們認為，類似的轉折點正在再次出現。幾十年來，軟體團隊一直處於一種單執行緒的工作模式，一個工程師處理一個任務，一次只專注於一個上下文。AI agents 改變了這個等式。Multica 將“分時”重新帶回這個時代，只不過今天在系統中進行多路複用的“使用者”，既包括人類，也包括自主 Agent。",
+      "在 Multica 中，agents 是一級團隊成員。它們會被分配任務，彙報進展，提出阻塞，並交付程式碼，就像人類同事一樣。任務分配、活動時間線、task 生命週期，以及執行時基礎設施，Multica 從第一天起就是圍繞這一理念構建的。",
+      "和當年的 Multics 一樣，這一判斷建立在“多路複用”之上。一個小團隊不該因為人數少就顯得能力有限。有了合適的系統，兩名工程師加上一組 agents，就能發揮出二十人團隊的推進速度。",
+      "Multica 的原始碼公開，也可自行架設；工作區資料保留在你管理的基礎設施中。商業使用規則請參閱授權說明。",
+    ],
+    cta: "在 GitHub 上檢視",
+    team: {
+      title: "Multica 背後的團隊",
+      paragraphs: [
+        "Multica 由一支自 2021 年起共同工作的團隊打造。在 Multica 之前，我們推出了面向開發者的 AI 搜尋引擎 devv.ai。2025 年，我們開始解決自己的難題：小團隊如何與 AI Agent 一起完成工作。",
+        "Multica 的原始碼公開，也支援自行架設。商業使用規則詳見[授權說明](/licensing)。",
+      ],
+      contacts: [
+        { label: "商業授權與合作", linkLabel: "聯絡業務", href: "/contact-sales" },
+        { label: "授權規則", linkLabel: "授權說明", href: "/licensing" },
+        { label: "社群與支援", linkLabel: "Discord", href: discordUrl },
+        { label: "原始碼與問題回報", linkLabel: "GitHub", href: githubUrl },
+      ],
     },
-    date, 2, c\u4e00, u4e2,
-    title, description,
-    "\u7ed9\u5b83\,,,
-    changes, [],
-    features, [
-        u6307\u4ee4, uff0c\u9644\u52a0\u6280, u, 0, fd, uff0c\u8bbe\u7f6e\u89e6\u53d1\u5668, , 3002, \u9009\u62e9\u5b83\u4f55\u65f6\u6fc0, , 6, d3b, uff1a\u88ab\u6307\u6d3e\u65f6, u3001, u67, 9, \u8bc4\u8bba\u65f6, u3001\u88ab, , u63d0\u53ca\u65f6, u3002, ",,,
-        {
-            title: "\u630, \u6d3e\u4e00\u4e2a\u4efb\u52a1\u5e76\, 89c2\u5bdf\u5b83\u5de5\u4f5c",
-            description: ,
-            "关联的 PR 全部合并后，Issue 会按你设定的方式自动流转。": ,
-            "在列表旁边就能预览 Issue，不用离开当前页面。": ,
-            "企业微信的通知会按每个人自己的语言发送。": ,
-            "模型里可以选到 Claude Opus 5.5 和 GPT-6 Sol/Luna。": ,
-            "挑选仓库时能看到它的项目描述。": 
-        }
+  },
+
+  licensing: {
+    title: "授權說明",
+    intro: [
+      "Multica 採用 [Multica License](https://github.com/multica-ai/multica/blob/main/LICENSE) 發佈：在 Apache License 2.0 的基礎上附加了幾項條件。原始碼公開，在你自己的組織內部使用 Multica 是免費的，包括為整個團隊自行架設。",
+      "最主要的附加條件針對代管使用：把 Multica 提供給組織外部的人使用，需要商業授權。這一頁用大家最常問的問題，說明這條線畫在哪裡。這是一份通俗說明，不構成法律意見；如與 LICENSE 原文不一致，以 LICENSE 為準。",
     ],
-    improvements, [
-        同事一样, task, 自动入队, 领取, 执行, 实时观看进度, ",,,
-    ],
-    cta, "\u5f00\u59cb\u4, 7f\u7528",
-    ctaGithub, "\u5728 GitHub \u4e0a\u67e5\u770b",
-],
-    fixes;
-[
-    6587, \u6863, ",,,
-    openSource, ,
-    label, "源码公开",
-    headlineLine1, , "每一行代码，",
-    headlineLine2, "都由你掌控。",
-    ,
-    description,
-    "Multica 的源代码完全, 开。审查每一行代码，免费自托管，塑造人类 + 智能体 协作的未来。把 Mu, tica 作为托管服务提供给他人，需要商业授权。",
-    cta, "在, GitHub 上 Star",
-    licensingCta, "了解授权方式 , ",
-    highlights, [
-        {},
-        itle, "\u968f\u5904\u81ea\u6258, u7ba1",
-        description,
-        "\, 5728\u4f60\u81ea\u5df1\u7684\u57fa\u7, 40\u8bbe\u65bd\u4e0a\u8fd0\u884, Multica\u3002Docker Compose\u3001\u5
-    ],
-    ,
-    {
-        version: f9b\u5e94,
-        date: b9a, ",: ,: title, "\u81ea\u5e26 LLM \u63d0\u4f9b\u55,,: changes, []: ,
-        features: [
-            1, \u6269\u5c55, API, u3002\u4f60\u62e5\u6709\u6574, u4e2a\u6280\u672f\u6808\u7684\u63a7, u5, 36, \u6743, u3002, ",
-        ]
+    rule: {
+      title: "一條判斷標準",
+      text: "看組織外部的人有沒有在驅動這個執行個體——建立任務、和 Agent對話、觸發工作。只要有，不管透過什麼介面（Web、Slack 還是 API），都算代管服務；如果他們只是收到你的團隊用 Multica 做出來的成果，就屬於內部使用。",
     },
-    {},
-    title, "\u9ed8\u8ba4\u900f\u660e",
-    ,
-    "使用 Antigravity 时能实时看到智能体的工具执行过程。",
-    "Grok Build 的任务在运行过程中也能补充新的指导。",
-    "Issue 的附件可以在全屏视图里逐个翻看。",
-    "文档站现在有完整的法语内容。",
-    "官网可以查到许可说明、隐私政策，以及 Multica 背后的团队。",
-    "自托管的管理员可以让自动标题和快捷操作响应更快。"
-],
-    improvements;
-[
-    4e00, \u884c\u4ee3\u7801\u90fd
-],
-    fixes;
-[
-    智能体, \u5982\u4f55\u505a\u51b3\u7b56, u3001, u, efb\u52a1\u5982\u4f55\u8def, u753, u3001\u6570\u636e\u6d41\u5411\u4f55\u65b9, u3, 2, ",,,
-    {
-        title: "\u7, 3e\u533a\u9a71\u52a8",
-        description: ,
-        "\u4e0e\u793e\u533a\u4e00\u8d77\u5e: : 
-    }
-];
-{
-    version: b\u7f16;
-    u,
-        date;
-    ans,
-        title;
-    Multica;
-    \u5f00\u7bb1\u5373\u7528\u652f;
-    u63,
-        changes;
-    [],
-        features;
-    [
-        ff1aAntigravity, u3001Claude, Code, u3001CodeBuddy, u3001CodeArt, u3001Codex, u3001Copilot, u3001Cursor, u, 1, DeepSeek, Harness, u3001DevEco, Code, u3001Dim, u30, 1, Grok, u3001Hermes, u3001Kimi, u3001Kir, CLI, u3001MiniMax, Code, u3001Oh - My - Pi, u300
-    ],
-        improvements;
-    [
-        7, a0b\u4f1a\u81ea\u52a8\u68c0\u6d4b, u, 72, c\u673a\u5df2\u5b89\u88c5\u7684, CLI, \u5e76, u4e3a\u6bcf\u6b3e\u6ce8\u518c\u4e00, u4e2a\u8fd0\u884c\u65f6, u3002因为源码公开,
-        "进入任务对应的 GitHub PR 更快了。",
-        "运行状态的动效更流畅，也更省资源。"
-    ],
-        fixes;
-    [
+    scenarios: {
+      title: "常見場景",
+      scenarioColumn: "場景",
+      licenseColumn: "商業授權",
+      required: "需要",
+      notRequired: "不需要",
+      items: [
         {
-            question: "\u9700\u8981\u81ea\u625, \u7ba1\u5417\uff0c\u8fd8\u662f\u6709\u4e91\, 7248\u672c\uff1f",
-            answer: ", u4e24\u8005\u90fd\u6709\u3002\u4f60\u53ef, u4ee5\u7528 Docker Compose \u6216 Ku, ernetes \u5728\u81ea\u5df1\u7684\u57fa\u7840, u8bbe\u65bd\u4e0a\u81ea\u6258\u7ba1 Mu, tica\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528\u62, 1\u4eec\u7684\u6258\u7ba1\u4e91\u7248\u67,,,
-            "Autopilot 创建的 Issue 会记录在活动里。": ,
-            "访客身份的小队负责人会被正常唤醒并接手工作。": ,
-            "企业微信的回复没送回来时，能查出是哪里丢的。": 
-        }
-    ];
-}
-{
-    version: uestion: ,
-        date;
-    answer: 
-        ,
-            title;
-    的组织内部使用;
-    Multica;
-    是免费的;
-    包括为整个团队自托管;
-    只有两种情况需要商业授权;
-    把;
-    M,
-        changes;
-    [],
-        features;
-    [
-        销售或分发的产品中, 常见场景见[授权说明](/licensing), ",,
-    ];
-}
-{
-    question: 
-        , "\u8fd9\u548c\u76f4\u63a5\u7528\u7f16\,;;
-    "评论和回复都能复制直链，打开后会定位并高亮它。",
-        "企业微信的回答会回在你提问的那条消息里。",
-        "自托管可以改用 Gitea 或其兼容镜像获取更新。";
-    improvements: [
-        522, b, uff1f, ",,,
-        answer,
-        ,
-        "\u7f16\u7801 智能体 \u64c
-    ],
-        fixes;
-    [
-        ica, \u6dfb\u52a0\u7684\u662f\u7ba1, u74, 6, \u5c42, uff1a\u4efb\u52a1\u961f\u5217, u3001\u56e2\u961f\u534f, u4f5c, u3001\u6280\u80fd\u590d\u7528, u3001, u8fd0\u884c\u65f6\u76d1\u63a7, ,
-        "评论的顺序保持稳定，重新打开页面后 Issue 链接也依然可用。",
-        "本地目录资源不再出现无法使用的重命名入口。",
-        "编辑器里粘贴的图片会保留原本的格式。",
-        "Inbox 里关于智能体活动的文案与实际一致了。",
-        "Windows 上的任务不用额外操作就能交付结果。"
-    ];
-}
-{
-    version: \u4ec0;
-    u4,
-        date;
-    \u4e00\u89c6;
-    title: a\u5b83\u60f3\u8c61\u6210\u4f60;
-    changes: [],
-        features;
-    [
-        3002, ",
-    ];
-}
-{
-    question: , "智能体 \u80fd\u81ea\u4e3b\u5904\u7406\, 957f\u65f6\u95f4\u4efb\u52a1\u, 417\uff1f",
-        answer;
-    "\u53ef\u4ee5\u3002Multica \u7ba1\,;;
-    "Autopilot 的每条日程都能单独编辑或暂停，不用删掉重建。";
-    improvements: [
-        u751f\u547d\u5468\u671f, u2014, u2014\u5165, , 961, f, u3001\u9886\u53d6, u3001\u6267, u8, 4, c, u3001\u5b8c\u6210\u6216\u5931, u,
-        "各处重复的说明文字精简了，Chat 列表的初始宽度与 Inbox 一致。"
-    ],
-        fixes;
-    [
-        2, a5\u544a\u963b\u585e\u5e76\u5b9e\u65f6, u63a, \u9001\u8fdb\u5ea6, u3002\u4f60\u53ef, u4e, 5, \u968f\u65f6\u67e5\u770b, uff0c, u4e5, \u53ef\u4ee5\u8ba9\u5b83\u4eec, u, fd0\u884c\u6574\u665a, u3002, ",
-    ];
-}
-{
-    question: "\u6211\u7684\u4ee3\u7801\u5b89\, 5168\u5417\uff1f智能体 \u5728\u54ea\u91cc\u6267\u884c\uf, 1f",
-        answer;
-    "智能体在你, 机器（通过本地守护进程）或你连接的运行时上运行，直接在你的代码仓库里工作。工作,;;
-    "桌面端能找到你自己装的命令行工具，CodeBuddy 的回复也完整显示。",
-        "Windows 上的运行会按你设置的路径找工具。",
-        "私有运行时不再因为归属对不上而无法使用。",
-        "任务的费用和用量不再漏记。",
-        "任务里的提交会用这个任务自己的 Git 身份。",
-        "断线重连后，任务的最终结果依然会送达。",
-        "取消子任务后，父任务的阶段进度会正确推进。",
-        "在别处完成的邀请不会再留在待处理里。",
-        "提及选择器在词中间也能打开，没有匹配时也能正常操作。",
-        "侧栏里关于 PR 关联和 @all 的说明不再有误导。",
-        "Quick Create 会保留你原本输入的内容。";
-}
-{
-    version: 智能体所用的编码工,
-        date;
-    的模型服务商;
-    想让工作区数,
-        title;
-    Multica;
-    详见[隐私政策](/privacy);
-    ",;;
-}
-{
-    changes: [],
-        features;
-    [
-        84, c\u591a\u5c11\u4e2a, 智能体, uff1f, ",,,
-        an, wer,
-        "\u53d6\u51b3\u4e8e\u4, 60\u7684\u786c\u4ef6\u3002\u6bcf\u4e, a 智能体 \u6709\u53ef\u914d\u7f6e\u7684\u5e76\u53d1\u, 650\u5236\uff0c\u4f60\u53ef\u, ee5\u8fde\u63a5\u591a\u53f0\u673a\u5668\u4f5c\u4e3a\, 8fd0\u884c\u65f6\u3002自托管时没有任何人为限制。",
-    ];
-}
-"自托管服务端每天发一次匿名部署概况，可用 DO_NOT_TRACK=1 关闭。";
-improvements: [
-    "\u4eba\u7c7b + 智能体 团队的项目管理。源, 公开、可自托管、\u4e3a\u672a\u6765\u7684\, 5de5\u4f5c\u65b9\u5f0f\u800c\u5e,,,
-    "Issue 里的智能体步骤会预览这一步在处理什么。",
-    "Issue 列表刷新时会在页面标题上标出，快速刷新不再闪。",
-    "智能体发很长的最终评论时收尾更快。"
-],
-    fixes;
-[
-    59, cb\u4f7f\u7528, ",,,
-    groups, {
-        prod, ct: {
-            label: "\u4ea7\u54c1",
-        },
-        links: [
-            { label: "\u529f, u80fd\u7279\u6027", href: "#features, }, }, },
-            { label: "\u5982\u4f, 5\u5de5\u4f5c", href: "#how-it-works" },
-            ,
-            { label: "\u6848\u4f8b", href: "/usecases" }, ,
-            { label: "更新日志", href: "/c, angelog" },
-            { label: "下载", h, ef: "/download" },
-        ],
-    },
-    ,
-    resources, {
-        label, "\u8d44\u6e90": ,
-        links: [
-            ,
-            { label: "\u6587\u6863", href, docsHref },
-            { labe, "API": , href: githubUrl },
-            ,
-            "自托管的网页镜像已应用最新的 OpenSSL 安全更新。"
-        ]
-    },
-    {
-        version: x.com / Mul,
-        date: { label,
-            title: f, discordUrl },
-    }
-], ,
-    changes;
-[],
-    features;
-[
-    "\u5173\u4e8e",
-    links, [
-        ,
-        { label: "关于我们", href: "/about" },
-        ,
-        { label: "授权说明", href: "/licensing" },
-        ,
-        { label: "隐私政策", href: "/privacy", },
-        { label: "\u8054\u7cfb\u,,,
-            "运行历史里能看到是谁取消了任务。": ,
-            "命令行可以直接设置或清空智能体的开场建议。": ,
-            "GPT-6 Astra 已可选用，并附公开价格。": ,
-            "自托管服务端可以接入 Redis 集群或托管的 Serverless 实例。":  }
-    ],
-    improvements, [
-        ,
-        { label: "GitHub", h, ef: githubUrl },
-    ],
-    ,
-    ,
-    ,
-    copyright, "\u00a9 {year, Multica. \u4fdd\u7559\u6240\u6709\
-                    ],,,
-    fixes, [
-        x, "Multica\u2014\u2014",
-        mult, "Mult",
-        iplexed, "iplexed ",
-        i, , "I",
-        nformationAnd, "nformation, and ",
-        c, "C",
-        omputin, "omputing ",
-        a, "A",
-        ,
-        gent, "gent\u3002",
-        ,
-        paragraph, [
-            "\u8fd9\u4e2a\u540d\u5b5, \u662f\u5728\u5411 20 \u4e16\u7eaa 60 \u5e74, u4ee3\u5177\u6709\u5f00\u521b\u610f, u4e49\u7684\u64cd\u4f5c\u7cfb\u7edf,,,
-            "Issue 里的智能体运行按实际发生的时间排列。",
-            "内容很长的弹窗仍然能点到底部的按钮。",
-            "Codex 环境准备失败时会直接停下，不再复用。",
-            "没有实际变化时，Issue 不会再显示一次更新。",
-            "网页端已应用最新的安全更新。"
-        ],
-        ,
-        {
-            version: b\u4e86, u,
-            date: b\u7edf, uff0c,
-            title: 2, a\u7528\u6237\u80fd\u591f\u5171, u4,
-            changes: [],
-            features: [
-                40, c\u65f6\u53c8\u50cf\u5404\u81ea\u72ec\u5360, u, b83\u4e00\u6837\u4f7f\u7528, u3002Unix, u5219\u662f\u5728\u6709\u610f\u7b80, u, 316, Multics, \u7684\u57fa\u7840\u4e0a\u8bde, u751
-            ],
-            improvements: [
-                54, f2\u5b66, u3002, ",,,
-                "\u6211\u4eec\, 8ba4\u4e3a\uff0c\u7c7b\u4f3c\u7684\u
-            ],
-            fixes: [
-                f\u4e00\u76f4\u5904\u4e8e\u4e00\u79cd, u5, 55, \u7ebf\u7a0b\u7684\u5de5\u4f5c, u6a2, \u5f0f, uff0c\u4e00\u4e2a\u5de5\u7a0b, u5e08\u5904\u7406\u4e00\u4e2a\u4efb\u52a1, u, f0c\u4e00\u6b21\u53ea\u4e13\u6ce8, u4e, e\u4e00\u4e2a\u4e0a\u4e0b\u6587, u, 2, AI, agents, \u6539\u53d8\u4e86\u8fd9, u4e2, \u7b49\u5f0f, u3002Multica, \u5c06, u201c, u, 206, \u65f6, u201d\u91cd\u65b0\u5e26\u56de, ,
-                "快速创建的 Issue 不再显示和它无关的活动。",
-                "工具输出的预览不会再把字符截成一半。",
-                "达到请求上限时会直接说明，不再让你重新登录。",
-                "命令行会准确报告你实际拿到的是第几页 Issue。",
-                "拖动排序不会再把 Issue 放到错误的位置。",
-                "Inbox 里不会再并排出现两个侧边栏开关。"
-            ]
+          scenario: "你的組織內部使用 Multica",
+          example: "自行架設，不限工作區數量。",
+          required: false,
         },
         {
-            version: 7, \u4eca, u,
-            date: b\u7edf\u4e2d,
-            title: 1, a\u8def\u590d\u7528\u7684, u201c, u,
-            changes: [],
-            features: [
-                4e, ba\u7c7b, uff0c\u4e5f\u5305\u62ec\u81ea, , 4e3, b\u4ee3\u7406, u3002, ",,,
-                "在 Multica 中, agents 是一级团队成员。它们会被分配任务，汇报进展，提出阻塞，并交付代码，就像人, 同事一样。任务分配、活动时间线、task 生命周期，以及运行时基础设施，, ultica 从第一天起就是围绕这一理念构建的。",
-                ",,,
-                "命令行里的自定义属性会直接显示名称，不再只有 ID。",
-                "命令行可以查看智能体每次运行的用量和花费。",
-                "命令行可以只取需要的 Issue 字段，返回内容更短。"
-            ],
-            improvements: [
-                e00\u6837, uff0c\u8fd9\u4e00\u5224\u65ad, , 5e, fa\u7acb\u5728, u201c\u591a\u8def, u590, \u7528, u201d\u4e4b\u4e0a, u3002\u4e00\u4e2a, u5c0, \u56e2\u961f\u4e0d\u8be5\u56e0, u4e
-            ],
-            fixes: [
-                63e, \u5f97\u80fd\u529b\u6709\u9650, u3002, u6, 9, \u4e86\u5408\u9002\u7684\u7cfb\u7edf, uff0, \u4e24\u540d\u5de5\u7a0b\u5e08\u52a0, u4, 0, a\u4e00\u7ec4, agents, uff0c, u, c31\u80fd\u53d1\u6325\u51fa\u4e8c, , 5341, \u4eba\u56e2\u961f\u7684\u63a8\u8fdb, u901f\u5ea6, u3002, ",,,
-                "Multica 的源代码公开, 并且可以免费自托管，工作区数据始终保存在你自己的基础设施中。\u4, 60\u53ef\u4ee5\u5ba1\u67e5\u6bcf
-            ]
+          scenario: "你幫客戶部署 Multica，由客戶自己擁有、在其組織內部使用",
+          example: "實施、培訓、諮詢或客製化開發。",
+          required: false,
         },
         {
-            version: , uff0c, u6,
-            date: \u5df1\u7684,
-            title: f0c\u4e5f\u53ef\u4ee5\u5411\u793e, u53,
-            changes: [],
-            features: [
-                cta, "在 GitHub 上查看",
-                team, {},
-                title, "Multica 背后的团队",
-                paragraphs, [,
-                    "Multica 由一支从 2021 年起就一起工作的小团队打造。在
-                ],
-                improvements, [
-                    ai, 2025, 年, 我们开始解决自己反复遇到的问题, 一个小团队到底该怎, 和, AI, 智能体一起把事情做完, 这就是, Multica, ",
-                ],
-                fixes, [
-                    的规则, 我们在[授权说明](/licensing), 里写清楚了, ",,
-                ],
-                contacts, [
-                    { label: "商业, 权与合作", linkLabel: "联系商务", href: "/cont, ct-sales" },
-                    { label, "授权规则": , linkLabel: "授权说明", href: "/lic } }
-                ]
-            ]
+          scenario: "你的團隊用 Multica 為客戶執行工作，客戶只收到交付物",
+          example: "例如 agency 在 Multica 中管理內容生產，向客戶交付成品。",
+          required: false,
         },
         {
-            version: 
-        }
-    ],
-    ,
-    date, censing, {},
-    title, intro, [
-        "Multica ,,,
-        changes, [],
-        features, [
-            ltica - ai / multica / blob / main / LICENSE, 发布, 在, Apache, License, 2.0, 的基础上附加了几项条件, 源代码公, 在你自己的组织内部使用, Multica, 是免费的, 包括为整个团队自托, ",,,
-            "最主要的附加条件针对托管使用：把 Mul,,,
-            "也能找出某个自定义属性还没填的 Issue。"
-        ],
-        improvements, [
-            说明这条线划在哪里, 这是一份通俗说明, 不构成法律意见, 如与, L, CENSE, 原文不一致, 以, LICENSE, 为准, ",,,
-            rule, {
-                title: "一条判
-            }
-        ],
-        fixes, [
-            ,
-            scenarios, {
-                title: "常见场景",
-            },
-            scenarioColumn, "场景",
-            licen, eColumn, "商业授权",
-            required, "需要",
-            notRequired, "不需要",
-            ,
-            items, [
-                {
-                    scenari, "你的组织内部使用 Multica": ,
-                    e, ample: "自托管，不限工作区数量。",
-                    required: fa, se,
-                },
-                {},
-                "已离开工作区的成员，在活动记录里仍会显示原来的名字。"
-            ],
-            ,
-            {
-                version: ,
-                date: 训, 咨询或定制开发, ",: ,: title, ed, false: ,
-            },
-            changes, [],
-            features, [
-                ltica, 为客户干活, 客户只收到交付物, ",,,
-                examp, e, "例如 agency 在 Multica 里管理内容生产，向客户交付成品。,,,
-                "可以使用 Fable 5.1，定价也已经补齐。",
-                "Issue 可以按自定义的文本、数字、日期和 URL 属性包含什么来筛选。",
-                "数字和日期属性还可以按区间筛选。",
-                "命令行可以查看还在运行的智能体任务，父 Issue 和子 Issue 一起看。",
-                "聊天里的 Issue 链接、悬浮卡片和输入建议都会显示自定义状态颜色。"
-            ],
-            improvements, [
-                ,
-                {
-                    scena, io: "智能体只向客户的 Slack 频道单向推送报告或通知",
-                },
-                example, "客户只看消息，不与实例做任何交互。",
-            ],
-            fixes, [
-                ,
-                {
-                    sce, ario: "你在自己的基础设施上替客户运行和管理 Multica, 实例",
-                    example: "即代运维服务（managed service），无论是, 收费。",
-                    required: true,
-                },
-                ,
-                {
-                    scenario: "组织外部的人登录, 的实例",
-                    example: "客户、合作伙伴或,,,
-                    "Kimi 会如实报告 provider 错误，不再显示成功却没有回复。": ,
-                    "Windows 上的 Pi 会话可以正常运行。": ,
-                    "Codex 可以明确选择 Standard 速度。": ,
-                    "后台清理只会删除属于该任务的工作目录。": ,
-                    "清理特殊字符时，保存的数据不会再被悄悄丢掉一部分。": ,
-                    "iOS 上滑动很长的 Markdown 列表时不再出现重叠。": ,
-                    "任务详情里的图片加载时不再闪烁。": ,
-                    "日期和金额会按你选择的语言显示。": ,
-                    "桌面端的守护进程控件已完整翻译。": 
-                }
-            ],
-            ,
-            {
-                version: 
-            },
-            ,
-            date, scenario, "组织,,,
-            title, ",,,
-            example, "例如接入 Multica 后端的公,,,
-            changes, [],
-            features, [
-                "华为云 CodeArts 现已成为内置的智能体运行时。",
-                "可以选它的模型、续接之前的会话，并使用 MCP 和本地技能。",
-                "iPad 上可以原生安装 Multica，横屏竖屏都能用。",
-                "自托管部署在多台服务器上时，企业微信机器人的回复也能送达。",
-                "可以查看有多少条企业微信回复没有发出，以及原因。",
-            ],
-            improvements, [
-                d, true,
-                ,
-                {},
-                scenario, "你把 Multica 嵌入到你销售或分发的产品中",
-                example, "Multica 作为另一个商业产, 的组件一起交付。",
-                required, tru,
-                "自托管服务器的后台采集更轻，数据库负担更小。",
-                "有连接卡住时，自托管服务器依然正常响应。"
-            ],
-            fixes, [
-                sections, [
-                    {
-                        heading, "其他条件": ,
-                        bullets: [
-                            ,
-                            "品牌：除非获得我们的书面品牌豁免，请保留 Multica , 面中显示的 Multica Logo、产品名称以及版权和署名信,,,
-                            "桌面端会自动恢复意外停止的守护进程。",
-                            "手机上 Issue 顶部重新变得紧凑，头像和点击区域都还在。",
-                            "从更早版本升级自托管实例不再需要手动修复。",
-                            "工作目录变化后，Pi 和 Oh My Pi 的会话仍然接得上。",
-                            "删除工作区时，提示只说明真正会被删除的内容。",
-                            "长时间运行和排队中的任务不会仅因等待被取消。"
-                        ]
-                    },
-                    {
-                        version: I, 构建产品, 不使,
-                        date: 保留版权和, NOTICE,
-                        title: 品基于, Multica, 构建, 附上, [GitHub]: 仓库
-                    }
-                ](htt, changes, [], features, [
-                    "Fork：公开发布 fork 的源代码不算托管服, ，不需要商业授权。但任何用这个 fork 运营托管服务的人，都需要各, 获得商业授权。",
-                    "商业授权和品牌豁免是两项独立的授, ，获得其中一项不代表获得另一项。",
-                ]),
-                ,
-                "导入前可以预览内容，名称冲突也会提前提示。",
-                "Oh My Pi 智能体现在可以在智能体页面配置并使用 MCP。"
-            ],
-            improvements, [
-                paragraphs, [
-                    "通过, 联系商务](/contact-sales)告诉我, 你的使用场景，我们会在三个工作日内回复。不确定自己的情况是否需要授权,,,
-                    "CLI 现在写明了列出 Issue 的单页上限和翻页方式。"
-                ],
-                fixes, [
-                    +") 上问我们，也可以通过同一个表单咨询。",
-                    ,
-                ],
-                ,
-            ],
-            ,
-            privac, {
-                title: "隐私政策",
-                lastU, dated: "最后更新：2026 年 9 月 24 日",
-                intro: [
-                    "本隐私政策,,,
-                    "飞书的回复不会再因为凭证过期而一直卡住。",
-                    "Quick Create 恢复草稿时，高度会重新贴合内容。",
-                    "OpenClaw 超时后会完全停止，不会留下残余进程。",
-                    "配置 OpenClaw 时，不会再明明成功却提示失败。"
-                ]
-            },
-            {
-                version: , 我们, 在你访问,
-                date: 们或使用我们的托管服务, M,
-                title: 页端, 桌面端和移动端, 时, 如何收集, 使用和共享个人信息, ",: ": ,
-            },
-            changes, [],
-            features, [
-                AI, 服务商, 集成或分析工具, 取决于部署方的配置, 自托管服务器唯一会发送给, 们的是每天一次的使用快照, 内容包括, 一个随机生成的部署, ID, 用于关联同一台服务器,
-                "可以给智能体设置最多 3 条开场建议，空白聊天里会直接显示。",
-                "点击开场建议只会填入输入框，你可以改完再发送。",
-                "收件箱通知可以按发起人筛选，也能只看未读。"
-            ],
-            improvements, [
-                以及当天开始, 完成, 失败和取消的运行次数, 快照不含任何姓名, 邮箱或内容, 设置, DO_NOT_TRACK = 1, 即可关闭这份快照, ",,,
-                "本,,,
-                "只需填一个 Cloud 地址，云端运行时、账单和席位管理会一起启用。",
-                "本地任务的目录名称清晰易读，找文件更方便。"
-            ],
-            fixes, [
-                为准, ",
-            ],
-            sections, [
-                ,
-                {
-                    heading: "我们收集的信息",
-                    bullets: [
-                        "账户信息, 你的姓名、邮箱地址和头像。如果你使用 Google 登录，我们会从, Google 获得你的姓名、邮箱地址和头像。你也可以填写语言、,,,
-                        "Codex 任务不再提前结束，不会漏掉内容或重复计费。",
-                        "Autopilot 命令不再接受实际无效的优先级参数。",
-                        "Issue 描述很长时，看板也不会变慢。",
-                        "读取体积很大的技能更稳定，不会再中断。"
-                    ]
-                },
-                {
-                    version: tica, ",: ,: date, 容, 工作区, 任务, 评论, 聊,
-                    title: 或你的智能体放进, Multica, Cloud, 的其他内容
-                },
-                changes, [],
-                features, [
-                    地区, 使用场景, 目标, 以及你的沟通偏好, 为了防止滥用, 我们还会记录提交表单, 的, IP, 地址和浏览器, user, agent, ",,,
-                    ",,,
-                    "自定义 Issue 状态正式开放，所有工作区都能直接创建。"
-                ],
-                improvements, [
-                    存储你的完整银行卡信息, ",,,
-                    "使用和设备信息：应用版本, 操作系统、客户端类型和一个随机生成的安装 ID；你连接为运行时的每台机,,,
-                    "自托管指南补齐了健康检查、单一域名部署和版本选择说明。"
-                ],
-                fixes, [
-                    我们会从错误信息中过滤掉能识别出的邮箱地址和凭据, 但报告仍可能, 含与出错情况相关的其他细节, ",,,
-                    "反馈：你提交反馈时，,,,
-                    "任务失败后的自动恢复回复，会回到原来的评论线程。",
-                    "评论时间不再显示成错误的时区。",
-                    "智能体用完整 ID 定位 Issue 更快、更稳定。",
-                    "取消任务后，智能体进程会真正停止，不再在后台残留。",
-                    "已取消订阅的席位不再出现在账单里。",
-                    "任务被取消时，命令行不再误提示重新登录。"
-                ]
-            ],
-            ,
-            {
-                version: 
-            }
-        ],
-        ,
-        date, heading, ,
-        title, bullets, [
-            "提供,,,
-            changes, [],
-            features, [
-                "回复联系商务表单和支持请求。",
-                "发, 服务消息，例如登录验证码和工作区邀请。只有在你主动同意后，我们才会发送产, 动态或营销信息，你可以随时退订。",
-                "了解 Mul, ica 的使用情况、修复问题并改进产品。",
-                "防止滥用，并
-            ],
-            improvements, [
-                你对接收营销信息的同意, 以及履行我们的法律义务, ",
-            ],
-            ,
-            ,
-            {
-                heading: "AI , 能",
-                paragraphs: [
-                    ,
-                    "你的编码智能体运行在你自己的机器或你连接的运行时上, 使用的是你配置的编码工具和账户。智能体在本机运行，不代表模型也在本机,,,
-                    "自托管指南现在说明正确的 PostgreSQL 要求。"
-                ],
-                fixes: [
-                    自的模型服务商, 并受你所用工具和账户的条款约束, Multica, 责协调智能体的工作, ",,,
-                    "Multica , loud 的部分功能（如生成聊天标题和推荐后续操作）会把你的第一条聊天消息, 最近几条消息，发送给我们选用的第三方大语言模型服务商来生成结果。Multica, 不会用你的内容训练 AI 模型。",
-                ],
-            }, ,
-            {
-                heading: "Cookie 与分, ",
-                paragraphs: [
-                    ,
-                    "我们使用必要的 Cookie 来保持你的登录状态、防范
-                ]
-            },
-            {
-                version: okie, 也不出售,
-                date: 
-            }
-        ],
-        ,
-        title, heading, "我们与谁共享信息",
-        paragraphs, ,
-        changes, [],
-        features, [
-            理员, 以及他们授权的智能体和集成看到, 如果你的工作区属于某个组织, 其中的内容由该组织管, 相关请求也可能由该组织处理, ",,,
-            "在法律要
-        ],
-        improvements, [
-            ",
-        ],
-        bullets, [
-            ,
-            "Amazon Web Services：托管、文件存储和内容分, ",
-            "Vercel：网站和网页应用托管",
-        ],
-        fixes, [
-            "Resend：登录和邀请邮件",
-            "PostHog, 产品分析和崩溃报告",
-            "Google：当你选择使用 Goo, le 登录时",
-            "大语言模型服务商：上文所述的 AI 功能",
-            "你连接的集成，如 Slack、飞书、钉钉、企业微信、Telegram, GitHub、GitLab、通过 Composio 连接的应用：你选择, 过它们收发的数据，同时受这些服务商自身条款的约束",
-        ],
-    ],
-    ,
-    {
-        version: oud, 托管在, A,
-        date: ces, 和, Vercel,
-        title: 国及其他国家或地区处理你的信息, 无论在哪里处理, 我,
-        changes: [],
-        improvements: [
-            删除联系商务表单和反馈, ",
-        ],
+          scenario: "Agent 只向客戶的 Slack 頻道單向推送報告或通知",
+          example: "客戶只看訊息，不與執行個體做任何互動。",
+          required: false,
+        },
+        {
+          scenario: "你在自己的基礎設施上替客戶運行和管理 Multica 執行個體",
+          example: "即代運維服務（managed service），無論是否收費。",
+          required: true,
+        },
+        {
+          scenario: "組織外部的人登入你的執行個體",
+          example: "客戶、合作夥伴或公眾擁有自己的帳號。",
+          required: true,
+        },
+        {
+          scenario: "組織外部的人透過其他入口驅動你的執行個體",
+          example: "例如接入 Multica 後端的公開網站、Slack 整合或 API，免費提供也一樣。",
+          required: true,
+        },
+        {
+          scenario: "你把 Multica 嵌入到你銷售或分發的產品中",
+          example: "Multica 作為另一個商業產品的元件一起交付。",
+          required: true,
+        },
+      ],
     },
-    {},
-    heading, "你的选择和权利",
-    paragraphs, [
-        ,
-        "Webhook 的事件筛选现在更容易添加和移除。",
-        "输入 / 时，精确匹配的技能会排在最前面。"
-    ],
-    fixes, [
-        正, 删除或导出你的个人信息, 反对或限制某些处理, 撤回你已给出的同意, , 如接收营销信息的同意, 以及向当地的数据保护机构投诉, 你可以随时在, Mul, ica, 中更新个人资料, 也可以在设置中删除你拥有的工作区, 其他请求, 包括删除账户, , 发邮件至[support],
-    ](mailto, support)
-];
-{
-    version: ;
-}
-date: heading: "儿童",
-    title;
-aphs: [
-    "Multica ,,,
-    changes, [],
-    features, [],
-    ,
-    {
-        hea, ing: "政策变更",
+    sections: [
+      {
+        heading: "其他條件",
+        bullets: [
+          "品牌：除非獲得我們的書面品牌豁免，請保留 Multica 介面中顯示的 Multica Logo、產品名稱以及版權和署名資訊。",
+          "署名：如果你只基於 Multica 的後端、守護程序或 CLI 構建產品、不使用 Multica 介面，需要保留版權和 NOTICE 資訊，並在面向使用者的檔案中註明產品基於 Multica 構建，附上 [GitHub 儲存庫](https://github.com/multica-ai/multica)連結。",
+          "Fork：公開發佈 fork 的原始碼不算代管服務，不需要商業授權。但任何用這個 fork 營運代管服務的人，都需要各自獲得商業授權。",
+          "商業授權和品牌豁免是兩項獨立的授權，獲得其中一項不代表獲得另一項。",
+        ],
+      },
+      {
+        heading: "獲取商業授權",
         paragraphs: [
-            ,
-            "我们可能会不时更新本政策。新版本会发布在本页面，并更新页首的日期。如有, 大变更，我们会在生效前通知你。",
+          "透過[聯絡業務](/contact-sales)告訴我們你的使用場景，我們會在三個工作日內回覆。不確定自己的情況是否需要授權？可以在 [Discord](" + discordUrl + ") 上問我們，也可以透過同一個表單諮詢。",
         ],
+      },
+    ],
+  },
+
+  privacy: {
+    title: "隱私政策",
+    lastUpdated: "最後更新：2026 年 9 月 24 日",
+    intro: [
+      "本隱私政策說明 Index Labs (Hong Kong) Limited（下稱「Multica」或「我們」）在你存取 multica.ai、聯絡我們或使用我們的代管服務 Multica Cloud（包括網頁端、桌面端和行動版）時，如何收集、使用和共享個人資訊。",
+      "本政策不適用於你自行部署的 Multica。自行架設部署的資料由部署方控制，它使用哪些 AI 服務商、整合或分析工具，取決於部署方的設定。自行架設伺服器唯一會傳送給我們的是每天一次的使用快照，內容包括：一個隨機生成的部署 ID（用於關聯同一台伺服器的歷次快照）、伺服器版本、工作區、成員、Agent和已連線守護程序的大致數量，以及當天開始、完成、失敗和取消的運行次數。快照不含任何姓名、電子郵件或內容。設定 DO_NOT_TRACK=1 即可關閉這份快照。",
+      "本政策以英文版本為準。如中文版本與英文版本不一致，以英文版本為準。",
+    ],
+    sections: [
+      {
+        heading: "我們收集的資訊",
+        bullets: [
+          "帳戶資訊：你的姓名、電子郵件地址和頭像。如果你使用 Google 登入，我們會從 Google 獲得你的姓名、電子郵件地址和頭像。你也可以填寫語言、時區、個人簡介等資料，以及回答上手引導中的問題，例如你的角色、使用場景、從哪裡瞭解到 Multica。",
+          "你建立的內容：工作區、任務、評論、聊天訊息、附件、Agent 指令，以及你或你的 Agent放進 Multica Cloud 的其他內容。",
+          "聯絡業務表單：你的姓名、工作電子郵件、公司名稱和規模、國家或地區、使用場景、目標，以及你的溝通偏好。為了防止濫用，我們還會記錄提交表單時的 IP 地址和瀏覽器 user agent。",
+          "帳單資訊：訂閱付款由 Stripe 在其代管的頁面上處理，我們不會接收或儲存你的完整銀行卡資訊。",
+          "使用和設備資訊：應用版本、作業系統、客戶端類型和一個隨機生成的安裝 ID；你連線為runtime的每台機器的名稱（預設是其主機名）；以及崩潰和錯誤報告。報告傳送前，我們會從錯誤資訊中過濾掉能識別出的電子郵件地址和憑據，但報告仍可能包含與出錯情況相關的其他細節。",
+          "意見回饋：你提交意見回饋時，我們會收到意見回饋內容，以及所在頁面、應用版本、作業系統和相關的錯誤資訊。",
+        ],
+      },
+      {
+        heading: "我們如何使用資訊",
+        bullets: [
+          "提供、營運和保護 Multica Cloud，包括登入、同步工作區、傳送通知和邀請。",
+          "回覆聯絡業務表單和支援請求。",
+          "傳送服務訊息，例如登入驗證碼和工作區邀請。只有在你主動同意後，我們才會傳送產品動態或行銷資訊，你可以隨時退訂。",
+          "瞭解 Multica 的使用情況、修復問題並改進產品。",
+          "防止濫用，並履行法律義務。",
+        ],
+      },
+      {
+        heading: "法律依據",
+        paragraphs: [
+          "在法律要求說明處理依據的地區，我們依據以下幾點處理個人資訊：履行與你之間的契約，以提供 Multica Cloud；我們在保障安全、提供支援、改進 Multica 和回覆諮詢方面的正當利益；你對接收行銷資訊的同意；以及履行我們的法律義務。",
+        ],
+      },
+      {
+        heading: "AI 功能",
+        paragraphs: [
+          "你的編碼Agent運行在你自己的機器或你連線的runtime上，使用的是你設定的編碼工具和帳戶。Agent 在本機運行，不代表模型也在本機推理：這些工具會把提示詞、程式碼、檔案和工具調用結果傳送給各自的模型服務商，並受你所用工具和帳戶的條款約束。Multica 負責協調 Agent的工作。",
+          "Multica Cloud 的部分功能（如生成聊天標題和推薦後續操作）會把你的第一條聊天訊息或最近幾條訊息，傳送給我們選用的第三方大型語言模型服務商來生成結果。Multica 不會用你的內容訓練 AI 模型。",
+        ],
+      },
+      {
+        heading: "Cookie 與分析",
+        paragraphs: [
+          "我們使用必要的 Cookie 來保持你的登入狀態、防範跨站請求偽造，以及讓你存取自己上傳的檔案。我們還會用 Cookie 記住你是透過哪個宣傳活動或網站來到這裡的（最長 30 天），以及你選擇的語言和最近打開的工作區。",
+          "我們使用 PostHog 瞭解產品使用情況並收集崩潰報告。你登入後，PostHog 會收到你帳戶的姓名和電子郵件，以便我們把報告和你的帳戶對應起來。我們不使用廣告 Cookie，也不出售你的個人資訊。",
+        ],
+      },
+      {
+        heading: "我們與誰共享資訊",
+        paragraphs: [
+          "你放進工作區的資訊，會按工作區的權限設定，被其他成員和管理員，以及他們授權的Agent和整合看到。如果你的工作區屬於某個組織，其中的內容由該組織管理，相關請求也可能由該組織處理。",
+          "在法律要求時，我們會披露相關資訊；如果 Multica 發生合併、收購或資產出售，相關資訊也可能轉移給買方或繼任方。",
+          "除此之外，我們只會與幫助我們營運 Multica 的服務商，以及你選擇連線的整合共享個人資訊：",
+        ],
+        bullets: [
+          "Amazon Web Services：代管、檔案儲存和內容分發",
+          "Vercel：網站和網頁應用代管",
+          "Stripe：付款和帳單",
+          "Resend：登入和邀請郵件",
+          "PostHog：產品分析和崩潰報告",
+          "Google：當你選擇使用 Google 登入時",
+          "大型語言模型服務商：上文所述的 AI 功能",
+          "你連線的整合，如 Slack、飛書、釘釘、企業微信、Telegram、GitHub、GitLab、透過 Composio 連線的應用：你選擇透過它們收發的資料，同時受這些服務商自身條款的約束",
+        ],
+      },
+      {
+        heading: "資訊的儲存位置",
+        paragraphs: [
+          "Multica Cloud 代管在 Amazon Web Services 和 Vercel 上。我們和我們的服務商可能會在美國及其他國家或地區處理你的資訊。無論在哪裡處理，我們都會按照本政策保護這些資訊。",
+        ],
+      },
+      {
+        heading: "資訊的保留期限",
+        paragraphs: [
+          "帳戶資訊和工作區內容會在你的帳戶或工作區存在期間一直保留。工作區所有者刪除工作區後，其中的任務、評論等內容會從 Multica Cloud 中移除，但用於恢復的備份在之後一段時間內仍可能包含副本。如需從我們的檔案儲存中清除已刪除工作區里上傳的檔案，請發郵件至 [support@multica.ai](mailto:support@multica.ai)。帳單記錄按會計和稅務規定要求的期限保留；產品分析資料、崩潰報告、聯絡業務表單和意見回饋，會在為你提供支援和改進 Multica 所需的期間內保留。你可以要求我們刪除聯絡業務表單和意見回饋。",
+        ],
+      },
+      {
+        heading: "你的選擇和權利",
+        paragraphs: [
+          "根據你所在地的法律，你可能有權存取、更正、刪除或導出你的個人資訊，反對或限制某些處理，撤回你已給出的同意（例如接收行銷資訊的同意），以及向當地的資料保護機構投訴。你可以隨時在 Multica 中更新個人資料，也可以在設定中刪除你擁有的工作區。其他請求（包括刪除帳戶），請發郵件至 [support@multica.ai](mailto:support@multica.ai)，我們會在 30 天內回覆。",
+        ],
+      },
+      {
+        heading: "安全",
+        paragraphs: [
+          "我們透過傳輸加密、存取控制以及對整合憑據的加密儲存來保護你的資訊。沒有任何系統是絕對安全的；如果你認為自己的帳戶已被盜用，請盡快聯絡我們。",
+        ],
+      },
+      {
+        heading: "兒童",
+        paragraphs: [
+          "Multica 並非面向 16 歲以下的兒童，我們也不會在知情的情況下收集他們的個人資訊。",
+        ],
+      },
+      {
+        heading: "政策變更",
+        paragraphs: [
+          "我們可能會不時更新本政策。新版本會發佈在本頁面，並更新頁首的日期。如有重大變更，我們會在生效前通知你。",
+        ],
+      },
+      {
+        heading: "聯絡我們",
+        paragraphs: [
+          "Multica 由 Index Labs (Hong Kong) Limited 營運，並由其負責你的個人資訊。如有隱私相關的問題或請求，請發郵件至 [support@multica.ai](mailto:support@multica.ai)。",
+        ],
+      },
+    ],
+  },
+
+  changelog: {
+    title: "更新日誌",
+    subtitle: "Multica 的最新更新和改進。",
+    toc: "歷史版本",
+    categories: {
+      features: "新功能",
+      improvements: "改進",
+      fixes: "問題修復",
     },
-],
-    improvements;
-[
-    Labs(Hong, Kong), Limited, 运营, 并由其负责你的个人信息, 如有, 私相关的问题或请求, 请发邮件至[support],
-](m, ilto, support);
-",;;
-fixes: [
-    386, \u53f2\u7248\u672c, ",,,
-    categorie, {
-        features: "新功能",
-        i, provements: "改进",
-        fixes: "问题修复",
-    },
-    ,
-    entries, [
-        {
-            versi, n: "0.6.0",
-            date: "2026-09-28",
-        }
-    ],
-    ,
-    {
-        version: 网页端和桌面端秒回,
-        date: "回复运行中的智能体时，,,,
-        title: 重启它, ",: ": 追加的回复有没有被智能体收到, 现在,
-    },
-    changes, [],
-    features, [
-        本和详情, ",,,
-        "附件以网格排列，HTML、Markdown、C, V、JSON、YAML 都能就地预览。",
-        "Merm
-    ],
-    improvements, [
-        "关联的 PR 全部合并后，Issue 会按你设定的方式自动流转。",
-        ,
-        "在列表旁边就能预览 Issue，不用离开当前页面。",
-    ],
-    fixes, [],
-    improvements, [
-        ,
-        "设置按个人、工作区和当前设备重新分好，还能直接搜索。",
-        ,
-        智能体的任务历史可以翻页, 并会汇总花掉的时间, ",,,
-        ", 面端的返回、前进和侧栏开关都收到了左侧。",
-        "MC, 页面能看到每个服务分配给了多少智能体。",
-    ],
-];
-{
-    version: ,
-        ,
-            date;
-    sue;
-    会被全部删除;
-    ",,;;
-    title: 显示得更准确;
-    ",;;
-    "保存视图后会沿用你输入的名字。", ,
-        changes;
-    [],
-        features;
-    [
-        一行会完整显示改动量, 检查进行中时转圈提示, ",
-    ],
-    ;
-}
-{
-    version: "0.5.3",
-    ;
-    improvements: [
-        跟随系统语言, ",,,
-        "Issue 能看到关联的 , R，全部合并后自动完成。",
-        "使
-    ],
-        fixes;
-    [
-        自托管的管理员可以让自动标题和快捷操作响应更快, ",
-    ],
-        , improvements;
-    [
-        "评
-    ];
-}
-{
-    version: [],
-        ,
-            date;
-    "C,;;
-    title: 的任务在运行过程中也能补充新的指导;
-    ",;;
-    "可以在状态,;;
-    changes: [],
-        features;
-    [
-        "命令行创建 Issue 时可以同时写好自定义属性。",
-        ,
-        "在 Telegram 群里 @ 智能体，它已经知道近期的对话。",
-        ,
-        "下载页可以直接获取 Windows 上的命令行安装方式。",
-    ],
-        ,
-            "Slack 消息里发的文件现在会作为附件出现在对话里。",
-        "手机上可以把 Multica 添加到主屏幕，像应用一样打开。",
-        "浏览器标签页会显示你正打开的工作区页面名。",
-        "导入的技能现在会显示它来自哪里。",
-        "提到你正在看的这个 Issue 时，会显示成「本 Issue」。";
-    improvements: [
-        nClaw, 的每个智能体都在你为它配置的目录里工作, ",,,
-        创建, Issue, 时上传的附件会出现在描述里, ",,,
-        "Lark, 机器人不回话时，能看到投递卡在哪里。",
-        "Issue 的定时唤醒按你自, 的时区显示。",
-        "进入任务对应的 GitHub PR, 更快了。",
-        "运行状态的动效更流畅，也更省资源。",
-    ],
-        fixes;
-    [
-        "Codex 的新模型一发布就出现在选择器里。",
-        ,
-        "命令行登录连不上服务器时会明确告知，不再一直等。, ,,,
-        "受邀成员在限制注册的自托管环境里也能完成, 册。",
-        "启动没有确认的任务会被重新拉起，不会卡住。", ,
-        "取消任务立刻响应，线程里的回复也会送到对应, 智能体。",
-        "移动端断线后会自己重新连上。",
-        ,
-        "桌面端工具栏的间距恢复正常。",
-        "Win, ows 安装脚本在 PowerShell 5.1 上也能运行。",
-        ,
-        "法语界面的确认框不再出现横向滚动。",
-        ,
-        Autopilot, 创建的, Issue, 会记录在活动里, ",,,
-        "访客身份的, 队负责人会被正常唤醒并接手工作。",
-        "企业微信的回复没送回来时，能, 出是哪里丢的。",
-    ],
-    ;
-}
-{
-    version: "2026-09,;;
-    date: itle: "Issue ,;;
-    title: 分支;
-    渠道与运行时更稳;
-    ",;;
-    changes: [],
-        changes;
-    [],
-        features;
-    [
-        置成有新评论时或按定时规则再次唤醒智能体, ",,,
-        "唤醒, 则可以在 Issue 侧栏或 Autopilot 里管理。",
-        ", 目的仓库工作可以指定从哪个分支或提交开始。",
-        "评论和回, 都能复制直链，打开后会定位并高亮它。",
-        "企业
-    ],
-        improvements;
-    [
-        再整条丢失, ",,,
-        "页面打开更快，运行时用量在手机上也排, 下。",
-    ],
-        fixes;
-    [
-        ,
-        "同时运行的同名工具不再把结果弄混。",
-        "O
-    ],
-        fixes;
-    [
-        ram, 每条消息只回一次, 重启或重试后也不会重复, ",,,
-        "自托管的, Telegram 和钉钉能正确读到你填的密钥。",
-        ,
-        "取消子任务时会说明影响了哪个阶段、影响了多少个。",
-        ,
-        "评论的顺序保持稳定，重新打开页面后 Issue 链接也依然可, 。",
-        "本地目录资源不再出现无法使用的重命名入口。",
-        ,
-        "编辑器里粘贴的图片会保留原本的格式。",
-        "Inb, x 里关于智能体活动的文案与实际一致了。",
-        "Windows 上的任务不用额外操作就能交付结果。
-    ];
-}
-{
-    version: : "0.5.0",
-        date;
-    "2026-09-18",
-        title;
-    "法语界面、智能体运行更稳更省、Inbox 完整归档、登录状态更持久",
-        changes;
-    [],
-        features;
-    [
-        "界面语言可以选法语，网页端和桌面端都支持。",
-        ,
-        "命令行可以给技能加标签，技能页面也能按标签筛选。",
-        ,
-        "Oh-My-Pi 的智能体可以设置思考级别。",
-        ,
-        "命令行可以修改已经发出的评论，且不会覆盖别人同时的修改。",
-        ,
-        "Issue 列表可以按所属项目的状态筛选。",
-        ,
-        "Autopilot 的每条日程都能单独编辑或暂停，不用删掉重建, ",
-    ],
-        improvemen;
-    improvements: [
-        Issue, 和评论重读一遍, ",,,
-        "一直在使用时登录状态, 自动延长，不再每 30 天被强制退出。",
-        "In
-    ],
-        fixes;
-    [
-        "已被撤销的群聊连接会显示为已断开。",
-        ,
-        Grok, Pi, Copilot, Codex, 的运行不再静默出错或漏掉部, 回复, ",,,
-        "Cursor 的会话在连接超时后仍然保留，可以接着, 。",
-        "过旧的 OpenCode 不会再把磁盘写满。",
-        ,
-        "Hermes 的任务不再卡在收尾阶段。",
-        "桌面, 能找到你自己装的命令行工具，CodeBuddy 的回复也完整显示。", ,
-        "Windows 上的运行会按你设置的路径找工, 。",
-        "私有运行时不再因为归属对不上而无法使用。",
-    ];
-}
-{
-    version: 用这个任务自己的,
-        date;
-    "断线重连后，任,;;
-    title: "取消子任务后，父,;;
-    changes: [],
-        features;
-    [
-        理里, ",,,
-        "提及选择器在词中间也能打开，没有匹配时也能, 常操作。",
-        "侧栏里关于 PR 关联和 @all 的,,,
-        "智能体的环境变量可以整段粘贴，也能一次批量编辑。",
-        "手机和平板上也能对列表逐条做归档、置顶、重命名了。",
-        "新建工作区时，Issue 前缀可以自己填，不再一律是 WS。"
-    ],
-        improvements;
-    [
-        保留你原本输入的内容, ",
-    ],
-    ;
-}
-{
-    version: "0.4.44",
-        , date;
-    "2026-09-15",
-        title;
-    钉钉引用回复;
-    Issue;
-    状态设置重做;
-    运行用量更准;
-    评论删除更安, ",;;
-    changes: [],
-        featur, s;
-    [
-        "钉钉群里的回复会引用你发出的那条消息。",
-        ,
-        "钉钉会用表情回应标出你的请求正在处理，完成后再
-    ],
-        fixes;
-    [
-        输入的内容, 并关联它创建的, Issue, ",,,
-        "设置里的, Issue 状态按未开始、进行中、已完成、已关闭分组。",
-        "拖动, 态（包括内置状态）就能决定它在看板、列表和状态菜单里的位置。",
-        ,
-        "自定义状态可以自己选图标形状。",
-        "装, DeepSeek Harness Desktop 就会自动识别为运行时。, ,,,
-        "自托管服务端每天发一次匿名部署概况，可用 DO_N, T_TRACK=1 关闭。",
-    ],
-        improveme, ts;
-    [
-        "归档一个状态时会告诉你还有多少 Issue 在用它，并能直, 跳过去。",
-        "DeepSeek Harness 运行
-    ];
-}
-{
-    version: ,
-        date;
-    指向它的链接会落到旁边那条,
-        title;
-    "Issue 列表按状态排,;;
-    changes: [],
-        features;
-    [
-        在等你处理时, 会通知到你, ",,,
-        "两条评论同时派发同一个智能, 会并入一次运行，不再失败。",
-        "失败的委派任务会被重新接手，, 再被落下。",
-        "Claude、Codex、CodeBuddy、
-    ],
-        improvements;
-    [
-        话的回复, ",,,
-        "在 Windows 上打包的技, 压缩包导入后可以正常使用。",
-        "Hermes 会在任务实, 运行的目录里找到你的本地技能。",
-        "企业微信不再在文件前发, 条空消息，文件没发出去时也会说明。",
-        "飞, 绑定二维码可以撑满一小时，不会在第一次检查时失效。",
-    ],
-        fixes;
-    [
-        ,
-        "关掉侧栏里的 Discord 入口后，帮助入口的对齐保持正常, ",
-        "自托管的网页镜像已应用最新的 OpenSSL 安全更新。",
-    ],
-    ;
-}
-{
-    version: ", .4.43",
-        date;
-    "2026-09-11",
-        , title;
-    "评论与描述批注、桌面端历史菜单、Issue 看板新默认视图、性, 优化",
-        changes;
-    [],
-        featur, s;
-    [
-        "选中评论里的文字加上批注，回复时会带上这段引, 。",
-        "在 Issue 描述里选中文字，可以直接开一条新线, 。",
-        "桌面端的前进/后退可以列出最近访问过的页面，, 接跳回去。",
-        "新的 Issue 视图默认聚焦最新的工作，也沿用你,,,
-        "很长的 Issue 或项目名称不再把所在的一行挤乱。",
-        "自托管时，邮件会用你配置的发件地址发出。"
-    ];
-}
-{
-    version: "运,;;
-    date: ",
-        ,
-            title;
-    的开场建议;
-    ",;;
-    ",;;
-    changes: [],
-        features;
-    [
-        务端可以接入, Redis, 集群或托管的, Serverless, 实例, ",,
-    ],
-        improvements;
-    [
-        ,
-        "Inbox 打开更快，评论很长也不会拖慢列表。",
-        "任务, 行中写评论保持流畅，很长的记录也一样。",
-        "全站的, 角样式统一了。",
-        "窗口很窄时，Inbox 里打开的内容依然可读。",
-        ,
-    ],
-        fixes;
-    [
-        "服,,,
-        "企业微信连不上时，页面会说清是被拒绝还是根本连不通。"
-    ],
-        improvements;
-    [
-        再次检出同一个仓库, 上次留下的改动都会保留, ",,,
-        ", 新打开 Inbox 不会再漏掉离开期间到达的通知。",
-        "飞书普通群, 的回复会保留原始消息并提醒提问的人。",
-        "Squad 成员在领队接单后发出的, 复不会再丢。",
-        "较早创建的 Autopilot 触发不会再被跳过。",
-        "使用量会说明 token 统计不完整，而不是,,,
-        "智能体现在可以查看承载自己的运行时状态和磁盘占用。"
-    ],
-        fixes;
-    [
-        ity, 的运行会报告用量和花费, ",,,
-        "每一步工具调用显示的耗时是实际耗时。, ,,,
-        "GitHub PR 只在明确声明的位置关联 Issue。",
-        ,
-        "Issue 里的智能体运行按实际发生的时间排列。",
-        ,
-        "内容很长的弹窗仍然能点到底部的按钮。",
-        ,
-        "Codex 环境准备失败时会直接停下，不再复用。",
-        ,
-        "没有实际变化时，Issue 不会再显示一次更新。",
-        ,
-        "网页端已应用最新的安全更新。",
-    ],
-    ;
-}
-{
-    version: "0.4, 42",
-        date;
-    "2026-09-0, ",
-        title;
-    "评论线程内的智能体运行、Issu,;;
-    "视图标签放不下时才出现「更多」按钮。",
-        "侧边栏的收起状态和设置页导航的表现一致了。";
-}
-{
-    version: ,
-        date;
-    "智能体的排,;;
-    title: 接显示在对应的评论线程里;
-    ",
-        ,
-            changes;
-    [],
-        features;
-    [
-        "不同的评论线程各自排队，指令不会被并到别的线程里。",
-        ,
-        右侧大纲列出, Issue, 里的全部线程, 参与者和完成情况, ",,
-    ],
-        improvements;
-    [],
-        improvements;
-    [
-        这次已经产生的用量和花费仍然保留, ",,,
-        "第一, 会话失败的运行时不会再一直卡住。",
-        ", ursor 在后台跑的命令不会被当成空闲，任务结束也会清理掉。",
-        ,
-        "Telegram 的回复不会再和还在发送的占位消息重复。",
-        "文档补上了企业微信和 QwenPaw 的接入说明。"
-    ],
-        fixes;
-    [
-        和 / clear, 也不再吞掉你正在输入的内容, ",,,
-        "飞书私聊收, 到绑定卡片时，会在群里给出提示。",
-        "从频道创建的 Is, ue，链接可以直接打开。",
-        "回复某个智能体的线程仍由, 继续，不会多出一个用不上的任务。",
-        "用鼠, 打开日志后按 Esc，不会再留下残留。",
-        ,
-        "普通智能体不会再被误认成 Squad 领队。",
-        "CodeBuddy 启动时会带上你配置的 MCP 服务。",
-        "远程 MCP 服务不再在部分运行时里被悄悄忽略。",
-        "OpenCode 空手而归的运行不再显示为成功。",
-        "Windows 上提示词很长的 OpenCode 任务也能正常启动。",
-        "Windows 上的 Codex 任务现在可以正常提交代码。",
-        "Kimi 的用量和花费不再偶发漏记。"
-    ];
-}
-{
-    version: 览不会再把字符截成,
-        date;
-    "达到请求上限时会直接说,;;
-    title: "命令行会准确报告你实际拿到,;;
-    changes: [],
-        features;
-    [
-        到错误的位置, ",,,
-        "Inbox 里不会再并排出现, 个侧边栏开关。",
-    ],
-    ;
-}
-"执行记录里能看到每次运行的花费，以及整个任务的合计。",
-    "静音评论通知后，@ 到你的消息依然会送达。",
-    "手机上聊天以全屏打开，输入框会浮在键盘上方。",
-    "手动替换 multica 或 Agent CLI 后自动生效，不用重启。";
-improvements: [
-    date, "2026-09-07",
-    ,
-    itle, "全新侧边栏导航、分组后的设置页、大工作区搜索更, 、Autopilot 手动触发",
-    cha, ges, [],
-    features, [],
-    fixes, [
-        "设置页按用途分组：个人、工作区、Issue 配置、连接与, 展、桌面应用。",
-        "所有集成集中在一页，一眼就能, 出哪些已经连上。",
-        "创建 Issue 和聊天相关的偏好, 现在都在偏好设置里。",
-        "命令行里的自定义属性会直接, 示名称，不再只有 ID。",
-        "命令行可以查看智能体每次运行的, 量和花费。",
-        "命令行可以只取需要的 Issu, 字段，返回内容更短。",
-    ],
-];
-{
-    version: 的内存上限;
-    ",
-        ,
-            date;
-    fixes: [
-        ,
-        title, 动触发的, Autopilot, 现在智能体也能替你触发, ",,,
-        changes, [],
-        features, [
-            "Autopilot 的 Webhook 凭据不再出, 在实时更新里。",
-            "工作目录被清掉的 Pi 任务会改用新, 话，不再反复失败。",
-            "从频道新开的对话，标题取自你刚发出的, 条指令。",
-            "归档智能体会一并结束它的对话，Sla,,,
-            "打开图片后可以用方向键继续往前往后翻看。",
-            "任务头部会列出全部讨论，可以搜出某一条直接跳过去。",
-            "中日韩界面改用当地日常说法来称呼任务。"
+    entries: [
+      {
+        version: "0.4.43",
+        date: "2026-09-11",
+        title: "评论与描述批注、桌面端历史菜单、Issue 看板新默认视图、性能优化",
+        changes: [],
+        features: [
+          "选中评论里的文字加上批注，回复时会带上这段引用。",
+          "在 Issue 描述里选中文字，可以直接开一条新线程。",
+          "桌面端的前进/后退可以列出最近访问过的页面，直接跳回去。",
+          "新的 Issue 视图默认聚焦最新的工作，也沿用你保存的排序。",
+          "运行记录会明确标出工具输出没有完整保留。",
+          "运行历史里能看到是谁取消了任务。",
+          "命令行可以直接设置或清空智能体的开场建议。",
+          "GPT-6 Astra 已可选用，并附公开价格。",
+          "自托管服务端可以接入 Redis 集群或托管的 Serverless 实例。",
         ],
-        improvements, [
-            到的运行时上的智能体创建任务了, ",,,
-            "嵌套列表里的 , ab 和 Enter 只作用于你所在的那一层。",
-            ,
-            "Codex 对话因旧配置一直失败时，会直接说明该怎么改。", ,
+        improvements: [
+          "Inbox 打开更快，评论很长也不会拖慢列表。",
+          "任务运行中写评论保持流畅，很长的记录也一样。",
+          "全站的圆角样式统一了。",
+          "窗口很窄时，Inbox 里打开的内容依然可读。",
         ],
-    ];
-}
-{
-    ve, sion;
-    "0.4.40",
-        date;
-    "2026-09-04",
-        title;
-    "MCP 服务器改名与连接替换、升级期, 任务启动更稳、登录过期的干净退出、共享智能体状态更准",
-        ,
-            "桌面端去掉了一项从未产出有效结果的后台诊断。";
-    fixes: [
-        res, [
-            "给 MCP 服务器改名不会再弄丢连接配置和已分配的智能体。", ,
-            "要换成新的连接配置，现在是一个单独、明, 的操作。",
-            "保存 MCP 服务器时会直接定位到需要修, 的那一项。",
+        fixes: [
+          "服务端短暂抖动不会再结束仍在运行的任务。",
+          "重试或再次检出同一个仓库，上次留下的改动都会保留。",
+          "重新打开 Inbox 不会再漏掉离开期间到达的通知。",
+          "飞书普通群里的回复会保留原始消息并提醒提问的人。",
+          "Squad 成员在领队接单后发出的回复不会再丢。",
+          "较早创建的 Autopilot 触发不会再被跳过。",
+          "使用量会说明 token 统计不完整，而不是当成完整数据。",
+          "Antigravity 的运行会报告用量和花费。",
+          "每一步工具调用显示的耗时是实际耗时。",
+          "GitHub PR 只在明确声明的位置关联 Issue。",
+          "Issue 里的智能体运行按实际发生的时间排列。",
+          "内容很长的弹窗仍然能点到底部的按钮。",
+          "Codex 环境准备失败时会直接停下，不再复用。",
+          "没有实际变化时，Issue 不会再显示一次更新。",
+          "网页端已应用最新的安全更新。",
         ],
-        improvements, [
-            ,
-            "名称相近的 Skill 在 QwenPaw 上不再互相覆盖。",
-            "空闲会话的第一条消息立即显示，不再排队等待。",
-            "排队的消息会按你发送的顺序进入对话记录。",
-            "文档站点恢复正常，不再因为某个页面报错而打不开。"
-        ]
-    ];
-}
-{
-    version: 果返回更快了;
-    ",,;;
-    date: fixes: [,
-        title, 和服务端版本不一致时, 任务仍然能正常启动, ",,,
-        changes, [],
-        features, [
-            "离线不会再把你登出。",
-            "别人运行时上共享出来的智能体会显示为可用, 不再显示离线。",
-            "之前用过的仓库再次检出不会再失败。
+      },
+      {
+        version: "0.4.42",
+        date: "2026-09-09",
+        title: "评论线程内的智能体运行、Issue 线程大纲、渠道回复更可靠、大工作区搜索更稳",
+        changes: [],
+        features: [
+          "智能体的排队、运行状态、步骤和日志，现在直接显示在对应的评论线程里。",
+          "在同一个线程里追加指令，会并入正在进行的那次运行。",
+          "不同的评论线程各自排队，指令不会被并到别的线程里。",
+          "右侧大纲列出 Issue 里的全部线程、参与者和完成情况。",
         ],
-        improvements, [
-            es, [],
-            features, [
-                ,
-                "模型列表可以手动刷新，马上拿到运行时现在支持的模型。,,,
-                "Skill 的文件行菜单里可以直接进入编辑。",
-                "聊天中的快捷建议会跟随你正在使用的语言。",
-                "智能体每次运行读取的说明更精简，占用的上下文更少。",
-                "本地构建的运行时会明确标注，不再提示并不存在的更新。",
-                "运行时详情页的标题不再重复显示机器名。"
-            ],
-            fixes, [
-                起它的那个会话, ",,,
-                "桌面端可以用数字快, 键切换标签页。",
-                "命令行可以按自定义属性筛选和排序 Iss, e。",
-                "也能找出某个自定义属性还, 填的 Issue。",
-            ],
-            ,
-            mprovements, [
-                "把 Issue , 配给别人的步骤更少了，仍然可以先不启动。",
-                ,
-                "自托管服务器为保持运行时连接做的后台工作更少了。",
-                ,
-                "删除运行时会立刻生效，不会留下失效的连接。",
-            ],
-            ,
-            "在新接入的聊天渠道里，智能体不再误报附件已发送。",
-            "过长的项目名或标签名不再让属性标签占满一整行。",
-            "清空属性的入口，现在统一位于选择弹层的第一行。",
-            "Autopilot 的 Runbook 过宽时，不再把设置面板挤出弹窗。",
-            "中文侧栏中的 Discord 入口不再显示不全。",
-            "把任务指派给小队不再出错。"
-        ]];
-}
-{
-    version: 交接信息和会话都不,
-        date;
-    "很长的 Issue 标,;;
-    title: ",;;
-    "登录、报错和 404 页面,;;
-    changes: [],
-        features;
-    [
-        ",,,
-        "Hermes 会保留你选的模型供应商，不再自己切回去,,,
-        "收件箱可以用上下方向键切换选中项，不用鼠标也能一条条看。",
-        "新增上手教程，带你从空工作区一步步搭出一个自己运转的团队。",
-        "一个月没被用到的仓库缓存会自动清掉，磁盘不再一直变大。"
-    ],
-        improvements;
-    [
-        正常启动, 你自己的, MCP, 配置不会被改动, ",,,
-        "定时和 Webhoo, 触发的 Autopilot 按触发器创建者的权限运行。",
-        ,
-        "创建 Autopilot 时会明确指出还差哪个必填项。",
-        "任务侧栏先显示执行日志，详情放到下面。",
-        "许可证里写明了：免费的公开托管同样需要商业授权。"
-    ],
-        fixes;
-    [
-        "Kimi 接着上次的对话回复时，不再把上一轮的回答重复一遍。",
-        "自带 Codex 指令文件的智能体现在能正常开始 task。",
-        "给原本没有触发器的 Autopilot 选好定时，现在能保存下来了。",
-        "打开智能体导入的 Skill，不再显示你没做过的改动。",
-        "在 Slack 和飞书里用 /new 都能开一段全新对话。",
-        "在聊天里用 /issue 建的任务，现在会给你发通知。",
-        "阿里云 OSS、腾讯云 COS 上传附件不再失败。",
-        "只能通过代理上网的机器现在也能第一时间接到 task。",
-        "手机端会自己重连，不再卡在一条已经断开的连接上。",
-        "下载过的 Skill 会一直留在本地，不会隔几天又重新下一遍。",
-    ];
-}
-{
-    version: 的成员;
-    在活动记录,
-        date;
-    title: version: "0.4.38",
-        ,
-            changes;
-    [],
-        features;
-    [
-        Claude, Code, 动态模型发现, 属性筛选运算符, 本地目录会话续接, Provider, 运行更稳, ",,,
-        cha, ges, [],
-        features, [
-            ,
-            模型选择器只显示本机, Claude, Code, 真正能用的模型, ",,,
-            "用不了的模型会提前标出来，不用等运行失败才发现。, ,,,
-            "可以使用 Fable 5.1，定价也已,,,
-            "创建智能体时，运行时里多了 Qoder CN 可选。"
+        improvements: [
+          "大工作区里的搜索不会再中途超时。",
+          "很长的线程标题在大纲里保持单行。",
         ],
-        improvements, [
-            日期和, URL, 属性包含什么来筛选, ",,,
-            "数字和日期属性, 可以按区间筛选。",
-            "命令行可以查看还在运行的智能体任务，父 , ssue 和子 Issue 一起看。",
-            "聊, 里的 Issue 链接、悬浮卡片和输入建议都会显示自定义状态颜色。",
-        ], ,
-        improvements, [
-            "恢复失败的委派任务不再拖慢其他
+        fixes: [
+          "取消 Codex 运行后，这次已经产生的用量和花费仍然保留。",
+          "第一次会话失败的运行时不会再一直卡住。",
+          "Cursor 在后台跑的命令不会被当成空闲，任务结束也会清理掉。",
+          "Telegram 的回复不会再和还在发送的占位消息重复。",
+          "钉钉里选中的引用会保留，/new 和 /clear 也不再吞掉你正在输入的内容。",
+          "飞书私聊收不到绑定卡片时，会在群里给出提示。",
+          "从频道创建的 Issue，链接可以直接打开。",
+          "回复某个智能体的线程仍由它继续，不会多出一个用不上的任务。",
+          "用鼠标打开日志后按 Esc，不会再留下残留。",
+          "快速创建的 Issue 不再显示和它无关的活动。",
+          "工具输出的预览不会再把字符截成一半。",
+          "达到请求上限时会直接说明，不再让你重新登录。",
+          "命令行会准确报告你实际拿到的是第几页 Issue。",
+          "拖动排序不会再把 Issue 放到错误的位置。",
+          "Inbox 里不会再并排出现两个侧边栏开关。",
         ],
-        fixes, [
-            ",
+      },
+      {
+        version: "0.4.41",
+        date: "2026-09-07",
+        title: "全新側邊欄導覽、分組設定頁、大型工作區搜尋更快、自動化可手動觸發",
+        changes: [],
+        features: [
+          "側邊欄分成「工作」和「AI 團隊」兩組，分析和設定固定在底部。",
+          "釘選項目預設只顯示五個，其餘項目可展開或收合。",
+          "設定頁依用途分組：個人、工作區、任務設定、連線與擴充、桌面應用程式。",
+          "所有整合集中在同一頁，可一眼看出哪些已連線。",
+          "建立任務和聊天的相關偏好，現在都集中在偏好設定。",
+          "命令列中的自訂屬性會直接顯示名稱，不再只有 ID。",
+          "命令列可查看 Agent 每次執行的用量和費用。",
+          "命令列可只取得需要的任務欄位，讓回傳內容更精簡。",
         ],
-        fixes, [
-            ,
-            "编辑 Issue 描述能正常保存，不会再出现莫名的冲突提示。",
-            "任务, 准备阶段失败会如实说明，不再算成模型或智能体的错。",
-            "任, 日志会显示完整的任务 ID，并行运行也能分清。",
-            "接替的, 务会等上一个任务释放工作目录后再开始。",
-            "同, 会话里的每个任务都在同一个分支上继续。",
-            "已经,,,
-            "工作中的智能体数量，现在只算筛选出的任务，不再算整个工作区。",
-            "超大的消息不再影响实时连接的稳定。",
-            "自托管升级到新版本不再中途失败。",
-            "新手引导的每一步都能退出登录，换个账号重来。"
-        ]
-    ];
-}
-{
-    version: Kimi;
-    会如实,
-        date;
-    不再显示成功却没有回复;
-    ",;;
-    title: dows;
-    上的;
-    Pi;
-    会话可以正常运行;
-    ",
-        ,
-            changes;
-    [],
-        features;
-    [
-        "后台清理只会删除属于该任务的工作目录。",
-        "清理, 殊字符时，保存的数据不会再被悄悄丢掉一部分。",
-        "iOS, 上滑动很长的 Markdown 列表时不再出现重叠。",
-        ,
-        "任务详情里的图片加载时不再闪烁。",
-        "日期,,,
-        "提及和命令选择器现在支持 Ctrl+N/J/P/K。"
-    ],
-        improvements;
-    [
-        控件已完整翻译, ",
-    ],
-    ;
-}
-version: "0.4.37",
-    d, te;
-"2026-08-31",
-    , title;
-"Issue 列表更快、长任务更稳、多语言文案更全",
-    changes;
-[],
-    fe;
-fixes: [
-    "可以选它的模型、续接之前的会话，并使用 MCP 和本地技能。",
-    ,
-    "iPad 上可以原生安装 Multica，横, 竖屏都能用。",
-    "自托管部署在多台服务器上, ，企业微信机器人的回复也能送达。",
-    "可以查看有多少, 企业微信回复没有发出，以及原因。",
-],
-;
-{
-    version: 更快;
-    ",
-        ,
-            date;
-    智能体的启动也更快;
-    ",
-        ,
-            title;
-    小队;
-    编辑器;
-    状态和优先级在各语言下都更自然;
-    ",,;;
-    changes: [],
-        features;
-    [
-        "自托管服务器的后台采集更轻，数据库负担更小。",
-        ,
-        "有连接卡住时，自托管服务器依然正常响应。",
-    ],
-        improvements;
-    [
-        "窄窗口下 Analytics 排行榜可以横向滑动，不再被裁掉。",
-        ,
-        "Codex 会话启动更稳定，不会在初始化时中断。",
-        ,
-        "浅色模式下的次要文字现在更清晰。",
-        "中日韩标题、斜体和桌面端代码更易读。",
-        "实时 task 计时器更新时不再左右跳动。",
-        "自托管指南现在覆盖 Cookie 和同源部署。"
-    ],
-        fixes;
-    [
-        加载, ",,,
-        "桌面端会自动恢复意外停, 的守护进程。",
-        "手机上 Issue 顶部重, 变得紧凑，头像和点击区域都还在。",
-        "从更早版本升级自托管, 例不再需要手动修复。",
-        "工作目录变化后，Pi 和 Oh M, Pi 的会话仍然接得上。",
-        "删除工作区, ，提示只说明真正会被删除的内容。",
-        "长时间运行和排队中, 任务不会仅因等待被取消。",
-    ],
-    ;
-}
-{
-    version: "0.4.36",
-        dat, ;
-    "2026-08-28",
-        title;
-    "自定义,;;
-    "Windows 上的 OpenClaw 静默失败现在会说明原因。";
-}
-{
-    version: s: [],
-        ,
-            date;
-    [
-        ,
-        title, 日期和, URL, 类型的自定义属性筛选, ",,,
-        "也可,,,
-        changes, [],
-        features, [
-            分组统计和保存的视图里都能用这些条件, ",,,
-            "新建技能时可以直, 导入本地文件夹、.skill 或 .zip 文件。",
-            ,
-            "创建智能体时，现在可以设置思考强度和 Codex 加速。",
-            "父任务现在会显示子任务中有多少智能体正在工作。"
+        improvements: [
+          "Agent、skill、執行環境的詳細資料頁在大螢幕上不再錯位。",
+          "大型工作區的任務搜尋更快，同時搜尋多個詞也不會卡住。",
+          "收件匣清單預設更窄，為開啟的內容保留更多空間。",
+          "自架伺服器可設定搜尋允許使用的記憶體上限。",
         ],
-        improvements, [
-            "Oh My Pi 智能体现在可以在智能体页面配置并使用 MCP,,,
-            "粘贴超长文本时，现在会自动变成文本附件。",
-            "每个上传只显示一次，完成后才会写入草稿。",
-            "Webhook URL 现在默认隐藏，可按需显示。",
-            "工作区很多时，Multica 启动不再反复检查智能体工具。",
-            "用量排名现在先聚焦前十名，失败排序也更清楚。",
-            "发送后，光标现在会停在各编辑器预期的位置。"
+        fixes: [
+          "你可手動觸發的自動化，現在 Agent 也能代你觸發。",
+          "每次自動化異動都會依背後操作者的權限判斷。",
+          "自動化的 Webhook 憑證不再出現在即時更新中。",
+          "工作目錄遭清除的 Pi 任務會改用新工作階段，不再反覆失敗。",
+          "從頻道開啟的新對話，標題會取自你剛送出的指令。",
+          "封存 Agent 時會一併結束其對話，Slack 不再持續顯示處理中。",
+          "一般成員現在可使用不可見執行環境上的 Agent 建立任務。",
+          "巢狀清單中的 Tab 和 Enter 只會作用於目前所在層級。",
+          "Codex 對話因舊設定持續失敗時，會直接說明如何修正。",
         ],
-        fixes, [
-            ements, [
-                "运行时只会在确实安全时被回收，不会在运行中途被收走。",
-                ,
-                "长时间离线的运行时，现在只会如实说明当前状态。",
-                "智能体的长, 骤最多可以空闲两小时，不会被提前中断。",
-                "CL, 现在写明了列出 Issue 的单页上限和翻页方式。",
-            ]
-        ]
-    ];
-}
-{
-    version: 览器和设备上都能,
-        date;
-    "即使启动目录已被删除，,;;
-    title: "长上下文模型的运行费用计算正确，用量不会漏记。,;;
-    changes: [],
-        features;
-    [
-        称, ",,,
-        "编辑冲突时，两个选项分别放在各自版本的内容下方。",
-        "Lark 里发的图片和视频现在会作为附件带进来了。",
-        "现在可以对图片附件预览进行平移和缩放了。",
-        "项目选择器现在支持搜索，一次能看到更多项目。",
-        "现在可以在命令行里把一个智能体复制到另一个运行时了。"
-    ],
-        improvements;
-    [
-        "Quick Create 恢复草稿时，高度会重新贴合内容, ",
-        "OpenClaw 超时后会完全停止，不会留
-    ],
-        fixes;
-    [
-        /new 开新会话，用 /clear, 清空当前会话, ",,,
-        "钉钉, 飞书、Slack、Telegram、企业微信都已支持。",
-        ,
-        "可以给智能体设置最多 3 条开场建议，空白聊天里会直接显示。",
-        ,
-        "点击开场建议只会填入输入框，你可以改完再发送。",
-        ,
-        "收件箱通知可以按发起人筛选，也能只看未读。",
-        ,
-    ],
-        improvements;
-    [
-        ,
-        "Qwen、Kimi、Ark 模型的运行成本显示更准确。",
-        "Autopilot 列表会显示
-    ];
-}
-{
-    version: 输出很快时也会跟,
-        date;
-    ",
-        ,
-            title;
-    时;
-    ",;;
-    "订阅 P,;;
-    changes: [],
-        features;
-    [
-        前结束, 不会漏掉内容或重复计费, ",,,
-        "Autopilot 命令不再接
-    ],
-        improvements;
-    [
-        断, ",
-    ],
-    ;
-}
-{
-    vers, on;
-    "0.4.34",
-        date;
-    "2026-0;;
-}
-{
-    version: D;
-    定位;
-    Iss,
-        date;
-    "取消任务,;;
-    title: 后台残留;
-    ",;;
-    "已取消订阅的席位不再出,;;
-    changes: [],
-        features;
-    [],
-    ;
-}
-{
-    version: "0.4.33",
-        date;
-    "2026-08-24",
-        title;
-    "收件箱筛选、Z, roClaw 运行时、多语言失败说明",
-        change,
-        "复制的记录现在会带上每条事件的时间戳。";
-    improvements: [
-        "现在可以按 Issue 状态和优先级筛选收件箱通知。",
-        "ZeroCl, w 现已成为内置智能体运行时。",
-        "自托管团队可将守护, 程流量发送到独立服务器。",
-        "自托管团队可设置排队任务的保留时长。",
-        ,
-    ],
-        improvements;
-    [
-        ,
-        任务失败信息现在会按你选择的语言显示, ",,,
-        "滚动加载更多任务时会显示“加载中”，到底部会提示“没有更多了”。"
-    ],
-        fixes;
-    [
-        "技能下载失败时会显示已接收的数据量。",
-        ", 用快捷键显示或隐藏右侧边栏。",
-        "iOS 应用现在使用更简洁的扁, 图标。",
-        "自托管指南现在说明正确的 P, stgreSQL 要求。",
-    ],
-        fixes;
-    [
-        ,
-        "Windows 上的 Qwen 和 Pi 运行现在能完整保留提示内容。",
-        "Antigr, vity 回复现在保留原有换行。",
-        "飞书卡片消息中的提及现在能正确送达
-    ];
-}
-{
-    version: {
-        date: n: "0.4.32",
-            ,
-                title;
-        22 - 8 - 21;
-        ",;;
-        title,
-            changes;
-        [],
-            features;
-        [
-            features, [
-                "在群里提及钉, 机器人后，群组会显示在对应智能体下。",
-                "看板和列表, 按项目分组，让相关 Issue 聚在一起。",
-            ],
-            improvements, [
-                "长时
-            ],
-            improvements, [
-                区不会再中断实时更新或提及功能, ",,,
-                "普通 CL, 输出不再暴露 Autopilot Webhook 凭据。",
-                ,
-                "不用等无关编码任务结束，也能和智能体聊天。",
-                ,
-                "Grok 费用现在直接采用 xAI 每轮实际收取的金额，长上下文请求也算得准，保存后的自定义价格也能再改。",
-                "全站的界面动画更顺滑了。"
-            ],
-            fixes, [
-                version, "0.4.31",
-                date, "2026-08, 20",
-                title, "移出待办池前的启动确认、Webhook 事件筛选, Windows 构建修复",
-                changes, ,
-            ],
-            improvements, [
-                ", 页端的帮助菜单现在能直接找到桌面端下载。",
-                "
-            ]
-        ];
-    }
-    {
-        version: ;
-    }
-    date: sion: "0.4.30,;;
-    title: "2026-08-19",
-        title;
-    ",;;
-    changes: [],
-        features;
-    [
-        hanges, [],
-        features, [
-            ,
-            "现在可以看到每个聊天会话由哪个智能体处理。",
-            ,
-            "现在可以直接在表格视图里添加子任务了。"
+      },
+      {
+        version: "0.4.40",
+        date: "2026-09-04",
+        title: "MCP 伺服器改名與連線替換、升級期間任務啟動更穩、登入過期的乾淨退出、共享 Agent 狀態更準",
+        changes: [],
+        features: [
+          "給 MCP 伺服器改名不會再弄丟連線配置和已分配的 Agent。",
+          "要換成新的連線配置，現在是一個單獨、明確的操作。",
+          "儲存 MCP 伺服器時會直接定位到需要修改的那一項。",
         ],
-        improvements, [
-            "现在可以按尚未设置的自定义属性筛选 Issue。",
-            ,
-            "编辑 Issue 或评论时遇到冲突，可以先对比两
+        improvements: [
+          "Agent 的每一次執行，在各端和文件裡統一叫「執行」。",
+          "搜尋結果返回更快了。",
         ],
-        fixes, [
-            有工作区页面, ",,,
-            "聊天会话恢复得更快了。",
-            "I, sue 动态时间现在会反映真正的更新。",
+        fixes: [
+          "本機應用和服務端版本不一致時，任務仍然能正常啟動。",
+          "登入過期會回到登入頁，上一個賬號的資料也會清掉。",
+          "離線不會再把你登出。",
+          "別人執行時上共享出來的 Agent 會顯示為可用，不再顯示離線。",
+          "之前用過的倉庫再次檢出不會再失敗。",
         ],
-        fixes, [
-            ,
-            "私有智能体现在只能由其所有者调用。",
-            "多项任, 同时运行时，智能体工作目录彼此保持隔离。",
-            "提供商命令日志不再泄露, 据或提示内容。",
-            "评论发出后不再错误提示发送失败。",
-            ,
-            "已修复一个依赖项安全漏洞。",
+      },
+      {
+        version: "0.4.39",
+        date: "2026-09-03",
+        title: "標籤頁切換快捷鍵、服務端效能最佳化、自動化任務身份授權改進",
+        changes: [],
+        features: [
+          "模型列表可以手動重新整理，馬上拿到執行時現在支援的模型。",
+          "企業微信裡的執行失敗會回到你發起它的那個會話。",
+          "桌面端可以用數字快捷鍵切換標籤頁。",
+          "命令列可以按自定義屬性篩選和排序 Issue。",
+          "也能找出某個自定義屬性還沒填的 Issue。",
         ],
-        ,
-    ];
-}
-{
-    version: "0., .29",
-        date;
-    "2026-08-18", ,
-        title;
-    "MiniMax Code、运行记录优化、;;
-}
-{
-    version: iniMax;
-    C,
-        date;
-    "按 Cm,;;
-    title: 标签页打开设置;
-    ",;;
-    changes: [],
-        features;
-    [
-        能体调用工具时, 运行记录会立即显示, ",,,
-        "运行记录去掉了重复的智能体名称，更, 易浏览。",
-    ],
-        fixes;
-    [],
-        improvements;
-    [
-        "选中多个导入的技能，可以一次性全部更新到最新版。",
-    ],
-        fixes;
-    [
-        date, "2026-08-17",
-        title, ", 作区 MCP 服务器、分享链接邀请、全新运行记录",
-        ch, nges, [],
-        features, [
-            ", CP 服务器可以在工作区里配一次，再指派给各个智能体。",
-        ]
-    ];
-}
-{
-    version: im,
-        date;
-    "跑不起,;;
-    title: 好它的命令;
-    ",;;
-    "输入 Issue,;;
-    changes: [],
-        features;
-    [
-        息不再重复或掉线, ",,,
-        "工作区邀请不会再被大量刷发。",
-        "编辑器的悬浮工具栏现在能被读
-    ],
-        improvements;
-    [
-        定义运行时的固定参数现在按你写的顺序传入, ",,,
-        "拖动卡片中途取消，看, 不会再拖不动。",
-        "手机网页版的快速记录现在能正常用了。",
-        ,
-        "页面标题栏不再多出一个侧边栏开关。",
-        "创建智能体时不会再闪一下错误提示, ",
-        "鼠标停在运行时间线的条上，图表不再抖动。",
-        ,
-        "Codex task 现在会自己清理残留，腾出磁盘空间。",
-        "智能体 task 不再在准备阶段卡住，会尽快开始或干脆快速失败。",
-        "Codex 智能体现在能拿到你为它设置的自定义环境密钥。"
-    ],
-        fixes;
-    [],
-    ;
-}
-{
-    version: "0.4, 26",
-        date;
-    "2026-08-14",
-        , title;
-    "DeepSeek Harness 运行时、看板拖拽平移、Inbox 归档快捷,;;
-    "重新打开设置面板后，你的设置现在能可靠保存。",
-        "恢复的 Codex task 现在会准确报告用量。",
-        "评论不再把不该变成链接的文字变成链接。",
-        "私聊的回复现在会留在 Multica 里。",
-        "AI 辅助创建现在始终可用。",
-        "任务页面首次打开时不再卡顿。",
-        "Linux 上的 Codex 智能体现在能正确保存 Git 信息。",
-        "本机后台现在会干净地恢复 task，而不是把它丢掉。",
-        "本机后台在关闭时不再丢失终端输出。",
-        "看板的显示设置按钮现在有了清晰的标签。";
-}
-{
-    version: ,
-        date;
-    k;
-    Harness;
-    跑智能,
-        title;
-    "在看板空白处按住拖动，就能左右平移看板,;;
-    changes: [],
-        features;
-    [
-        ",,,
-        "自托管时可以把任务工作目录放到你指定的磁盘上。",
-        ,
-    ],
-        improvements;
-    [
-        "各个页
-    ],
-        improvements;
-    [
-        "别人的私有运行时不会再被 API 或 CLI 拿去用。",
-        ,
-        "任务残留不会再让整个目录里的 multica 命令失效。",
-        ,
-        "任务列表页现在能清楚看到当前有多少智能体在工作。",
-        "本机后台现在会记住你的启动选项，不用每次重新输入。",
-        "小队队长在同一个任务上的后续跟进会接着之前的进度继续。",
-        "未登录就启动本机后台时，会直接告诉你该怎么做，不再卡住。"
-    ],
-        fixes;
-    [
-        s, 装的智能体现在能被识别了, ",,,
-        "对话里最后一条回复和输入框之间的间距回, 了。",
-        "深色模式下当前标签页不再出现暗色方块，悬停圆角也完整了。", ,
-        "智能体不会再为同一个 Issue 重复开一份工作。",
-    ],
-        , ;
-}
-{
-    version: "0.4, 25",
-        date;
-    "2026-08-13",
-        ,
-            "某些按键情况下键盘快捷键不再误触发。",
-        "自托管升级不再中途卡住。",
-        "Codex 智能体 task 现在能用正确的凭证运行。",
-        "Cursor 智能体在终端出错时更稳定了。",
-        "更新自动化时不再丢失它绑定的智能体。";
-}
-{
-    version: anges: [],
-        date;
-    res: [
-        ,
-        title, Telegram, 在私聊, 群组或论坛话题中与,
-        changes, [],
-        features, [
-            个分支, ",,,
-            "一个钉钉机器人可以给不同群指定不同的智能体。",
-            ,
-            "导入的技能可以一键更新到最新版，智能体绑定照旧保留。",
-            ,
-            "鼠标停在 Issue 提及上，就能看到标题、负责人和子任务进度。",
-            "j, ode 的智能体现在可以选思考强度了。",
-            "自托管时
+        improvements: [
+          "把 Issue 分配給別人的步驟更少了，仍然可以先不啟動。",
+          "自託管伺服器為保持執行時連線做的後臺工作更少了。",
+          "刪除執行時會立刻生效，不會留下失效的連線。",
         ],
-        improvements, [
-            improvements, [
-                "`multica daemon log,,,
-                "发送消息或创建任务时会等附件上传完，文件不会再丢。",
-                "Antigravity task 无法实时展示时会给出说明，而不是一片空白。",
-                "下载页现在可以直接下载 Intel 版 Mac 应用。",
-                "下载的附件会保留原本的非英文文件名。"
-            ],
-            fixes, [
-                "Hermes 任务现在会说清读的是哪个 HERMES_HOME。",
-            ], ,
-            fixes, [
-                "清理, 线的运行时不会再带走历史任务和消息。",
-                "Hermes 的对话记, 不会再在任务结束后消失。",
-                "Windows 上用, npm 装的智能体现在都能正常启动。",
-                ,
-                "Codex 智能体不会再因为启动慢或在 Linux 上写文件而失败。",
-                "创建任务时选择的标签，现在每次都会和任务一起保存。",
-                "把带格式的文本粘贴进评论，不会再留下多余的 ++ 符号。",
-                "鼠标只是从头像上划过时，不会再弹出悬浮卡片。",
-                "Linux 桌面应用现在会以 multica-desktop 的名字安装。"
-            ]
-        ]
-    ];
-}
-{
-    version: 看板卡片上点头像就,
-        date;
-    "运行时活跃度,;;
-    title: ",;;
-    "深色模,;;
-    changes: [],
-        features;
-    [
-        类, Autopilot, 现在能正常跑起来, ",
-    ], ,
-    ;
-}
-{
-    version: "0.4.24",
-        , date;
-    "2026-08-12",
-        ti,
-        "智能体列表现在会显示访问范围，还能筛选和批量修改。",
-        "点开任务链接现在默认在新标签页打开，可在偏好设置里调整。",
-        "你现在可以用命令行直接创建工作区了。",
-        "给标签和自定义字段选颜色时，多了随机配色。",
-        "命令面板里可以一键折叠或展开一个任务的所有评论。",
-        "帮助菜单里现在能看到当前所在的服务端版本。",
-        "桌面端现在支持 Intel 芯片的 Mac 了。";
-    improvements: [
-        changes, [],
-        features, [
-            ,
-            "智能体在企业微信里做好的文件，会直接发到对话里。",
-            ,
-            "网页、飞书、企业微信、钉钉对话里，智能体不再忘掉之前聊过的。",
+        fixes: [
+          "回覆 Squad 領隊仍由該領隊繼續，交接資訊和會話都不會丟。",
+          "很長的 Issue 標識不會再遮住列表和表格裡的標題。",
+          "登入、報錯和 404 頁面會跟隨你選擇的語言。",
+          "中途切換語言後，登入仍然可以正常完成。",
+          "Hermes 會保留你選的模型供應商，不再自己切回去。",
+          "OpenClaw 的託管 MCP 伺服器能正常啟動，你自己的 MCP 配置不會被改動。",
+          "定時和 Webhook 觸發的 Autopilot 按觸發器建立者的許可權執行。",
+          "無法確認建立者的舊觸發器會停下來，不會照舊執行。",
+          "已離開工作區的成員，在活動記錄裡仍會顯示原來的名字。",
         ],
-        fixes, [
-            编辑, ",,,
-            "手机和平板上也能对列表逐条做归档、置顶、重命名了。, ,,,
-            "新建工作区时，Issue 前缀可以自己填，不再一律是 WS。",
-            ,
+      },
+      {
+        version: "0.4.38",
+        date: "2026-09-02",
+        title: "Claude Code 動態模型發現、屬性篩選運算子、本地目錄會話續接、Provider 執行更穩",
+        changes: [],
+        features: [
+          "模型選擇器只顯示本機 Claude Code 真正能用的模型。",
+          "用不了的模型會提前標出來，不用等執行失敗才發現。",
+          "可以使用 Fable 5.1，定價也已經補齊。",
+          "Issue 可以按自定義的文字、數字、日期和 URL 屬性包含什麼來篩選。",
+          "數字和日期屬性還可以按區間篩選。",
+          "命令列可以檢視還在執行的 Agent 任務，父 Issue 和子 Issue 一起看。",
+          "聊天裡的 Issue 連結、懸浮卡片和輸入建議都會顯示自定義狀態顏色。",
         ],
-        improvements, [
-            "模, 列表里能分清 Codex gpt-5.6 的几个版本了。",
-            ", 置和智能体页里的每个聊天频道都用上了自己的标记。",
-            "长时间的 Codex 对话不再一直占着磁盘, 间。",
-            "后台清理时，拉取仓库不会再被卡,,,
-            "下拉选项现在显示名称，而不是内部取值。",
-            "收起侧边栏后，页面内容的左右留白现在对齐了。",
-            "取消 task 时智能体的记录不再错乱。",
-            "同时跑多个 Codex task 时不再互相卡住。",
-            "在一个任务里滚动来回时，位置现在能稳定保留。",
-            "把含有特殊字符的内容粘到评论里不再出错。"
-        ]
-    ];
-}
-{
-    version: "本机的,;;
-    date: 个实例在应答;
-    ",
-        ,
-            title;
-    带上诊断信息;
-    便于我们排查;
-    ",;;
-    fix,
-        changes;
-    [],
-        features;
-    [
-        ,
-        "安卓上发送或停止消息后，键盘不会再收起来。",
-        "自托管的 He, mes 对话不会再每隔一条就报错。",
-        "残留的端口设置不会再
-    ],
-        improvements;
-    [
-        ursor, 任务现在能用上你配好的, MCP, 服务, ",,,
-        "在 Slack 里建 Issue，标题里的链接不再被改写。", ,
-        "工作区的改动现在会更快同步到你的机器上。",
-        "自托管邮件现在可以用你设置的发件人地址发送。"
-    ],
-        fixes;
-    [
-        相同的, Issue, ",,,
-        "任何存储方式下，附件的下载按钮都会真的下载文件。",
-        ,
-        "智能体的结果不会再被截断。",
-    ],
-    ;
-}
-{
-    version: "0, 4.23",
-        date;
-    "2026-08-11",
-        title;
-    "企业微信图片与文件, Reasonix 思考强度、浏览器式前后翻页",
-        changes;
-    [],
-        feature, ;
-    [
-        "发给企业微信机器人的图片、文件和视频，智能体现在都能, 到。",
-        "Reasonix 的智能体现在可以选思考强度了。",
-        ,
-        "Cmd+[ 和 Cmd+] 可以在看过的页面之间前后翻。",
-    ],
-        , improvements;
-    [
-        "新建的子 Issue , 沿用父 Issue 的项目和负责人。",
-        "Codex , 务在本机占用的磁盘空间大幅下降。",
-        "一次取消很多任务比以前更快了。
-    ];
-}
-{
-    version: ,
-        date;
-    了;
-    ",
-        ,
-            title;
-    两次;
-    附件不会被重复上传;
-    ",;;
-    "Issue 不能再被移到别的工作,;;
-    changes: [],
-        features;
-    [
-        字, ",,,
-        "智能体详情页不再出现空菜单。",
-        "很长的 Issue 或项目名称不再把, 在的一行挤乱。",
-        "自托管时，邮件会用你配置的发件地址发出。",
-    ],
-    ;
-}
-{
-    version: "0.4.22",
-        date;
-    "2026-08-,;;
-    "配置智能体的技能、工具、运行时和访问权限，现在更清晰、更省事。",
-        "智能体详情页新增私信按钮，可以直接找它对话。",
-        "智能体现在能在聊天回复里发送图片和文件。",
-        "你可以创建和管理标签，并决定每个标签用在哪里。",
-        "项目现在支持设置开始日期和截止日期。",
-        "长任务里新增缩略导航，能在各个评论会话间快速跳转。",
-        "你可以直接在应用里搜索本机装好的技能。",
-        "如果你愿意，可以让任务的评论输入框在滚动时保持固定。",
-        "把一个 GitHub 仓库连到多个工作区，每个工作区都会同步更新。";
-    improvements: [
-        "设置现在会自动保存，每次改动都有即时确认提示。",
-        "页面、菜单、按钮和桌面端的视觉更统一、更清爽。",
-        "仪表盘上的数字变化时会平滑滚动呈现。",
-        "创建 API 令牌时有更清楚的引导，创建完还会给出信息摘要。",
-        "你可以随时刷新工作区已连接的代码仓库。",
-        "工作区成员现在能查看每个运行时具备哪些能力。",
-        "通过 SSH 在远程机器上安装时，会引导你用更简单的方式登录。",
-    ],
-        fixes;
-    [
-        ue, 视图, Oh - My - Pi, 运行时, 企业微信语音留言, ",,,
-        changes, [, ,
-            features, [
-                "常用的筛选条件可以存成视图，在 Issue 列表顶部一键切换。",
-                ,
-                "视图在工作区里共享，排序和布局各人各自记住。",
-                "Oh-, y-Pi 现在也能跑你的智能体了。",
-                "企业微信里的语音留言，智能体现在也听得懂。",
-                ,
-                "Kimi 和 Pi 的智能体现在可以选思考强度了。",
-                ", ultica 里的任意链接，Cmd/Ctrl 或中键点击就能在新标签页打开。",
-                "企业微, 连不上时，页面会说清是被拒绝还是根本连不通。",
-            ],
-            improvements, [
-                ,
-                注册完就能直接看到, Mika, 的开场消息, ",,,
-                "保存视图时可以选升序或降序。",
-                "新建, Issue 上的项目标签可以一键清掉，也不再记住你上次选的项目。",
-                "频道里只发一个 /new, 或 /issue，现在会明确告诉你结果。",
-                "企业微信来的消息带上了企业微信自己的标记。",
-            ]]
-    ];
-}
-{
-    version: "Wind,;;
-    date: 智能体现在能读到你的配置,
-        title;
-    着发好几条消息时;
-    不会再有一条被漏掉;
-    ",
-        ,
-            changes;
-    [],
-        features;
-    [
-        务器地址填错, 网页会明确报错而不是白屏, ",,,
-        "企业微信的绑定链接不再被反复生, ，也不会被别人抢走。",
-        "视图标签放不下时才出现「更多」按钮。",
-        "侧边栏的收起状态和设置页导航的表现一致了。",
-        ,
-    ],
-    ;
-}
-{
-    version: "0.4.2,;;
-    "在多个不同的评论会话里提到同一个繁忙的智能体，现在每个会话都会各自得到回复。";
-    improvements: [
-        title, "企业微信机器人、全新 Analytics 页面、prompt 继续瘦身",
-        changes, [],
-        ,
-        features, [
-            "智能体可以入驻企业微信，私聊或在群里 @ 它就能用。",
-            ,
-            "智能体还在回复时你发出的聊天消息，现在一定会被下一次回复接住，不会丢失。",
-            "你机器上的本机后台会自动把自己的日志控制得很小，不会再撑满磁盘。"
+        improvements: [
+          "恢復失敗的委派任務不再拖慢其他正在執行的任務。",
+          "日語和韓語在產品和文件裡的說法保持一致。",
+          "被截短的文字不會再把表情符號切成半個。",
         ],
-        fixes, [
-            成两个标签页, 各有自己的图表, ",,,
-            "频道里用 /issue 建任务，图片会留在描述里，位置和, 发的一样。",
+        fixes: [
+          "編輯 Issue 描述能正常儲存，不會再出現莫名的衝突提示。",
+          "任務在準備階段失敗會如實說明，不再算成模型或 Agent 的錯。",
+          "任務日誌會顯示完整的任務 ID，並行執行也能分清。",
+          "接替的任務會等上一個任務釋放工作目錄後再開始。",
+          "同一會話裡的每個任務都在同一個分支上繼續。",
+          "已經拉取過的倉庫會立即遵循你的 Co-authored-by 設定。",
+          "Kimi 會如實報告 provider 錯誤，不再顯示成功卻沒有回覆。",
+          "Windows 上的 Pi 會話可以正常執行。",
+          "Codex 可以明確選擇 Standard 速度。",
+          "後臺清理只會刪除屬於該任務的工作目錄。",
+          "清理特殊字元時，儲存的資料不會再被悄悄丟掉一部分。",
+          "iOS 上滑動很長的 Markdown 列表時不再出現重疊。",
+          "任務詳情裡的圖片載入時不再閃爍。",
+          "日期和金額會按你選擇的語言顯示。",
+          "桌面端的守護程序控制元件已完整翻譯。",
         ],
-        improvements, [
-            "智能体每次读取讨论的数据更精简，, 给工作的空间更多。",
-            "搜索和 @ 选择器里，已取消的内容不再排在进行中的前面。",
-            "Analytics 的筛选器选完即关，图表上的大数字也不再被裁掉。",
-        ]
-    ];
-}
-{
-    version: Windows;
-    上,
-        date;
-    常提交代码;
-    ",
-        ,
-            title;
-    花费不再偶发漏记;
-    ",;;
-}
-{
-    version: "0.4,;;
-    changes: [],
-        features;
-    [
-        title, "钉钉机器人、Mika 带你上手、每次运行的 token 花费",
-        changes, [],
-        featur, s, [
-            "智能体可以入驻钉钉，私聊或在群里 @ 它就能用。",
-            "注册完成后 Mika 已经在等你，还有卡片, 你开第一个任务。",
-            "执行记录里能看到每次运行的花费，以及整个任务的合计。",
-            ,
-            "静音评论通知后，@ 到你的消息依然会送达。",
-            "手机上聊天以全屏打开，输入框会浮在键盘上, 。",
-            "手动替换 multica 或 Agent CLI 后自动生效，不用重启。",
+      },
+      {
+        version: "0.4.37",
+        date: "2026-08-31",
+        title: "Issue 列表更快、長任務更穩、多語言文案更全",
+        changes: [],
+        features: [
+          "華為雲 CodeArts 現已成為內建的 Agent 執行時。",
+          "可以選它的模型、續接之前的會話，並使用 MCP 和本地技能。",
+          "iPad 上可以原生安裝 Multica，橫屏豎屏都能用。",
+          "自託管部署在多臺伺服器上時，企業微信機器人的回覆也能送達。",
+          "可以檢視有多少條企業微信回覆沒有發出，以及原因。",
         ],
-        improvements, [
-            运行时会直接说明, 而不是提示取值无效, ",,,
-            "手机上任务详情和讨论列表能用到更多屏幕, 间。",
-            "执行记录的标题不再换行，始终保持一行。",
+        improvements: [
+          "大工作區裡的 Issue 列表開啟更快。",
+          "技能很多時，Agent 的啟動也更快。",
+          "新手引導、小隊、編輯器、狀態和優先順序在各語言下都更自然。",
+          "Agent 輸出會完整顯示檔案路徑，不再被誤遮擋。",
+          "自託管伺服器的後臺採集更輕，資料庫負擔更小。",
+          "有連線卡住時，自託管伺服器依然正常響應。",
         ],
-        fixes, [],
-        fixes, [
-            附件一起带过去, ",,,
-            "任务不会再因为一次登录失败就被永久卡住。",
-            ,
-            "自定义运行时的模型列表会从它自己的程序读出来。",
-            "桌面端不再改动你终端 CLI , 己的配置。",
-            "OpenCode 会话在某次工具调用失败后还能继续。",
-            "Wi, dows 上的 Pi 智能体能稳定启动，不再卡在提示词上。",
-            "Kimi、Grok、Kiro、Qoder、Trae CLI 等运行时的用量和花费都能统计到。",
+        fixes: [
+          "聊天會停在最新回覆，輸出過程中不再跳動或閃爍。",
+          "窄視窗下 Analytics 排行榜可以橫向滑動，不再被裁掉。",
+          "Codex 會話啟動更穩定，不會在初始化時中斷。",
+          "本機守護程序空閒時，本地技能也能正常載入。",
+          "桌面端會自動恢復意外停止的守護程序。",
+          "手機上 Issue 頂部重新變得緊湊，頭像和點選區域都還在。",
+          "從更早版本升級自託管例項不再需要手動修復。",
+          "工作目錄變化後，Pi 和 Oh My Pi 的會話仍然接得上。",
+          "刪除工作區時，提示只說明真正會被刪除的內容。",
+          "長時間執行和排隊中的任務不會僅因等待被取消。",
         ],
-    ];
-}
-{
-    versio;
-}
-{
-    version: ,
-        date;
-    会自动排队依次执行;
-    ",
-        ,
-            title;
-    息可以立即发送;
-    编辑;
-    删除;
-    也能一键清空;
-    ",;;
-    "新增,;;
-    changes: [],
-        features;
-    [
-        wenPaw, 后端, 智能体也能跑在它上面, ",,,
-        "打开图片后可以用方向键继续往前往后翻看。",
-        "任务头部会列出全, 讨论，可以搜出某一条直接跳过去。",
-        "中日韩界面改用当地日常说法来称呼任务。",
-        ,
-    ],
-        improvements;
-    [
-        "智能体每次运行读取的说明更短，留给工作的空间更, 。",
-        "群聊里的智能体现在知道自己是在对一群人说话。",
-    ],
-        improvements;
-    [
-        有子任务的任务, 取消订阅只需点一次, ",,,
-        "自托管文档写明了桌面端从哪个文件读取服务器地址。",
-        "桌
-    ],
-        fixes;
-    [
-        条命令, ",,,
-        "名称相近的 Skill 在 QwenPaw 上不再互相覆盖。",
-        "空闲会话, 第一条消息立即显示，不再排队等待。",
-        "排队的消息会按你发送的顺序进入对话记录。",
-        ,
-        文档站点恢复正常, 不再因为某个页面报错而打不开, ",
-    ],
-    ;
-}
-{
-    version: "0.4.18",
-        date;
-    "2026-08-04",
-        ,
-            "删除自动化后会被正确归档，不再残留。";
-}
-{
-    version: ;
-    date: "指派确,;;
-    title: 再切到鼠标;
-    ",;;
-    "创建智能体时的对话,;;
-    changes: [],
-        features;
-    [
-        vements, [
-            "创建智能体的页面开着时，不再拖慢整个工作区。",
-            ,
-            "任务详情页支持页内查找（Ctrl+F），可以直接跳转并高亮关键词。",
-            "附件下载中断后可以断点续传，不用再从头下载。"
+      },
+      {
+        version: "0.4.36",
+        date: "2026-08-28",
+        title: "自定義屬性篩選、技能本地匯入、Oh My Pi 的 MCP 支援",
+        changes: [],
+        features: [
+          "Issue 可以按文字、數字、日期和 URL 型別的自定義屬性篩選。",
+          "也可以只看某個自定義屬性還沒有填值的 Issue。",
+          "篩選選單、分組統計和儲存的檢視裡都能用這些條件。",
+          "新建技能時可以直接匯入本地資料夾、.skill 或 .zip 檔案。",
+          "匯入前可以預覽內容，名稱衝突也會提前提示。",
+          "Oh My Pi Agent 現在可以在 Agent 頁面配置並使用 MCP。",
         ],
-        improvements, [
-            "Skill 的文件行菜单里可以直接进入编辑。",
-            "聊天中的快捷建议会跟随你正在使用, 语言。",
-            "智能体每次运行读取的说明更精简，占用的上下文更少。",
-            "本地构建,,,
-            "打开工作区时不再自动弹出对话窗口，你可以自己用悬浮按钮打开。"
+        improvements: [
+          "執行時只會在確實安全時被回收，不會在執行中途被收走。",
+          "長時間離線的執行時，現在只會如實說明當前狀態。",
+          "Agent 的長步驟最多可以空閒兩小時，不會被提前中斷。",
+          "CLI 現在寫明瞭列出 Issue 的單頁上限和翻頁方式。",
         ],
-        fixes, [
-            "运行时详情页的标题不再重复显示机器名。",
+        fixes: [
+          "桌面端複製或分享的連結，在任何瀏覽器和裝置上都能開啟。",
+          "即使啟動目錄已被刪除，倉庫拉取和更新也照樣能用。",
+          "長上下文模型的執行費用計算正確，用量不會漏記。",
+          "不含英文字元的自定義 Issue 狀態，各處都顯示正確名稱。",
+          "編輯衝突時，兩個選項分別放在各自版本的內容下方。",
+          "飛書的回覆不會再因為憑證過期而一直卡住。",
+          "Quick Create 恢復草稿時，高度會重新貼合內容。",
+          "OpenClaw 超時後會完全停止，不會留下殘餘程序。",
+          "配置 OpenClaw 時，不會再明明成功卻提示失敗。",
         ],
-        fixes, , [
-            "中断回复后继续发送消息，智能体仍然记得之前的对话。",
-            "创建智能体的输入框在发送后清, ，紧接着输入的内容也不会丢失。",
-            "点击 Skill 中的文件可以正常打开，不再只弹出, 单。",
-            "任务里的「取消订阅」现在能够正常生效。",
-            ,
-            "在回复框中输入 / 同样能看到工作区的快捷操作。",
-            "从任务头部打开运行中,,,
-            "你现在可以删除已失效的孤立运行时了。"
-        ]
-    ];
-}
-{
-    version: 后立即送达;
-    不再长,
-        date;
-    "在 Slack、飞,;;
-    title: 空消息和空运行;
-    ",;;
-    "在新接入的聊天渠道里，智能,;;
-    changes: [],
-        features;
-    [
-        占满一整行, ",,,
-        "清空属性的入口，现在统一位于选择弹层的第一行。",
-        "Autopilot 的 Runbook 过宽时，不再把设置面板挤出弹
-    ],
-        improvements;
-    [
-        0.4, .17, ",,,
-        date, "2026-08-03",
-    ],
-        fixes;
-    [
-        changes, [],
-        features, [
-            ,
-            删除运行时不再删掉智能体, 换台机器重新绑上就能继续跑, ",,,
-            "收件箱可以用上下方向键切换选中项，不用鼠标也能一条条看。",
-            ,
-            "新增上手教程，带你从空工作区一步步搭出一个自己运转的团队。",
-            ,
-            "一个月没被用到的仓库缓存会自动清掉，磁盘不再一直变大。",
+      },
+      {
+        version: "0.4.35",
+        date: "2026-08-26",
+        title: "全渠道 /new 與 /clear、Agent 開場建議、收件箱篩選",
+        changes: [],
+        features: [
+          "用 /new 開新會話，用 /clear 清空當前會話。",
+          "釘釘、飛書、Slack、Telegram、企業微信都已支援。",
+          "可以給 Agent 設定最多 3 條開場建議，空白聊天裡會直接顯示。",
+          "點選開場建議只會填入輸入框，你可以改完再傳送。",
+          "收件箱通知可以按發起人篩選，也能只看未讀。",
         ],
-        ,
-        improvements, [
-            "磁盘占用数字现在和文件管理器里看, 的一致。",
-            "命令行遇到冲突会直接告诉你怎么改，不再让你反, 重试。",
-            "创建 Auto, ilot 时会明确指出还差哪个必填项。",
-            "任务侧栏先显示执行日志，详情放到下面,,,
-            "Codex 智能体的 MCP 设置能被正确读取了。",
-            "Pi 智能体的 task 结果只显示最终答案，不再夹带中间步骤。",
-            "自动化不再在单次运行超时的时候重复派发同一个任务。",
-            "任务的 PR 列表只显示真正关联到本任务的 PR，仅在描述里顺带提到「Related to MUL-…」的 PR 不再露出。",
-            "任务操作菜单里嵌套的「More」项改名为「Relations」，你不用点开也知道里面装的是关系类操作。",
-            "所有附件上传按钮——对话输入、任务创建、任务描述、反馈——都支持在系统对话框里一次选多个文件。"
-        ]
-    ];
-}
-{
-    version: ;
-    date: "Ki,;;
-    title: 把上一轮的回答重复一遍;
-    ",;;
-    "自带 C,;;
-    changes: [],
-        features;
-    [
-        本没有触发器的, Autopilot, 选好定时, 现在能保存下来了, ",,,
-        "打开智能体导入的, Skill，不再显示你没做过的改动。",
-        "在 Slack 和飞书里用 /new 都能开一段全新
-    ],
-        fixes;
-    [
-        "2026-07-31",
-        title, "一键下一步、链接变卡片，智能体更稳",
-        changes, [],
-        featur, s, [
-            "聊天回复下方会给出后续建议，点一下就直接发出。",
-            "把常用的智能体和提示词存成快捷操作, 在任意任务侧栏一键触发。",
-            "粘贴任务或项目链接，会直接显, 成卡片，不再是一长串网址。",
-            "在收件箱里右键通知即可标回未读，留着稍后再看。",
-            "可以给智能体设置 emoji 头, ，也能一眼看出它用的是哪个运行时。",
-            "创建智能体时，运行时里多了 Qode, CN 可选。",
+        improvements: [
+          "Qwen、Kimi、Ark 模型的執行成本顯示更準確。",
+          "Autopilot 列表會顯示訂閱者和下次執行時間。",
+          "只需填一個 Cloud 地址，雲端執行時、賬單和席位管理會一起啟用。",
+          "本地任務的目錄名稱清晰易讀，找檔案更方便。",
         ],
-        improvements, [
-            "删除大型自托管工作区现在快很多，不用一直干等。",
-            "所有工作区都能给智能体和 S, ill 打标签，方便归类和查找。",
-            "Linux 上的 Code, 现在直接沿用机器上已配好的工具和登录状态。",
-            "内置 Skill 名称统一、说明更精简，每次运行占用的上下文更少。",
-            "界面里被弱化的文字改用实色，不, 发灰发虚。",
+        fixes: [
+          "Autopilot 可以把任務交給你的私有 Agent 和小隊了。",
+          "編輯 Autopilot 的其他設定時，不會再清空它的專案。",
+          "聊天輸出很快時也會跟到最新內容，手動上滾不會被拉回。",
+          "其他成員不再看到你的私有執行時。",
+          "訂閱 Pro 後，賬單會立刻顯示新的權益。",
+          "Codex 任務不再提前結束，不會漏掉內容或重複計費。",
+          "Autopilot 命令不再接受實際無效的優先順序引數。",
+          "Issue 描述很長時，看板也不會變慢。",
+          "讀取體積很大的技能更穩定，不會再中斷。",
         ],
-        fixes, [
-            ,
-            "桌面端「保存」对话框展示真实的附件文件名，不再默认成 `download.txt`。（社区贡献）",
-            "小队协作：Leader 通过 mention 派发的工作者智能体，在通过 HTTP API 发布完成评论时，能正确唤醒私有小队 Leader；Leader → Worker → Leader 协作链不再在第一跳后卡住。",
-            "如果宿主机 Claude CLI 版本早于 `--effort` 参数，task 不再硬失败——守护进程会丢弃 effort 标志并打印告警，回落到普通模式运行。"
-        ]
-    ];
-}
-{
-    version: ,
-        date;
-    r;
-    TRAE;
-    的回复不再缺,
-        title;
-    "很长的任务时间线不再停在过去，最新动态都能看到。",
-        ,
-            changes;
-    [],
-        features;
-    [
-        "自托管改用自定义端口后，启动和连接不再对不上。",
-        "用量排行榜里单个智能体的数字, 不再超过同期总量。",
-        "工作中的智能体数量，现在只算筛选出的任务，不再算整个工作区。, ,,,
-        "超大的消息不再影响实时连接的稳定。",
-        "自托管升级到新版, 不再中途失败。",
-        "新手引导的每一步都能退出登录，换个账号重来。",
-    ],
-    ;
-    improvements: [
-        4.15, ",,,
-        date, "2026-07-30",
-        title, "更好用, Skill、记录与工作区",
-        changes, [],
-        features
-    ],
-        fixes;
-    [
-        l + N / J / P / K, ",
-    ],
-        i, provements;
-    [
-        "切换工作, 时，任务表格现在更稳定、更流畅。",
-        "界面与四语文档现在更清晰、更, 致。",
-        "包含大量附件的命令行和智能体 task 现在, 输更少数据。",
-        "自托管配置现在会正确应用到守护进程。",
-    ],
-        ,
-            "Antigravity 空输出完成时，找回的最终回复会补进运行时间线。",
-        "附件预览接受的文本文件类型与前端展示对齐。",
-        "Mermaid 语法出错时不再把内置错误图注入页面。",
-        "本地技能重新对 ACP 类运行时可见。",
-        "应用内反馈提交前会校验响应并透传错误类型。",
-        "守护进程调用仓库缓存的 git 命令带超时。（社区反馈）",
-        "集群部署下，运行时的 pending 键保留在同一个 Redis slot 里。（社区反馈）",
-        "Web Docker 镜像从 packageManager 字段推导 pnpm 版本。（社区反馈）";
-}
-{
-    version: 在;
-    task;
-    记录,
-        date;
-    "Hermes 恢复会话失,;;
-    title: "从桌面端启动时，现在也能找到,;;
-    changes: [],
-        features;
-    [
-        待, ",,,
-        "任务活动标签里的下行字母不再被截断。",
-    ],
-    ;
-}
-{
-    version: "0.4.14",
-        date;
-    "2026-07-29",
-        title;
-    "智能体更快，文件更安全，任务表格更顺畅, ,;;
-    changes: [],
-        features;
-    [
-        ,
-        "运行中安装的智能体 CLI 现在会自动出现。",
-        "智能体所有者现在可以管理,,,
-        "Anthropic 模型清单接入 Claude Sonnet 5，并已挂上介绍期价格。",
-        "每次 task 运行都会在用量日志里记录本次的 prompt cache 命中率。"
-    ],
-        improvements;
-    [
-        ements, [
-            "切换运行时后，可用模型现在显示得更快。",
-            ,
-            "任务表格的缩放、排序和滚动更顺畅。",
-            "浅色模式下的次要文字现在
+      },
+      {
+        version: "0.4.34",
+        date: "2026-08-25",
+        title: "基於評論快速建立子 Issue、正式開放自定義 Issue 狀態建立",
+        changes: [],
+        features: [
+          "討論到一半的評論，一鍵就能拆成子 Issue 繼續推進。",
+          "拆出的子 Issue 自動帶上原討論內容，接手時不用再補背景。",
+          "自定義 Issue 狀態正式開放，所有工作區都能直接建立。",
         ],
-        fixes, [
-            fixes, [
-                "私有和代理存储中的图片、头像与下载恢复正常。",
-                "粘贴 @ 或 / 时不再误开提及或命令菜单。",
-                ,
-                "服务商拒绝损坏会话时，智能体 task 会自动恢复。",
-                "守护进, 重启后，Hermes 会话现在可以续跑。",
-                "CodeBuddy 规划不再让无人值守, task 卡住。",
-                "@all 不再阻止被明确提及的智能体运行。",
-                ,
-                "自托管匿名来源统计的上报地址恢复到正式的 Multica API。",
-                "评论的定位高亮改为纯背景色，根评论和回复的行为保持一致。"
-            ]
-        ]
-    ];
-}
-{
-    version: 领取的并发数现在,
-        date;
-    "ACP 智能体的渠,;;
-    title: "Windows 上的 ,;;
-    changes: [],
-        features;
-    [
-        ,
-        {
-            version: "0.4.13",
-            d, te: "2026-07-28",
-            title: "Claude Code , 跑不再重复写缓存，还有错误洞察",
-            changes: [],
-            features: ,
-            "技能包支持从本地 .skill / .zip 归档导入。": ,
-            "multica issue 命令不再接受短 UUID 前缀，请使用任务 Key（MUL-123）或完整 UUID。": ,
-            "Agents 页面适配移动端。": 
-        }
-    ],
-        improvements;
-    [
-        体, ",,,
-        "现在可以直接从 GitHub App 导入多个仓库。",
-        ,
-        "创建智能体时，现在可以设置思考强度和 Codex 加速。",
-        ,
-        "父任务现在会显示子任务中有多少智能体正在工作。",
-    ],
-        , improvements;
-    [
-        "关闭、重开或切换编辑
-    ],
-        fixes;
-    [
-        贴超长文本时, 现在会自动变成文本附件, ",,,
-        "每个上传只显示, 次，完成后才会写入草稿。",
-        "Webhook URL 现在默认隐藏，可按需显示。",
-        ,
-        "工作区很多时，Multica 启动不再反复检查智能体工具。",
-        "用量, 名现在先聚焦前十名，失败排序也更清楚。",
-        "发送后，光标现在会停在各编辑器预期的位
-    ];
-}
-{
-    version: aude;
-    Code,
-        date;
-    写入减少约;
-    95 % ;
-    ",
-        ,
-            title;
-    现在会回到原来的列表;
-    ",
-        ,
-            changes;
-    [],
-        features;
-    [
-        lack, 和, Lark, 现在只接收最终回答, Qoder, 智能体也不例外, ",
-    ],
-    ;
-    improvements: [
-        "PR 卡片现在会显示实时的 CI 状态，以及这个 PR 是否可, 合并了。",
-        "Lark 里发的图片和视频现在会作为附
-    ],
-        fixes;
-    [
-        到另一个运行时了, ",
-    ],
-        improvements, [
-        "话题快速跳转栏现在移到了右侧边缘。", ,
-        "记录现在会跟随 task 的实时输出滚动。",
-        ,
-    ],
-        fixes;
-    [
-        ,
-        "@提及 搜索现在支持名字里带空格了。",
-        "快速创建失败时
-    ];
-}
-{
-    version: ",
-        ,
-            date;
-    在能可靠地恢复会话了;
-    ",,;;
-    title: 的图片等媒体现在能,
-        changes;
-    [],
-        features;
-    [
-        "上一个会话无法恢复时，智能体 task 现在能自动恢复了。",
-        ,
-    ],
-    ;
-}
-{
-    "现在可以在多个本地检出里并行启动桌面端 dev，互不打架。",
-        "中文文档首页新增一段中文介绍视频，可点击播放。";
-    improvements: [
-        26 - 7 - 25, ",,,
-        title, "PR 实时状态，新
-    ],
-        fixes;
-    [
-        s, 5, 搭建智能体了, ",
-    ],
-        imp, ovements;
-    [
-        "智能体启动的长时间运行服务，现在, task 结束后仍会继续运行。",
-        ,
-        非代码类工作区不再夹带智能体用不上的软件工程说明了, ",
-    ], ,
-    ;
-}
-{
-    versio,
-        "编辑任务评论时，保存按钮会显示加载状态，直到保存完成。",
-        "搜索结果能够稳定加载。",
-        "自托管缺少 Docker Compose v2 时会立刻给出明确的安装提示。";
-}
-{
-    version: title: ,
-        date;
-    Chat;
-    更懂你的项目;
-    ",,;;
-    title: : [],
-        featur,
-        changes;
-    [],
-        features;
-    [
-        Gitea, GitLab, 等自托管, Git, 服务, ",,,
-        "Chat 现在, 用你的项目上下文，给出更贴合的回答。",
-        "执行日志现在更好读，运行再长也能流畅浏览, ",
-        "任务表格现在会直接显示哪些智能体正在处理。",
-        "
-    ],
-        improvements;
-    [
-        improvements, [
-            "Cursor 智能体现在会实时显示它, 思考和工具调用。",
-            "现在可以基于最新的 Kimi Code 模型搭,,,
-            "为每个服务商默认的智能体启动参数补齐说明文档，并下线了一次性的飞书切换开关——统一协作通道已经在生产环境完全接管"
+        improvements: [
+          "結賬時自動填入你的賬號郵箱，不用再手動輸入。",
+          "倉庫拉取失敗時，會寫明具體原因和對應的解決辦法。",
+          "自託管指南補齊了健康檢查、單一域名部署和版本選擇說明。",
         ],
-        fixes, [
-            站各处都能一致显示了, ",,,
-            "项目里的 GitHub 链接现在会清晰, 示 owner/repo。",
-            "当你机器上的智能体服务过旧、无法使用项目, 下文时，Chat 现在会提醒你。",
-            "滚动加载更多任务时会显示“加载中”，到底部会提, “没有更多了”。",
+        fixes: [
+          "MiniMax Code 不再偶發啟動失敗。",
+          "成員離開工作區後，不再收到該工作區的 Autopilot 通知。",
+          "任務失敗後的自動恢復回覆，會回到原來的評論執行緒。",
+          "評論時間不再顯示成錯誤的時區。",
+          "Agent 用完整 ID 定位 Issue 更快、更穩定。",
+          "取消任務後，Agent 程序會真正停止，不再在後臺殘留。",
+          "已取消訂閱的席位不再出現在賬單裡。",
+          "任務被取消時，命令列不再誤提示重新登入。",
         ],
-        fixes, [
-            ,
-            "在看板和列表里滚动加载更多任务时，不再闪现整页骨架屏了。",
-            ,
-            "恢复的 Grok 会话不再显示为 $0，计费与 xAI 实际收取一致。",
-            ,
-            "在快速创建任务时同时上传多个文件，所有附件都会稳定地保留下来",
-            "Redis 上的 Webhook 限流不会再把无关的 Webhook 合并计算，避免被一起误伤；守护进程加载多个 skill 包时，即便 skill 体积较大也能稳定完成",
-            "任务标签名不再接受控制字符，标签在各端展示都更整洁可读"
-        ]
-    ];
-}
-{
-    version: "在 Lark 群,;;
-    date: 上下文;
-    ",
-        ,
-            title;
-    再误报供应商错误了;
-    ",;;
-    "自托管部,;;
-    changes: [],
-        features;
-    [
-        {
-            version: "0.4.9",
-            date: "2026-07-23",
-        },
-        title, "更丰富的子任务、Codex 极速模式，界面更顺手",
-        ,
-        changes, [],
-        features, [
-            "现在可以用更快的 Codex 极速模式运行智能体了。",
-            ,
-            "子任务现在能直接显示优先级、标签、进度和截止日期。",
-            "你
+      },
+      {
+        version: "0.4.33",
+        date: "2026-08-24",
+        title: "收件箱篩選、ZeroClaw 執行時、多語言失敗說明",
+        changes: [],
+        features: [
+          "現在可以按 Issue 狀態和優先順序篩選收件箱通知。",
+          "ZeroClaw 現已成為內建 Agent 執行時。",
+          "自託管團隊可將守護程序流量傳送到獨立伺服器。",
+          "自託管團隊可設定排隊任務的保留時長。",
         ],
-        improvements, [
-            现在会在列表里直接显示哪些智能体正在处理, ",
+        improvements: [
+          "任務失敗資訊現在會按你選擇的語言顯示。",
+          "Grok 現在顯示每個模型的推理級別。",
+          "技能下載失敗時會顯示已接收的資料量。",
+          "可用快捷鍵顯示或隱藏右側邊欄。",
+          "iOS 應用現在使用更簡潔的扁平圖示。",
+          "自託管指南現在說明正確的 PostgreSQL 要求。",
         ],
-        imp, ovements, [
-            "列表、看板和泳道视图的分组与筛选现在表现一致了, ",
-            "聊天输入框现在会随窗口变大，长草稿一眼看得更全。",
-            "初次上手现在步骤更少了。",
-            "项目仓库设置里指定的分支 / 版本，现在会在本地智能体工作时正确生效，不会再拿到错误的分支"
+        fixes: [
+          "Windows 上的 Qwen 和 Pi 執行現在能完整保留提示內容。",
+          "Antigravity 回覆現在保留原有換行。",
+          "飛書卡片訊息中的提及現在能正確送達。",
+          "Agent 和 Issue 動態現在保持正確授權和排序。",
+          "新聊天和專案工作現在保持在正確工作區上下文中。",
+          "自託管健康檢查和併發本地工作現在更可靠。",
+          "Hermes、Kimi 和 Pi 現在能更可靠地處理執行時失敗。",
+          "購買報價和已歸檔收件箱計數現在能正確恢復。",
         ],
-        fixes, [
-            I, 每轮实际收取的金额, 长上下文请求也算得准, 保存后的自定义价格也能再改, ",,,
-            "全站, 界面动画更顺滑了。",
+      },
+      {
+        version: "0.4.32",
+        date: "2026-08-21",
+        title: "釘釘群組、專案檢視與更順暢的協作",
+        changes: [],
+        features: [
+          "在群裡提及釘釘機器人後，群組會顯示在對應 Agent 下。",
+          "看板和列表可按專案分組，讓相關 Issue 聚在一起。",
         ],
-        fixes, [,
-            "在桌面应用里，应用内链接现在会在标签页打开，而不是浏览器。",
-            ,
-            "新建任务时选好的选项不会再丢失了。",
-            "搭建智能体时切换运行时现在会立即生效。",
-            "初始设置在检测过程中不再误报“未找到运行时”了。",
-        ]
-    ];
-}
-{
-    version: ;
-}
-date: rsion: "0.4.8,;;
-title: "2026-07-22",
-    ,
-        changes;
-[],
-    features;
-[
-    changes, [],
-    features, [
-        "现在可以为每个智能体单独开关某项, 能了。",
-        "桌面标签页现在会显示所打开内容对应的图标和标题。", ,
-        "Qoder 现在可以作为智能体服务商使用，并带有模型发现和服务商品牌展示",
-        "自定义运行时可以配置固定启动参数；保存的运行时无法注册时，也会给出更清楚的提示"
-    ],
-    improvements, [],
-    improvements, [
-        "新建的智能体现在会自动获得一个, 色 emoji 头像。",
-        "分组的任务表格现在加载更快、也更一致。",
-    ],
-    fixes, [
-        ,
-        "新版守护进程获取智能体技能时更高效，同时继续兼容旧版本守护进程"
-    ],
-    fixes, [
-        "Codex task 不再卡在第一轮了。",
-        "切换, 号后，task 会从中断处继续，而不再直接失败。",
-        "在表格里编辑单元格不再, 己关闭，点击标题即可打开该任务。",
-        "打开任务时，子任务列表现在会保,,,
-        "运行中的 task 记录弹窗现在会持续更新，不必等 task 结束或刷新页面",
-        "删除自定义运行时时会删除保存的配置，而不是只删除之后可能重新出现的运行时行"
-    ],
-    ,
-    {
-        version: ,
-        date: 在, task, 中执行命令
-    },
-    title, "聊天输入框的格式菜单回来了，你又,,,
-    changes, [],
-    features, [
-        ,
-    ],
-    ,
-    {
-        version: "0., .7",
+        improvements: [
+          "長時間執行的 Agent 任務現在更順暢。",
+          "自託管伺服器遇到短暫資料庫故障後會自動恢復。",
+          "Telegram 的歡迎提示和回覆現在使用英文。",
+        ],
+        fixes: [
+          "再次執行任務時，不會中斷正在進行的工作。",
+          "同時執行的任務不會再覆蓋彼此的工作空間。",
+          "OpenClaw、Pi 和 OpenCode 可正常使用你配置的自定義提供商。",
+          "切換工作區不會再中斷實時更新或提及功能。",
+          "普通 CLI 輸出不再暴露 Autopilot Webhook 憑據。",
+          "不用等無關編碼任務結束，也能和 Agent 聊天。",
+        ],
+      },
+      {
+        version: "0.4.31",
+        date: "2026-08-20",
+        title: "移出待辦池前的啟動確認、Webhook 事件篩選、Windows 構建修復",
+        changes: [],
+        improvements: [
+          "網頁端的幫助選單現在能直接找到桌面端下載。",
+          "將已分配的 Issue 移出待辦池前，現在會先讓你確認。",
+          "Webhook 的事件篩選現在更容易新增和移除。",
+          "輸入 / 時，精確匹配的技能會排在最前面。",
+        ],
+        fixes: [
+          "Windows 命令列構建現在會生成正確的可執行檔名。",
+          "短暫斷線後，Agent 的技能依然可以正常載入。",
+          "自動化執行失敗時，不再顯示內部錯誤詳情。",
+          "繁忙工作區裡的 Agent 更新現在更穩定。",
+        ],
+      },
+      {
+        version: "0.4.30",
+        date: "2026-08-19",
+        title: "更安全的 Issue 編輯、未設定屬性篩選、清晰的 Agent 身份",
+        changes: [],
+        features: [
+          "現在可以看到每個聊天會話由哪個 Agent 處理。",
+          "工作區管理員現在可以檢視已關聯的釘釘身份。",
+          "現在可以按尚未設定的自定義屬性篩選 Issue。",
+          "編輯 Issue 或評論時遇到衝突，可以先對比兩個版本再儲存。",
+        ],
+        improvements: [
+          "命令面板現在包含所有工作區頁面。",
+          "聊天會話恢復得更快了。",
+          "Issue 動態時間現在會反映真正的更新。",
+        ],
+        fixes: [
+          "私有 Agent 現在只能由其所有者呼叫。",
+          "多項任務同時執行時，Agent 工作目錄彼此保持隔離。",
+          "提供商命令日誌不再洩露憑據或提示內容。",
+          "評論發出後不再錯誤提示傳送失敗。",
+          "已修復一個依賴項安全漏洞。",
+        ],
+      },
+      {
+        version: "0.4.29",
+        date: "2026-08-18",
+        title: "MiniMax Code、執行記錄最佳化、Hermes Agent 行為修復",
+        changes: [],
+        features: [
+          "現在可以用 MiniMax Code 執行 Agent。",
+          "按 Cmd/Ctrl+, 就能在桌面端新標籤頁開啟設定。",
+        ],
+        improvements: [
+          "Hermes Agent 呼叫工具時，執行記錄會立即顯示。",
+          "執行記錄去掉了重複的 Agent 名稱，更容易瀏覽。",
+        ],
+        fixes: [
+          "短暫斷線後，Agent 任務會繼續執行。",
+          "日度和周度費用圖現在計入快取讀取費用。",
+          "在飛書裡直接發的檔案和音訊現在會傳給 Agent。",
+          "委派任務失敗後，會回到原來的協調 Agent。",
+          "下載頁面現在只會顯示最新的完整版本。",
+        ],
+      },
+      {
+        version: "0.4.28",
+        date: "2026-08-17",
+        title: "成員自定義欄位、技能批次更新、更清楚的桌面端更新提示",
+        changes: [],
+        features: [
+          "自定義欄位現在可以填工作區成員，單個或多個都行。",
+          "選中多個匯入的技能，可以一次性全部更新到最新版。",
+        ],
+        improvements: [
+          "桌面端的更新提示現在能直接開啟這個版本的更新日誌。",
+          "命令列裡填指派人的地方，現在也認成員的郵箱。",
+        ],
+        fixes: [
+          "桌面端新開標籤頁不會再丟掉當前工作區。",
+          "成員篩選條件現在顯示名字和頭像，不再只是一個數字。",
+        ],
+      },
+      {
+        version: "0.4.27",
+        date: "2026-08-17",
+        title: "工作區 MCP 伺服器、分享連結邀請、全新執行記錄",
+        changes: [],
+        features: [
+          "MCP 伺服器可以在工作區裡配一次，再指派給各個 Agent。",
+          "你可以生成一個分享連結，讓別人直接加入工作區。",
+          "執行記錄改成按步驟看，配雙軌時間線和結果概覽。",
+          "Slack 訊息裡發的檔案現在會作為附件出現在對話裡。",
+          "手機上可以把 Multica 新增到主螢幕，像應用一樣開啟。",
+          "瀏覽器標籤頁會顯示你正開啟的工作區頁面名。",
+          "匯入的技能現在會顯示它來自哪裡。",
+          "提到你正在看的這個 Issue 時，會顯示成「本 Issue」。",
+        ],
+        improvements: [
+          "跑不起來的 Agent 會自動下線，並告訴你修好它的命令。",
+          "輸入 Issue 編號時，提及出得比以前快得多。",
+          "多臺伺服器部署時，頻道訊息不再重複或掉線。",
+          "工作區邀請不會再被大量刷發。",
+          "編輯器的懸浮工具欄現在能被讀屏軟體念出來。",
+        ],
+        fixes: [
+          "桌面端啟動失敗後重開，不用再重新登入。",
+          "刪掉最後一個工作區後，桌面端不再白屏。",
+          "Pi 出錯結束回合時，任務會判定失敗，不再卡住。",
+          "Antigravity 的模型列表現在能正常載入了。",
+          "切換標籤頁後，HTML 附件會回到你原來看的位置。",
+          "自定義執行時的固定引數現在按你寫的順序傳入。",
+          "拖動卡片中途取消，看板不會再拖不動。",
+          "手機網頁版的快速記錄現在能正常用了。",
+          "頁面標題欄不再多出一個側邊欄開關。",
+          "建立 Agent 時不會再閃一下錯誤提示。",
+          "滑鼠停在執行時間線的條上，圖表不再抖動。",
+          "自託管升級中途被打斷，重跑一次就能安全接上。",
+        ],
+      },
+      {
+        version: "0.4.26",
+        date: "2026-08-14",
+        title: "DeepSeek Harness 執行時、看板拖拽平移、Inbox 歸檔快捷鍵",
+        changes: [],
+        features: [
+          "你現在可以用 DeepSeek Harness 跑 Agent 了。",
+          "在看板空白處按住拖動，就能左右平移看板。",
+          "在 Inbox 裡按 E 就能歸檔當前開啟的那條通知。",
+          "自託管時可以把任務工作目錄放到你指定的磁碟上。",
+        ],
+        improvements: [
+          "各個頁面的標題和工具欄現在都對齊同一條左邊線。",
+          "Codex 首輪啟動慢時，你可以給它更長的等待時間。",
+          "指派 Issue 或改狀態時，可以選擇不啟動新任務。",
+        ],
+        fixes: [
+          "跑不起來的 Agent CLI 會直接告訴你怎麼修好。",
+          "別人的私有執行時不會再被 API 或 CLI 拿去用。",
+          "任務殘留不會再讓整個目錄裡的 multica 命令失效。",
+          "用 Volta 或 Vite Plus 裝的 Agent 現在能被識別了。",
+          "對話裡最後一條回覆和輸入框之間的間距回來了。",
+          "深色模式下當前標籤頁不再出現暗色方塊，懸停圓角也完整了。",
+          "Agent 不會再為同一個 Issue 重複開一份工作。",
+        ],
+      },
+      {
+        version: "0.4.25",
+        date: "2026-08-13",
+        title: "本地目錄並行模式、釘釘分群路由、技能一鍵更新",
+        changes: [],
+        features: [
+          "現在可以把 Agent 接入 Telegram，在私聊、群組或論壇話題中與它對話。",
+          "本地目錄可以選並行模式，多個任務同時跑，各自交一個分支。",
+          "一個釘釘機器人可以給不同群指定不同的 Agent。",
+          "匯入的技能可以一鍵更新到最新版，Agent 繫結照舊保留。",
+          "滑鼠停在 Issue 提及上，就能看到標題、負責人和子任務進度。",
+          "jcode 的 Agent 現在可以選思考強度了。",
+          "自託管時可以把任務臨時檔案放到更大的磁碟上。",
+        ],
+        improvements: [
+          "`multica daemon logs` 會直接告訴你日誌檔案在哪。",
+          "Hermes 任務現在會說清讀的是哪個 HERMES_HOME。",
+        ],
+        fixes: [
+          "清理離線的執行時不會再帶走歷史任務和訊息。",
+          "Hermes 的對話記錄不會再在任務結束後消失。",
+          "Windows 上用 npm 裝的 Agent 現在都能正常啟動。",
+          "Windows 上任務結束後不再留下 Codex 的殘餘程序。",
+          "看板卡片上點頭像就能直接改負責人。",
+          "執行時活躍度和甘特圖的日期跟著介面語言顯示。",
+          "深色模式下，標籤頁與頁面之間的描邊不再變色。",
+          "內建的 Bug 分類 Autopilot 現在能正常跑起來。",
+        ],
+      },
+      {
+        version: "0.4.24",
+        date: "2026-08-12",
+        title: "企業微信檔案送達、對話歷史讀回、環境變數批次編輯",
+        changes: [],
+        features: [
+          "Agent 在企業微信裡做好的檔案，會直接發到對話裡。",
+          "網頁、飛書、企業微信、釘釘對話裡，Agent 不再忘掉之前聊過的。",
+          "Agent 的環境變數可以整段貼上，也能一次批次編輯。",
+          "手機和平板上也能對列表逐條做歸檔、置頂、重新命名了。",
+          "新建工作區時，Issue 字首可以自己填，不再一律是 WS。",
+        ],
+        improvements: [
+          "模型列表裡能分清 Codex gpt-5.6 的幾個版本了。",
+          "設定和 Agent 頁裡的每個聊天頻道都用上了自己的標記。",
+          "長時間的 Codex 對話不再一直佔著磁碟空間。",
+          "後臺清理時，拉取倉庫不會再被卡住。",
+          "刪除工作區更快了，也不再拖慢同時進行的操作。",
+          "本機的 daemon 現在會說清是哪個例項在應答。",
+          "桌面端報錯反饋會帶上診斷資訊，便於我們排查。",
+        ],
+        fixes: [
+          "中文、日文、韓文裡緊貼標點的加粗又能正常顯示了。",
+          "安卓上傳送或停止訊息後，鍵盤不會再收起來。",
+          "自託管的 Hermes 對話不會再每隔一條就報錯。",
+          "殘留的埠設定不會再讓 `multica login` 失敗。",
+          "Cursor 任務現在能用上你配好的 MCP 服務。",
+          "在 Slack 裡建 Issue，標題裡的連結不再被改寫。",
+          "PR 不會再關掉另一個工作區裡編號相同的 Issue。",
+          "任何儲存方式下，附件的下載按鈕都會真的下載檔案。",
+          "Agent 的結果不會再被截斷。",
+        ],
+      },
+      {
+        version: "0.4.23",
+        date: "2026-08-11",
+        title: "企業微信圖片與檔案、Reasonix 思考強度、瀏覽器式前後翻頁",
+        changes: [],
+        features: [
+          "發給企業微信機器人的圖片、檔案和影片，Agent 現在都能看到。",
+          "Reasonix 的 Agent 現在可以選思考強度了。",
+          "Cmd+[ 和 Cmd+] 可以在看過的頁面之間前後翻。",
+        ],
+        improvements: [
+          "新建的子 Issue 會沿用父 Issue 的專案和負責人。",
+          "Codex 任務在本機佔用的磁碟空間大幅下降。",
+          "一次取消很多工比以前更快了。",
+          "釘釘設定頁用上了釘釘自己的標記。",
+          "Agent 回覆你的評論時，不會再把別人也拉進來。",
+        ],
+        fixes: [
+          "Hermes Agent 的記憶能跨任務保留下來了。",
+          "Reasonix 的任務不會再停下來等一個沒人回答的問題。",
+          "Claude 長上下文模型會保留你選的思考強度。",
+          "刪除工作區不再一直停在「Deleting…」。",
+          "取消任務後，頻道里的「正在輸入」會跟著停下。",
+          "編輯器裡的附件又能正常下載了。",
+          "同一條 Issue 命令發兩次，附件不會被重複上傳。",
+          "Issue 不能再被移到別的工作區的專案下。",
+          "傳送或停止後，輸入框仍然保持焦點，可以接著打字。",
+          "Agent 詳情頁不再出現空選單。",
+          "很長的 Issue 或專案名稱不再把所在的一行擠亂。",
+          "自託管時，郵件會用你配置的發件地址發出。",
+        ],
+      },
+      {
+        version: "0.4.22",
+        date: "2026-08-10",
+        title: "可儲存的 Issue 檢視、Oh-My-Pi 執行時、企業微信語音留言",
+        changes: [],
+        features: [
+          "常用的篩選條件可以存成檢視，在 Issue 列表頂部一鍵切換。",
+          "檢視在工作區裡共享，排序和佈局各人各自記住。",
+          "Oh-My-Pi 現在也能跑你的 Agent 了。",
+          "企業微信裡的語音留言，Agent 現在也聽得懂。",
+          "Kimi 和 Pi 的 Agent 現在可以選思考強度了。",
+          "Multica 裡的任意連結，Cmd/Ctrl 或中鍵點選就能在新標籤頁開啟。",
+          "企業微信連不上時，頁面會說清是被拒絕還是根本連不通。",
+        ],
+        improvements: [
+          "註冊完就能直接看到 Mika 的開場訊息。",
+          "儲存檢視時可以選升序或降序。",
+          "新建 Issue 上的專案標籤可以一鍵清掉，也不再記住你上次選的專案。",
+          "頻道里只發一個 /new 或 /issue，現在會明確告訴你結果。",
+          "企業微信來的訊息帶上了企業微信自己的標記。",
+          "Agent 現在可以檢視承載自己的執行時狀態和磁碟佔用。",
+        ],
+        fixes: [
+          "切回收件箱標籤頁時會留在原來的位置，不再跳回頂部。",
+          "歸檔一個會話時，後面還排著隊的活會一起取消。",
+          "企業微信裡重複發同一個 /issue，會得到明確答覆而不是重複建單。",
+          "企業微信群裡的斜槓命令現在都能用了。",
+          "直接聊天裡的 Codex 會話現在能接著上次繼續。",
+          "Windows 上的 OpenClaw Agent 現在能讀到你的配置。",
+          "連著發好幾條訊息時，不會再有一條被漏掉。",
+          "從飛書存下來的圖片和檔案，名字不會再出錯。",
+          "自託管時伺服器地址填錯，網頁會明確報錯而不是白屏。",
+          "企業微信的繫結連結不再被反覆生成，也不會被別人搶走。",
+          "檢視標籤放不下時才出現「更多」按鈕。",
+          "側邊欄的收起狀態和設定頁導航的表現一致了。",
+        ],
+      },
+      {
+        version: "0.4.21",
+        date: "2026-08-07",
+        title: "企業微信機器人、全新 Analytics 頁面、prompt 繼續瘦身",
+        changes: [],
+        features: [
+          "Agent 可以入駐企業微信，私聊或在群裡 @ 它就能用。",
+          "新的 Analytics 頁面把花費和報錯分成兩個標籤頁，各有自己的圖表。",
+          "頻道里用 /issue 建任務，圖片會留在描述裡，位置和你發的一樣。",
+        ],
+        improvements: [
+          "Agent 每次讀取討論的資料更精簡，留給工作的空間更多。",
+          "搜尋和 @ 選擇器裡，已取消的內容不再排在進行中的前面。",
+          "Analytics 的篩選器選完即關，圖表上的大數字也不再被裁掉。",
+          "等待本地目錄的 Agent 顯示為空閒，而不是一直忙碌。",
+          "文件補上了企業微信和 QwenPaw 的接入說明。",
+        ],
+        fixes: [
+          "平板和摺疊屏上，收件箱和聊天不再被擠成一條窄縫。",
+          "任務失敗時，頻道里會告訴你失敗的原因。",
+          "Agent 沒有產出時，不再回一句佔位的空話。",
+          "你自己發的聊天訊息，在其他視窗和裝置上也會穩定出現。",
+          "你停掉的執行也會計入執行時長和任務數。",
+          "普通 Agent 不會再被誤認成 Squad 領隊。",
+          "CodeBuddy 啟動時會帶上你配置的 MCP 服務。",
+          "遠端 MCP 服務不再在部分執行時裡被悄悄忽略。",
+          "OpenCode 空手而歸的執行不再顯示為成功。",
+          "Windows 上提示詞很長的 OpenCode 任務也能正常啟動。",
+          "Windows 上的 Codex 任務現在可以正常提交程式碼。",
+          "Kimi 的用量和花費不再偶發漏記。",
+        ],
+      },
+      {
+        version: "0.4.20",
+        date: "2026-08-06",
+        title: "釘釘機器人、Mika 帶你上手、每次執行的 token 花費",
+        changes: [],
+        features: [
+          "Agent 可以入駐釘釘，私聊或在群裡 @ 它就能用。",
+          "註冊完成後 Mika 已經在等你，還有卡片幫你開第一個任務。",
+          "執行記錄裡能看到每次執行的花費，以及整個任務的合計。",
+          "靜音評論通知後，@ 到你的訊息依然會送達。",
+          "手機上聊天以全屏開啟，輸入框會浮在鍵盤上方。",
+          "手動替換 multica 或 Agent CLI 後自動生效，不用重啟。",
+        ],
+        improvements: [
+          "Agent 每次執行讀取的說明更短，留給工作的空間更多。",
+          "不支援推理強度的執行時會直接說明，而不是提示取值無效。",
+          "手機上任務詳情和討論列表能用到更多螢幕空間。",
+          "執行記錄的標題不再換行，始終保持一行。",
+        ],
+        fixes: [
+          "在聊天裡用 /issue 建任務，圖片會作為附件一起帶過去。",
+          "任務不會再因為一次登入失敗就被永久卡住。",
+          "自定義執行時的模型列表會從它自己的程式讀出來。",
+          "桌面端不再改動你終端 CLI 自己的配置。",
+          "OpenCode 會話在某次工具呼叫失敗後還能繼續。",
+          "Windows 上的 Pi Agent 能穩定啟動，不再卡在提示詞上。",
+          "Kimi、Grok、Kiro、Qoder、Trae CLI 等執行時的用量和花費都能統計到。",
+        ],
+      },
+      {
+        version: "0.4.19",
+        date: "2026-08-05",
+        title: "prompt 繼續瘦身、支援新 Runtime 和聊天模式訊息佇列",
+        changes: [],
+        features: [
+          "Agent 執行時也能繼續發訊息，會自動排隊依次執行。",
+          "排隊中的訊息可以立即傳送、編輯、刪除，也能一鍵清空。",
+          "新增 Reasonix 執行時，可以直接用它跑任務。",
+          "新增 QwenPaw 後端，Agent 也能跑在它上面。",
+          "開啟圖片後可以用方向鍵繼續往前往後翻看。",
+          "任務頭部會列出全部討論，可以搜出某一條直接跳過去。",
+          "中日韓介面改用當地日常說法來稱呼任務。",
+        ],
+        improvements: [
+          "Agent 每次執行讀取的說明更短，留給工作的空間更多。",
+          "群聊裡的 Agent 現在知道自己是在對一群人說話。",
+          "Copilot 的用量會顯示真正使用的模型，缺少 token 數時也會說明。",
+          "手機上任務詳情不再留大片空白，內容佔滿螢幕寬度。",
+          "桌面端關閉標籤頁會回到你上一個看過的標籤。",
+          "沒有子任務的任務，取消訂閱只需點一次。",
+          "自託管文件寫明瞭桌面端從哪個檔案讀取伺服器地址。",
+          "桌面端去掉了一項從未產出有效結果的後臺診斷。",
+        ],
+        fixes: [
+          "很長的 Codex 會話可以繼續了，不再每次恢復都失敗。",
+          "上下文用滿的執行會明確失敗，不再返回空答案。",
+          "定時 Autopilot 會按時開始，不再等到下一次喚醒。",
+          "在聊天裡用 /issue 建任務，不再重複執行同一條命令。",
+          "名稱相近的 Skill 在 QwenPaw 上不再互相覆蓋。",
+          "空閒會話的第一條訊息立即顯示，不再排隊等待。",
+          "排隊的訊息會按你傳送的順序進入對話記錄。",
+          "文件站點恢復正常，不再因為某個頁面報錯而打不開。",
+        ],
+      },
+      {
+        version: "0.4.18",
+        date: "2026-08-04",
+        title: "Agent 指令更精簡，大量問題修復",
+        changes: [],
+        features: [
+          "指派確認彈窗支援用傳送快捷鍵確認，不必再切到滑鼠。",
+          "建立 Agent 時的對話會保留下來，之後可以隨時回看。",
+        ],
+        improvements: [
+          "建立 Agent 的頁面開著時，不再拖慢整個工作區。",
+          "建立 Agent 時填寫的內容會自動儲存，切換頁面後依然保留。",
+          "Skill 的檔案行選單裡可以直接進入編輯。",
+          "聊天中的快捷建議會跟隨你正在使用的語言。",
+          "Agent 每次執行讀取的說明更精簡，佔用的上下文更少。",
+          "本地構建的執行時會明確標註，不再提示並不存在的更新。",
+          "執行時詳情頁的標題不再重複顯示機器名。",
+        ],
+        fixes: [
+          "中斷回覆後繼續傳送訊息，Agent 仍然記得之前的對話。",
+          "建立 Agent 的輸入框在傳送後清空，緊接著輸入的內容也不會丟失。",
+          "點選 Skill 中的檔案可以正常開啟，不再只彈出選單。",
+          "任務裡的「取消訂閱」現在能夠正常生效。",
+          "在回覆框中輸入 / 同樣能看到工作區的快捷操作。",
+          "從任務頭部開啟執行中的執行日誌，視窗不再立刻關閉。",
+          "OpenClaw 的回覆在生成完成後立即送達，不再長時間等待。",
+          "在 Slack、飛書中單獨傳送 /new，不再產生空訊息和空執行。",
+          "在新接入的聊天渠道里，Agent 不再誤報附件已傳送。",
+          "過長的專案名或標籤名不再讓屬性標籤佔滿一整行。",
+          "清空屬性的入口，現在統一位於選擇彈層的第一行。",
+          "Autopilot 的 Runbook 過寬時，不再把設定面板擠出彈窗。",
+          "中文側欄中的 Discord 入口不再顯示不全。",
+          "把任務指派給小隊不再出錯。",
+        ],
+      },
+      {
+        version: "0.4.17",
+        date: "2026-08-03",
+        title: "刪除執行時不再丟 Agent",
+        changes: [],
+        features: [
+          "刪除執行時不再刪掉 Agent，換臺機器重新綁上就能繼續跑。",
+          "收件箱可以用上下方向鍵切換選中項，不用滑鼠也能一條條看。",
+          "新增上手教程，帶你從空工作區一步步搭出一個自己運轉的團隊。",
+          "一個月沒被用到的倉庫快取會自動清掉，磁碟不再一直變大。",
+        ],
+        improvements: [
+          "磁碟佔用數字現在和檔案管理器裡看到的一致。",
+          "命令列遇到衝突會直接告訴你怎麼改，不再讓你反覆重試。",
+          "建立 Autopilot 時會明確指出還差哪個必填項。",
+          "任務側欄先顯示執行日誌，詳情放到下面。",
+          "許可證裡寫明瞭：免費的公開託管同樣需要商業授權。",
+        ],
+        fixes: [
+          "Kimi 接著上次的對話回覆時，不再把上一輪的回答重複一遍。",
+          "自帶 Codex 指令檔案的 Agent 現在能正常開始 task。",
+          "給原本沒有觸發器的 Autopilot 選好定時，現在能儲存下來了。",
+          "開啟 Agent 匯入的 Skill，不再顯示你沒做過的改動。",
+          "在 Slack 和飛書裡用 /new 都能開一段全新對話。",
+          "在聊天裡用 /issue 建的任務，現在會給你發通知。",
+          "阿里雲 OSS、騰訊雲 COS 上傳附件不再失敗。",
+          "只能透過代理上網的機器現在也能第一時間接到 task。",
+          "手機端會自己重連，不再卡在一條已經斷開的連線上。",
+          "下載過的 Skill 會一直留在本地，不會隔幾天又重新下一遍。",
+        ],
+      },
+      {
+        version: "0.4.16",
+        date: "2026-07-31",
+        title: "一鍵下一步、連結變卡片，Agent 更穩",
+        changes: [],
+        features: [
+          "聊天回覆下方會給出後續建議，點一下就直接發出。",
+          "把常用的 Agent 和提示詞存成快捷操作，在任意任務側欄一鍵觸發。",
+          "貼上任務或專案連結，會直接顯示成卡片，不再是一長串網址。",
+          "在收件箱裡右鍵通知即可標回未讀，留著稍後再看。",
+          "可以給 Agent 設定 emoji 頭像，也能一眼看出它用的是哪個執行時。",
+          "建立 Agent 時，執行時裡多了 Qoder CN 可選。",
+        ],
+        improvements: [
+          "刪除大型自託管工作區現在快很多，不用一直乾等。",
+          "所有工作區都能給 Agent 和 Skill 打標籤，方便歸類和查詢。",
+          "Linux 上的 Codex 現在直接沿用機器上已配好的工具和登入狀態。",
+          "內建 Skill 名稱統一、說明更精簡，每次執行佔用的上下文更少。",
+          "介面裡被弱化的文字改用實色，不再發灰髮虛。",
+        ],
+        fixes: [
+          "在 Windows 上給 Copilot 發多行提示詞，換行不再丟失。",
+          "Kimi、Kiro、Qoder、TRAE 的回覆不再缺少結尾。",
+          "很長的任務時間線不再停在過去，最新動態都能看到。",
+          "Agent 拆出子任務時，訂閱的人現在會收到通知。",
+          "自託管改用自定義埠後，啟動和連線不再對不上。",
+          "用量排行榜裡單個 Agent 的數字，不再超過同期總量。",
+          "工作中的 Agent 數量，現在只算篩選出的任務，不再算整個工作區。",
+          "超大的訊息不再影響實時連線的穩定。",
+          "自託管升級到新版本不再中途失敗。",
+          "新手引導的每一步都能退出登入，換個賬號重來。",
+        ],
+      },
+      {
+        version: "0.4.15",
+        date: "2026-07-30",
+        title: "更好用的 Skill、記錄與工作區",
+        changes: [],
+        features: [
+          "Skill 現在分為概覽與檔案，未儲存的改動也會清楚提示。",
+          "task 記錄現在會把檔案改動顯示為清晰的差異。",
+          "現在可以用快捷鍵開關浮動聊天視窗。",
+          "任務連結現在更易讀，也可在新標籤頁開啟。",
+          "提及和命令選擇器現在支援 Ctrl+N/J/P/K。",
+        ],
+        improvements: [
+          "切換工作區時，任務表格現在更穩定、更流暢。",
+          "介面與四語文件現在更清晰、更一致。",
+          "包含大量附件的命令列和 Agent task 現在傳輸更少資料。",
+          "自託管配置現在會正確應用到守護程序。",
+        ],
+        fixes: [
+          "Codex 對檔案的改動現在會完整保留在 task 記錄中。",
+          "Hermes 恢復會話失敗時，Agent 現在會自動恢復。",
+          "從桌面端啟動時，現在也能找到 Qoder CLI。",
+          "空閒裝置上的守護程序更新不再一直等待。",
+          "任務活動標籤裡的下行字母不再被截斷。",
+        ],
+      },
+      {
+        version: "0.4.14",
+        date: "2026-07-29",
+        title: "Agent 更快，檔案更安全，任務表格更順暢",
+        changes: [],
+        features: [
+          "執行中安裝的 Agent CLI 現在會自動出現。",
+          "Agent 所有者現在可以管理自己的環境變數。",
+        ],
+        improvements: [
+          "切換執行時後，可用模型現在顯示得更快。",
+          "任務表格的縮放、排序和滾動更順暢。",
+          "淺色模式下的次要文字現在更清晰。",
+          "中日韓標題、斜體和桌面端程式碼更易讀。",
+          "實時 task 計時器更新時不再左右跳動。",
+          "自託管指南現在覆蓋 Cookie 和同源部署。",
+        ],
+        fixes: [
+          "私有和代理儲存中的圖片、頭像與下載恢復正常。",
+          "貼上 @ 或 / 時不再誤開提及或命令選單。",
+          "服務商拒絕損壞會話時，Agent task 會自動恢復。",
+          "守護程序重啟後，Hermes 會話現在可以續跑。",
+          "CodeBuddy 規劃不再讓無人值守 task 卡住。",
+          "@all 不再阻止被明確提及的 Agent 執行。",
+          "成員不再從用量看板看到私有 Agent。",
+          "會阻止 task 領取的併發數現在會被拒絕。",
+          "ACP Agent 的渠道回覆現在只包含最終答案。",
+          "Windows 上的 OpenClaw 靜默失敗現在會說明原因。",
+        ],
+      },
+      {
+        version: "0.4.13",
+        date: "2026-07-28",
+        title: "Claude Code 續跑不再重複寫快取，還有錯誤洞察",
+        changes: [],
+        features: [
+          "用量頁現在會顯示錯誤趨勢、失敗型別和相關 Agent。",
+          "現在可以直接從 GitHub App 匯入多個倉庫。",
+          "建立 Agent 時，現在可以設定思考強度和 Codex 加速。",
+          "父任務現在會顯示子任務中有多少 Agent 正在工作。",
+        ],
+        improvements: [
+          "關閉、重開或切換編輯模式後，草稿和上傳仍會保留。",
+          "貼上超長文字時，現在會自動變成文字附件。",
+          "每個上傳只顯示一次，完成後才會寫入草稿。",
+          "Webhook URL 現在預設隱藏，可按需顯示。",
+          "工作區很多時，Multica 啟動不再反覆檢查 Agent 工具。",
+          "用量排名現在先聚焦前十名，失敗排序也更清楚。",
+          "傳送後，游標現在會停在各編輯器預期的位置。",
+        ],
+        fixes: [
+          "Claude Code 繼續處理長任務時，重複的快取寫入減少約 95%。",
+          "刪除任務後，現在會回到原來的列表。",
+          "skill 下載卡住時，現在會自動重試並說明原因。",
+          "Slack 和 Lark 現在只接收最終回答，Qoder Agent 也不例外。",
+        ],
+      },
+      {
+        version: "0.4.12",
+        date: "2026-07-27",
+        title: "Lark 圖片影片、圖片縮放與更穩的 task",
+        changes: [],
+        features: [
+          "PR 卡片現在會顯示實時的 CI 狀態，以及這個 PR 是否可以合併了。",
+          "Lark 裡發的圖片和影片現在會作為附件帶進來了。",
+          "現在可以對圖片附件預覽進行平移和縮放了。",
+          "專案選擇器現在支援搜尋，一次能看到更多專案。",
+          "現在可以在命令列裡把一個 Agent 複製到另一個執行時了。",
+        ],
+        improvements: [
+          "話題快速跳轉欄現在移到了右側邊緣。",
+          "記錄現在會跟隨 task 的實時輸出滾動。",
+        ],
+        fixes: [
+          "@提及 搜尋現在支援名字裡帶空格了。",
+          "快速建立失敗時，現在會顯示真正的原因，而不是籠統的報錯。",
+          "快速重複同一個操作不再報錯了。",
+          "切回任務列表時，內容現在會保持最新。",
+          "Codex Agent 現在能可靠地恢復會話了。",
+          "桌面端裡的圖片等媒體現在能正常顯示了。",
+          "取消 task 現在會徹底停止 Agent。",
+          "上一個會話無法恢復時，Agent task 現在能自動恢復了。",
+        ],
+      },
+      {
+        version: "0.4.11",
+        date: "2026-07-25",
+        title: "PR 實時狀態，新增 Claude Opus 5",
+        changes: [],
+        features: [
+          "現在可以基於 Claude Opus 5 搭建 Agent 了。",
+        ],
+        improvements: [
+          "Agent 啟動的長時間執行服務，現在在 task 結束後仍會繼續執行。",
+          "非程式碼類工作區不再夾帶 Agent 用不上的軟體工程說明了。",
+        ],
+      },
+      {
+        version: "0.4.10",
+        date: "2026-07-24",
+        title: "支援自託管 Git 服務，Chat 更懂你的專案",
+        changes: [],
+        features: [
+          "現在除了 GitHub，還能接入 Forgejo、Gitea、GitLab 等自託管 Git 服務。",
+          "Chat 現在能用你的專案上下文，給出更貼合的回答。",
+          "執行日誌現在更好讀，執行再長也能流暢瀏覽。",
+          "任務表格現在會直接顯示哪些 Agent 正在處理。",
+          "複製的記錄現在會帶上每條事件的時間戳。",
+        ],
+        improvements: [
+          "Cursor Agent 現在會實時顯示它的思考和工具呼叫。",
+          "現在可以基於最新的 Kimi Code 模型搭建 Agent 了。",
+          "執行時別名現在在全站各處都能一致顯示了。",
+          "專案裡的 GitHub 連結現在會清晰顯示 owner/repo。",
+          "當你機器上的 Agent 服務過舊、無法使用專案上下文時，Chat 現在會提醒你。",
+          "滾動載入更多工時會顯示“載入中”，到底部會提示“沒有更多了”。",
+        ],
+        fixes: [
+          "在看板和列表裡滾動載入更多工時，不再閃現整頁骨架屏了。",
+          "恢復的 Grok 會話不再顯示為 $0，計費與 xAI 實際收取一致。",
+          "建立 Agent 出錯時，錯誤資訊現在會一直顯示，方便你排查。",
+          "在 Lark 群聊裡，回覆現在會使用正確話題的上下文。",
+          "Hermes Agent 不再誤報供應商錯誤了。",
+          "自託管部署現在能穩定連上 API 和文件了。",
+        ],
+      },
+      {
+        version: "0.4.9",
+        date: "2026-07-23",
+        title: "更豐富的子任務、Codex 極速模式，介面更順手",
+        changes: [],
+        features: [
+          "現在可以用更快的 Codex 極速模式執行 Agent 了。",
+          "子任務現在能直接顯示優先順序、標籤、進度和截止日期。",
+          "你可以自選每個子任務要顯示哪些資訊。",
+          "Inbox 現在會在列表裡直接顯示哪些 Agent 正在處理。",
+        ],
+        improvements: [
+          "列表、看板和泳道檢視的分組與篩選現在表現一致了。",
+          "聊天輸入框現在會隨視窗變大，長草稿一眼看得更全。",
+          "初次上手現在步驟更少了。",
+          "Grok 費用現在直接採用 xAI 每輪實際收取的金額，長上下文請求也算得準，儲存後的自定義價格也能再改。",
+          "全站的介面動畫更順滑了。",
+        ],
+        fixes: [
+          "在桌面應用裡，應用內連結現在會在標籤頁開啟，而不是瀏覽器。",
+          "新建任務時選好的選項不會再丟失了。",
+          "搭建 Agent 時切換執行時現在會立即生效。",
+          "初始設定在檢測過程中不再誤報“未找到執行時”了。",
+          "Codex 會話啟動失敗時現在能幹淨地恢復了。",
+        ],
+      },
+      {
+        version: "0.4.8",
+        date: "2026-07-22",
+        title: "按 Agent 開關技能，桌面標籤與 task 更穩",
+        changes: [],
+        features: [
+          "現在可以為每個 Agent 單獨開關某項技能了。",
+          "桌面標籤頁現在會顯示所開啟內容對應的圖示和標題。",
+          "現在可以直接在表格檢視裡新增子任務了。",
+        ],
+        improvements: [
+          "新建的 Agent 現在會自動獲得一個彩色 emoji 頭像。",
+          "分組的任務表格現在載入更快、也更一致。",
+        ],
+        fixes: [
+          "從大型倉庫匯入技能不再超時了。",
+          "Codex task 不再卡在第一輪了。",
+          "切換賬號後，task 會從中斷處繼續，而不再直接失敗。",
+          "在表格裡編輯單元格不再自己關閉，點選標題即可開啟該任務。",
+          "開啟任務時，子任務列表現在會保持最新。",
+          "Grok Agent 現在能準確上報 token 用量了。",
+          "Qwen Agent 現在可以在 task 中執行命令、修改檔案了。",
+          "聊天輸入框的格式選單回來了，你又能清除格式了。",
+          "在手機上，我的任務列表不再卡在重新整理狀態。",
+        ],
+      },
+      {
+        version: "0.4.7",
         date: "2026-07-21",
-        title: ,
-        "Discord 入口已加入官网页脚、帮助菜单、README，以及可关闭的应用侧边栏卡片": 
-    }
-],
-    improvements;
-[
-    ,
-    changes, [],
-    features, [
-        ,
-        "你现在可以基于 Qwen Code 运行时搭建智能体了。",
-        ,
-        "聊天回复、任务分配补读和贡献者指引更克制，智能体工作更容易留在正确位置",
-        "远程命令行初始化和自定义运行时删除现在会给出更清楚的操作提示"
-    ],
-    fixes, [
-        表了, ",
-    ],
-    improvements, [
-        "指派确, 弹窗现在秒开，不再有加载等待。",
-    ],
-    fixes, [
-        ,
-        "在 Windows 上，提示词里包含命令行参数时，Cursor task 不再失败。",
-        ,
-        "Codex 权限处理和守护进程慢 task 诊断更可靠，排查问题时信息更完整"
-    ],
-    ,
-    {
-        version: ,
-        date: 不再登录失败了, ",: ,: title, 项目后, 项目下拉菜单现在会自动关闭, ",: ,: changes, []: ,
-        features: [
-            "0.4.5",
-            date, "2026-07-20",
-            titl, "可自定义的任务表格、实时排序的看板，以及更稳的智能体 task",
-            ,
-            changes, [],
-            feat, res, [
-                "现在可以自定义任务表格，自由选择显示哪些列以及排列方式。",
-            ],
-            improvements, [
-                task, 不再在准备阶段卡住, 会尽快开始或干脆快速失败, ",,,
-                "C, dex 智能体现在能拿到你为它设置的自定义环境密钥。",
-            ],
-            fixes, [
-                ,
-                "恢复的 Codex 和 Hermes 聊天不再返回空白回复。",
-                ", 面端现在会以你上次关闭时的大小和位置重新打开。",
-                "切换智能体
-            ],
-            fixes, [
-                "重新打开设置面板后，你的设置现在能可靠保存。",
-                "恢, 的 Codex task 现在会准确报告用量。",
-                "评论不再把不该变成链接的文字, 成链接。",
-                "私聊的回复现在会留在 Multica 里。",
-                ,
-                "AI 辅助创建现在始终可用。",
-                "任务页面首次打开时不再卡, 。",
-                "Linux 上的 Codex , 能体现在能正确保存 Git 信息。",
-                "本机后台现在会干净地恢复 task，而不是
-            ]
-        ]
-    },
-    {
-        version: ,
-        date: ovements, [
-            ,
-                title]: task, 遇到短暂断网不再失败, 会自动重,
+        title: "新增 Qwen Code 執行時，聊天圖表與 Windows 修復",
         changes: [],
         features: [
-            ",,,
-            "任务列表页现在能清楚看到当前有多少智能体在工作。",
-            "本机后台现在会记, 你的启动选项，不用每次重新输入。",
-            "小队队长在同一个任务上的后续跟进会接着之前的进度继续。",
+          "你現在可以基於 Qwen Code 執行時搭建 Agent 了。",
+          "Agent 在聊天裡畫的圖表，現在會真正顯示為圖表了。",
         ],
         improvements: [
-            链接, ",,,
-            "桌面端遇到失效链接时会显示正常的提示页，而不是崩溃, 面。",
-            "收件箱里已归档的条目不再显示为未读。",
-            "把内容粘贴进有序列表时序号会保持, 确。",
-            "某些按键情况下键盘快捷键不再误触发。",
-            "自托管升级不再中途卡
+          "指派確認彈窗現在秒開，不再有載入等待。",
         ],
         fixes: [
-            ,
+          "在 Windows 上，提示詞裡包含命令列引數時，Cursor task 不再失敗。",
+          "在 Windows 上，Codex task 不再在開始前就被拒絕。",
+          "自託管的自定義模型，現在首輪不再登入失敗了。",
+          "建立任務時選好專案後，專案下拉選單現在會自動關閉。",
         ],
-    },
-    ,
-    {
+      },
+      {
+        version: "0.4.5",
+        date: "2026-07-20",
+        title: "可自定義的任務表格、實時排序的看板，以及更穩的 Agent task",
+        changes: [],
+        features: [
+          "現在可以自定義任務表格，自由選擇顯示哪些列以及排列方式。",
+        ],
+        improvements: [
+          "任務一收到新評論或更新，看板和列表就會立即重新排序。",
+          "切換專案列表的顯示方式現在只需一個下拉選單。",
+          "現在可以直接用傳送快捷鍵建立任務。",
+          "本機後臺現在可以在 task 結束後，按設定的時間繼續保持執行。",
+          "Codex task 現在會自己清理殘留，騰出磁碟空間。",
+          "Agent task 不再在準備階段卡住，會盡快開始或乾脆快速失敗。",
+          "Codex Agent 現在能拿到你為它設定的自定義環境金鑰。",
+        ],
+        fixes: [
+          "恢復的 Codex 和 Hermes 聊天不再返回空白回覆。",
+          "桌面端現在會以你上次關閉時的大小和位置重新開啟。",
+          "切換 Agent 的執行時現在會正確重置它的模型和思考級別。",
+          "重新開啟設定面板後，你的設定現在能可靠儲存。",
+          "恢復的 Codex task 現在會準確報告用量。",
+          "評論不再把不該變成連結的文字變成連結。",
+          "私聊的回覆現在會留在 Multica 裡。",
+          "AI 輔助建立現在始終可用。",
+          "任務頁面首次開啟時不再卡頓。",
+          "Linux 上的 Codex Agent 現在能正確儲存 Git 資訊。",
+          "本機後臺現在會乾淨地恢復 task，而不是把它丟掉。",
+          "本機後臺在關閉時不再丟失終端輸出。",
+          "看板的顯示設定按鈕現在有了清晰的標籤。",
+        ],
+      },
+      {
+        version: "0.4.4",
+        date: "2026-07-17",
+        title: "全新的自動化定時編輯器與可互動圖表",
+        changes: [],
+        features: [
+          "自動化的定時設定換上了更清晰的編輯器，還能預覽接下來的執行時間。",
+          "圖表現在可以在檢視器裡自由拖動和縮放，也能儲存成圖片。",
+        ],
+        improvements: [
+          "Agent 的長 task 遇到短暫斷網不再失敗，會自動重試繼續跑完。",
+          "現在可以在設定裡選擇建立任務時顯示哪些欄位。",
+          "任務列表頁現在能清楚看到當前有多少 Agent 在工作。",
+          "本機後臺現在會記住你的啟動選項，不用每次重新輸入。",
+          "小隊隊長在同一個任務上的後續跟進會接著之前的進度繼續。",
+          "未登入就啟動本機後臺時，會直接告訴你該怎麼做，不再卡住。",
+        ],
+        fixes: [
+          "切換聊天會話時現在總會停在最新的訊息。",
+          "Agent 不再在結果裡留下你打不開的本地檔案連結。",
+          "桌面端遇到失效連結時會顯示正常的提示頁，而不是崩潰介面。",
+          "收件箱裡已歸檔的條目不再顯示為未讀。",
+          "把內容貼上進有序列表時序號會保持正確。",
+          "某些按鍵情況下鍵盤快捷鍵不再誤觸發。",
+          "自託管升級不再中途卡住。",
+          "Codex Agent task 現在能用正確的憑證執行。",
+          "Cursor Agent 在終端出錯時更穩定了。",
+          "更新自動化時不再丟失它繫結的 Agent。",
+        ],
+      },
+      {
         version: "0.4.3",
-        date: "202, -07-16",
-        title: "独立的任务窗口、收件箱归档，以及更稳的智能, task",
-        changes: [],
-        features: , ["现在可以在桌面端把任意任务单独开一个窗口。",
-            "收件箱新增归档视图，一键就能把内容找回来。]: ]: 
-    },
-    {
-        version: 过的工作, 不再从头,
-        date: "发送消息或创建任务时会,,,
-        title: "Antigravity ,,,
+        date: "2026-07-16",
+        title: "獨立的任務視窗、收件箱歸檔，以及更穩的 Agent task",
         changes: [],
         features: [
-            页现在可以直接下载, Intel, 版, Mac, 应用, ",,,
-            "下载的附件会保留原本的非英文文, 名。",
-        ],
-        fixes: [
-            "新建对, 时切换智能体，不会再把你已经输入的内容弄丢。",
-            "自动化运行中，智
+          "現在可以在桌面端把任意任務單獨開一個視窗。",
+          "收件箱新增歸檔檢視，一鍵就能把內容找回來。",
+          "每個自定義欄位都能單獨設定圖示，一眼就能認出來。",
+          "自託管部署現在能指定每個部分跑在哪些機器上。",
         ],
         improvements: [
-            ask, 不会再悄无声息地结束, 或没跑完就被标记完成, ",,,
-            "使用新的, Codex gpt-5.6 Sol 模型时，已完成的 task 不会再被误判为失败。",
+          "重試失敗的 Agent task 時，會保留它已經做過的工作，不再從頭再來。",
+          "傳送訊息或建立任務時會等附件上傳完，檔案不會再丟。",
+          "Antigravity task 無法實時展示時會給出說明，而不是一片空白。",
+          "下載頁現在可以直接下載 Intel 版 Mac 應用。",
+          "下載的附件會保留原本的非英文檔名。",
         ],
         fixes: [
-            安装, ",
+          "新建對話時切換 Agent，不會再把你已經輸入的內容弄丟。",
+          "自動化執行中，Agent 又可以透過 @ 互相交接 task 了。",
+          "自動化執行現在會使用最新的專案設定。",
+          "長時間的 Agent task 不會再悄無聲息地結束，或沒跑完就被標記完成。",
+          "使用新的 Codex gpt-5.6 Sol 模型時，已完成的 task 不會再被誤判為失敗。",
+          "Codex Agent 不會再因為啟動慢或在 Linux 上寫檔案而失敗。",
+          "建立任務時選擇的標籤，現在每次都會和任務一起儲存。",
+          "把帶格式的文字貼上進評論，不會再留下多餘的 ++ 符號。",
+          "滑鼠只是從頭像上劃過時，不會再彈出懸浮卡片。",
+          "Linux 桌面應用現在會以 multica-desktop 的名字安裝。",
         ],
-    },
-    {
-        version: "0., .2",
+      },
+      {
+        version: "0.4.2",
         date: "2026-07-15",
-        title: "自定义任务字段, 成员归属与 Grok 智能体",
-        changes: [],
-        fe, tures: [
-            "你现在可以给任务自定义字段了，并直接在列表里看到。",
-            ,
-            "现在能看到每个智能体的运行背后是哪位成员在负责。",
-            ", 现在可以基于 Grok 搭建智能体了。",
-            "智能体列表
-        ]
-    },
-    {
-        version: 颜色时, 多了随机配,
-        date: "命令面板里可以一键折叠或,,,
-        title: "帮助菜单,,,
+        title: "自定義任務欄位、成員歸屬與 Grok Agent",
         changes: [],
         features: [
-            el, 芯片的, Mac, 了, ",
+          "你現在可以給任務自定義欄位了，並直接在列表裡看到。",
+          "現在能看到每個 Agent 的執行背後是哪位成員在負責。",
+          "你現在可以基於 Grok 搭建 Agent 了。",
+          "Agent 列表現在會顯示訪問範圍，還能篩選和批次修改。",
+          "點開任務連結現在預設在新標籤頁開啟，可在偏好設定裡調整。",
+          "你現在可以用命令列直接建立工作區了。",
+          "給標籤和自定義欄位選顏色時，多了隨機配色。",
+          "命令面板裡可以一鍵摺疊或展開一個任務的所有評論。",
+          "幫助選單裡現在能看到當前所在的服務端版本。",
+          "桌面端現在支援 Intel 晶片的 Mac 了。",
         ],
         improvements: [
-            ,
-            "切换标签页和加载页面现在明显更快、更流畅了。",
-            "本机后台的更新和命令行状态现在都集中, 机器页面。",
-            "最近的工作列表加载时会先显示占位，不再空白。",
+          "切換標籤頁和載入頁面現在明顯更快、更流暢了。",
+          "本機後臺的更新和命令列狀態現在都集中在機器頁面。",
+          "最近的工作列表載入時會先顯示佔位，不再空白。",
         ],
         fixes: [
-            "CodeBu
+          "CodeBuddy Agent 現在能用上分配給它的技能和記憶。",
+          "opencode Agent 的 task 在意外結束時不再一直掛著。",
+          "更多型別的金鑰現在會自動從日誌裡隱藏。",
+          "排隊的 task 現在能被可靠領取，不再卡住不動。",
+          "落地頁上的按鈕現在會正確跳轉到你的工作區。",
+          "從飛書拉取最近上下文重新變得又快又穩。",
+          "下拉選項現在顯示名稱，而不是內部取值。",
+          "收起側邊欄後，頁面內容的左右留白現在對齊了。",
+          "取消 task 時 Agent 的記錄不再錯亂。",
+          "同時跑多個 Codex task 時不再互相卡住。",
+          "在一個任務裡滾動來回時，位置現在能穩定保留。",
+          "把含有特殊字元的內容粘到評論裡不再出錯。",
         ],
-        improvements: [
-            "opencode 智能体的 task 在意外结束时不再一直挂着。",
-            ,
-            "更多类型的密钥现在会自动从日志里隐藏。",
-            "排, 的 task 现在能被可靠领取，不再卡住不动。",
-            "
-        ],
-        fixes: [
-            "从飞书拉取最近上下文重新变得又快又稳。",
-            "下拉选项, 在显示名称，而不是内部取值。",
-            "收起侧边栏后，页面内容的左, 留白现在对齐了。",
-            "取消 task 时智能体的记, 不再错乱。",
-            "同时跑多个 Codex task , 不再互相卡住。",
-            "在一个任务里滚动来回时，位置现在能稳定保留
-        ]
-    },
-    {
-        version: cha,
-        date: features
-    },
-    title, 可以基于, DevEco, Code, 搭建,
-    changes, [],
-    features, [],
-    improvements, [
-        ,
-        "快速创建任务时上传的文件现在会从草稿一直带到最终创建的任务里"
-    ],
-    improvements, [
-        "工作区的改动现在会更快同步到你的机器上。",
-        ,
-        "自托管邮件现在可以用你设置的发件人地址发送。",
-    ],
-    ,
-    "按注册时间排序或筛选成员的页面现在加载更快"
-],
-    fixes;
-[
-    mes, 智能体现在能用上分配给它的技能, 写文件也不会再被拦下, ",,,
-    "在原地升级编码工具后，本机后台会自动找回它的新位置，task 不再因此, 败。",
-    "排队等待的 task 会在前一个 task 结束后立
-];
-{
-    version: 复杂的时间规则;
-    ",;;
-    date: 化的;
-    webhook;
-    触发,
-        title;
-    "自托管站点访问首页地址时现在会正确跳转,;;
-    changes: [],
-        features;
-    [
-        "你现在随时都能开关智能体的技能。",
-        ,
-    ],
-    ;
-}
-{
-    version: "0.4.0;;
-    improvements: [
-        还能录制浏览器平时占用的组合键, ",,,
-        "通过对话一步步说清需求，就能创建一个新智能体。, ,,,
-        "配置智能体的技能、工具、运行时和访问权限，现在更清晰、更省事。",
-    ],
-        fixes;
-    [
-        持设置开始日期和截止日期, ",,,
-        "长任务里新增缩略导航，能在各个评论, 话间快速跳转。",
-        "你可以直接在应用里搜索本机装好的技能, ",
-        "如果你愿意，可以让任务的评论输入框在滚动时保持固定。",
-    ];
-}
-{
-    version: 现在能查看每个运行,
-        date;
-    "通过 SSH,;;
-    title: 更简单的方式登录;
-    ",
-        ,
-            changes;
-    [],
-        features;
-    [
-        消, 不会再中断上面还在运行的智能体, task, ",,,
-        "智能体的 task 记录现在保持完整、顺序正, 。",
-        "在中日韩输入法打字时，按回车不会再截断你还没输完的, 容。",
-        "侧边栏、手机端和会话列表的未读数量现在保持一致。",
-        ,
-        "归档聊天时会清掉它的外部渠道绑定，并从未读中移除。",
-        ,
-        "在 macOS 上通过 ChatGPT 应用安装的 Codex 现在能被正, 识别。",
-        "Codex 智能体现在启动更稳定。",
-        "智能体构建器现在只提供其运,,,
-        "每次智能体 task 都会带上真实发起人信息，交接、审计和权限判断更准确",
-        "OpenClaw 可以从本地配置中读取自定义程序位置和数据目录"
-    ],
-        improvements;
-    [
-        智能体的简报里, ",,,
-        "更多类型的凭据现在会从日志中, 藏起来。",
-    ],
-    ;
-}
-{
-    version: "0.3.43",
-        date;
-    "2026-07-10,;;
-    "命令行会直接说明常见错误、登录问题和项目配置问题的处理方式";
-    fixes: [
-        型, 任务编号自动链接与头像裁剪, ",,,
-        changes, ,
-    ],
-        features;
-    [
-        "你现在, 以让智能体运行在全新的 Codex gpt-5.6 模型上——Sol, Terra 和 Luna。",
-        "输入或粘贴像 MU, -123 这样的任务编号，它会自动变成可点击的任务链接。",
-        ,
-        "新上传的附件会使用稳定的私有下载链接，临时上传链接过期后图片和文件仍能正常显示",
-        "自动任务通过新建任务启动后，如果对应的智能体 task 失败，会同步标记为失败，不会一直卡在进行中",
-        "从收件箱打开评论链接时，只会滚动任务时间线，不会把桌面窗口内容顶出可见区域",
-        "Cursor 和 Codex 会话在收到最终结果后会正常收尾，并保留完成状态和最后的遥测信息",
-        "自托管设置会遵循已配置的服务地址，创建项目时也会返回清楚的校验错误，而不是笼统失败",
-        "上一轮上传加固改动因影响附件体验已回滚，附件访问保持稳定"
-    ];
-}
-{
-    version: 智能体最终没有文字,
-        date;
-    回复;
-    提示;
-    而不是一条空消,
-        title;
-    在多个不同的评论会话里提到同,
-        changes;
-    [],
-        features;
-    [
-        improvements, [
-            "智能体、小队和工作区的头像现在处处都是圆形，与成员头像保持, 致。",
-            "一次性修改多个子任务的状态时，现在会直接生效，不再多出一步让人困惑的确认, ",
-            "智能体还在回复时你发出的聊天消息，现在一定会被下一次回复接住，不会丢失。",
-            ,
-            "你机器上的本机后台会自动把自己的日志控制得很小，不会再撑满磁盘。",
-        ],
-    ],
-        improvements;
-    [
-        "恢复时卡住的 Claude 智能体会话，现在能自动恢复并继续运行。",
-    ],
-        , ;
-}
-{
-    version: "0.3.42",
-        , date;
-    "2026-07-09",
-        title;
-    "全新独立聊天,;;
-    "命令搜索现在会显示负责人头像，回复输入框也和评论输入框使用一致的提交体验",
-        "带有较长描述的内置技能现在加载更可靠";
-    fixes: [
-        [],
-        features, [
-            "聊天现在有了独, 的页面，一侧是会话列表，一侧是当前对话。",
-            "新会话会在你发出第一条, 息后自动生成贴切的标题，语言与你输入的一致。",
-            "新建聊天时光标会自动落在输入框里，, 可以马上开始打字。",
-            "已取消的任务现在会像其他状,,,
-            "守护进程现在会明确显示自重启失败原因；从服务端结束终端 task 时会停止本地智能体；仓库维护时也会清理过期分支",
-            "使用 X-Forwarded-Host 的代理后方，自托管 WebSocket 连接现在可以正常工作",
-            "项目列表顶部在紧凑模式下会保持正确的模糊样式"
-        ]
-    ];
-}
-{
-    version: 能看到它正在使用哪,
-        date;
-    情页;
-    ",
-        ,
-            title;
-    ovements: [
-        ,
-        changes, [],
-        features, [
-            里指派任务时, 不会再因为网络瞬时波动而失败, ",
-        ],
-        ,
-        fixes, [
-            "你在任务上的追加评论不会再丢失，即使在智能体处理时发出也一定, 被接收。",
-            "当一个智能体提到另一个智, 体时，被提到的那个现在会可靠地开始工作。",
-            "之
-        ],
-        improvements, [
-            ",,,
-            "评论和描述里被加粗包裹的链接现在能正确显示了。",
-            ,
-            "Windows 桌面应用现在总是显示正确的版本号。",
-        ],
-    ];
-}
-{
-    versi, n;
-    "0.3.41",
-        date;
-    "202,;;
-    "分配工作流会更稳定地保留被分配的智能体身份",
-        "任务评论和回复输入框更简洁，会随输入自动增长，不再显示多余的展开按钮";
-    fixes: [
-        名, 成员自建小队与命令行排序任务, ",,,
-        chang, s, [],
-        features, [
-            "你现在可以给机器起名字，创建智能体时的运, 时选择器支持搜索并按机器分组。",
-            "任何成员现在, 能自己创建和管理小队，不再只有管理员可以。",
-            ,
-            "智能体的拥有者现在可以直接连接和管理它的飞书机器人，,,,
-            "GitHub 安装完成后会立即显示已连接的账户名称",
-            "模型发现等待时间更一致，空结果后也不会隐藏可用选项",
-            "自托管的飞书环境变量现在可以被正确接受"
-        ]
-    ];
-}
-{
-    version: ;
-    ",
-        ,
-            date;
-    mprovements: ,
-        title;
-    智能体;
-    task,
-        changes;
-    [],
-        features;
-    [
-        fixes, [
-            "飞书话题群里，每个话题现在都有各自独立的会话，不再所有人共用一个。",
-            ,
-            "桌面应用现在总能显示正确的版本号。",
-            "任务在不同状态之间移动后，看板的计数和显示的条目会, 持一致。",
-            "通过技能导入进来的文件现在会被保留，不再丢失。",
-            ,
-            "删除自动化后会被正确归档，不再残留。",
-        ],
-    ];
-}
-improvements: [
-    date, "2026-07-07",
-    ti, le, "页内查找、断点续传与多项修复",
-    changes, [],
-    f, atures, [
-        "你现在可以直接用命令行邀请成员加入工作区。",
-    ],
-    fixes, [
-        可以直接跳转并高亮关键词, ",,,
-        "附件下载中断后, 以断点续传，不用再从头下载。",
-    ],
-    imp, ovements, [
-        "对话里进行中 task 的状态刷新更快, 后台请求也更少了。",
-        "更多智能体供应商现在都能配置 MCP 了。",
-        ,
-        打开工作区时不再自动弹出对话窗口, 你可以自己用悬浮按钮打开, ",
-    ],
-    ,
-    fixes, [
-        "同一台机器上并行运行的多, 智能体 task 不再互相干扰。",
-        "断开后把飞书机器人重新连回同一个智能体时，成员的账号绑定和会话不再丢, 。",
-        "登录后如果你已经有工作区，不会再被错误地带到新建工作
-    ],
-    ,
-    {
-        version: 报错, 而不是直接,
-        date: "你现在可以删除已失效的,,,
-        title: 
-    }
-],
-;
-changes: [],
-    features;
-[
-    ate, "2026-07-06",
-    title, "Qoder 与 TRAE CLI 加入自定义
-],
-    improvements;
-[
-    Qoder, CN, 用户也能直接用, ",,,
-    "字节 TRAE CLI 也可以作, 自定义运行时的基座。",
-],
-    improvements;
-[],
-    fixes;
-[
-    r + 子任务由智能体关闭的情况下, 不再卡在第一阶段, ",,,
-    "父任务的「子任务完成」提示不, 把中间阶段错说成最终阶段，小队 Leader 可以自己选择继续下一阶段还是收尾。",
-    "小队 Leader 在收, 阶段不再占用本地仓库的锁，同一个仓库里的多个智能体可以继续并行工作。",
-    ", 小时的智能体 task（研究、训练、代码生成）不再被服务端误杀，只要本机后台还活着就会跑完。,,,
-    "多个服务实例同时启动时，不再容易发生启动准备互相重叠的问题"
-];
-{
-    version: ,
-        date;
-    报错堆栈或异常长的字符串时,
-        title;
-    "同时装了 Claude 的机器上，Antigra,;;
-    changes: [],
-        features;
-    [
-        owser, MCP, 现在能正常启动, ",,,
-        "Codex 智能体的 MCP 设置能被正确读取了。",
-        "Pi 智能体的 task 结果只显示最终答案，不再夹带中间步骤。",
-        ,
-        "自动化不再在单次运行超时的时候重复派发同一个任务。",
-        "任务的 PR 列表只显示真正关联到本任务的 PR，仅在描述里顺, 提到「Related to MUL-…」的 PR 不再露出。",
-        "任务操作菜单里嵌套的「, ore」项改名为「Relations」，你不用点开也知道里面装的是关系类操作。",
-        "所有附件上传按钮——对话输入、任务创建、任务描述、, 馈——都支持在系统对话框里一次选多个文件。",
-    ],
-    ;
-}
-improvements: [
-    date, "2026-07-03",
-    title, "tas, 日志偏好记忆、Helm 外部 PostgreSQL 支持，与稳定性修复",
-    chang, s, [],
-    features, [
-        "task 日志（Trans, ript）会记住你的过滤条件与展开状态，下次打开同一次运行时自动恢复。",
-        "
-    ],
-    fixes, [
-        CNPG, Cloud, SQL, Neon, 等, 跳过内置数据库, ",,
-    ],
-    fixes, [
-        "评论草稿里有空的 `1. ` 列表项时，, 新加载后光标不再卡在下方块。",
-        "登录 Shell 里挂了 hook 包装时，守护进, 也能正确发现智能体 CLI（Claude、Codex 等）。",
-        "新提交推送后，PR 审查智能体会,,,
-        "实时连接重连后，聊天、标签和邀请数据会正确刷新",
-        "仅运行自动 task、快速创建 task 及其重试 task 现在可以从活动视图取消",
-        "多行技能描述现在可以正确导入和展示",
-        "Windows 上的 Copilot 运行会保留多行提示词，并正确处理带引号的自定义参数"
-    ],
-    ,
-    {
-        version: 启期间不再被静默,
-        date: 口覆盖这段时间, ",: ,: title, P, 运行时, task, 的用量再次被正确记入使用日,
+      },
+      {
+        version: "0.4.1",
+        date: "2026-07-14",
+        title: "DevEco Code Agent、桌面自動更新與穩定性提升",
         changes: [],
         features: [
-            务, 运行仍然会出现在运行列表里, ",,,
-            "正文只在 Slac, 附件里的告警卡片（Grafana、Webhook 等）现在会从附件读取正文，而不, 回落文本。",
-            "Codex 智能体 task 能在 task 主目录里看到守护进程的 Codex 模型目录。, 社区反馈）",
-            "`/squads/…` 与 `/usage` 老路径不再 4, 4，会重定向到当前对应页面。",
-            "桌面端「保存」,,,
-            "OpenCode 智能体现在会把模型 variant 显示为思考强度控制，并把选择结果传给运行时"
+          "你現在可以基於 DevEco Code 搭建 Agent 了。",
+          "桌面端現在可以按你的偏好自動更新到新版本。",
         ],
         improvements: [
-            社区贡献, ",,,
-            "小队协作：Leader 通过 mention 派发的工作者智能体，在, 过 HTTP API 发布完成评论时，能正确唤醒私有小队 Leader；Lea, er → Worker → Leader 协作链不再在第一跳后卡住。",
-            "
+          "Agent 列表現在一開啟就能立刻顯示。",
+          "工作區的改動現在會更快同步到你的機器上。",
+          "自託管郵件現在可以用你設定的發件人地址傳送。",
         ],
         fixes: [
-            version, "0.3.35",
-            date, "2026-07-02",
-            ,
-            title, "「显示子任务」开关、任务视图更快、智能体 CLI 更安全",
-            ,
-            changes, [],
-            features, [
-                ,
-                "任务视图新增「显示子任务」开关，看板、列表、泳道、甘特, 一键聚焦父任务。",
-                "手动新建任务弹窗新增标签选择器，截止
-            ]
-        ]
-    },
-    {
-        version: ",,,
-        date: 套查询与缓存, 成员, 智能体,
-        title: 列表对账, 慢网下新增共用刷新指示器, ",: ,: changes, []: ,
+          "Hermes Agent 現在能用上分配給它的技能，寫檔案也不會再被攔下。",
+          "在原地升級編碼工具後，本機後臺會自動找回它的新位置，task 不再因此失敗。",
+          "排隊等待的 task 會在前一個 task 結束後立刻開始。",
+          "應用在後臺時收到的聊天回覆會被正確標記，歸檔會話也不再殘留未讀。",
+          "靠近螢幕底部時，@ 和 / 選單會向上彈出，不再被切掉。",
+          "自動化的定時觸發器現在能正確識別更復雜的時間規則。",
+          "自動化的 webhook 觸發不會再丟失。",
+          "自託管站點訪問首頁地址時現在會正確跳轉。",
+          "Agent 列表裡的執行時名稱和提供方現在顯示一致。",
+          "你現在隨時都能開關 Agent 的技能。",
+        ],
+      },
+      {
+        version: "0.4.0",
+        date: "2026-07-13",
+        title: "自定義快捷鍵、對話式建立 Agent，介面煥新",
+        changes: [],
         features: [
-            不再卡渲染, ",
-        ],
-        fixes: [
-            "同一小队, 子任务完成时，父任务所属小队的 Leader 会被叫醒，父任务不再滞留处理中。",
-            "受守, 进程托管的智能体 CLI 丢失 task token 时立刻失败，写操作不再冒充成工作区拥, 者。（社区反馈）",
-            "Slack 告警卡片（Grafan,,,
-            "OpenClaw 运行环境现在可以使用智能体里保存的 MCP 设置，Claude Opus 4.8 也可用于模型选择和用量估算"
+          "你現在可以自定義常用操作的快捷鍵，桌面端還能錄製瀏覽器平時佔用的組合鍵。",
+          "透過對話一步步說清需求，就能建立一個新 Agent。",
+          "配置 Agent 的技能、工具、執行時和訪問許可權，現在更清晰、更省事。",
+          "Agent 詳情頁新增私信按鈕，可以直接找它對話。",
+          "Agent 現在能在聊天回覆裡傳送圖片和檔案。",
+          "你可以建立和管理標籤，並決定每個標籤用在哪裡。",
+          "專案現在支援設定開始日期和截止日期。",
+          "長任務裡新增縮略導航，能在各個評論會話間快速跳轉。",
+          "你可以直接在應用裡搜尋本機裝好的技能。",
+          "如果你願意，可以讓任務的評論輸入框在滾動時保持固定。",
+          "把一個 GitHub 倉庫連到多個工作區，每個工作區都會同步更新。",
         ],
         improvements: [
-            s / rich_text, 里时, 也能被聊天智能体在历史阅读里读回, ",,,
-            "内联 base64 图片（二维码、截图、图表）在 Markd, wn 与只读任务评论中正常渲染。",
-            "评论跨任务移动后
+          "設定現在會自動儲存，每次改動都有即時確認提示。",
+          "頁面、選單、按鈕和桌面端的視覺更統一、更清爽。",
+          "儀表盤上的數字變化時會平滑滾動呈現。",
+          "建立 API 令牌時有更清楚的引導，建立完還會給出資訊摘要。",
+          "你可以隨時重新整理工作區已連線的程式碼倉庫。",
+          "工作區成員現在能檢視每個執行時具備哪些能力。",
+          "透過 SSH 在遠端機器上安裝時，會引導你用更簡單的方式登入。",
         ],
         fixes: [
-            语法出错时不再把内置错误图注入页面, ",,,
-            "本地技能重新对 ACP 类运行时, 见。",
-            "应用内反馈提交前会校验响应并透传错误类型。",
-            ,
-            "守护进程调用仓库缓存的 git 命令带超时。（社区反馈）",
-            ,
-            "集群部署下，运行时的 pending 键保留在同一个 Redis slot 
-        ]
-    },
-    {
-        version: {},
-        date: "0.3.34",
-    },
-    title, 6 - 7 - 1, ",,,
-    title, ",,,
-    changes, [],
-    features, [
-        Claude, Sonnet, 5, ",,,
-        changes, [],
-        ,
-        features, [
-            "Slack 里可以直接用原生 /issue 斜杠命令创建 Mul, ica 任务，机器人只会向你私发一条包含任务链接的确认消息。",
-            "同一, Slack 工作区里已经和某个 Multica 机器人绑定过的用户，遇到新加入的第二个机器人时
+          "把任務標記為已取消，不會再中斷上面還在執行的 Agent task。",
+          "Agent 的 task 記錄現在保持完整、順序正確。",
+          "在中日韓輸入法打字時，按回車不會再截斷你還沒輸完的內容。",
+          "側邊欄、手機端和會話列表的未讀數量現在保持一致。",
+          "歸檔聊天時會清掉它的外部渠道繫結，並從未讀中移除。",
+          "在 macOS 上透過 ChatGPT 應用安裝的 Codex 現在能被正確識別。",
+          "Codex Agent 現在啟動更穩定。",
+          "Agent 構建器現在只提供其執行時真正支援的模型。",
+          "你關閉的技能不會再出現在 Agent 的簡報裡。",
+          "更多型別的憑據現在會從日誌中隱藏起來。",
         ],
-        improvements, [
-            I, traecli, 通过标准, ACP, 协议接入为内置智能体运行时之一, ",,,
-            "Anthropic 模型清单接入 Claude Sonnet 5，并已挂上介绍期价格。",
-            ,
-            "每次 task 运行都会在用量日志里记录本次的 , rompt cache 命中率。",
-        ],
-        impro
-    ],
-    fixes, [
-        时误吃前一个字符的问题, ",
-    ],
-    fixes, [,
-        "Slack 聊天智能体不再逐句解说自己在读历史，改为静默阅读、直接给出正式回复。",
-        ,
-        "自托管的本地磁盘部署中，附件预览（PDF / HTML）, 复正常显示。（社区反馈）",
-        "修复了 Cursor 与 Kiro 运行, 结束时 task 结果不入库的问题，最终回复不再丢失。",
-    ],
-    ,
-    {
-        version: ,
-        date: 务正在处理中, 的胶囊改为按,
-        title: "自托管匿名来源统计的上报地址恢复到正式的,,,
+      },
+      {
+        version: "0.3.43",
+        date: "2026-07-10",
+        title: "全新 Codex 模型、任務編號自動連結與頭像裁剪",
         changes: [],
         features: [
-            评论和回复的行为保持一致, ",
+          "你現在可以讓 Agent 執行在全新的 Codex gpt-5.6 模型上——Sol、Terra 和 Luna。",
+          "輸入或貼上像 MUL-123 這樣的任務編號，它會自動變成可點選的任務連結。",
+          "上傳頭像時，你現在可以先裁剪、縮放和旋轉，再儲存。",
+          "當 Agent 最終沒有文字回覆時，聊天裡會顯示清晰的“無回覆”提示，而不是一條空訊息。",
+          "在多個不同的評論會話裡提到同一個繁忙的 Agent，現在每個會話都會各自得到回覆。",
         ],
-    },
-    {},
-    version, "0.3.33",
-    date, "202, -06-30",
-    title, "Autopilot 协作权限、Slack , 史回灌、技能包归档导入",
-    changes, [],
-    features
-],
-    improvements;
-[
-    a, 智能体一进入频道即拥有完整上下文, ",,,
-    "Slack 智能体处理消息期间会在用户消息上, 👀 反应表情，处理结束后稳定清除，不再出现卡死。",
-    ,
-    技能包支持从本地.skill / .zip, 归档导入, ",
-],
-    fixes;
-[
-    缀, 请使用任务, Key, MUL - 123, 或完整, UUID, ",,,
-    "Agents 页, 适配移动端。",
-],
-    improvements;
-[
-    ,
-    "重写了评论路由级联：父链 @ 提及、智能体署名回复、小队 L, ader 兜底，三条路径汇入同一条经过充分测试的流程。",
-    "语言包清理了 117 个事实上不渲染的 _, ne 复数键，并新增校验防止再次回归。",
-    ,
-    "桌面端和网页端的头像现在可以正确加载相对路径上传文件",
-    "Codex、Cursor 和 Hermes 运行处理修复了桌面端发现、命令参数、用量归属和卡住诊断提示",
-    "无权限访问私有智能体的用户，不能再用普通评论触发它们",
-    "GitHub 设置、项目创建、看板排序和智能体技能页面清理了若干界面细节"
-];
-{
-    version: ,
-        date;
-    ocker;
-    Compose,
-        title;
-    ocker;
-    Compose;
-    v1;
-    ",;;
-    changes: [],
-        features;
-    [
-        守护进程会立即与服务端对账正在执行的, task, 和工作区状态, 社区贡献, ",,,
-        "Antigravity 智, 体「完成回合但未输出任何内容」时，回复会被从运行记录中补回，对话不再空白。",
-        "在拒绝 CLIEN
-    ],
-        improvements;
-    [
-        tle, "支持解除父子任务、守护进程重连更稳，附件预览处处可开",
-        chang, s, [],
-        features, [
-            "任务操作菜单新增「移除父级任务」，可以直接断开父子, 系，不用先去挑一个新的父级。",
+        improvements: [
+          "Agent、小隊和工作區的頭像現在處處都是圓形，與成員頭像保持一致。",
+          "一次性修改多個子任務的狀態時，現在會直接生效，不再多出一步讓人困惑的確認。",
+          "Agent 還在回覆時你發出的聊天訊息，現在一定會被下一次回覆接住，不會丟失。",
+          "你機器上的本機後臺會自動把自己的日誌控制得很小，不會再撐滿磁碟。",
         ],
-        improvements, , [
-            "本地守护进程的 WebSocket 重连改为带
-        ],
-        fixes, [
-            "守护进程在探测各个智能体运行时版本时加上了独立超时，单个卡死的 CLI 不会再连累其他运行时。",
-            ,
-        ],
-        fixes, [
-            "定时 Autop, lot 调度后会立即推进下一次运行时间，避免慢节点造成重复触发。",
-            ,
-            附件预览在框架内重定向, 同源资源, 本地上传等场景下都能正常打开
-        ]
-    ];
-}
-{
-    version: 评论吸顶头与高亮,
-        date;
-    切换不再有错位感;
-    ",
-        ,
-            title;
-    重新连上后会刷新消息缓存;
-    掉线再回来时不再看,
-        changes;
-    [],
-        features;
-    [
-        version, "0.3.31",
-        date, "2026-06-26",
-        tit, e, "跨工作区未读小圆点、Composio 工具集底座、更顺手的编辑器",
-        ,
-        changes, [],
-        features, [
-            ,
-            "工作区切换器里，其他工作区有未读 Inbox 时会亮起小圆点。",
-            ,
-            "官网新增使用场景页面能力，并让文档、更新日志和开始使用入口更清晰"
-        ],
-        improvements, [
-            备, ",,,
-            "现在可以在多个本地检出里并行启动桌面端 dev，互不打架。", ,
-            "中文文档首页新增一段中文介绍视频，可点击播放。",
-            ,
-        ],
-        improvements, [
-            "贡献者文档明确说明桌面端 dev 命令会按, 出自动隔离。",
-        ],
-        fixes, [
-            ,
-            "任务编辑器列表里按 Tab 现在能稳定缩进所选项，光标也不会跑出列表。",
-            "通过 @ 提及让小队 L
-        ],
-        fixes, [
-            承父级提及的回复也不会再次触发, Leader, ",,,
-            "任务和评论里代码块的选区，在页面其他位置刷新时不再丢失。",
-            ,
-            "把任务直接交给某个智能体时，运行确认弹窗会立刻展开 Handoff 备注。", ,
-            "工作区切换器上的未读小圆点会和你看到的 Inbox 保持一致。",
-            "编
-        ]
-    ];
-}
-{
-    version: 会立刻给出明确的,
-        date;
-}
-title: version: "0.3.3,;;
-changes: [],
-    features;
-[
-    tle, "Slack 协作通道接入，编辑器更顺手，多项稳定性修复",
-    changes, [, ,
-        features, [
-            "Slack 对话接入全新的统一协作通道，与, 书、Lark 一样稳定，消息收发更可靠",
-            "在任务编辑器里按 Tab，可以直接选中当前高亮的 @ 提及或建议项，挑选,,,
-            "官网新增 Contact Sales 流程，支持商务邮箱提交和防滥用保护",
-            "桌面端支持 macOS 触控板前进/后退手势"
-        ],
-        improvements, [
-            键开关, 能够快速把段落切换成待办清单, ",
-        ],
-        improvements, [
-            ", 端持续集成会自动跳过没有改动前端代码的 PR，把构建时间留给真正需要的改动",
-            ,
-            "命令行子命令的自动化测试覆盖更广，让日常工作流在每次发版后依然稳定",
-            "为每个服务商默认的, 能体启动参数补齐说明文档，并下线了一次性的飞书切换开关——统一协作通道已经在生产环境完全接管",
-            ,
-        ],
-        fixes, [],
-        fixes, [
-            且支持新版, 2026.6.x, 的, agents, 配置格式, 已有的, OpenClaw, 运行时不会因此掉线, ",,,
-            "把任务移动到其他项目时，会立刻从原来的项目列表里消失；并且在任务状态从看板视野外切换时，, 板列上的数字也会正确同步",
-            "当附件由不同来源的资源服务器提供时，预览也可, 正常打开",
-            "命令行智能体会等待守护进程就绪后再决定鉴权来,,,
-            "小队负责人会看到更明确的提醒，避免重复触发同一个智能体",
-            "自托管部署默认不再暴露数据库端口，删除云端运行节点时也会发送正确信息",
-            "桌面端更新设置、移动端技能页面和负责人选择器在不同语言与窄屏下更稳定"
-        ],
-        ,
-        {
-            version: ,
-        },
-        date, 在会指向你配置的应用, UR,
-        title, "Codex task 在,,,
-        changes, [],
-        features, [
-            保留目标完成状态, 智能体退出时会先终止整组, opencode, 子进程, 再关闭输出, ",,,
-            "在快速创建任务时同时上传多个文件，所有附件都会, 定地保留下来",
-            "Redis 上的 We, hook 限流不会再把无关的 Webhook 合并计算，避免被一起误伤；,,,
-            "项目列表新增紧凑和舒适两种视图，小屏幕上也更容易浏览"
-        ],
-        improvements, [
-            成, ",,,
-            "任务标签名不再接受控制字符，标签在各端展示都更整洁可读",
-            ,
-        ],
-        ,
-        {
-            version: , "0.3.29": ,
-            date: "2026-06-24",
-        },
-        title, "飞书协作通道升级，新增功能灰度发布，定时自动化更可靠",
-        cha,
-        "智能体运行指引收紧了任务状态写入规则，只把后续运行确实需要的信息留下"
-    ],
-    fixes, [
-        "飞书对话升级到全新的统一协作通道，消息收发更稳定一致，也为后续接入更多聊天平台打下基础",
-        ,
-        "新增功能灰度能力，覆盖应用和守护进程两侧，团队可以分阶段、小范围地开放高风, 改动",
-        "智能体阅读很长的任务讨论时，会自动把已解决的讨论折叠到关键结论，让, 下文更聚焦",
-        "飞书用户可以用 `/new` 开启新会话，飞书的 WebSocket 连, 也支持配置代理",
-    ],
-    improvements
-];
-{
-    version: 地只按预期执行一次,
-        date;
-    能体运行的开场说明可以切换,
-        title;
-    要时仍可切回完整版本;
-    ",;;
-    "运,;;
-    changes: [],
-        features;
-    [
-        igravity, 说明, 并移除过时的, Gemini, CLI, 信息, ",,,
-        "项目仓库设置里指定的分支 / 版本，现在会在本地智能体工作时正确生效，不会再拿到错误的分, ",
-    ],
-        fixes;
-    [,
-        "父任务下的子任务现在会按创建顺序稳定展示",
-        "任务内的, 件预览现在可以正常打开",
-        "@ 提及时即使搜索结果重新排序，也, 准确选中当前高亮的人或任务",
-        "删除已取消的聊天草稿后，
-    ],
-        improvements;
-    [
-        顶部智能体状态和, Antigravity, 服务商错误提示更准确, ",,
-    ],
-    ;
-}
-{
-    version: "0.3.28",
-        date;
-    "20, 6-06-23",
-        title;
-    "子任务支持分阶段，, 增 Qoder 运行时支持",
-        changes;
-    [],
-        ,
-            "智能体运行前会收到父任务 / 子任务协作规则，完成子任务后的回传更稳定";
-    fixes: [
-        现在可以按阶段组织, 同一阶段的工作可以并行推进, , 任务只会在整个阶段完成后收到更新, ",,,
-        "现在指派或批量更, 任务时，会先确认这次操作是否会启动智能体、启动的是哪一个，让, 可以只改动而不触发运行；确认启动时，还能附上一段交接说明，作为智,,,
-        "OpenCode 运行环境不再进入看不见的交互提问流程",
-        "Gemini 运行环境使用正确的官方图标"
-    ];
-}
-{
-    version: ;
-    并带有模型发现和,
-        date;
-    "自定义运行时可,;;
-    title: 无法注册时;
-    也会给出更清楚的提示;
-    ",;;
-    improve,
-        changes;
-    [],
-        features;
-    [
-        体获得更稳定的项目上下文, ",,,
-        "命令行现在支, 处理评论解决状态、查看任务用量汇总，以及管理自动任务订阅人",
-        "只读代码块, 增复制按钮，官网页头的 GitHub 按钮也会显示实时星标数",
-        "新版守护进程获取智能体技能时, 高效，同时继续兼容旧版本守护进程",
-    ],
-        fixes;
-    [
-        "批, 编辑任务时，菜单现在会正确显示所选任务共有的状态、优先级和指派人",
-        "在看板和, 表中拖动任务时，卡片不会再先跳回原位再移动到目标位置",
-        "GitH
-    ],
-        improvements;
-    [
-        "删除自定义运行时时会删除保存的配置，而不是只删除之后可能重新出现的运行时行",
-    ],
-    ;
-}
-{
-    versio, ;
-    "0.3.27",
-        date;
-    "2026-06-22",
-    ;
-    fixes: [
-        页脚, 帮助菜单, README, 以及可关闭的应用侧边栏卡片, ",
-    ],
-        , improvements;
-    [
-        "任务顶部的智能体活动状态现在悬停即, 展开，更方便快速查看当前进展",
-        "桌面侧边栏和固定导航更顺滑、更清爽，减少不必要的视觉干扰",
-        "聊天回复、任务, 配补读和贡献者指引更克制，智能体工作更容易留在正确位置",
-        "远程命令, 初始化和自定义运行时删除现在会给出更清楚的操作提示",
-    ],
-        fixe;
-}
-{
-    version: : "0.3.25,;;
-    date: : "2026-06-18,;;
-    title: : "让技能、自动任务和聊天中的智能体工作更可靠",
-        changes;
-    changes: [],
-        features;
-    [
-        的本地技能库现在可以被自动识别, 智能体运行时更容易复用团队能力, ",,,
-        "自动任, 可以配置默认订阅人，新建任务时更容易把相关队友带入确认",
-        ,
-        聊天附件会绑定到当前工作空间, 发送消息时也不会阻塞后续对话, ",,,
-        "智能体评论发送失败后, 可以直接在任务时间线里重试",
-    ],
-        improvements;
-    "同名模型来自不同服务商时，使用量统计会更准确",
-    ;
-    improvements: [
-        "运行时存储统计会覆盖更多工作目录，空间占用更清楚",
-        "后台任务指引和发版检查更严格，, 以更早发现高风险改动",
-    ],
-        fixes;
-    [
-        ,
-        "聊天和评论里的任务提及标签会适配容器宽度，不再和周围文字重叠",
-        "工作空间链接会更稳定地, 用正确的部署域名",
-        "自动 task 运行结束后，会清理对应的运行
-    ],
-        fixes;
-    [
-        s, [],
-        features, [
-            "团队可以创建自定义运行时，让智能体按环境使用合适的本地工, 和模型",
-            "命令行创建和更新智能体时可以选择思考强度",
-        ],
-        ,
-        mprovements, [
-            "运行时配置会更快同步到应用，并优先匹配当前环境, ,,,
-            "客户端错误和卡顿反馈会合并重复信息",
-            "任务评论触发预览文案更清楚",
-        ],
-        fixes, [
-            "Office 365 邮件的备用发送方式更稳定",
-        ]
-    ];
-}
-{
-    version: ;
-    默认行为更安全;
-    date: 数据;
-    ",
-        ,
-            title;
-    网络代理;
-    受限网络环境下的团队也能更稳定地连接;
-    ",;;
-    changes: [],
-        features;
-    [
-        和崩溃现在更容易定位, 问题反馈会带上更清楚的信息, ",,,
-        "项目列表行、评论预览和评论编辑器体验更一致，导航和附件操作更顺手",
-        ,
-    ],
-        fixes;
-    [
-        "回复和编辑评论前，现在会, 准确地预览哪些智能体或小队会开始运行",
-        "评论里的普通任务编号会保持为普通文字，只有明确插入链接时才会变, 链接",
-        "通过命令行登录并选择 Google 登录时，浏览器认证完成
-    ],
-        improvements;
-    [
-        智能体准备好后再开放, 避免加载过程中上传失败, ",,,
-        "触屏设备上不需要悬停也能看到运行记录里的操作按钮",
-        ,
-        "智能体发布评论的指令更稳，不容易因为命令格式问题漏掉指派人、项目或其他字段",
-        ,
-        ,
-    ];
-}
-{
-    version: "0.3.22",
-        , ate;
-    "2026-06-15",
-        title;
-    "更快的列表体验、更顺手的运行配置和更安, 的任务编辑",
-        changes;
-    [],
-        featu;
-    fixes: [
-        运行环境, 技能和小队的列表体验更快也更一致, 行内容, 筛选, 选择和操作都更清楚, ",,,
-        "命令行现在可以管理工作区仓库，本地智能体更容易拿到项目仓库上下文",
-        ,
-        "Cursor 和 OpenClaw 更容易配置：Cursor 连接设置可以由 Mu, tica 托管，OpenClaw 也可以连接已有网关",
-        "编辑评论时，可以在保存前预览并控制哪些智能体或小队会开始运行",
-    ], ,
-        improvements;
-    [
-        "桌面端恢复提示会带上更多页面上下文，反馈卡住窗口时更容易说清发生位置",
-        "长任务和收件箱视图在离开后返回时，会更稳定地保留滚动位置和评论
-    ];
-}
-{
-    version: "任务附,;;
-    date: ;
-    桌面端;
-    移动端以及令牌分,
-        title;
-    "编辑器和只读任务内容会更稳定地处理美元金额和邮箱链接",
-        ,
-            changes;
-    [],
-        features;
-    [
-        关闭窗口, ",,,
-        "自托管 Docker Compose 上传和,,,
-        "附件可以直接预览，支持 PDF、音频、视频、Markdown、代码、日志和纯文本",
-        "中文姓名支持用拼音搜索，适用于 mention、负责人、订阅人、agents、projects 和 squads"
-    ],
-        improvements;
-    [
-        能体, task, 遇到无效运行凭证时, 会安全停止而不是继续执行, ",
-    ],
-    ;
-}
-{
-    version: "0.3.21",
-        date;
-    "2026-06-1, ",
-        title;
-    "CodeBuddy Runtime",
-        ,
-            "工作区管理员可以通过命令行管理 squads，并在必要时停止失控的 task",
-        "共享界面文案的中英文翻译更完整";
-    fixes: [
-        [
-            "CodeBuddy 现在可以驱动本地 Multic,,,
-            "提及 squad 时会正确唤起对应 leader，同时保留私有 agent 的访问限制",
-            "删除任务后列表刷新更准确，后续评论也不再触发过期的 Done 回复",
-            "在撰写或编辑任务和评论时新增的附件，也可以稳定使用预览"
-        ]
-    ];
-}
-{
-    version: 传的文件现在会从草,
-        date;
-    title: nts: [
-        "技能导入冲突更容易理解：锁定的技能会显示成,,,
-        changes, [],
-        features, [
-            恢复提示会先说明发生了什么, 并给出更清楚的窗口卡住反馈信息, ",,,
-            "按注, 时间排序或筛选成员的页面现在加载更快",
-        ],
-        fixes, [,
-            "聊天在发送、停止或发送失败恢复时，会更稳定地同步消息和草稿",
-        ],
-        improvements, [
-            技能导入, 运行记录和更稳定的智能体, ",,,
-            changes, [],
-            features, [
-                "导入技能时，如果, 名技能已存在，现在可以选择停止、替换、另存为新名称或跳过",
-                "导入结果会清楚显示哪些技能已新增、已更新、已跳过、发生冲突或导入失败",
-            ],
-            ,
-            improvements, [
-                "网页端和移动端的执行记录现在会优先显示最新的历史运行，更容易看清最近进展",
-                ,
-                "更新日志内容已整理，最新发布内容会归在正确的版本下",
-            ],
-            fixes, [
-                定的智能体和附件, ",,,
-                changes, [],
-                features, [
-                    ,
-                    "评论输入框现在会在发送前显示哪些智能体或小队会开始工作，也可以避免误触发运行",
-                    ", 能体运行记录现在会显示时间点，回看进度和交接信息更清楚",
-                    "自动任务详情, 现在会显示创建人",
-                    "Claude Fable 5 现在已加入 Multica 支持的模型和价格列表",
-                    ,
-                    "任务讨论可以把某一条回复设为解决结论，长讨论收起后也能直接看到最终答案",
-                    "在 Lar
-                ]
-            ]
-        ]
-    ];
-}
-{
-    version: 任务描述里的图片和,
-        date;
-    都会保持可见;
-    ",
-        ,
-            title;
-    在只会保留一个解决结论;
-    替换结论时所有人看到的状态更一致;
-    ",;;
-    "实时连接断开并恢复后，任务,;;
-    changes: [],
-        features;
-    [
-        的发起人历史在较早, task, 记录上也会更可靠, ",,,
-        "滚动时置顶的任务评论边缘显示更干净",
-        ", 上传的附件会使用稳定的私有下载链接，临时上传链接过期后图片和文件仍能正常显示",
-        "自动任务通过新建, 务启动后，如果对应的智能体 task 失败，会同步标记为失败，不会一直卡在进行中",
-        "从收件箱打开评论链接时，,,,
-        "停止单个 agent task 前会先弹出确认，避免误操作",
-        "新增 GitHub 集成文档，覆盖托管版和自托管配置"
-    ],
-        improvements;
-    [
-        "Cursor 和 Codex 会话在收到最终结果后会正常收尾，并保留完成状态和最后的遥测信息",
-        "自托管设置会遵循已配置的服务地址，创建项目时也会返, 清楚的校验错误，而不是笼统失败",
-        "上一轮上传加固改动因影响附件体验已回滚，附件访问保持稳定",
-    ],
-    ;
-}
-{
-    version: "0.3.18",
-        date,
-        "自托管 Caddy 配置文档补充实时连接要求",
-        "Linux 桌面端安装包恢复显示 Multica 应用图标";
-    fixes: [
-        "网页版消息通知和 /note 指令",
-        changes, [],
-        feat, res, [
-            "网页端现在可以显示浏览器原生通知横幅，即使 Multica 在后台，也更容易及时, 到工作区动态",
-            "以 /note 开头的评论现在可以记录上下文，但不, 唤醒已分配的智能体，团队可以留下协作备注而不触发运行",
-            "Antigravity 现在可以作
-        ]
-    ];
-}
-{
-    version: fixes: [,
-        date, 道筛选现在可以正确生效, ",,,,
-        title, 换工作区时会更稳定地显示工作区图标, 并使用更清晰的英文文案, ",,,
-        "桌面端更新窗口和 task ,,,
-        changes, [],
-        features, [
-            会在同一套清理流程里处理已归档小队并暂停自动任务, ",,,
-            "守护进程现在会明确显示自重启失败原因；从服务端结束终端 task 时会停, 本地智能体；仓库维护时也会清理过期分支",
-            "使用 X-Forwarded-Host 的, 理后方，自托管 WebSocket 连接现在可以正常工作",
-            "项目列表顶部在紧凑模, 下会保持正确的模糊样式",
-        ],];
-}
-{
-    version: "0.3.17",
-        "成员离开或被移出 workspace 时，自动吊销其名下的 runtime",
-        "对未维护的模型支持自定义 token 价格，使用量真实反映成本",
-        "Landing 页面 header 加入 Changelog 入口";
-    improvements: [
-        title, "飞书 Bot 群聊、使用量调度和命令行更新",
-        changes, [],
-        features, [
-            "飞书, 聊里提及智能体时，会带上附近的对话上下文，智能体更容易理解团队前面在讨论什么",
-            "管理员可以直接在智能体集成区域断开飞, Bot，不需要再去设置页操作",
-            "自托管工作区现在不需要额外配置定时任务，也能持续更新使用量数据",
-            "命令行现,,,
-            "Copilot 失败详情直接在 UI 中透出，不再只是一个通用错误",
-            "Daemon brief 直接内联进 system prompt，针对需要的 provider 生效",
-            "Realtime WebSocket 放行同源升级，移动端与 CLI 可正常握手"
-        ],
-        fixes, [],
-        improvements, [
-            "大型任务, 述和较长的 Markdown 草稿在编辑器里打开更快",
-            "云端“添加一台电脑”的配置指引更可靠, 不会保存无法访问的服务设置",
-            "页面访问分析更聚焦有意义的页面区域，减少无关 URL, 变化带来的噪声",
-            "自托管文档现在优先说明内置使用量调度能力，旧的定时任务方案保留为兼容说,,,
-            "Pi 插件工具不再被硬编码的 `--tools` allowlist 过滤掉",
-            "Inbox 在任务加载完成后再滚动到目标评论",
-            "`autopilot create/update` 允许 `--mode run_only`",
-            "Changelog header 链接样式对齐 GitHub ghost button",
-            "OpenAI Codex / GPT 模型价格补齐，使用成本不再显示为 $0"
-        ]
-    ];
-}
-{
-    version: "任务评论和,;;
-    date: 增长;
-    不再显示多余的展开按,
-        title;
-    fixes: [
-        "上传图片后光标会停在正确位置，反复编辑 Markdown 时图片内容也不会,,,
-        changes, [],
-        features, [
-            作, 包括代码块, 链接, 命令和内容预览, ",,,
-            "智能体运行现在只会在长时间无活动后超时，不会因为固定时长到了就提前结束",
-            ,
-            "Claude Code 的用户配置现在会正确传给子进程，同时内部会话标记仍会保持隔离",
-            "收件箱通知静音判断和桌面通知跳转现在会按来源工作区处理",
-            "GitHu, 安装完成后会立即显示已连接的账户名称",
-            "模型发现等待时间更一致，空结果后也不会隐藏可用选项",
-            ", 托管的飞书环境变量现在可以被正确接受",
-        ],
-        ,
-        "Agent Create 弹窗新增放大按钮，长描述编辑更舒服"
-    ],
-        improvements;
-    [
-        3.16, ",,,
-        date, "2026-06-04",
-        title, "Lark Bot 集成",
-        ,
-        changes, [],
-        features, [
-            "支持 Lark 第三方集成，扫码就能把 Multica 智能体创建成一个, Lark Bot",
-            "聊天现在支持可搜索的智能体选择器和明确的上下文选择器，更容易指定谁来回复、需要看哪些内容",
-            ,
-            "Inbox 自动归档处于终态的 `task_failed` 行",
-            "Hermes 把 agent instructions 直接随请求内联传入",
-            "Timeline / Comment 改为纯客户端虚拟化，去掉服务端分页",
-            "Reserved slugs 前后端共享同一份 JSON，CI 守住漂移",
-            "ACP 错误消息现在带上 JSON-RPC 的 `error.data` 字段，排错更友好"
-        ],
-        fixes, [
-            更好整理, ",,,
-            "智能体现在内置 Multica 技能，可以更稳定地遵循工作区工作流",
-        ],
-        ,
-        improvements, [
-            "聊天上下文会以清晰的提及形式呈现，交接和后续回看, 容易理解",
-            "自托管邮件配置对使用自定义邮件发送服务的团队更清晰",
-            ,
-            "使用分析会更聚焦产品信号，减少发送后台运行类活动",
-        ],
-        fix,
-        "`kiro` 与 `kimi` 加入 inline-system-prompt provider 白名单",
-        "Priority Dropdown 徽章颜色对齐 PriorityIcon 的 semantic token",
-        "Agent 单行长消息可正常展开",
-        "桌面端复制任务链接使用当前连接环境，不再硬编码 localhost",
-        "移动端 WebSocket 在没有 cookie 的情况下也能握手",
-        "创建 workspace 时校验保留字，slug 错误提示已 i18n",
-        "Timeline 在 falsy prop 切换时正确同步 around 状态",
-        "DropdownMenu 弹层尺寸跟随内容"
-    ];
-}
-{
-    version: 页;
-    ",
-        ,
-            date;
-    天消息时;
-    每条用户消息都会,
-        title;
-    "桌面端现在会明确提示登录已过期，不再停在启动中",
-        ,
-            changes;
-    [],
-        features;
-    [
-        "复用运行环境时会干净刷新技能，不再累积重复的技能文件夹",
-        "Ope, Code 配置检查只返回部分结果时，可用模型仍会保留",
-        "由评论触发的智能体运行会绑, 到正确的对话线程",
-        "命令行现在会把缺失的任务元数据视为空结果，不再当作错误",
-        ,
-    ],
-    ;
-}
-{
-    version: "0.3.15",
-    ;
-    improvements: [
-        e, "文本高亮 + 更稳定的智能体运行",
-        changes, [],
-        ,
-        features, [
-            "描述和评论现在支持高亮文本，重要内容更容易被看到",
-        ],
-        improvements, [
-            ,
-            "聊天消息加载更快，长对话里的实时更新也更顺畅",
-            ,
-            "Runtime 统计排除已归档的 agent，活跃数字更准"
-        ],
-        fixes, [
-            进, ",
-        ],
-        fixes, [
-            "任务开始日期和截止日, 在不同时区下会保持用户选择的日历日期",
-            "同一个技能支, 文件重复出现时，技能准备不再失败",
-            "OpenCode 模型发现会等待, 久，减少配置时的误报失败",
-            "编辑器建议菜单在焦点移到外部后会可,,,
-            "Timeline 中孤立的 reply 现在会被正确捞回展示",
-            "Timeline 评论分页预算不再把 activity 算进去，避免活动多时挤掉真实评论"
-        ]
-    ];
-}
-{
-    version: ",
-        ,
-            date;
-    {
-        title: 14;
-        ",;;
-        date: "2,;;
-        changes: [],
-            features;
-        [
-            ommand, ",,,
-            changes, [],
-            fe
-        ],
-            improvements;
-        [
-            区现在可以显示自定义, Logo, ",,,
-            "可以给智能体追加技能，不会覆, 已有技能",
-            "OpenCode 智能体现, 支持思考强度 variant",
-        ],
-        ;
         fixes: [
-            "早期用户如果没有填写入门来源问题，现在可以在之后补充，不需
-        ];
-    }
-    {
-        version: 智能体工作中筛选;
-        ",;;
-        date: fixes: ,
-            title;
-        用户不能再通过间接的任务或评论路径触发私有小队负责人;
-        ",
-            ,
-                changes;
-        [],
-            features;
-        [
-            "桌面端和网页端在空白工作区、无访问权限页面、渲染错误和崩溃后恢复更稳定",
-            "图片和文件卡片的名称包含 Markdown 字符时也能正常显示",
-            ,
-            "实时连接重连后，聊天、标签和邀请数据会正确刷新",
-            "仅运行自动 task、快速创建 task 及, 重试 task 现在可以从活动视图取消",
-            "多行技能描述现在可以正确导入和展示",
-            ,
-            "Runtime 在线判断改走 Redis（DB 兜底）",
-            "Desktop 支持加载 runtime 自托管配置",
-            "CLI 新增 `--assignee-id` / `--to-id` / `--user-id`，重名时定位更准"
+          "即使你電腦的時鐘和伺服器略有偏差，連線 Lark 機器人現在也能成功。",
+          "Cursor Agent 現在能重新正確連上它所配置的工具。",
+          "恢復時卡住的 Claude Agent 會話，現在能自動恢復並繼續執行。",
         ],
-            improvements;
-        [
-            并正确处理带引号的自定义参数, ",
+      },
+      {
+        version: "0.3.42",
+        date: "2026-07-09",
+        title: "全新獨立聊天頁，以及多項可靠性修復",
+        changes: [],
+        features: [
+          "聊天現在有了獨立的頁面，一側是會話列表，一側是當前對話。",
+          "新會話會在你發出第一條訊息後自動生成貼切的標題，語言與你輸入的一致。",
+          "新建聊天時游標會自動落在輸入框裡，你可以馬上開始打字。",
+          "已取消的任務現在會像其他狀態一樣，單獨作為看板和列表裡的一列顯示。",
+          "把滑鼠懸停在 Agent 上，就能看到它正在使用哪個模型以及思考強度，無需開啟詳情頁。",
         ],
-        ;
-    }
-    {
+        improvements: [
+          "網路短暫中斷後，應用能更穩定地自動恢復連線。",
+          "在命令列裡指派任務時，不會再因為網路瞬時波動而失敗。",
+        ],
+        fixes: [
+          "你在任務上的追加評論不會再丟失，即使在 Agent 處理時發出也一定會被接收。",
+          "當一個 Agent 提到另一個 Agent 時，被提到的那個現在會可靠地開始工作。",
+          "之前卡住無法重連的聊天機器人現在能重新連上了，佔用提示也會準確說明是誰在用。",
+          "評論和描述裡被加粗包裹的連結現在能正確顯示了。",
+          "Windows 桌面應用現在總是顯示正確的版本號。",
+        ],
+      },
+      {
+        version: "0.3.41",
+        date: "2026-07-08",
+        title: "機器命名、成員自建小隊與命令列排序任務",
+        changes: [],
+        features: [
+          "你現在可以給機器起名字，建立 Agent 時的執行時選擇器支援搜尋並按機器分組。",
+          "任何成員現在都能自己建立和管理小隊，不再只有管理員可以。",
+          "Agent 的擁有者現在可以直接連線和管理它的飛書機器人，不需要管理員許可權。",
+          "你現在可以在命令列裡給任務排序，並指定精確位置。",
+        ],
+        improvements: [
+          "對話裡 Agent task 失敗時，現在會給出友好、易懂的提示，並提醒你重試。",
+        ],
+        fixes: [
+          "飛書話題群裡，每個話題現在都有各自獨立的會話，不再所有人共用一個。",
+          "桌面應用現在總能顯示正確的版本號。",
+          "任務在不同狀態之間移動後，看板的計數和顯示的條目會保持一致。",
+          "透過技能匯入進來的檔案現在會被保留，不再丟失。",
+          "刪除自動化後會被正確歸檔，不再殘留。",
+        ],
+      },
+      {
+        version: "0.3.40",
+        date: "2026-07-07",
+        title: "頁內查詢、斷點續傳與多項修復",
+        changes: [],
+        features: [
+          "你現在可以直接用命令列邀請成員加入工作區。",
+          "任務詳情頁支援頁內查詢（Ctrl+F），可以直接跳轉並高亮關鍵詞。",
+          "附件下載中斷後可以斷點續傳，不用再從頭下載。",
+        ],
+        improvements: [
+          "對話裡進行中 task 的狀態重新整理更快，後臺請求也更少了。",
+          "更多 Agent 供應商現在都能配置 MCP 了。",
+          "開啟工作區時不再自動彈出對話視窗，你可以自己用懸浮按鈕開啟。",
+        ],
+        fixes: [
+          "同一臺機器上並行執行的多個 Agent task 不再互相干擾。",
+          "斷開後把飛書機器人重新連回同一個 Agent 時，成員的賬號繫結和會話不再丟失。",
+          "登入後如果你已經有工作區，不會再被錯誤地帶到新建工作區頁面。",
+          "刪除工作區時會等服務端確認後再跳轉，刪除失敗會停留在原地。",
+          "以 root 或 sudo 啟動 Claude 時會給出明確、可操作的報錯，而不是直接失敗。",
+          "你現在可以刪除已失效的孤立執行時了。",
+        ],
+      },
+      {
+        version: "0.3.39",
+        date: "2026-07-06",
+        title: "Qoder 與 TRAE CLI 加入自定義執行時基座，小隊與穩定性修復",
+        changes: [],
+        features: [
+          "你現在可以基於 Qoder 搭建自定義執行時了，Qoder CN 使用者也能直接用。",
+          "位元組 TRAE CLI 也可以作為自定義執行時的基座。",
+        ],
+        improvements: [
+          "執行時供應商頁和公開文件更新到當前所有內建執行時的完整名單，包括 Qoder 與 TRAE CLI，四種語言同步。",
+        ],
+        fixes: [
+          "多階段小隊流程在私有 Leader + 子任務由 Agent 關閉的情況下，不再卡在第一階段。",
+          "父任務的「子任務完成」提示不再把中間階段錯說成最終階段，小隊 Leader 可以自己選擇繼續下一階段還是收尾。",
+          "小隊 Leader 在收尾階段不再佔用本地倉庫的鎖，同一個倉庫裡的多個 Agent 可以繼續並行工作。",
+          "多小時的 Agent task（研究、訓練、程式碼生成）不再被服務端誤殺，只要本機後臺還活著就會跑完。",
+          "自託管環境下的搜尋不再卡死，大工作區裡首次搜尋也能秒回。",
+          "在任務或評論編輯器裡貼上長報錯堆疊或異常長的字串時不再卡頁面。",
+          "同時裝了 Claude 的機器上，Antigravity Agent 不再啟動失敗。",
+          "Windows 上的 Browser MCP 現在能正常啟動。",
+          "Codex Agent 的 MCP 設定能被正確讀取了。",
+          "Pi Agent 的 task 結果只顯示最終答案，不再夾帶中間步驟。",
+          "自動化不再在單次執行超時的時候重複派發同一個任務。",
+          "任務的 PR 列表只顯示真正關聯到本任務的 PR，僅在描述裡順帶提到「Related to MUL-…」的 PR 不再露出。",
+          "任務操作選單裡巢狀的「More」項改名為「Relations」，你不用點開也知道里面裝的是關係類操作。",
+          "所有附件上傳按鈕——對話輸入、任務建立、任務描述、反饋——都支援在系統對話方塊裡一次選多個檔案。",
+        ],
+      },
+      {
+        version: "0.3.36",
+        date: "2026-07-03",
+        title: "task 日誌偏好記憶、Helm 外部 PostgreSQL 支援，與穩定性修復",
+        changes: [],
+        features: [
+          "task 日誌（Transcript）會記住你的過濾條件與展開狀態，下次開啟同一次執行時自動恢復。",
+          "自託管（Helm）：新增 `postgres.external.enabled` 開關，可將 Multica 指向外部託管的 PostgreSQL（RDS、CNPG、Cloud SQL、Neon 等），跳過內建資料庫。",
+        ],
+        fixes: [
+          "評論草稿裡有空的 `1. ` 列表項時，重新載入後游標不再卡在下方塊。",
+          "登入 Shell 裡掛了 hook 包裝時，守護程序也能正確發現 Agent CLI（Claude、Codex 等）。",
+          "新提交推送後，PR 審查 Agent 會重新觸發審查，不再複用舊提交的結論。",
+          "實時事件在服務端 Pod 重啟期間不再被靜默丟失，新增有界 5 分鐘回放視窗覆蓋這段時間。",
+          "Kiro ACP 執行時 task 的用量再次被正確記入使用日誌。",
+          "執行時離線時，自動化（Autopilot）的「建立任務」執行仍然會出現在執行列表裡。",
+          "正文只在 Slack 附件裡的告警卡片（Grafana、Webhook 等）現在會從附件讀取正文，而不是回落文字。",
+          "Codex Agent task 能在 task 主目錄裡看到守護程序的 Codex 模型目錄。（社群反饋）",
+          "`/squads/…` 與 `/usage` 老路徑不再 404，會重定向到當前對應頁面。",
+          "桌面端「儲存」對話方塊展示真實的附件檔名，不再預設成 `download.txt`。（社群貢獻）",
+          "小隊協作：Leader 透過 mention 派發的工作者 Agent，在透過 HTTP API 釋出完成評論時，能正確喚醒私有小隊 Leader；Leader → Worker → Leader 協作鏈不再在第一跳後卡住。",
+          "如果宿主機 Claude CLI 版本早於 `--effort` 引數，task 不再硬失敗——守護程序會丟棄 effort 標誌並列印告警，回落到普通模式執行。",
+        ],
+      },
+      {
+        version: "0.3.35",
+        date: "2026-07-02",
+        title: "「顯示子任務」開關、任務檢視更快、Agent CLI 更安全",
+        changes: [],
+        features: [
+          "任務檢視新增「顯示子任務」開關，看板、列表、泳道、甘特圖一鍵聚焦父任務。",
+          "手動新建任務彈窗新增標籤選擇器，截止日期收進 ⋯ 摺疊選單。",
+          "技能詳情頁支援一次把技能掛給多個 Agent，選擇器帶 Agent 搜尋。",
+          "自託管：S3 相容物件儲存支援 path-style 定址。",
+        ],
+        improvements: [
+          "看板、列表、泳道、甘特圖共用一套查詢與快取：成員／Agent Tab 計數精確，跨專案移動按列表對賬，慢網下新增共用重新整理指示器。",
+          "對話實時時間線不再在每條流式 task 訊息到來時重新掛載，長時間 Agent 執行不再卡渲染。",
+        ],
+        fixes: [
+          "同一小隊裡子任務完成時，父任務所屬小隊的 Leader 會被叫醒，父任務不再滯留處理中。",
+          "受守護程序託管的 Agent CLI 丟失 task token 時立刻失敗，寫操作不再冒充成工作區擁有者。（社群反饋）",
+          "Slack 告警卡片（Grafana、Webhook 等）正文只在 Attachments / Blocks / rich_text 裡時，也能被聊天 Agent 在歷史閱讀裡讀回。",
+          "內聯 base64 圖片（二維碼、截圖、圖表）在 Markdown 與只讀任務評論中正常渲染。",
+          "評論跨任務移動後附件連結仍能正確定位。",
+          "Antigravity 空輸出完成時，找回的最終回覆會補進執行時間線。",
+          "附件預覽接受的文字檔案型別與前端展示對齊。",
+          "Mermaid 語法出錯時不再把內建錯誤圖注入頁面。",
+          "本地技能重新對 ACP 類執行時可見。",
+          "應用內反饋提交前會校驗響應並透傳錯誤型別。",
+          "守護程序呼叫倉庫快取的 git 命令帶超時。（社群反饋）",
+          "叢集部署下，執行時的 pending 鍵保留在同一個 Redis slot 裡。（社群反饋）",
+          "Web Docker 映象從 packageManager 欄位推導 pnpm 版本。（社群反饋）",
+        ],
+      },
+      {
+        version: "0.3.34",
+        date: "2026-07-01",
+        title: "Slack /issue 斜槓命令、位元組跳動 TRAE CLI Agent 執行時、接入 Claude Sonnet 5",
+        changes: [],
+        features: [
+          "Slack 裡可以直接用原生 /issue 斜槓命令建立 Multica 任務，機器人只會向你私發一條包含任務連結的確認訊息。",
+          "同一 Slack 工作區裡已經和某個 Multica 機器人繫結過的使用者，遇到新加入的第二個機器人時無需再走一次繫結流程。",
+          "Slack 頻道場景的上下文閱讀拆成兩條命令：一條檢視頻道概覽，一條精讀單個執行緒。",
+          "位元組跳動 TRAE CLI（traecli）透過標準 ACP 協議接入為內建 Agent 執行時之一。",
+          "Anthropic 模型清單接入 Claude Sonnet 5，並已掛上介紹期價格。",
+          "每次 task 執行都會在用量日誌裡記錄本次的 prompt cache 命中率。",
+        ],
+        improvements: [
+          "Autopilot 的「管理訪問」入口從獨立按鈕改為編輯彈窗裡的一個輕量氣泡。",
+          "任務與評論編輯器升級到 Tiptap 3.27.1，修復了輸入行內 `code` 快捷方式時誤吃前一個字元的問題。",
+        ],
+        fixes: [
+          "Slack 聊天 Agent 不再逐句解說自己在讀歷史，改為靜默閱讀、直接給出正式回覆。",
+          "自託管的本地磁碟部署中，附件預覽（PDF / HTML）恢復正常顯示。（社群反饋）",
+          "修復了 Cursor 與 Kiro 執行時結束時 task 結果不入庫的問題，最終回覆不再丟失。",
+          "自託管的 docker-compose.selfhost.yml 現在會把 MULTICA_SLACK_SECRET_KEY 透傳到後端容器。（社群反饋）",
+          "任務面板頂部「N 個任務正在處理中」的膠囊改為按任務數去重。",
+          "自託管匿名來源統計的上報地址恢復到正式的 Multica API。",
+          "評論的定位高亮改為純背景色，根評論和回覆的行為保持一致。",
+        ],
+      },
+      {
+        version: "0.3.33",
+        date: "2026-06-30",
+        title: "Autopilot 協作許可權、Slack 歷史回灌、技能包歸檔匯入",
+        changes: [],
+        features: [
+          "Autopilot 新增清晰的寫許可權分層，詳情頁提供「管理協作者」入口，可把單個 Autopilot 的寫許可權授予指定成員。",
+          "Slack 頻道可以把過往對話回灌到 Multica，Agent 一進入頻道即擁有完整上下文。",
+          "Slack Agent 處理訊息期間會在使用者訊息上加 👀 反應表情，處理結束後穩定清除，不再出現卡死。",
+          "技能包支援從本地 .skill / .zip 歸檔匯入。",
+          "multica issue 命令不再接受短 UUID 字首，請使用任務 Key（MUL-123）或完整 UUID。",
+          "Agents 頁面適配移動端。",
+        ],
+        improvements: [
+          "重寫了評論路由級聯：父鏈 @ 提及、Agent 署名回覆、小隊 Leader 兜底，三條路徑匯入同一條經過充分測試的流程。",
+          "語言包清理了 117 個事實上不渲染的 _one 複數鍵，並新增校驗防止再次迴歸。",
+          "內建執行時清單中失效的 Gemini 替換為實際使用的 CodeBuddy。",
+          "自託管預檢允許更新版的 Docker Compose CLI 外掛，同時繼續攔截 Docker Compose v1。",
+        ],
+        fixes: [
+          "WebSocket 斷線重連後，守護程序會立即與服務端對賬正在執行的 task 和工作區狀態。（社群貢獻）",
+          "Antigravity Agent「完成回合但未輸出任何內容」時，回覆會被從執行記錄中補回，對話不再空白。",
+          "在拒絕 CLIENT SETNAME 的託管 Redis 上，服務端啟動不再失敗。（社群貢獻）",
+          "Agent 活動懸浮卡片頭部計數改為「N 個 task 正在執行」，與工作區顯示保持一致。",
+        ],
+      },
+      {
+        version: "0.3.32",
+        date: "2026-06-29",
+        title: "支援解除父子任務、守護程序重連更穩，附件預覽處處可開",
+        changes: [],
+        features: [
+          "任務操作選單新增「移除父級任務」，可以直接斷開父子關係，不用先去挑一個新的父級。",
+        ],
+        improvements: [
+          "本地守護程序的 WebSocket 重連改為帶上限的退避策略，短暫斷網時恢復更順滑，不再原地空轉。",
+          "守護程序在探測各個 Agent 執行時版本時加上了獨立超時，單個卡死的 CLI 不會再連累其他執行時。",
+        ],
+        fixes: [
+          "定時 Autopilot 排程後會立即推進下一次執行時間，避免慢節點造成重複觸發。",
+          "附件預覽在框架內重定向、同源資源、本地上傳等場景下都能正常開啟；有本地上傳 URL 時會優先使用本地連結。",
+          "失敗 task 處理器解開卡住的任務時，前端檢視會立即重新整理，無需手動重新載入。",
+          "任務評論吸頂頭與高亮漸隱使用了同一套背景過渡，吸頂切換不再有錯位感。",
+          "Chat 在重新連上後會重新整理訊息快取，掉線再回來時不再看到陳舊訊息。",
+        ],
+      },
+      {
+        version: "0.3.31",
+        date: "2026-06-26",
+        title: "跨工作區未讀小圓點、Composio 工具集底座、更順手的編輯器",
+        changes: [],
+        features: [
+          "工作區切換器裡，其他工作區有未讀 Inbox 時會亮起小圓點。",
+          "新增 Composio 工具集底座，為後續第三方工具對接做好準備。",
+          "現在可以在多個本地檢出裡並行啟動桌面端 dev，互不打架。",
+          "中文文件首頁新增一段中文介紹影片，可點選播放。",
+        ],
+        improvements: [
+          "貢獻者文件明確說明桌面端 dev 命令會按檢出自動隔離。",
+        ],
+        fixes: [
+          "任務編輯器列表裡按 Tab 現在能穩定縮排所選項，游標也不會跑出列表。",
+          "透過 @ 提及讓小隊 Leader 接手時，會帶上完整的小隊 Briefing；繼承父級提及的回覆也不會再次觸發 Leader。",
+          "任務和評論裡程式碼塊的選區，在頁面其他位置重新整理時不再丟失。",
+          "把任務直接交給某個 Agent 時，執行確認彈窗會立刻展開 Handoff 備註。",
+          "工作區切換器上的未讀小圓點會和你看到的 Inbox 保持一致。",
+          "編輯任務評論時，儲存按鈕會顯示載入狀態，直到儲存完成。",
+          "搜尋結果能夠穩定載入。",
+          "自託管缺少 Docker Compose v2 時會立刻給出明確的安裝提示。",
+        ],
+      },
+      {
+        version: "0.3.30",
+        date: "2026-06-25",
+        title: "Slack 協作通道接入，編輯器更順手，多項穩定性修復",
+        changes: [],
+        features: [
+          "Slack 對話接入全新的統一協作通道，與飛書、Lark 一樣穩定，訊息收發更可靠",
+          "在任務編輯器裡按 Tab，可以直接選中當前高亮的 @ 提及或建議項，挑選同事或任務一鍵完成",
+          "在編輯器的浮動選單裡新增一鍵開關，能夠快速把段落切換成待辦清單",
+        ],
+        improvements: [
+          "前端持續整合會自動跳過沒有改動前端程式碼的 PR，把構建時間留給真正需要的改動",
+          "命令列子命令的自動化測試覆蓋更廣，讓日常工作流在每次發版後依然穩定",
+          "為每個服務商預設的 Agent 啟動引數補齊說明文件，並下線了一次性的飛書切換開關——統一協作通道已經在生產環境完全接管",
+        ],
+        fixes: [
+          "OpenClaw 對配置檔案差異更寬容，並且支援新版 2026.6.x 的 agents 配置格式，已有的 OpenClaw 執行時不會因此掉線",
+          "把任務移動到其他專案時，會立刻從原來的專案列表裡消失；並且在任務狀態從看板視野外切換時，看板列上的數字也會正確同步",
+          "當附件由不同來源的資源伺服器提供時，預覽也可以正常開啟",
+          "命令列 Agent 會等待守護程序就緒後再決定鑑權來源，避免悄悄回落到個人訪問令牌；自託管環境配置流程也會沿用現有設定並清晰展示服務地址的變化",
+          "飛書訊息中的網頁連結現在會指向你配置的應用 URL，而不是回退到通用網址",
+          "Codex task 在輸出過載時也能正常清理，不會再卡住；Kiro task 即便關閉過程中出現錯誤，也能保留目標完成狀態；Agent 退出時會先終止整組 opencode 子程序，再關閉輸出",
+          "在快速建立任務時同時上傳多個檔案，所有附件都會穩定地保留下來",
+          "Redis 上的 Webhook 限流不會再把無關的 Webhook 合併計算，避免被一起誤傷；守護程序載入多個 skill 包時，即便 skill 體積較大也能穩定完成",
+          "任務標籤名不再接受控制字元，標籤在各端展示都更整潔可讀",
+        ],
+      },
+      {
+        version: "0.3.29",
+        date: "2026-06-24",
+        title: "飛書協作通道升級，新增功能灰度釋出，定時自動化更可靠",
+        changes: [],
+        features: [
+          "飛書對話升級到全新的統一協作通道，訊息收發更穩定一致，也為後續接入更多聊天平臺打下基礎",
+          "新增功能灰度能力，覆蓋應用和守護程序兩側，團隊可以分階段、小範圍地開放高風險改動",
+          "Agent 閱讀很長的任務討論時，會自動把已解決的討論摺疊到關鍵結論，讓上下文更聚焦",
+          "飛書使用者可以用 `/new` 開啟新會話，飛書的 WebSocket 連線也支援配置代理",
+        ],
+        improvements: [
+          "定時自動化更可靠：遇到漏跑、重試或多個執行端同時處理時，也能穩定地只按預期執行一次",
+          "Agent 執行的開場說明可以切換到更精簡的版本，去掉冗餘內容，必要時仍可切回完整版本",
+          "執行時服務商文件已更新到當前支援的服務商，新增 Qoder、CodeBuddy、Antigravity 說明，並移除過時的 Gemini CLI 資訊",
+          "專案倉庫設定裡指定的分支 / 版本，現在會在本地 Agent 工作時正確生效，不會再拿到錯誤的分支",
+        ],
+        fixes: [
+          "父任務下的子任務現在會按建立順序穩定展示",
+          "任務內的附件預覽現在可以正常開啟",
+          "@ 提及時即使搜尋結果重新排序，也會準確選中當前高亮的人或任務",
+          "刪除已取消的聊天草稿後，切換頁面再回來不會再次出現",
+          "自動化冷啟動、任務頂部 Agent 狀態和 Antigravity 服務商錯誤提示更準確",
+        ],
+      },
+      {
+        version: "0.3.28",
+        date: "2026-06-23",
+        title: "子任務支援分階段，新增 Qoder 執行時支援",
+        changes: [],
+        features: [
+          "子任務現在可以按階段組織，同一階段的工作可以並行推進，父任務只會在整個階段完成後收到更新",
+          "現在指派或批次更新任務時，會先確認這次操作是否會啟動 Agent、啟動的是哪一個，讓你可以只改動而不觸發執行；確認啟動時，還能附上一段交接說明，作為 Agent 這次執行的開場上下文",
+          "Qoder 現在可以作為 Agent 服務商使用，並帶有模型發現和服務商品牌展示",
+          "自定義執行時可以配置固定啟動引數；儲存的執行時無法註冊時，也會給出更清楚的提示",
+        ],
+        improvements: [
+          "專案描述現在會跟隨 Agent 工作一起提供，讓 Agent 獲得更穩定的專案上下文",
+          "命令列現在支援處理評論解決狀態、檢視任務用量彙總，以及管理自動任務訂閱人",
+          "只讀程式碼塊新增複製按鈕，官網頁頭的 GitHub 按鈕也會顯示實時星標數",
+          "新版守護程序獲取 Agent 技能時更高效，同時繼續相容舊版本守護程序",
+        ],
+        fixes: [
+          "批次編輯任務時，選單現在會正確顯示所選任務共有的狀態、優先順序和指派人",
+          "在看板和列表中拖動任務時，卡片不會再先跳回原位再移動到目標位置",
+          "GitHub PR 關聯和檢查更新會路由到真正擁有該倉庫的工作空間",
+          "執行中的 task 記錄彈窗現在會持續更新，不必等 task 結束或重新整理頁面",
+          "刪除自定義執行時時會刪除儲存的配置，而不是隻刪除之後可能重新出現的執行時行",
+        ],
+      },
+      {
+        version: "0.3.27",
+        date: "2026-06-22",
+        title: "Lark 話題回覆和團隊協作流程最佳化",
+        changes: [],
+        features: [
+          "Lark 裡的話題訊息現在會回到原話題中，團隊討論更容易保持上下文",
+          "小隊負責人現在可以在成員列表裡看到成員技能，分配任務時更容易選對人",
+          "Discord 入口已加入官網頁尾、幫助選單、README，以及可關閉的應用側邊欄卡片",
+        ],
+        improvements: [
+          "任務頂部的 Agent 活動狀態現在懸停即可展開，更方便快速檢視當前進展",
+          "桌面側邊欄和固定導航更順滑、更清爽，減少不必要的視覺干擾",
+          "聊天回覆、任務分配補讀和貢獻者指引更剋制，Agent 工作更容易留在正確位置",
+          "遠端命令列初始化和自定義執行時刪除現在會給出更清楚的操作提示",
+        ],
+        fixes: [
+          "父任務仍在待辦池時，子任務完成不會意外喚起後續自動處理",
+          "刪除專案現在需要所有者或管理員許可權；私有 GitHub 倉庫的技能匯入在配置有效令牌後可以正常完成",
+          "登入驗證碼輸入框會自動聚焦，進入詳情頁時側邊欄也不會再意外播放動畫",
+          "Codex 許可權處理和守護程序慢 task 診斷更可靠，排查問題時資訊更完整",
+        ],
+      },
+      {
+        version: "0.3.25",
+        date: "2026-06-18",
+        title: "讓技能、自動任務和聊天中的 Agent 工作更可靠",
+        changes: [],
+        features: [
+          "開發者機器上的本地技能庫現在可以被自動識別，Agent 執行時更容易複用團隊能力",
+          "自動任務可以配置預設訂閱人，新建任務時更容易把相關隊友帶入確認",
+          "聊天附件會繫結到當前工作空間，傳送訊息時也不會阻塞後續對話",
+          "Agent 評論傳送失敗後，可以直接在任務時間線裡重試",
+        ],
+        improvements: [
+          "同名模型來自不同服務商時，使用量統計會更準確",
+          "歷史 Codex 使用量可以補齊，用量記錄更完整",
+          "執行時儲存統計會覆蓋更多工作目錄，空間佔用更清楚",
+          "後臺任務指引和發版檢查更嚴格，可以更早發現高風險改動",
+        ],
+        fixes: [
+          "聊天和評論裡的任務提及標籤會適配容器寬度，不再和周圍文字重疊",
+          "工作空間連結會更穩定地使用正確的部署域名",
+          "自動 task 執行結束後，會清理對應的執行目錄",
+          "桌面端可以正確處理基於提交版本的版本號",
+          "Tencent CodeBuddy 會顯示正確的服務商圖示",
+          "守護程序領取 task 的響應更小，傳輸更快",
+        ],
+      },
+      {
+        version: "0.3.24",
+        date: "2026-06-17",
+        title: "自定義執行時",
+        changes: [],
+        features: [
+          "團隊可以建立自定義執行時，讓 Agent 按環境使用合適的本地工具和模型",
+          "命令列建立和更新 Agent 時可以選擇思考強度",
+        ],
+        improvements: [
+          "執行時配置會更快同步到應用，並優先匹配當前環境",
+          "客戶端錯誤和卡頓反饋會合並重覆資訊",
+          "任務評論觸發預覽文案更清楚",
+        ],
+        fixes: [
+          "Office 365 郵件的備用傳送方式更穩定",
+          "GitHub 安裝上下文和 CI 等待狀態顯示更可靠",
+          "Codex 服務退出時會快速失敗",
+          "自修復執行時可再次刪除，切換執行時時會清理不相容模型",
+          "未知任務圖示和普通檔名連結識別更安全",
+        ],
+      },
+      {
+        version: "0.3.23",
+        date: "2026-06-16",
+        title: "任務日期篩選和提高 Agent 執行穩定性",
+        changes: [],
+        features: [
+          "任務現在可以按建立時間或更新時間篩選，支援快捷時間範圍和自定義日期",
+          "命令列現在可以刪除執行環境，預設行為更安全，也可以明確選擇是否連帶處理相關資料",
+          "Lark 連線現在可以使用網路代理，受限網路環境下的團隊也能更穩定地連線",
+        ],
+        improvements: [
+          "網頁端和桌面端的錯誤、卡頓和崩潰現在更容易定位，問題反饋會帶上更清楚的資訊",
+          "專案列表行、評論預覽和評論編輯器體驗更一致，導航和附件操作更順手",
+        ],
+        fixes: [
+          "回覆和編輯評論前，現在會更準確地預覽哪些 Agent 或小隊會開始執行",
+          "評論裡的普通任務編號會保持為普通文字，只有明確插入連結時才會變成連結",
+          "透過命令列登入並選擇 Google 登入時，瀏覽器認證完成後現在會正確回到命令列",
+          "聊天上傳檔案會等到當前 Agent 準備好後再開放，避免載入過程中上傳失敗",
+          "觸屏裝置上不需要懸停也能看到執行記錄裡的操作按鈕",
+          "Agent 釋出評論的指令更穩，不容易因為命令格式問題漏掉指派人、專案或其他欄位",
+        ],
+      },
+      {
+        version: "0.3.22",
+        date: "2026-06-15",
+        title: "更快的列表體驗、更順手的執行配置和更安全的任務編輯",
+        changes: [],
+        features: [
+          "Agent、自動任務、專案、執行環境、技能和小隊的列表體驗更快也更一致，行內容、篩選、選擇和操作都更清楚",
+          "命令列現在可以管理工作區倉庫，本地 Agent 更容易拿到專案倉庫上下文",
+          "Cursor 和 OpenClaw 更容易配置：Cursor 連線設定可以由 Multica 託管，OpenClaw 也可以連線已有閘道器",
+          "編輯評論時，可以在儲存前預覽並控制哪些 Agent 或小隊會開始執行",
+        ],
+        improvements: [
+          "桌面端恢復提示會帶上更多頁面上下文，反饋卡住視窗時更容易說清發生位置",
+          "長任務和收件箱檢視在離開後返回時，會更穩定地保留滾動位置和評論錨點",
+          "Cursor 的 Composer、快取輸入和新版 Cursor Agent 輸出會展示更清楚的用量和計費資訊",
+        ],
+        fixes: [
+          "任務附件、正文圖片和檔案卡片在網頁端、桌面端、移動端以及令牌分享連結裡更穩定可用",
+          "編輯器和只讀任務內容會更穩定地處理美元金額和郵箱連結",
+          "桌面端 Cmd+W 現在會先關閉當前標籤頁，無法關閉標籤頁時再關閉視窗",
+          "自託管 Docker Compose 上傳和預設配置更少失敗，缺失的配置值也會更早暴露",
+          "Agent task 遇到無效執行憑證時，會安全停止而不是繼續執行",
+        ],
+      },
+      {
+        version: "0.3.21",
+        date: "2026-06-12",
+        title: "CodeBuddy Runtime",
+        changes: [],
+        features: [
+          "CodeBuddy 現在可以驅動本地 Multica Agent，並會自動顯示可用的模型和投入強度選項",
+          "快速建立任務時上傳的檔案現在會從草稿一直帶到最終建立的任務裡",
+        ],
+        improvements: [
+          "技能匯入衝突更容易理解：鎖定的技能會顯示成員名稱，不再顯示內部 ID；單個覆蓋也可以一鍵完成",
+          "桌面端恢復提示會先說明發生了什麼，並給出更清楚的視窗卡住反饋資訊",
+          "按註冊時間排序或篩選成員的頁面現在載入更快",
+        ],
+        fixes: [
+          "聊天在傳送、停止或傳送失敗恢復時，會更穩定地同步訊息和草稿",
+          "Lark 賬號繫結現在對已登入使用者也能穩定完成，登入後也會回到繫結頁面",
+          "本地 Agent 執行不會再在 task 資料夾準備好之前就顯示已經開始",
+        ],
+      },
+      {
+        version: "0.3.20",
+        date: "2026-06-11",
+        title: "技能匯入、執行記錄和更穩定的 Agent",
+        changes: [],
+        features: [
+          "匯入技能時，如果同名技能已存在，現在可以選擇停止、替換、另存為新名稱或跳過",
+          "匯入結果會清楚顯示哪些技能已新增、已更新、已跳過、發生衝突或匯入失敗",
+        ],
+        improvements: [
+          "網頁端和移動端的執行記錄現在會優先顯示最新的歷史執行，更容易看清最近進展",
+          "更新日誌內容已整理，最新發布內容會歸在正確的版本下",
+        ],
+        fixes: [
+          "任務討論裡的回覆現在會按到達順序顯示，即使較慢的 Agent 回覆稍後才出現，也不會插到前面",
+          "當已儲存的會話失效時，Agent 可以自動重新開始，不會在後續每次提及時反覆失敗",
+          "從新的工作目錄重新喚起任務時，現在會開始新會話，不會繼續嘗試只存在於舊目錄裡的會話",
+        ],
+      },
+      {
+        version: "0.3.19",
+        date: "2026-06-10",
+        title: "更安全的評論觸發、更穩定的 Agent 和附件",
+        changes: [],
+        features: [
+          "評論輸入框現在會在傳送前顯示哪些 Agent 或小隊會開始工作，也可以避免誤觸發執行",
+          "Agent 執行記錄現在會顯示時間點，回看進度和交接資訊更清楚",
+          "自動任務詳情頁現在會顯示建立人",
+          "Claude Fable 5 現在已加入 Multica 支援的模型和價格列表",
+          "任務討論可以把某一條回覆設為解決結論，長討論收起後也能直接看到最終答案",
+          "在 Lark 和飛書裡和 Multica 對話時，會顯示等待中的輸入狀態，回覆發出後自動清除",
+          "每次 Agent task 都會帶上真實發起人資訊，交接、審計和許可權判斷更準確",
+          "OpenClaw 可以從本地配置中讀取自定義程式位置和資料目錄",
+        ],
+        improvements: [
+          "評論觸發提示更安靜、更清楚，遇到較長的 Agent 名稱時也不容易擁擠",
+          "桌面端在守護程序由 Multica 之外的環境管理時，會禁用啟動和停止控制，例如 WSL2 場景",
+          "任務頂部的 Agent 狀態更容易區分：執行中才顯示動效，等待中會明確顯示排隊狀態",
+          "命令列會直接說明常見錯誤、登入問題和專案配置問題的處理方式",
+        ],
+        fixes: [
+          "任務描述裡的圖片和檔案在網頁端和桌面端重新開啟後都會保持可見",
+          "每個任務討論執行緒現在只會保留一個解決結論，替換結論時所有人看到的狀態更一致",
+          "實時連線斷開並恢復後，任務頁面會重新整理資料，避免時間線停留在舊狀態",
+          "Agent task 的發起人歷史在較早 task 記錄上也會更可靠",
+          "滾動時置頂的任務評論邊緣顯示更乾淨",
+          "新上傳的附件會使用穩定的私有下載連結，臨時上傳連結過期後圖片和檔案仍能正常顯示",
+          "自動任務透過新建任務啟動後，如果對應的 Agent task 失敗，會同步標記為失敗，不會一直卡在進行中",
+          "從收件箱開啟評論連結時，只會滾動任務時間線，不會把桌面視窗內容頂出可見區域",
+          "Cursor 和 Codex 會話在收到最終結果後會正常收尾，並保留完成狀態和最後的遙測資訊",
+          "自託管設定會遵循已配置的服務地址，建立專案時也會返回清楚的校驗錯誤，而不是籠統失敗",
+          "上一輪上傳加固改動因影響附件體驗已回滾，附件訪問保持穩定",
+        ],
+      },
+      {
+        version: "0.3.18",
+        date: "2026-06-08",
+        title: "網頁版訊息通知和 /note 指令",
+        changes: [],
+        features: [
+          "網頁端現在可以顯示瀏覽器原生通知橫幅，即使 Multica 在後臺，也更容易及時看到工作區動態",
+          "以 /note 開頭的評論現在可以記錄上下文，但不會喚醒已分配的 Agent，團隊可以留下協作備註而不觸發執行",
+          "Antigravity 現在可以作為每個 Agent 單獨選擇的模型",
+          "命令列現在會用更容易理解的語言解釋常見請求失敗，並提示下一步該怎麼處理",
+        ],
+        improvements: [
+          "任務頂部現在會顯示 Agent 線上訊號，位置更緊湊，也更容易掃讀",
+          "執行時頁面更安靜也更準確，減少不必要的喚醒，同時 task 名稱更清楚，每一行都會顯示正確的命令列版本",
+          "自託管安裝現在預設生成隨機 Postgres 密碼，並在 Docker 構建裡帶上版本資訊",
+          "命令搜尋現在會顯示負責人頭像，回覆輸入框也和評論輸入框使用一致的提交體驗",
+          "帶有較長描述的內建技能現在載入更可靠",
+        ],
+        fixes: [
+          "看板泳道篩選現在可以正確生效",
+          "移動端切換工作區時會更穩定地顯示工作區圖示，並使用更清晰的英文文案",
+          "桌面端更新視窗和 task 記錄彈窗不會再操作已經關閉的視窗或頁面",
+          "刪除執行時時，現在會在同一套清理流程裡處理已歸檔小隊並暫停自動任務",
+          "守護程序現在會明確顯示自重啟失敗原因；從服務端結束終端 task 時會停止本地 Agent；倉庫維護時也會清理過期分支",
+          "使用 X-Forwarded-Host 的代理後方，自託管 WebSocket 連線現在可以正常工作",
+          "專案列表頂部在緊湊模式下會保持正確的模糊樣式",
+        ],
+      },
+      {
+        version: "0.3.17",
+        date: "2026-06-05",
+        title: "飛書 Bot 群聊、使用量排程和命令列更新",
+        changes: [],
+        features: [
+          "飛書群聊裡提及 Agent 時，會帶上附近的對話上下文，Agent 更容易理解團隊前面在討論什麼",
+          "管理員可以直接在 Agent 整合區域斷開飛書 Bot，不需要再去設定頁操作",
+          "自託管工作區現在不需要額外配置定時任務，也能持續更新使用量資料",
+          "命令列現在可以用外部 MCP 配置檔案建立和更新 Agent",
+        ],
+        improvements: [
+          "大型任務描述和較長的 Markdown 草稿在編輯器裡開啟更快",
+          "雲端“新增一臺電腦”的配置指引更可靠，不會儲存無法訪問的服務設定",
+          "頁面訪問分析更聚焦有意義的頁面區域，減少無關 URL 變化帶來的噪聲",
+          "自託管文件現在優先說明內建使用量排程能力，舊的定時任務方案保留為相容說明",
+          "分配工作流會更穩定地保留被分配的 Agent 身份",
+          "任務評論和回覆輸入框更簡潔，會隨輸入自動增長，不再顯示多餘的展開按鈕",
+        ],
+        fixes: [
+          "上傳圖片後游標會停在正確位置，反覆編輯 Markdown 時圖片內容也不會越變越長",
+          "自託管 HTTP 環境裡的複製按鈕現在可以正常工作，包括程式碼塊、連結、命令和內容預覽",
+          "Agent 執行現在只會在長時間無活動後超時，不會因為固定時長到了就提前結束",
+          "Claude Code 的使用者配置現在會正確傳給子程序，同時內部會話標記仍會保持隔離",
+          "收件箱通知靜音判斷和桌面通知跳轉現在會按來源工作區處理",
+          "GitHub 安裝完成後會立即顯示已連線的賬戶名稱",
+          "模型發現等待時間更一致，空結果後也不會隱藏可用選項",
+          "自託管的飛書環境變數現在可以被正確接受",
+        ],
+      },
+      {
+        version: "0.3.16",
+        date: "2026-06-04",
+        title: "Lark Bot 整合",
+        changes: [],
+        features: [
+          "支援 Lark 第三方整合，掃碼就能把 Multica Agent 建立成一個 Lark Bot",
+          "聊天現在支援可搜尋的 Agent 選擇器和明確的上下文選擇器，更容易指定誰來回復、需要看哪些內容",
+          "描述和評論現在支援勾選式待辦清單，任務裡的輕量計劃更好整理",
+          "Agent 現在內建 Multica 技能，可以更穩定地遵循工作區工作流",
+        ],
+        improvements: [
+          "聊天上下文會以清晰的提及形式呈現，交接和後續回看更容易理解",
+          "自託管郵件配置對使用自定義郵件傳送服務的團隊更清晰",
+          "使用分析會更聚焦產品訊號，減少傳送後臺執行類活動",
+        ],
+        fixes: [
+          "私有儲存裡的附件現在可以穩定下載，不會再開啟空白瀏覽器標籤頁",
+          "連續快速傳送多條聊天訊息時，每條使用者訊息都會送達 Agent",
+          "桌面端現在會明確提示登入已過期，不再停在啟動中",
+          "切換工作區後，側邊欄裡舊的置頂專案不會繼續殘留",
+          "複用執行環境時會乾淨重新整理技能，不再累積重複的技能資料夾",
+          "OpenCode 配置檢查只返回部分結果時，可用模型仍會保留",
+          "由評論觸發的 Agent 執行會繫結到正確的對話執行緒",
+          "命令列現在會把缺失的任務後設資料視為空結果，不再當作錯誤",
+        ],
+      },
+      {
+        version: "0.3.15",
+        date: "2026-06-03",
+        title: "文字高亮 + 更穩定的 Agent 執行",
+        changes: [],
+        features: [
+          "描述和評論現在支援高亮文字，重要內容更容易被看到",
+        ],
+        improvements: [
+          "聊天訊息載入更快，長對話裡的實時更新也更順暢",
+          "task 失敗原因更清晰，團隊可以更快判斷問題並繼續推進",
+        ],
+        fixes: [
+          "任務開始日期和截止日期在不同時區下會保持使用者選擇的日曆日期",
+          "同一個技能支援檔案重複出現時，技能準備不再失敗",
+          "OpenCode 模型發現會等待更久，減少配置時的誤報失敗",
+          "編輯器建議選單在焦點移到外部後會可靠關閉",
+          "多個服務例項同時啟動時，不再容易發生啟動準備互相重疊的問題",
+        ],
+      },
+      {
+        version: "0.3.14",
+        date: "2026-06-02",
+        title: "日語支援和 /skill command",
+        changes: [],
+        features: [
+          "Multica 現在支援日語介面、官網和文件",
+          "聊天現在支援 /skill command，用來選擇 Agent 技能",
+          "工作區現在可以顯示自定義 Logo",
+          "可以給 Agent 追加技能，不會覆蓋已有技能",
+          "OpenCode Agent 現在支援思考強度 variant",
+        ],
+        improvements: [
+          "早期使用者如果沒有填寫入門來源問題，現在可以在之後補充，不需要重新走完整入門流程",
+          "已停用的 Agent 現在會在各處顯示為已歸檔，不再看起來像離線或仍在工作",
+          "聊天曆史和任務執行記錄的懸浮操作更清晰，減少文字截斷和按鈕重疊",
+          "專案裡的任務篩選現在會在列表、看板和時間線檢視中一致應用 Agent 工作中篩選",
+        ],
+        fixes: [
+          "無許可權使用者不能再透過間接的任務或評論路徑觸發私有小隊負責人",
+          "專案進度統計和重新進入工作的 Agent 狀態重新整理更可靠",
+          "桌面端和網頁端在空白工作區、無訪問許可權頁面、渲染錯誤和崩潰後恢復更穩定",
+          "圖片和檔案卡片的名稱包含 Markdown 字元時也能正常顯示",
+          "實時連線重連後，聊天、標籤和邀請資料會正確重新整理",
+          "僅執行自動 task、快速建立 task 及其重試 task 現在可以從活動檢視取消",
+          "多行技能描述現在可以正確匯入和展示",
+          "Windows 上的 Copilot 執行會保留多行提示詞，並正確處理帶引號的自定義引數",
+        ],
+      },
+      {
         version: "0.3.13",
-            date;
-        2026 - 6 - 1;
-        ",;;
-        title: "Skill 搜索与命令行更新",
-            changes;
-        [],
-            features;
-        "Runtime poll 与 heartbeat 调度按 runtime 隔离，单个忙碌 runtime 不再拖慢其他",
-            "CLI 更新请求落 Redis，server 重启也不丢",
-            "Runtime 用量统计窗口由 180 天收窄到 14 天，降低查询压力",
-            "项目列表返回 `resource_count` 摘要，不再内联全部 resource，响应体更小",
-            "404 页面重新设计，并修复 No-Access 重定向死循环",
-            "Quick Create 对 git-describe 类 daemon 跳过 CLI 版本闸",
-            "CI 启用 lint 强制门禁，历史 lint 债同步清理完毕";
-        fixes: [
-            也可以列出某个任务关联的合并请求, 发布检查和自动化排查更方便, ",,,
-            "团队可以直接在命令行调整小队成员角色，不用进入应用界面",
-            ,
-            "智能体列表可以按运行机器筛选，更快找到绑定到某台设备或本机运行服务的智能体",
-            "邮件发送服务现在支, 安全的 465 端口连接",
-            "OpenCode 运行环境可以使用智能体里保存的 MCP 设置",
-            "OpenCo, e 智能体现在会把模型 variant 显示为思考强度控制，并把选择结果传给运行时",
-            ,
-            "OpenCode 的 skills 写到 `.opencode/skills/` 让其原生发现",
-            "Daemon 对 task-not-found 的 404 语义在 server 和最终 guard 双重收紧",
-            "侧边栏中失效的 Pin 自动取消挂载",
-            "项目详情页桌面端与移动端侧边栏状态独立保存",
-            "Runtime 详情页隐藏已归档的 agent",
-            "Add Resource 列表中已挂载的 repo 显示 URL tooltip；空项目页加上新建任务入口",
-            "S3 公开 URL 携带 region，修复跨区访问失败",
-            "Windows 安装器修正版本号解析与 checksum 解码",
-            "Quick Create 提交按钮去掉重复的快捷键提示"
-        ];
-    }
-    {
-        version: 操作更清晰;
-        小屏幕,
-            date;
-        "聊天历史里的运,;;
-        title: 和状态混乱;
-        ",;;
-        "重复导入,;;
+        date: "2026-06-01",
+        title: "Skill 搜尋與命令列更新",
         changes: [],
-            features;
-        [
-            fixes, [
-                "评论回复会保留在用户实际回复的那条评论下面",
-                ,
-                "Claude task 发送提示词时更不容易卡住",
-                ,
-                "自托管本机运行服务的设置链接会指向正确地址",
-                "MCP 设
-            ],
-            improvements, [
-                features, [
-                    "智能体在任务评论区继续, 作时，会接着之前的会话继续，不再新开会话，task 上下文可以保留下来",
-                    "Mu, tica 现在支持韩语界面、官网和文档，包含完整韩语文档与本地化日期显示",
-                    "任务页
-                ],
-                fixes, [
-                    ovements, [
-                        "详情页统一了面包屑导航，任务、项目、运行环境, 技能、智能体和小队的返回路径更清楚",
-                        "恢复中的智能体 ta, k 会少读重复评论，更快回到触发它的那条讨论",
-                        ,
-                        "任务提及说明和命令行片段更容易阅读，复制命令时不容易误读参数",
-                    ],
-                    ,
-                    ixes, [
-                        "更新、归档、恢复或从模板创建智能体后，已绑定的技能仍会正确显示",
-                        "单个智能体完成自己负责, 子任务后，父任务会继续唤起它推进后续工作",
-                        "Windows / WSL2 场景下，, 于当前用户的本机运行环境会归到本机分组",
-                        "命令行登录现在接受 Cloud Node 令牌",
-                    ],
-                    ,
-                ]
-            ]
-        ];
-    }
-    {
-        version: "0.3.11",
-            date;
-        "2026-05-28",
-            ,
-                "Quick Create 生成的描述更贴合用户输入",
-            "Skill upsert 清理 null bytes，修复 PostgreSQL UTF8 错误",
-            "Connect Remote 弹窗的安装脚本 URL 修正";
-    }
-    {
-        version: nges: [], ,
-            date;
-        es: [
-            ,
-            title, CLI, 现在可作为编码运行环境使用, ",,,
-            "智能体详情页新增,,,
-            changes, [],
-            features, [
-                "自托管管理员可以关闭自助创建工作区",
-                "桌面端本机运行环境会在访问令牌过期, 自动续期",
-            ],
-            improvements, [
-                "He, m Chart 可发布到 GHCR，邮件配置文档更清晰",
-                ,
-                "task 记录会显示更短、更安全的工作目录",
-                "手动排序
-            ],
-            improvements, [
-                "本机运行环境会按设备名合并同一台机器",
-            ],
-            fixes, [
-                "task 完成回传遇到短暂错误时会重试",
-                ,
-                "本地目录运行不会覆盖已有的 CLAUDE.md、AGENT
-            ],
-            fixes, [
-                显示更稳定, ",,,
-                "本机运行服务清理时会跳过不完整父级信息",
-            ],
-            ,
-        ];
-    }
-    {
-        version: "0.3.10",
-            date;
-        "2026-05-27",
-            title;
-        "本地工作目录",
-            c, anges;
-        [],
-            features;
-        [
-            "项目现在可以在桌面端绑
-        ];
-    }
-    {
-        version: 文档;
-        ",
-            ,
-                date;
-        任务;
-        项目或负责人分组;
-        大,
-            title;
-        "评论现在支持一次选择多个,;;
-        changes: [],
-            features;
-        [
-            improvements, [
-                "中文界面文案在导航、设置、搜索和运行时页面里更一致",
-                ,
-                "常用界面做了无障碍和 React 清理，移动端检查也只在移动端代码变化时运行",
-                "命令行列表输, 对自动化读取更安静，小队列表也会显示可用的成员数量",
-            ],
-            fi,
-            "Mention 选择器按本机最近使用排序"
+        features: [
+          "命令列現在可以搜尋 Skill，也可以列出某個任務關聯的合併請求，釋出檢查和自動化排查更方便",
+          "團隊可以直接在命令列調整小隊成員角色，不用進入應用介面",
+          "Agent 列表可以按執行機器篩選，更快找到繫結到某臺裝置或本機執行服務的 Agent",
+          "郵件傳送服務現在支援安全的 465 埠連線",
+          "OpenCode 執行環境可以使用 Agent 裡儲存的 MCP 設定",
+          "OpenCode Agent 現在會把模型 variant 顯示為思考強度控制，並把選擇結果傳給執行時",
         ],
-            improvements;
-        [
-            "Server 用 Redis 缓存 PAT / Daemon Token 校验，大型团队不再让 DB 抗下每次请求",
-            "后端支持通过 `MULTICA_CLAUDE_ARGS` / `MULTICA_CODEX_ARGS` 配置 Agent CLI 默认参数",
-            "Manual 与 Agent 创建任务共享同一个 Dialog 外壳，picker Agent 会被默认设为 assignee",
-        ],
-            fixes;
-        [
-            到的嵌套任务不再显示为空, ",,,
-            "从子任务入口切到用智能体创建时，会继续保留, 任务关系",
-            "定时自动任务生成标题和描述时，会按触发器配置的时区显示日期",
-            ,
-            "评论输入框不再因为实时更新闪出重复内容，发送失败后会保留文字，编辑评论时也会正确处理提及", ,
-            "没有识别出语言的代码块也会正常显示文本，不再出现空白代码块",
-            "桌面端
-        ];
-    }
-    {
-        version: 无权限访问私有智,
-            date;
-        发它们;
-        ",
-            ,
-                title;
-        创建;
-        看板排序和智能体技能页面清理了若干界面细节;
-        ",
-            ,
-                changes;
-        [],
-            features;
-        [
-            3.9, ",,,
-            date, "2026-05-26",
-            title, "泳道视图与更稳定的任务体验",
-            changes, [],
-            features, [
-                "任务现在支持泳道视图，团队可以按父任务和状态一起查看, 作，拆分后的子任务更容易归类和追踪",
-                "任务列表支持拖拽调整顺序，分组标题会在滚动时保持可见，加载更多内容后也能保持正确排序",
-            ],
-            imp, ovements, [
-                "命令行里的本机运行服务状,,,
-                "Daemon 通过 WebSocket 接收 task 唤醒，task 起跑延迟显著降低"
-            ],
-            improvements, [
-                "List/Board 视图的状态分组 header 更简洁，颜色提示更清晰",
-                "评论中作者手写的 Markdown 链接不再被自动 linkify 替换",
-                "添加 Label 现在乐观更新，无需等待服务端往返",
-                "Mention 输入时的任务搜索结果会随着输入实时刷新",
-            ],
-            fixes, [
-                "自托管文档补充了用量统计所需的小时汇总配置，排查步骤也覆盖中英文文档",
-                "智能体技能设, 在发布前收紧，产品里不再显示运行环境不支持的本机技能开关",
-                "依赖检查更严格, 前端包会更早发现缺失依赖，减少打包和桌面端运行时的意外",
-            ],
-            fixes, [
-                "GitHub PR 只有写明关闭意图时才会自动完成关联任务，普通引用链接不会误关任务",
-                "父子任务的自动推进更稳：,,,
-                "Agent 之间的 mention 不再相互触发，避免死循环"
-            ]
-        ];
-    }
-    {
-        version: ,
-            date;
-        时会保持正确顺序;
-        看板拖拽,
-            title;
-        "聊天窗口放大、看板卡片负责人行和,;;
-        changes: [],
-            features;
-        [
-            {
-                version: "0.3.8",
-            },
-            date, "2026-05-25",
-            title, "iOS 客户端、Helm 自托管与更顺畅的协作体验",
-            changes, [],
-            features, [],
-            improvements, [
-                "Project 选择器会显示当前所选 Project 的图标",
-                "进入详情页时，侧边栏父级菜单保持高亮",
-                "自托管部署正确读取注册放行相关的环境变量",
-            ],
-            fixes, [
-                态和实时更新, 目前暂未上架, App, Store, 需要用户自, 打包安装, ",,,
-                "自托管团队现在可以通过 He, m 将 Multica 部署到 Kubernetes，Docker 安装也有更清晰的端口和 URL 配置",
-            ]
-        ];
-    }
-    {
-        version: 解每个代码库;
-        ",,;;
-        date: 用量现在可以更准确识别;
-        D,
-            title;
-        6;
-        Zhipu;
-        GLM;
-        和长上下文;
-        Claude;
-        Opus;
-        的费用;
-        ",;;
-        changes: [],
-            features;
-        [
-            更清晰, ",
-        ],
-            improvements;
-        [
-            ,
-            "小队头像和看板卡片会显示更完整的悬浮信息、成员状态和实时工作状态", ,
-            "桌面端在长任务和聊天中切换标签页时，会更好地保留滚动位置，并避免重复的历史记录",
-        ],
-            improvements;
-        [
-            "Daemon 把取消的 task 上报为 `cancelled` 而非 `timeout`，并在按任务取消 task 时同步对齐 Agent 状态",
-            "Server 心跳拆成 probe/claim 两步，并补上慢日志和 model-list running-timeout，丢心跳不再卡住 UI",
-        ],
-            fixes;
-        [
-            "实时评论和动态连续到达时，任务时间线仍会按正确时间顺序显示",
-            ,
-            "Codex 运行不再继承本机隐藏记忆，Pi 运行也能收到更明确的, 入结束信号",
-            "本地运行时的删除入口会避开会自动恢复的项目，服务端依赖也更新到, 复安全问题的版本",
-            "标题字段会在外部更新后安全刷
-        ];
-    }
-    {
-        version: 通知对应负责人;
-        ",;;
-        date: 列表新增实时智能体工作状态,
-            title;
-        "新用户完,;;
-        changes: [],
-            features;
-        [
-            alist, ",,,
-            "官网新增 Contact Sales , 程，支持商务邮箱提交和防滥用保护",
-            "桌面端支持 , acOS 触控板前进/后退手势",
-        ], ,
-            improvements;
-        [
-            "任务看板卡片更容易扫读，信息分行更清晰，长名称会稳定,,,
-            "Skills 页面重设计——列表+详情、卡片化布局、滚动渐隐和共享 PageHeader / 移动端导航",
-            "文档站重写为双语扁平内容树——中英文章节共用一棵目录"
-        ],
-            improvements;
-        [
-            "悬停 Agent 头像即可弹出资料卡，快速了解上下文",
-            "桌面应用新增原生右键菜单，支持复制 / 粘贴 / 剪切 / 全选等剪贴板操作",
-            "Daemon 强化 Agent 提示，避免 Agent 之间形成自互 @ 的循环",
-            "Server 新增就绪态健康检查端点，可对接灰度发布和 Ingress 探针",
-            "Daemon GC 默认参数收紧，并支持灵活的时长后缀（如 `7d`、`12h`）",
-            "移除 Runtime 的 Test Connection / Ping 功能，可达性改为自动检测",
-        ],
-            fixes;
-        [
-            建任务时, 开始日期默认收进更多菜单, 主属性栏更清爽, ",,,
-            工作区可以启用更严格的密钥可见性, 让智能体环境信息在读取时始终保持隐藏, ,
-            "成员较多时，工作区列表加载更高效",
-            ,
-            "Helper 发现命令行、文档或仓库有更新时，会, 提示并建议更新指引，而不是静默沿用旧信息",
-        ],
-            , fixes;
-        [
-            "智能体运行时现在会收到工作区设置中, 上下文，共享指引可以真正进入 task 现场",
-            ,
-            "Hermes ACP Runtime 正确传递配置的模型；OpenClaw Agent 发现超时提高到 30s"
-        ];
-    }
-    {
-        version: "Pi 回复中的,;;
-        date: 或任务评论里;
-        ",
-            ,
-                title;
-        文件预览使用更安全的处理方式;
-        ",
-            ,
-                changes;
-        [],
-            features;
-        [
-            "自托管部署默认不再暴露数据库端口，删除云端运行节点时也会发送正确信息",
-            "桌面端更新设置、移动端技能页面和, 责人选择器在不同语言与窄屏下更稳定",
-        ],
-        ;
-    }
-    {
-        version: "0.3.5",
-            , date;
-        "2026-05-21",
-            titl;
         improvements: [
-            展示, ",,,
-            "任务支持保存面向智能体的轻量状态，自动化进度, 以跟随具体工作项，同时不打扰侧边栏阅读",
-            ,
-            "较长的任务讨论线程可以从最新回复开始读取，并保留原始讨论上下文",
-            ,
-            "项目列表新增紧凑和舒适两种视图，小屏幕上也更容易浏览",
+          "移動端任務頂部操作更清晰，小螢幕上也更容易點選",
+          "聊天歷史裡的執行狀態和操作按鈕更穩定，減少誤點和狀態混亂",
+          "重複匯入同一個 Skill 時，會給出清楚結果，不再打斷當前流程",
         ],
-            fixes;
-        [
-            "命令行里的工作区命令可以直接使用列表中的 slug 或, ID",
-            "智能体模型选择器移除了容易混淆的默认标签",
-            "自托管和, 能体文档修正了跳转链接，并补全了配置说明",
-            ,
-            "`install.ps1` 的系统架构探测更稳健,覆盖更多 Windows 环境",
-            "`/download` 在 1 小时新鲜度窗口内可回退到上一版本,避免撞上半发布状态"
-        ];
-    }
-    {
-        version: 能体运行指引收紧了,
-            date;
-        确实需要的信息留下;
-        ",
-            ,
-                title;
         fixes: [
-            "Code,,,
-            changes, [],
-            features, [
-                "Claude Code 的用量统计在运行结束时返回时也能被正确记录",
-                "实时更, 遇到异常消息时会安全跳过，异常内容过长也不会撑大日志",
-                "创建任务时，如果标题为空，, 钮会说明为什么暂时不能创建",
-                "运行环境在 tas
-            ],
-            fixes, [
-                Codex, 的思考强度控制, 并可在详情面板里直接调整, ",,,
-                "桌面端标签页可以固定，重要页面会留在左侧，打开新, 容时不打断原页面",
-                "用户资料可以补充请求者背景，, 代码智能体在处理任务时更理解上下文",
-                "工作区设置新增 Gi, Hub 专页，普通成员也能查看已连接的 GitHub 安装信息",
-            ]
-        ];
-    }
-    {
-        version: 例内容;
-        ",
-            ,
-                date;
-        少重复信息;
-        桌面端停止本机,
-            title;
-        "任务面包屑会,;;
+          "評論回覆會保留在使用者實際回覆的那條評論下面",
+          "Claude task 傳送提示詞時更不容易卡住",
+          "自託管本機執行服務的設定連結會指向正確地址",
+          "MCP 設定說明和執行環境支援判斷現在保持一致",
+          "執行日誌在 task 結束後會正確清理活躍狀態",
+        ],
+      },
+      {
+        version: "0.3.12",
+        date: "2026-05-29",
+        title: "任務任務續接與韓語支援",
         changes: [],
-            features;
-        [
-            更合适的默认尺寸, 查看内容更自然, ",,,
-            "小队列表加载状态更完整，归档小队, 会使用更清晰的确认弹窗",
-            "智能体运行前会收到父任务 / 子任务协作规则，完成子任务后的回传更, 定",
+        features: [
+          "Agent 在任務評論區繼續工作時，會接著之前的會話繼續，不再新開會話，task 上下文可以保留下來",
+          "Multica 現在支援韓語介面、官網和文件，包含完整韓語文件與本地化日期顯示",
+          "任務頁面會在標題附近固定顯示正在工作的 Agent，多 Agent 同時工作時也能更清楚地檢視",
+          "Agent 讀取任務討論時可以先看到執行緒摘要、回覆數量和最近活躍時間，更快找到需要跟進的上下文",
+          "OpenClaw 執行環境現在可以使用 Agent 裡儲存的 MCP 設定，Claude Opus 4.8 也可用於模型選擇和用量估算",
         ],
-        ;
+        improvements: [
+          "詳情頁統一了麵包屑導航，任務、專案、執行環境、技能、Agent 和小隊的返回路徑更清楚",
+          "恢復中的 Agent task 會少讀重複評論，更快回到觸發它的那條討論",
+          "任務提及說明和命令列片段更容易閱讀，複製命令時不容易誤讀引數",
+        ],
         fixes: [
-            时处理该记录的智能体, ",,,
-            "聊天和 task , 息加载会跳过临时 ID，避免访问无效 task",
-            "OpenCo, e 运行环境不再进入看不见的交互提问流程",
-            "G
-        ];
-    }
-    {
-        version: {
-            date: 3.3;
-            ",
-                ,
-                    title;
-            19;
-            ",;;
-            ti,
-                changes;
-            [],
-                features;
-            [
-                ges, [],
-                features, [
-                    "项目现在提供甘特图视图，用于查看有排期的工作，并会在计划变化时实时同步",
-                    ,
-                    "Workspace 管理员可以在设置中调整任务编号前缀",
-                    "命令行可以切换 wor, space 并查看当前 workspace",
-                    "Agen,,,
-                    "桌面应用每小时检查更新，设置中新增手动检查按钮"
-                ],
-                fixes, [
-                    用更少步骤引导, runtime, 设置, ",,,
-                    "我的任务会包含分配, 小队的工作，相关标签也更容易理解",
-                    "查看智能体执行日志时可以切, 排序方向，回看运行过程更方便",
-                ],
-                fixes, []
-            ];
-        }
-        {
-            version: 开到新标签页;
-            ",
-                ,
-                    date;
-            任务模式时;
-            提示词里不再残,
-                title;
-            "Runti,;;
-            changes: [],
-                features;
-            [
-                ls, ",,,
-                "自托管团队可以设置登录会, 有效期",
-            ],
-            ;
-        }
-        {
-            "Cmd+K 命令面板扩展——主题切换、快速创建任务/项目、复制链接、切换工作区",
-                "任务列表卡片可选显示项目和子任务进度",
-                "Daemon 持久化 UUID 身份——CLI 和桌面应用共用同一个 daemon，跨重启和机器迁移保持一致",
-                "唯一所有者退出工作区的前置检查",
-                "评论折叠状态跨会话持久化";
-            fixes: [
-                [],
-                features, [
-                    ", utopilot 现在可以由 webhook 事件触发，并能, 看投递记录，在外部系统需要时重新投递一次",
-                    "任务, 板支持按负责人分组，展示关联 Pull Request 状态，并加入开始日期, 排期更清楚",
-                    "Runtime 页面升级了机器视图，并在用量图表中加入时间和 ,,,
-                    "桌面应用 `shell.openExternal` 限制仅允许 http/https 协议（安全）",
-                    "重名 Agent 创建返回 409 而非静默失败",
-                    "桌面应用新建标签页继承当前工作区"
-                ]
-            ];
-        }
-        {
-            version: 到;
-            workspa,
-                date;
-            "HTML,;;
-            title: 接在任务讨论中预览;
-            ",
-                ,
-                    changes;
-            [],
-                features;
-            [
-                务操作失败时会显示更明确的错误原因, 团队不用翻日志也能理解发生, 什么, ",,,
-                "关联 GitHub 的 Pull Request 会, Multica 内展示 CI 和合并冲突状态",
-                ,
-                "自托管部署获得更安全的默认配置，并补充反向
-            ],
-                fixes;
-            [
-                并正确归属到负责的, assignee, agent, ",,,
-                "Runtime 设置默认优先选择本地机器，机器列表中的名称也更清, ",
-                "Squad 页面可以, 常滚动，并能看到成员当前是否已经在处理工作",
-                "桌面端缩放, 捷键在常见组合下恢复正常",
-                "登录、安全补丁,,,
-                "Daemon 和 GC 端点加强工作区隔离校验（安全）",
-                "邀请邮件中的工作区和邀请人名称进行 HTML 转义",
-                "桌面应用开发版和生产版现在可以同时运行"
-            ];
-        }
-        {
-            version: {
-                date: : "0.3.1",
-                    ,
-                        title;
-                6 - 5 - 15;
-                ",
-                    ,
-                        changes;
-                [],
-                    features;
-                [
-                    hanges, [],
-                    features, [
-                        ,
-                        "成员和 agent 详情页现在可以看到关联任务，方便回看每个人和每个 agent, 正在推进的工作",
-                        "桌面端会在后台提前下载新版本，等你准备好时再安装更新",
-                        ,
-                        "自托管部署可以使用 SMTP 发送邮件，, 再只依赖 Resend",
-                        "创建 Squ, d 的流程更清晰，成员选择和初始设置更适合团队协作",
-                    ],
-                    improvements, [
-                        形式的仓库地址, ",,,
-                        "小队分工更稳定，leader 能正确接续双角色 , gent 的回复，也会更明确地把任务交给指定成员",
-                    ],
-                    fixe, [
-                        "自托管本地文件, 片可以正常展示和预览",
-                        "Agent 在自动寻找本地工具、加载技能以及无人值守运
-                    ],
-                    fixes, [
-                        {
-                            version: "0.3, 0",
-                            date: "2026-05-14",
-                        },
-                        title, "Squads 与附件预览",
-                        change
-                    ]
-                ];
-            }
-            {
-                version: 清晰的成员操作按钮,
-                    date;
-                "快速创建,;;
-                title: squad;
-                相关的指派和提及;
-                ",
-                    ,
-                        changes;
-                [],
-                    features;
-                [
-                    "Google Gemini CLI 作为新的 Agent 运行时，支持实时日志流",
-                    "Agent 自定义环境变量（router/proxy 模式），新增专用设置标签页",
-                    "任务右键菜单新增「设置父任务」和「添加子任务」",
-                    "CLI `--parent` 更新父任务，`--content-stdin` 管道输入评论内容",
-                    "子任务自动继承父级项目",
-                ],
-                    improvements;
-                [
-                    "编辑器气泡菜单和链接预览重写",
-                    "OpenClaw 后端 P0+P1 优化（多行 JSON、增量解析）",
-                    "自部署 WebSocket URL 自动适配局域网访问",
-                ],
-                    fixes;
-                [
-                    "S3 上传路径按工作区隔离（安全）",
-                    "订阅和上传新增工作区成员身份校验（安全）",
-                    "任务状态改为已取消时自动终止进行中的 task",
-                    "Agent 进程 stdout 挂起导致 task 卡住",
-                    "Daemon 触发提示现在嵌入实际的触发评论内容",
-                    "登录和仪表盘跳转稳定性改进",
-                ];
-            }
-            {
-                version: ;
-                date: "Usa,;;
-                title: ace;
-                和;
-                project;
-                的;
-                token;
-                使用;
-                ru,
-                    changes;
-                [],
-                    features;
-                [
-                    "Windows 支持——CLI 安装、Daemon 运行和发布构建",
-                    "认证迁移至 HttpOnly Cookie，WebSocket 新增 Origin 白名单",
-                    "新工作区全屏引导向导",
-                    "Master Agent 聊天窗口可调整大小，会话历史体验优化",
-                    "OpenCode、OpenClaw 和 Hermes 运行时 Token 用量日志扫描",
-                ],
-                    fixes;
-                [
-                    "WebSocket 首条消息认证安全修复",
-                    "新增 Content-Security-Policy 响应头",
-                    "子任务进度改为从数据库计算而非分页客户端缓存",
-                ];
-            }
-            {
-                version: indows;
-                ru,
-                    date;
-                适合无人值守执行;
-                ",
-                    ,
-                        title;
-                较长的;
-                GitHub;
-                仓库列表可以正常滚动;
-                ",
-                    ,
-                        changes;
-                [],
-                    features;
-                [
-                    "一键安装与配置——`curl | bash` 安装 CLI，`--with-server` 完整自部署，`multica setup` 配置连接环境",
-                    "自部署存储——无 S3 时本地文件存储回退，支持自定义 S3 端点（MinIO）",
-                    "项目列表页支持行内编辑属性（优先级、状态、负责人）",
-                ],
-                    improvements;
-                [
-                    "过期 Agent task 自动清扫；执行卡片立即显示，无需等待首条消息",
-                    "通过 CLI 上传的评论附件现在可在 UI 中显示",
-                    "置顶项按用户隔离，修复侧边栏置顶操作",
-                ],
-                    fixes;
-                [
-                    "Daemon API 路由和附件上传新增工作区所有权校验",
-                    "Markdown 清洗器保留代码块不被 HTML 实体转义",
-                    "Next.js 升级至 ^16.2.3 修复 CVE-2026-23869",
-                    "OpenClaw 后端重写以匹配实际 CLI 接口",
-                ];
-            }
-            {
-                version: ;
-                date: ments: [
-                    ,
-                    title, 更稳定地定位到指定评论或动态, ",,,,
-                    changes, [],
-                    features, [
-                        "子任务变更时通知父任务的订阅者",
-                        "CLI `--project` 筛选任务列表",
-                    ],
-                    improvements, [
-                        "Meta-skill 工作流改为委托 Agent Skills 而非硬编码逻辑",
-                    ],
-                    fixes, [
-                        "Daemon API 路由新增工作区所有权校验",
-                        "附件上传和查询新增工作区所有权验证",
-                        "回复评论不再继承父级线程的 Agent 提及",
-                        "Agent 创建评论缺少 workspace ID",
-                        "自部署 Docker 构建问题修复（文件权限、CRLF 换行、缺失依赖）",
-                    ]
-                ];
-            }
-            {
-                version: ",
-                    ,
-                        date;
-                5 - 11;
-                ",
-                    ,
-                        title;
-                rmaid;
-                Runtime;
-                时区聚合与离,
-                    changes;
-                [],
-                    features;
-                [
-                    "任务和项目置顶到侧边栏，支持拖拽排序",
-                    "Cmd+K 命令面板——最近访问的任务、页面导航、项目搜索",
-                    "项目详情侧边栏属性面板（替代原概览标签页）",
-                    "任务列表新增项目筛选",
-                    "项目列表显示完成进度",
-                    "在项目页按 'C' 创建任务时自动填充项目",
-                    "指派人下拉按用户分配频率排序",
-                ],
-                    fixes;
-                [
-                    "Markdown XSS 漏洞——评论渲染增加 rehype-sanitize 和服务端 bluemonday 清洗",
-                    "项目看板任务计数不正确",
-                    "自部署 Docker 构建缺少 tsconfig 依赖",
-                    "Cmd+K 需要按两次 ESC 才能关闭",
-                ];
-            }
-            {
-                version: impro,
-                    date;
-                "服务端删除 ,;;
-                title: 端自我修复;
-                不再,
-                    changes;
-                [],
-                    features;
-                [
-                    "全栈 Docker Compose 一键自部署",
-                    "通过 ACP 协议接入 Hermes Agent Provider",
-                    "基于 Fumadocs 搭建文档站（快速入门、CLI 参考、Agent 指南）",
-                    "侧边栏和收件箱移动端响应式布局",
-                    "任务详情侧边栏展示 Token 用量",
-                    "支持在 UI 中切换 Agent 运行时",
-                    "'C' 快捷键快速创建任务",
-                    "聊天会话历史面板，查看已归档对话",
-                    "Daemon 新增 Claude Code 和 Codex 最低版本检查",
-                    "官网新增 OpenClaw 和 OpenCode 展示",
-                    "`make dev` 一键本地开发环境搭建",
-                ],
-                    improvements;
-                [
-                    "侧边栏重新设计——个人/工作区分组、用户档案底栏、⌘K 搜索入口",
-                    "搜索排序优化——大小写无关匹配、标识符搜索（MUL-123）、多词匹配",
-                    "搜索结果关键词高亮",
-                    "每日 Token 用量图表优化，Y 轴标签更清晰，新增分类 Tooltip",
-                    "Master Agent 支持多行输入",
-                    "统一选择器组件（状态、优先级、截止日期、项目、指派人）",
-                    "工作区级别存储隔离，切换工作区时自动加载对应数据",
-                    "自部署环境变量缺失时给出启动警告",
-                ],
-                    fixes;
-                [
-                    "删除子任务后父级列表未刷新",
-                    "搜索索引兼容 RDS 上的 pg_bigm 1.2",
-                    "创建 Agent 对话框错误显示「无可用运行时」",
-                    "Claude stream-json 启动卡住",
-                    "多个 Agent 无法同时为同一任务排队 task",
-                    "退出登录未清除工作区和查询缓存",
-                    "编辑器为空时拖放区域过小",
-                    "Skills 导入硬编码 main 分支导致 404",
-                    "WebSocket 端点不支持 PAT 认证",
-                    "所有 Agent 已归档时无法删除运行时",
-                ];
-            }
-            {
-                version: tent - file,
-                    date;
-                失;
-                ",
-                    ,
-                        title;
-                ows;
-                上多余的;
-                gi,
-                    changes;
-                [
-                    "Pi 插件工具不再被硬编码的 `--tools` allowlis, 过滤掉",
-                    "Inbox 在, 务加载完成后再滚动到目标评论",
-                    ,
-                    "`autopilot create/update` 允, `--mode run_only`",
-                    "Cha, gelog header 链接样式对齐 GitHub ghost button",
-                    ,
-                    "OpenAI Codex / GPT 模型, 格补齐，使用成本不再显示为 $0",
-                ],
-                    , ;
-            }
-            {
-                version: ,
-                    "列表视图支持已完成任务分页加载",
-                    "Codex 会话日志扫描以报告 token 用量",
-                    "修复守护进程 repo 缓存卡在初始快照的问题";
-            }
-            {
-                version: title: ,
-                    date;
-                目选择器;
-                评论可折叠与;
-                T,
-                    title;
-                chan,
-                    changes;
-                [
-                    tures, [
-                        "Quick Creat, 支持选择 project，并记住上一次的选项",
-                        ,
-                        "评论 thread 支持解决并折叠，长讨论看起来更清爽",
-                        ,
-                        "Issue Live Banner 显示 agent 队列中等待执行的 task",
-                        ,
-                        "失败 / 取消的 task 可以在 Execution Log 一键重跑",
-                        ,
-                        "Agent Create 弹窗新增放大按钮，, 描述编辑更舒服",
-                    ],
-                    ,
-                    "WebSocket 驱动缓存失效，替代轮询和焦点刷新",
-                    "CLI 登录流程中浏览器会话保持不丢失",
-                    "守护进程复用已有 worktree 时自动拉取最新远程代码",
-                    "修复动态根布局导致的标签页切换卡顿问题"
-                ];
-            }
-            {
-                version: 再因每个;
-                WS,
-                    date;
-                长任务滚动更顺;
-                ",
-                    ,
-                        title;
-                跳过对超大,
-                    changes;
-                [
-                    ",,,
-                    "Autopilot 在 assigne, runtime 离线时跳过 dispatch，避免空, ",
-                    "Inbox 自动归档处于终态的 `t, sk_failed` 行",
-                    "Hermes, 把 agent instructions 直接随请求内联传入",
-                    "Timeline / Comment 改为纯, 户端虚拟化，去掉服务端分页",
-                    "Reserv, d slugs 前后端共享同一份 JSON，CI 守住漂移",
-                ];
-            }
-            {
-                version: 更友好;
-                ",
-                    ,
-                        date;
-                fixes: [
-                    ,
-                    title, 额不足的, ag,
-                    changes, [
-                        ed ` 而不是 `, completed `",
-                        , "因 poisoned image 卡死的 agent, session 可以恢复，任务不再卡住",
-          "`, pi--, list - models ` , 格格式可被正确解析，模型发现恢复",
-          "`, pi ` col, n-to-slash 归一化只作用于 legacy 格式，避免误伤新, 式",
-          "`, kiro ` 与 `, kimi ` 加入 inline, system-prompt provider 白名单",
-                    ]
-                },
-                {
-                    version: 行长消息可正常展,
-                    date: 桌面端复制任务链接使用当前,
-                    title: host",
-                    ,
-                    changes: [
-                        cket 在没有 cookie 的情况下也能握手",
-          "创建 workspace, 时校验保留字，slug 错误提示已 i18n",
-          ", imeline 在 falsy prop 切换时正确同步 a, ound 状态",
-          "Dropdo, nMenu 弹层尺寸跟随内容",
+          "更新、歸檔、恢復或從模板建立 Agent 後，已繫結的技能仍會正確顯示",
+          "單個 Agent 完成自己負責的子任務後，父任務會繼續喚起它推進後續工作",
+          "Windows / WSL2 場景下，屬於當前使用者的本機執行環境會歸到本機分組",
+          "命令列登入現在接受 Cloud Node 令牌",
         ],
-  , },
+      },
+      {
+        version: "0.3.11",
+        date: "2026-05-28",
+        title: "Antigravity CLI 支援",
+        changes: [],
+        features: [
+          "Antigravity CLI 現在可作為編碼執行環境使用",
+          "Agent 詳情頁新增 MCP 配置，可用於 Hermes、Kimi 和 Kiro",
+          "自託管管理員可以關閉自助建立工作區",
+          "桌面端本機執行環境會在訪問令牌過期前自動續期",
+        ],
+        improvements: [
+          "Helm Chart 可釋出到 GHCR，郵件配置文件更清晰",
+          "task 記錄會顯示更短、更安全的工作目錄",
+          "手動排序時，新任務會留在列頂部，已刪除任務不再回到最近列表",
+          "本機執行環境會按裝置名合併同一臺機器",
+        ],
+        fixes: [
+          "task 完成回傳遇到短暫錯誤時會重試",
+          "本地目錄執行不會覆蓋已有的 CLAUDE.md、AGENTS.md 或 GEMINI.md",
+          "Windows 上的 Pi 會保留多行提示詞",
+          "執行環境 Logo 顯示更穩定",
+          "本機執行服務清理時會跳過不完整父級資訊",
+        ],
+      },
+      {
+        version: "0.3.10",
+        date: "2026-05-27",
+        title: "本地工作目錄",
+        changes: [],
+        features: [
+          "專案現在可以在桌面端繫結本地工作目錄，Agent task 會直接在現有資料夾中執行，並在目錄被佔用時顯示等待狀態",
+          "自動任務的 Webhook 觸發器可以按事件和動作先過濾請求，配置介面也可以直接開啟對應文件",
+          "泳道檢視可以按父任務、專案或負責人分組，大型看板更容易按團隊計劃方式檢視",
+          "評論現在支援一次選擇多個附件，也可以在編輯時保留、移除或替換附件",
+        ],
+        improvements: [
+          "中文介面文案在導航、設定、搜尋和執行時頁面裡更一致",
+          "常用介面做了無障礙和 React 清理，移動端檢查也只在移動端程式碼變化時執行",
+          "命令列列表輸出對自動化讀取更安靜，小佇列表也會顯示可用的成員數量",
+        ],
+        fixes: [
+          "泳道里超過第一頁才載入到的巢狀任務不再顯示為空",
+          "從子任務入口切到用 Agent 建立時，會繼續保留父任務關係",
+          "定時自動任務生成標題和描述時，會按觸發器配置的時區顯示日期",
+          "評論輸入框不再因為實時更新閃出重複內容，傳送失敗後會保留文字，編輯評論時也會正確處理提及",
+          "沒有識別出語言的程式碼塊也會正常顯示文字，不再出現空白程式碼塊",
+          "桌面端和網頁端的頭像現在可以正確載入相對路徑上傳檔案",
+          "Codex、Cursor 和 Hermes 執行處理修復了桌面端發現、命令引數、用量歸屬和卡住診斷提示",
+          "無許可權訪問私有 Agent 的使用者，不能再用普通評論觸發它們",
+          "GitHub 設定、專案建立、看板排序和 Agent 技能頁面清理了若干介面細節",
+        ],
+      },
+      {
+        version: "0.3.9",
+        date: "2026-05-26",
+        title: "泳道檢視與更穩定的任務體驗",
+        changes: [],
+        features: [
+          "任務現在支援泳道檢視，團隊可以按父任務和狀態一起檢視工作，拆分後的子任務更容易歸類和追蹤",
+          "任務列表支援拖拽調整順序，分組標題會在滾動時保持可見，載入更多內容後也能保持正確排序",
+        ],
+        improvements: [
+          "命令列裡的本機執行服務狀態現在會顯示版本，並用更清晰的欄位展示執行狀態",
+          "自託管文件補充了用量統計所需的小時彙總配置，排查步驟也覆蓋中英文文件",
+          "Agent 技能設定在釋出前收緊，產品裡不再顯示執行環境不支援的本機技能開關",
+          "依賴檢查更嚴格，前端包會更早發現缺失依賴，減少打包和桌面端執行時的意外",
+        ],
+        fixes: [
+          "GitHub PR 只有寫明關閉意圖時才會自動完成關聯任務，普通引用連結不會誤關任務",
+          "父子任務的自動推進更穩：依賴未滿足時不會提前啟動後續任務，Agent 把待處理任務切到進行中時也會正確觸發負責人",
+          "任務討論串和列表載入更多內容時會保持正確順序，看板拖拽後的位置也更穩定",
+          "聊天視窗放大、看板卡片負責人行和 XML 解析依賴都做了穩定性修復",
+        ],
+      },
+      {
+        version: "0.3.8",
+        date: "2026-05-25",
+        title: "iOS 客戶端、Helm 自託管與更順暢的協作體驗",
+        changes: [],
+        features: [
+          "Multica iOS 客戶端釋出官方首個可用版本，覆蓋登入、工作區、收件箱、任務、專案、聊天、評論、表情回應、線上狀態和實時更新；目前暫未上架 App Store，需要使用者自行打包安裝",
+          "自託管團隊現在可以透過 Helm 將 Multica 部署到 Kubernetes，Docker 安裝也有更清晰的埠和 URL 配置",
+          "專案資源選擇器新增倉庫搜尋，工作區倉庫設定也可以儲存描述，幫助 Agent 理解每個程式碼庫",
+          "執行時用量現在可以更準確識別 DeepSeek、Kimi K2.6、Zhipu GLM 和長上下文 Claude Opus 的費用",
+          "官網新增使用場景頁面能力，並讓文件、更新日誌和開始使用入口更清晰",
+        ],
+        improvements: [
+          "小隊頭像和看板卡片會顯示更完整的懸浮資訊、成員狀態和實時工作狀態",
+          "桌面端在長任務和聊天中切換標籤頁時，會更好地保留滾動位置，並避免重複的歷史記錄",
+          "程式碼和富文字內容更容易閱讀，命令文字會按原樣顯示，編輯器樣式也拆分得更清晰",
+          "工作區倉庫描述會進入 Agent 的任務上下文，讓分配的工作帶上更有用的專案背景",
+          "文件和 README 補充了移動端支援、自動化、授權說明和自託管選項",
+        ],
+        fixes: [
+          "實時評論和動態連續到達時，任務時間線仍會按正確時間順序顯示",
+          "Codex 執行不再繼承本機隱藏記憶，Pi 執行也能收到更明確的輸入結束訊號",
+          "本地執行時的刪除入口會避開會自動恢復的專案，服務端依賴也更新到修復安全問題的版本",
+          "標題欄位會在外部更新後安全重新整理，Markdown 程式碼也不再使用會影響命令引數閱讀的連字",
+        ],
+      },
+      {
+        version: "0.3.6",
+        date: "2026-05-22",
+        title: "父子任務協作最佳化、實時 Agent 工作狀態展示",
+        changes: [],
+        features: [
+          "父任務會在子任務完成時自動收到更新，並通知對應負責人",
+          "任務列表新增實時 Agent 工作狀態，支援詳情檢視和工作中篩選",
+          "新使用者完成設定後，會進入 Mika 的互動式引導，先完成一個真實任務，再按需新增 specialist",
+          "官網新增 Contact Sales 流程，支援商務郵箱提交和防濫用保護",
+          "桌面端支援 macOS 觸控板前進/後退手勢",
+        ],
+        improvements: [
+          "任務看板卡片更容易掃讀，資訊分行更清晰，長名稱會穩定截斷，時間也會按當前語言顯示",
+          "建立任務時，開始日期預設收進更多選單，主屬性欄更清爽",
+          "工作區可以啟用更嚴格的金鑰可見性，讓 Agent 環境資訊在讀取時始終保持隱藏",
+          "成員較多時，工作區列表載入更高效",
+          "Helper 發現命令列、文件或倉庫有更新時，會先提示並建議更新指引，而不是靜默沿用舊資訊",
+        ],
+        fixes: [
+          "Agent 執行時現在會收到工作區設定中的上下文，共享指引可以真正進入 task 現場",
+          "線上本地執行環境不再顯示會立刻失效的刪除操作，並會說明原因",
+          "Pi 回覆中的工具呼叫標記不再洩露到可見訊息或任務評論裡",
+          "SVG 上傳和內聯檔案預覽使用更安全的處理方式",
+          "小隊負責人會看到更明確的提醒，避免重複觸發同一個 Agent",
+          "自託管部署預設不再暴露資料庫埠，刪除雲端執行節點時也會傳送正確資訊",
+          "桌面端更新設定、移動端技能頁面和負責人選擇器在不同語言與窄屏下更穩定",
+        ],
+      },
+      {
+        version: "0.3.5",
+        date: "2026-05-21",
+        title: "按檢視時區呈現用量，並支援任務 Custom KV",
+        changes: [],
+        features: [
+          "用量會使用使用者儲存的檢視時區，工作區和執行環境用量會按每個人預期的自然日展示",
+          "任務支援儲存面向 Agent 的輕量狀態，自動化進度可以跟隨具體工作項，同時不打擾側邊欄閱讀",
+          "較長的任務討論執行緒可以從最新回覆開始讀取，並保留原始討論上下文",
+          "專案列表新增緊湊和舒適兩種檢視，小螢幕上也更容易瀏覽",
+        ],
+        improvements: [
+          "命令列裡的工作區命令可以直接使用列表中的 slug 或短 ID",
+          "Agent 模型選擇器移除了容易混淆的預設標籤",
+          "自託管和 Agent 文件修正了跳轉連結，並補全了配置說明",
+          "保留路徑的保護更完整，避免特殊地址被誤用為工作區地址",
+          "Agent 執行指引收緊了任務狀態寫入規則，只把後續執行確實需要的資訊留下",
+        ],
+        fixes: [
+          "Codex 執行卡住後自動重試時，會從全新會話開始，不再繼續卡住的現場",
+          "Claude Code 的用量統計在執行結束時返回時也能被正確記錄",
+          "實時更新遇到異常訊息時會安全跳過，異常內容過長也不會撐大日誌",
+          "建立任務時，如果標題為空，按鈕會說明為什麼暫時不能建立",
+          "執行環境在 task 領取響應丟失時，可以重新找回尚未開始的 task",
+        ],
+      },
+      {
+        version: "0.3.4",
+        date: "2026-05-20",
+        title: "自動任務專案歸屬、Agent 思考設定與更穩的桌面端",
+        changes: [],
+        features: [
+          "自動任務現在可以透過小隊分配工作，並把建立的任務直接歸入指定專案",
+          "Agent 設定新增 Claude 和 Codex 的思考強度控制，並可在詳情面板裡直接調整",
+          "桌面端標籤頁可以固定，重要頁面會留在左側，開啟新內容時不打斷原頁面",
+          "使用者資料可以補充請求者背景，讓程式碼 Agent 在處理任務時更理解上下文",
+          "工作區設定新增 GitHub 專頁，普通成員也能檢視已連線的 GitHub 安裝資訊",
+        ],
+        improvements: [
+          "新使用者引導會優先建立連線執行環境的下一步，不再生成不合適的示例內容",
+          "執行環境頁面減少重複資訊，桌面端停止本機服務後仍能看到本機行並重新啟動",
+          "任務麵包屑會顯示所屬專案，檢視來源更清楚",
+          "HTML 預覽和附件預覽擁有更合適的預設尺寸，檢視內容更自然",
+          "小佇列表載入狀態更完整，歸檔小隊時會使用更清晰的確認彈窗",
+          "Agent 執行前會收到父任務 / 子任務協作規則，完成子任務後的回傳更穩定",
+        ],
+        fixes: [
+          "在空的頂層列表項按 Enter 時，編輯器可以正常退出列表",
+          "安裝指令碼在 Homebrew 失敗時會自動改用發行版檔案，並顯示更清楚的診斷資訊",
+          "從執行記錄重試時，會重新喚起當時處理該記錄的 Agent",
+          "聊天和 task 訊息載入會跳過臨時 ID，避免訪問無效 task",
+          "OpenCode 執行環境不再進入看不見的互動提問流程",
+          "Gemini 執行環境使用正確的官方圖示",
+        ],
+      },
+      {
+        version: "0.3.3",
+        date: "2026-05-19",
+        title: "專案時間線、執行環境設定與更清晰的任務協作",
+        changes: [],
+        features: [
+          "專案現在提供甘特圖檢視，用於檢視有排期的工作，並會在計劃變化時實時同步",
+          "Workspace 管理員可以在設定中調整任務編號字首",
+          "命令列可以切換 workspace 並檢視當前 workspace",
+          "Agent 現在可以優先讀取最新的任務討論執行緒，後續跟進和審查更貼近當前上下文",
+          "Usage 新增 1 天檢視和按周趨勢，並會遵循所選時區",
+          "Agent 詳情頁現在是對應 Agent 的任務看板",
+        ],
+        improvements: [
+          "Onboarding 改為一次回答一個問題，並能用更少步驟引導 runtime 設定",
+          "我的任務會包含分配給小隊的工作，相關標籤也更容易理解",
+          "檢視 Agent 執行日誌時可以切換排序方向，回看執行過程更方便",
+        ],
+        fixes: [
+          "桌面端開啟 HTML 預覽更穩定，必要時會關閉全屏視窗，並支援頁面內連結跳轉",
+          "HTML 原始碼檢視和附件預覽更容易檢查，也可以把內容開啟到新標籤頁",
+          "切換建立任務模式時，提示詞裡不再殘留舊的手寫草稿",
+          "Runtime task 會從 task 目錄讀取正確的 workspace 指令和 skills",
+          "自託管團隊可以設定登入會話有效期",
+        ],
+      },
+      {
+        version: "0.3.2",
+        date: "2026-05-18",
+        title: "Webhook 自動任務、更清晰的工作看板與更穩的執行環境",
+        changes: [],
+        features: [
+          "Autopilot 現在可以由 webhook 事件觸發，並能檢視投遞記錄，在外部系統需要時重新投遞一次",
+          "任務看板支援按負責人分組，展示關聯 Pull Request 狀態，並加入開始日期，排期更清楚",
+          "Runtime 頁面升級了機器檢視，並在用量圖表中加入時間和 task 趨勢",
+          "Skills 支援從本地 runtime 批次複製到 workspace，團隊初始化更快",
+          "HTML 附件和 HTML 程式碼塊可以直接在任務討論中預覽",
+        ],
+        improvements: [
+          "任務操作失敗時會顯示更明確的錯誤原因，團隊不用翻日誌也能理解發生了什麼",
+          "關聯 GitHub 的 Pull Request 會在 Multica 內展示 CI 和合並衝突狀態",
+          "自託管部署獲得更安全的預設配置，並補充反向代理、登入限制和本地服務的說明",
+          "搜尋結果排序更準確，也會展示更有幫助的摘要片段",
+        ],
+        fixes: [
+          "Autopilot 建立任務時可以穩定重複觸發，並正確歸屬到負責的 assignee agent",
+          "Runtime 設定預設優先選擇本地機器，機器列表中的名稱也更清晰",
+          "Squad 頁面可以正常滾動，並能看到成員當前是否已經在處理工作",
+          "桌面端縮放快捷鍵在常見組合下恢復正常",
+          "登入、安全補丁和本地服務配置更新，讓託管版和自託管部署都更安全",
+        ],
+      },
+      {
+        version: "0.3.1",
+        date: "2026-05-15",
+        title: "更快的導航、後臺更新與更可靠的小隊協作",
+        changes: [],
+        features: [
+          "成員和 agent 詳情頁現在可以看到關聯任務，方便回看每個人和每個 agent 正在推進的工作",
+          "桌面端會在後臺提前下載新版本，等你準備好時再安裝更新",
+          "自託管部署可以使用 SMTP 傳送郵件，不再只依賴 Resend",
+          "建立 Squad 的流程更清晰，成員選擇和初始設定更適合團隊協作",
+        ],
+        improvements: [
+          "頁面切換更快，任務頁面會提前準備內容，並在載入時展示更自然的過渡狀態",
+          "任務時間線會把較長的活動記錄收起，重點評論和結論更容易掃讀",
+          "Agents 和 Squads 頁會記住你上次選擇的 Mine/All 檢視，返回列表時不再重置",
+          "倉庫設定、專案資源和快速建立流程更好地支援 SSH 形式的倉庫地址",
+          "小隊分工更穩定，leader 能正確接續雙角色 agent 的回覆，也會更明確地把任務交給指定成員",
+        ],
+        fixes: [
+          "自託管本地檔案卡片可以正常展示和預覽",
+          "Agent 在自動尋找本地工具、載入技能以及無人值守執行時更可靠",
+          "Claude 用量統計能識別更多接入工具上報的模型名稱",
+          "切換 workspace 後，實時更新會來自正確的 workspace，訊息來源也更準確",
+          "聊天會話下拉選單和 runtime 名稱展示在窄空間裡更穩定",
+        ],
+      },
+      {
+        version: "0.3.0",
+        date: "2026-05-14",
+        title: "Squads 與附件預覽",
+        changes: [],
+        features: [
+          "Squads 支援把任務交給一個小組，由 leader agent 負責協調下一步",
+          "附件可以直接預覽，支援 PDF、音訊、影片、Markdown、程式碼、日誌和純文字",
+          "中文姓名支援用拼音搜尋，適用於 mention、負責人、訂閱人、agents、projects 和 squads",
+        ],
+        improvements: [
+          "Squad 頁面補齊成員管理、從 squad 內快速建立 agent、清晰的成員操作按鈕，以及更寬的詳情佈局",
+          "快速建立和各類選擇器更容易搜尋，並能識別 squad 相關的指派和提及",
+          "Usage 圖表可以在費用和 token 檢視之間切換，並複用 runtime 的時區控制",
+          "工作區管理員可以透過命令列管理 squads，並在必要時停止失控的 task",
+          "共享介面文案的中英文翻譯更完整",
+        ],
+        fixes: [
+          "當成員已經明確把討論指向某個人或小組時，Squad leader 不再重複發言",
+          "提及 squad 時會正確喚起對應 leader，同時保留私有 agent 的訪問限制",
+          "刪除任務後列表重新整理更準確，後續評論也不再觸發過期的 Done 回覆",
+          "在撰寫或編輯任務和評論時新增的附件，也可以穩定使用預覽",
+        ],
+      },
+      {
+        version: "0.2.32",
+        date: "2026-05-13",
+        title: "用量洞察、聊天重新命名與桌面體驗最佳化",
+        changes: [],
+        features: [
+          "Usage 頁面集中展示 workspace 和 project 的 token 使用、runtime 趨勢和 agent 排名",
+          "聊天會話可以直接在聊天頁頂部重新命名",
+          "反饋時可以附帶截圖或檔案，方便團隊快速理解問題",
+        ],
+        improvements: [
+          "Dashboard 更名為 Usage，並加入更清晰的 agent 排行展示",
+          "新聊天和訊息完成狀態切換更順，不再頻繁閃載入狀態",
+          "自託管 GitHub 配置更完整，文件裡的雲端連結也已修正",
+          "使用者安裝的 Codex Skills 會自動帶入新的 agent task",
+        ],
+        fixes: [
+          "沒有輸出內容但成功完成的 agent task 會顯示為 completed，不再誤判為 blocked",
+          "在指令編輯器中貼上的 mention 會保留可點選連結",
+          "Linux 桌面端下載附件時走系統原生流程，關閉標籤頁也不再觸發迴圈跳轉",
+          "Gemini 和 Windows runtime 的啟動檢查更穩定，適合無人值守執行",
+          "新增專案資源時，較長的 GitHub 倉庫列表可以正常滾動",
+        ],
+      },
+      {
+        version: "0.2.31",
+        date: "2026-05-12",
+        title: "GitHub 整合、聊天附件與任務定位最佳化",
+        changes: [],
+        features: [
+          "接入 GitHub 後，關聯的 Pull Request 會顯示在 Multica 任務中，狀態會同步到 Multica，關閉 PR 後會自動關閉對應任務",
+          "聊天訊息支援新增檔案附件和圖片預覽",
+          "Agent 和 runtime 可以設定公開或私有，方便控制團隊可見範圍",
+          "停止單個 agent task 前會先彈出確認，避免誤操作",
+          "新增 GitHub 整合文件，覆蓋託管版和自託管配置",
+        ],
+        improvements: [
+          "開啟任務連結時，會更穩定地定位到指定評論或動態",
+          "很長的任務時間線滾動更順暢",
+          "反饋入口更明確地引導使用者到 GitHub 參與討論和反饋",
+          "自託管 Caddy 配置文件補充實時連線要求",
+          "Linux 桌面端安裝包恢復顯示 Multica 應用圖示",
+        ],
+        fixes: [
+          "下載附件時保留原始檔名",
+          "本地附件訪問更穩定，上傳按鈕會等檔案準備好後再可用",
+          "建立任務彈窗裡的文字框高度顯示正確",
+          "Runtime 文件入口跳轉到正確頁面",
+        ],
+      },
+      {
+        version: "0.2.30",
+        date: "2026-05-11",
+        title: "任務內 Mermaid、Runtime 時區聚合與離開 Workspace 自動吊銷",
+        changes: [],
+        features: [
+          "任務描述內聯渲染 Mermaid 圖表",
+          "Sub-任務行支援就地切換狀態與 assignee，並支援跨行批次選中",
+          "Token 用量按每個 runtime 自己的時區聚合，每日 rollup 與本地日期對齊",
+          "私有 Agent 透過 `allowed_principals` 判定可見性，許可權粒度更細",
+          "成員離開或被移出 workspace 時，自動吊銷其名下的 runtime",
+          "對未維護的模型支援自定義 token 價格，使用量真實反映成本",
+          "Landing 頁面 header 加入 Changelog 入口",
+        ],
+        improvements: [
+          "服務端刪除 runtime 時，daemon 端自我修復，不再留下殭屍條目",
+          "Chat 與評論輸入框統一使用 `Mod+Enter` 傳送",
+          "Copilot CLI 模型目錄補齊正確的 dotted ID",
+          "Copilot 失敗詳情直接在 UI 中透出，不再只是一個通用錯誤",
+          "Daemon brief 直接內聯進 system prompt，針對需要的 provider 生效",
+          "Realtime WebSocket 放行同源升級，移動端與 CLI 可正常握手",
+        ],
+        fixes: [
+          "Recent issues 列表不再跨 workspace 串擾",
+          "CloudFront 附件下載連結在點選時重新簽名，過期預覽的問題修復",
+          "所有 provider 的 Windows reply 模板改用 `--content-file`，非 ASCII 內容不再丟失",
+          "Daemon 抑制 Windows 上多餘的 git 控制檯彈窗",
+          "Pi 外掛工具不再被硬編碼的 `--tools` allowlist 過濾掉",
+          "Inbox 在任務載入完成後再滾動到目標評論",
+          "`autopilot create/update` 允許 `--mode run_only`",
+          "Changelog header 連結樣式對齊 GitHub ghost button",
+          "OpenAI Codex / GPT 模型價格補齊，使用成本不再顯示為 $0",
+        ],
+      },
+      {
+        version: "0.2.29",
+        date: "2026-05-09",
+        title: "Quick Create 專案選擇器、評論可摺疊與 Timeline 效能最佳化",
+        changes: [],
+        features: [
+          "Quick Create 支援選擇 project，並記住上一次的選項",
+          "評論 thread 支援解決並摺疊，長討論看起來更清爽",
+          "Issue Live Banner 顯示 agent 佇列中等待執行的 task",
+          "失敗 / 取消的 task 可以在 Execution Log 一鍵重跑",
+          "Agent Create 彈窗新增放大按鈕，長描述編輯更舒服",
+        ],
+        improvements: [
+          "Issue Timeline 不再因每個 WS 事件做完整 re-render，長任務滾動更順",
+          "Editor 跳過對超大文字 / JSON 貼上的解析，避免卡頓",
+          "Autopilot 在 assignee runtime 離線時跳過 dispatch，避免空跑",
+          "Inbox 自動歸檔處於終態的 `task_failed` 行",
+          "Hermes 把 agent instructions 直接隨請求內聯傳入",
+          "Timeline / Comment 改為純客戶端虛擬化，去掉服務端分頁",
+          "Reserved slugs 前後端共享同一份 JSON，CI 守住漂移",
+          "ACP 錯誤訊息現在帶上 JSON-RPC 的 `error.data` 欄位，排錯更友好",
+        ],
+        fixes: [
+          "429 / 餘額不足的 agent run 現在被標記為 `failed` 而不是 `completed`",
+          "因 poisoned image 卡死的 agent session 可以恢復，任務不再卡住",
+          "`pi --list-models` 表格格式可被正確解析，模型發現恢復",
+          "`pi` colon-to-slash 歸一化只作用於 legacy 格式，避免誤傷新格式",
+          "`kiro` 與 `kimi` 加入 inline-system-prompt provider 白名單",
+          "Priority Dropdown 徽章顏色對齊 PriorityIcon 的 semantic token",
+          "Agent 單行長訊息可正常展開",
+          "桌面端複製任務連結使用當前連線環境，不再硬編碼 localhost",
+          "移動端 WebSocket 在沒有 cookie 的情況下也能握手",
+          "建立 workspace 時校驗保留字，slug 錯誤提示已 i18n",
+          "Timeline 在 falsy prop 切換時正確同步 around 狀態",
+          "DropdownMenu 彈層尺寸跟隨內容",
+        ],
+      },
       {
         version: "0.2.28",
-        date,
-                        "回复触发的 Agent task 自动继承主线程 @提及",
-                        "任务和收件箱实时事件细粒度处理，不再全量刷新",
-                        "编辑器中统一图片上传流程，支持粘贴和按钮上传"
-                    ]
-                },
-                {
-                    version: "0.1.14",
-                    date: "2026-04-02",
-                    title: "提及与权限",
-                    changes: [
-                        "评论中支持 @提及任务，服务端自动展开",
-                        "支持 @all 提及工作区所有成员",
-                        "收件箱通知点击后自动滚动到对应评论",
-                        "仓库管理独立为设置页单独标签页",
-                        "支持从网页端运行时页面更新 CLI，非 Homebrew 安装支持直接下载更新",
-                        "新增 CLI 命令查看任务执行记录和运行消息",
-                        "Agent 权限模型优化——所有者和管理员管理 Agent，成员可管理自己 Agent 的技能",
-                        "每个任务串行执行，防止并发 task 冲突",
-                        "文件上传支持所有文件类型",
-                        "README 重新设计，新增快速入门指南",
-                    ],
-                },
-                {
-                    version: "0.1.13",
-                    date: "2026-04-01",
-                    title: "\u6211\u7684\u4efb\u52a1\u4e0e\u56fd\u9645\u5316",
-                    changes: [
-                        "\u6211\u7684\u4efb\u52a1\u9875\u9762\uff0c\u652f\u6301\u770b\u677f\u3001\u5217\u8868\u89c6\u56fe\u548c\u8303\u56f4\u6807\u7b7e",
-                        "\u843d\u5730\u9875\u65b0\u589e\u7b80\u4f53\u4e2d\u6587\u672c\u5730\u5316",
-                        "\u65b0\u589e\u5173\u4e8e\u9875\u9762\u548c\u66f4\u65b0\u65e5\u5fd7\u9875\u9762",
-                        "Agent \u8bbe\u7f6e\u9875\u652f\u6301\u5934\u50cf\u4e0a\u4f20",
-                        "CLI \u8bc4\u8bba\u548c\u4efb\u52a1/\u8bc4\u8bba API \u7684\u9644\u4ef6\u652f\u6301",
-                        "\u7edf\u4e00\u5934\u50cf\u6e32\u67d3\uff0c\u6240\u6709\u9009\u62e9\u5668\u4f7f\u7528 ActorAvatar \u7ec4\u4ef6",
-                        "\u843d\u5730\u9875 SEO \u4f18\u5316\u548c\u767b\u5f55\u6d41\u7a0b\u6539\u8fdb",
-                        "CLI \u9ed8\u8ba4\u4f7f\u7528\u751f\u4ea7\u73af\u5883 API \u5730\u5740",
-                        "\u8bb8\u53ef\u8bc1\u53d8\u66f4\u4e3a Apache 2.0",
-                    ],
-                },
-                {
-                    version: "0.1.3",
-                    date: "2026-03-31",
-                    title: "Agent \u667a\u80fd",
-                    changes: [
-                        "\u901a\u8fc7\u8bc4\u8bba\u4e2d\u7684 @\u63d0\u53ca\u89e6\u53d1 Agent",
-                        "\u5c06 Agent \u5b9e\u65f6\u8f93\u51fa\u63a8\u9001\u5230\u4efb\u52a1\u8be6\u60c5\u9875",
-                        "\u5bcc\u6587\u672c\u7f16\u8f91\u5668\u2014\u2014\u63d0\u53ca\u3001\u94fe\u63a5\u7c98\u8d34\u3001\u8868\u60c5\u53cd\u5e94\u3001\u53ef\u6298\u53e0\u7ebf\u7a0b",
-                        "\u6587\u4ef6\u4e0a\u4f20\uff0c\u652f\u6301 S3 + CloudFront \u7b7e\u540d URL \u548c\u9644\u4ef6\u8ddf\u8e2a",
-                        "Agent 驱动的代码仓库检出，带 bare clone 缓存的 task 隔离",
-                        "\u4efb\u52a1\u5217\u8868\u89c6\u56fe\u7684\u6279\u91cf\u64cd\u4f5c",
-                        "\u5b88\u62a4\u8fdb\u7a0b\u8eab\u4efd\u8ba4\u8bc1\u548c\u5b89\u5168\u52a0\u56fa",
-                    ],
-                },
-                {
-                    version: "0.1.2",
-                    date: "2026-03-28",
-                    title: "\u534f\u4f5c",
-                    changes: [
-                        "\u90ae\u7bb1\u9a8c\u8bc1\u767b\u5f55\u548c\u57fa\u4e8e\u6d4f\u89c8\u5668\u7684 CLI \u8ba4\u8bc1",
-                        "\u591a\u5de5\u4f5c\u533a\u5b88\u62a4\u8fdb\u7a0b\uff0c\u652f\u6301\u70ed\u91cd\u8f7d",
-                        "\u8fd0\u884c\u65f6\u4eea\u8868\u677f\uff0c\u542b\u4f7f\u7528\u91cf\u56fe\u8868\u548c\u6d3b\u52a8\u70ed\u529b\u56fe",
-                        "\u57fa\u4e8e\u8ba2\u9605\u8005\u7684\u901a\u77e5\u6a21\u578b\uff0c\u66ff\u4ee3\u786c\u7f16\u7801\u89e6\u53d1\u5668",
-                        "\u7edf\u4e00\u7684\u6d3b\u52a8\u65f6\u95f4\u7ebf\uff0c\u652f\u6301\u8bc4\u8bba\u7ebf\u7a0b\u56de\u590d",
-                        "\u770b\u677f\u91cd\u65b0\u8bbe\u8ba1\uff0c\u652f\u6301\u62d6\u62fd\u6392\u5e8f\u3001\u7b5b\u9009\u548c\u663e\u793a\u8bbe\u7f6e",
-                        "\u4eba\u7c7b\u53ef\u8bfb\u7684\u4efb\u52a1\u6807\u8bc6\u7b26\uff08\u5982 JIA-1\uff09",
-                        "\u4ece ClawHub \u548c Skills.sh \u5bfc\u5165\u6280\u80fd",
-                    ],
-                },
-                {
-                    version: "0.1.1",
-                    date: "2026-03-25",
-                    title: "\u6838\u5fc3\u5e73\u53f0",
-                    changes: [
-                        "\u591a\u5de5\u4f5c\u533a\u5207\u6362\u548c\u521b\u5efa",
-                        "Agent \u7ba1\u7406 UI\uff0c\u652f\u6301\u6280\u80fd\u3001\u5de5\u5177\u548c\u89e6\u53d1\u5668",
-                        "\u7edf\u4e00\u7684 Agent SDK\uff0c\u652f\u6301 Claude Code \u548c Codex \u540e\u7aef",
-                        "\u8bc4\u8bba CRUD\uff0c\u652f\u6301\u5b9e\u65f6 WebSocket \u66f4\u65b0",
-                        "task 服务层和守护进程 REST 协议",
-                        "\u4e8b\u4ef6\u603b\u7ebf\uff0c\u652f\u6301\u5de5\u4f5c\u533a\u7ea7\u522b\u7684 WebSocket \u9694\u79bb",
-                        "\u6536\u4ef6\u7bb1\u901a\u77e5\uff0c\u652f\u6301\u672a\u8bfb\u5fbd\u7ae0\u548c\u5f52\u6863",
-                        "CLI \u652f\u6301 cobra \u5b50\u547d\u4ee4\uff0c\u7528\u4e8e\u5de5\u4f5c\u533a\u548c\u4efb\u52a1\u7ba1\u7406",
-                    ],
-                },
-                {
-                    version: "0.1.0",
-                    date: "2026-03-22",
-                    title: "\u57fa\u7840\u67b6\u6784",
-                    changes: [
-                        "Go \u540e\u7aef\uff0c\u652f\u6301 REST API\u3001JWT \u8ba4\u8bc1\u548c\u5b9e\u65f6 WebSocket",
-                        "Next.js \u524d\u7aef\uff0cLinear \u98ce\u683c UI",
-                        "\u4efb\u52a1\u652f\u6301\u770b\u677f\u548c\u5217\u8868\u89c6\u56fe\uff0c\u542b\u62d6\u62fd\u770b\u677f",
-                        "Agent\u3001\u6536\u4ef6\u7bb1\u548c\u8bbe\u7f6e\u9875\u9762",
-                        "\u4e00\u952e\u8bbe\u7f6e\u3001\u8fc1\u79fb CLI \u548c\u79cd\u5b50\u5de5\u5177",
-                        "\u5168\u9762\u6d4b\u8bd5\u5957\u4ef6\u2014\u2014Go \u5355\u5143/\u96c6\u6210\u6d4b\u8bd5\u3001Vitest\u3001Playwright E2E",
-                    ],
-                }
-            ]
-        },
-        download: {
-            hero: {
-                macArm64: {
-                    title: [],
-        features,
-                    sub: "新增 `, multica, daemon, disk - usage ` C,
-                    primary: ace 维度查看磁盘占用,
-                    altZip: ll Picker 弹
-                },
-                macIntel: {
-                    title: C 覆盖扩展到 chat、autopil,
-                    sub: e task",
-          "任务,
-                    primary: x identifier,
-                    altZip: improv
-                },
-                winX64: {
-                    title: 50，评论与活动按池独立 keyset 游标,
-                    sub: "Show olde,
-                    primary: 能正确出现，且视觉上更明
-                },
-                winArm64: {
-                    title: rollup 表，DB 负载明显下降",
- ,
-                    sub: on health check 在 repo ,
-                    primary: "Ru
-                },
-                linux: {
-                    title: fixes: [
-  ,
-                    sub: 上 daemon self-re,
-                    primary: fix`, 软链, Homebr,
-                        altFormats, ime, 失联, ",
-                    ]
-                ];
-            }
-            unknown: {
-                title: "W,;;
-                sub: I;
-                字符评论 / 描述输入新增;
-            }
-            safariMacHint: ion - file `",
-          "Windows / ,
-                archFallbackHint: sk 替换 Electron 默认占
-            },
-            allPlatforms: {
-                title: 正确捞回展示",
-                macArm64Label: 评论分页预算不再把 activity 算进去，避,
-                macX64Label: ],
-      },
-  ,
-                winX64Label: n: "0.2.27",
-   ,
-                winArm64Label: ",
-        title: ,
-                linuxX64Label: Hub 导入，稳定性更好",,
-                linuxArm64Label: features: ,
-                formatDmg: 过 GitHu,
-                formatZip:  ,
-                formatExe: ements:,
-                formatAppImage: box 更顺手，历史更清,
-                formatDeb: 下一项",
- ,
-                formatRpm: 多上下文，例如,
-                unavailable: 正确的项目和状
-            },
-            cli: {
-                title: 动暂停，异常自动化更,
-                sub: ],
+        date: "2026-05-08",
+        title: "Daemon 磁碟佔用 CLI、Timeline 打磨與 task 用量聚合提速",
+        changes: [],
+        features: [
+          "新增 `multica daemon disk-usage` CLI，按 task / workspace 維度檢視磁碟佔用",
+          "Skill Picker 彈窗新增搜尋框，Agent 設定裡挑技能更快",
+          "Daemon GC 覆蓋擴充套件到 chat、autopilot、quick-create task",
+          "任務詳情頁麵包屑直接顯示 MUL-xxxx identifier",
+        ],
+        improvements: [
+          "Timeline 分頁 size 提到 50，評論與活動按池獨立 keyset 遊標，長任務翻頁更順",
+          "Show older / newer 按鈕在邊界場景也能正確出現，且視覺上更明顯是可點選的",
+          "服務端 `task_usage` 聚合到每日 rollup 表，DB 負載明顯下降",
+          "Daemon health check 在 repo 查詢時不再阻塞，始終保持響應",
+          "Runtime 統計排除已歸檔的 agent，活躍數字更準",
+        ],
         fixes: [
-          "中文输入、桌面端升级、长任务时间,
-                installLabel: ],
- ,
-                platformGroup: "选择你的系统",
-                platformMacosLinux: "macOS / Linux",
-                platformWindows: "Windows",
-                startLabel: version,
-                sshNote: date: "2026-05-06",
-    ,
-                copyLabel: 量铺开、长,
-                copiedLabel: 统通知开关"
-            },
-            cloud: {
-                title: tures: [
-          "We,
-                sub: 个命名空间齐全，语言偏好按账号同步",
-          "Setting
-            },
-            footer: {
-                releaseNotes: 支持删除 Chat 会话，Histo,
-                allReleases: ,
-       ,
-                currentVersion: s（DB 兜底）",
-      ,
-                versionUnavailable: 托管配置",
-          "CLI 新增
-            }
-        },
-        contactSales: {
-            pageTitle: 定位更准",
-            ,
-            pageDescription: rovements: [
-          "Settings 的 Appearance,
-            eyebrow: rences，,
-            title: 反映到 URL，深链,
-            fields: {
-                firstName:  ,
-                lastName: ，ser,
-                businessEmail: "Runtim,
-                businessEmailHint: 查询压力",
-          "项目列表返回 `;
-            resource_,
-                companyName;
-            ource;
-            响,
-                companySize;
-            4;
-            页面重新设,
-                countryRegion;
-            ",
-                ,
-                    useCase;
-            对;
-            git - describe;
-            类;
-            daemon;
-            跳,
-                goals;
-            "C,;;
-            selectPlaceholder: ;
-            避免孤儿进,
-                submit;
-            复用;
-            ex,
-                submitting;
-            `auth.js
-            },
-            companySizes: [
-                { value: 入 `.gc_, label;
-            n `",
-       },
-                { value: sion/res, label: gent 自报的 ses },
-                { value: , label: e 的 skills 写到 },
-                { value: /`;
-            让其原生发现;
-            ", label: ";
-            Daemon;
-            对;
-        }
-        {
-            value: 4;
-            语义在;
-            serv, label;
-            uard;
-            双重收紧;
-            ",;;
-        }
-        {
-            value: 自动取消挂载;
-            ", label: ";
-            项目详情页桌面;
-        }
-        useCases: [
-            { value: 已归档的, agent, ", label: ": Add, Resource },
-            { value: L, tooltip, 空项目, label: 口, ",: ": S3 },
-        ];
-    }
-    {
-        value: 复跨区访问失败, ",: ,;
-        label: "Windows 安装器修正版本 }, },;
-        {
-            value: ", label: eate 提交按钮去掉重 }, },;
-            {
-                value: ;
-            }
-            ;
-        }
-        label: {
-            vers;
-        }
-        {
-            value: dat, label;
-            -5 - 0;
-        }
-        countries: [
-            eckout `--ref, 、Hermes 历史回放修, 与多副本 Model Pi, ker",
-       , changes: [],,
-                featu, es: [
-        , "`, multica, epo, checkou, --ref ` 支持按分, 、tag 或指定 co, mit 拉取仓库",
-                , "`, ultica, agent, avatar ` 命令支持直接通, CLI 上传 Agen, 头像",
-      , "Inbox 中, 完成 task 新增 a, chive 按钮，移除, 余的 mark-as-, one 悬浮按钮",
-                , ],
- , impro, ements: [
- , "长 t, meline 的任务从 , nbox 打开不再卡顿 , — Markdown , 染管线已 memoiz, ，无关的 WS 事件不, 再重渲染数千条评论",
-                , "Mo, el Picker 在多副, 部署下可用 —— pen, ing 请求改走 Re, is 持久化，Daem, n 上报失败也会自动重试, ,
-          , Daemon 空认领缓, TTL 调高，空闲态
-            ],
-            consent: {
-                intro: es: [
-          "新创建的 Agent 立刻在各处可见 —— 创建时即 hydrate Agent 缓存",
-          "Hermes 在新一轮对话开始时不再重放上一轮答案 —— 历史 ,
-                outreach: "Codex runtime 模型选择器开放 GPT-5.5 系列",
-          "`, mult,
-            updates, n<PAT> ` 正确接收 PAT 作为参数值",
-          "CLI,
-                unsubscribe: "Session resume 按 runtime 正确守卫，避免跨 run,
-                submitConsent: "看板拖拽任务时显示设置不再丢失",
-          "Autopilot 列表在移动端 viewport,
-                privacyLinkLabel: k Create,
-                privacyLinkHref: "Skill 
-            },
-            success: {
-                title: TF8 错误",
- ,
-                message: t Remote 弹窗的安装脚本 URL 修正",
+          "Linux 上 daemon self-restart 改走 `brew prefix` 軟鏈，Homebrew Cellar 刪除後不再讓 runtime 失聯",
+          "CLI 短 ID 現在可以正確路由，複製貼上的短字首不再 404",
+          "Windows 上非 ASCII 字元評論 / 描述輸入新增 `--content-file` / `--description-file`",
+          "Windows / Linux 桌面端用 Multica asterisk 替換 Electron 預設佔點陣圖標",
+          "Timeline 中孤立的 reply 現在會被正確撈回展示",
+          "Timeline 評論分頁預算不再把 activity 算進去，避免活動多時擠掉真實評論",
         ],
       },
       {
-        version:,
-                cta: 
-            },
-            errors: {
-                generic: uick Capture 全,
-                rateLimit: ped Project Resource,
-                freeEmail: s: [],
+        version: "0.2.27",
+        date: "2026-05-07",
+        title: "Chat 更順手，Skill 支援 GitHub 匯入，穩定性更好",
+        changes: [],
         features: [
-          "Quick Ca,
-                invalidEmail: 持连续创建、文件上传，并能
-            }
-        }
-    };
-}
-    ];
-}
-        ];
-    }
+          "支援直接透過 GitHub 連結匯入可複用 Skill",
+        ],
+        improvements: [
+          "Chat 和 Inbox 更順手，歷史更清晰，複製回覆更方便，歸檔後能更快處理下一項",
+          "任務操作會保留更多上下文，例如更容易找到對應本地資料夾，子任務也會帶上正確的專案和狀態",
+          "Autopilot 連續失敗後會自動暫停，異常自動化更容易發現和修復",
+        ],
+        fixes: [
+          "中文輸入、桌面端升級、長任務時間線和實時狀態展示更穩定",
+        ],
+      },
+      {
+        version: "0.2.26",
+        date: "2026-05-06",
+        title: "i18n 全量鋪開、長 Issue Timeline 提速與系統通知開關",
+        changes: [],
+        features: [
+          "Web 端完成簡中翻譯，21 個名稱空間齊全，語言偏好按賬號同步",
+          "Settings 新增 System Notifications 開關",
+          "支援刪除 Chat 會話，History 面板移至 chat header",
+          "Runtime 線上判斷改走 Redis（DB 兜底）",
+          "Desktop 支援載入 runtime 自託管配置",
+          "CLI 新增 `--assignee-id` / `--to-id` / `--user-id`，重名時定位更準",
+        ],
+        improvements: [
+          "Settings 的 Appearance Tab 改名為 Preferences，並把當前啟用的 Tab 反映到 URL，深鏈可分享",
+          "長任務開啟秒開 —— Timeline 改為基於遊標的 keyset 分頁，重複的 `task_completed` / `task_failed` 活動條目合併展示",
+          "Runtime poll 與 heartbeat 排程按 runtime 隔離，單個忙碌 runtime 不再拖慢其他",
+          "CLI 更新請求落 Redis，server 重啟也不丟",
+          "Runtime 用量統計視窗由 180 天收窄到 14 天，降低查詢壓力",
+          "專案列表返回 `resource_count` 摘要，不再內聯全部 resource，響應體更小",
+          "404 頁面重新設計，並修復 No-Access 重定向死迴圈",
+          "Quick Create 對 git-describe 類 daemon 跳過 CLI 版本閘",
+          "CI 啟用 lint 強制門禁，歷史 lint 債同步清理完畢",
+        ],
+        fixes: [
+          "Task 在服務端被刪後，daemon 主動取消正在執行的 agent，避免孤兒程序",
+          "複用 execenv 時重新整理陳舊的 Codex `auth.json`，修復偶發鑑權失敗",
+          "`issue_id` 為空時拒絕寫入 `.gc_meta.json`",
+          "跨 ACP 後端的 session/resume 信任 agent 自報的 session id，修復串號問題",
+          "OpenCode 的 skills 寫到 `.opencode/skills/` 讓其原生髮現",
+          "Daemon 對 task-not-found 的 404 語義在 server 和最終 guard 雙重收緊",
+          "側邊欄中失效的 Pin 自動取消掛載",
+          "專案詳情頁桌面端與移動端側邊欄狀態獨立儲存",
+          "Runtime 詳情頁隱藏已歸檔的 agent",
+          "Add Resource 列表中已掛載的 repo 顯示 URL tooltip；空專案頁加上新建任務入口",
+          "S3 公開 URL 攜帶 region，修復跨區訪問失敗",
+          "Windows 安裝器修正版本號解析與 checksum 解碼",
+          "Quick Create 提交按鈕去掉重複的快捷鍵提示",
+        ],
+      },
+      {
+        version: "0.2.24",
+        date: "2026-05-03",
+        title: "Repo Checkout `--ref`、Hermes 歷史回放修復與多副本 Model Picker",
+        changes: [],
+        features: [
+          "`multica repo checkout --ref` 支援按分支、tag 或指定 commit 拉取倉庫",
+          "`multica agent avatar` 命令支援直接透過 CLI 上傳 Agent 頭像",
+          "Inbox 中已完成 task 新增 archive 按鈕，移除冗餘的 mark-as-done 懸浮按鈕",
+        ],
+        improvements: [
+          "長 timeline 的任務從 Inbox 開啟不再卡頓 —— Markdown 渲染管線已 memoize，無關的 WS 事件不會再重渲染數千條評論",
+          "Model Picker 在多副本部署下可用 —— pending 請求改走 Redis 持久化，Daemon 上報失敗也會自動重試",
+          "Daemon 空認領快取 TTL 調高，空閒態 DB 壓力進一步下降",
+        ],
+        fixes: [
+          "新建立的 Agent 立刻在各處可見 —— 建立時即 hydrate Agent 快取",
+          "Hermes 在新一輪對話開始時不再重放上一輪答案 —— 歷史 chunk 受單輪門禁限制",
+          "Codex runtime 模型選擇器開放 GPT-5.5 系列",
+          "`multica login --token <PAT>` 正確接收 PAT 作為引數值",
+          "CLI update 完成狀態上報更可靠",
+          "Session resume 按 runtime 正確守衛，避免跨 runtime 複用 session",
+          "看板拖拽任務時顯示設定不再丟失",
+          "Autopilot 列表在移動端 viewport 下響應式排版",
+          "Quick Create 生成的描述更貼合使用者輸入",
+          "Skill upsert 清理 null bytes，修復 PostgreSQL UTF8 錯誤",
+          "Connect Remote 彈窗的安裝指令碼 URL 修正",
+        ],
+      },
+      {
+        version: "0.2.21",
+        date: "2026-04-30",
+        title: "Quick Capture 全面升級、Mermaid 圖表與 Typed Project Resources",
+        changes: [],
+        features: [
+          "Quick Capture 取代舊的新建任務彈窗 —— 支援連續建立、檔案上傳，並能根據貼上的 URL 自動豐富標題與描述",
+          "Markdown 內聯渲染 Mermaid 圖表，複雜圖支援全屏 lightbox",
+          "Project 支援單獨繫結 repo，無需依賴 workspace 預設配置",
+          "Agent / 評論 / Runtime / Skill 全面接入許可權感知 UI，沒有許可權的操作不再展示",
+        ],
+        improvements: [
+          "Daemon `/tasks/claim` 輪詢走 Redis 空認領 fast-path，空閒態 DB 壓力下降，長期 open 的任務自動回收磁碟",
+          "Multica Agent 的 Git 提交自動追加 `Co-authored-by` trailer，歸屬更清晰",
+          "Desktop 攔截 Cmd+R / Ctrl+R / F5 防止意外重新整理，開發模式與 Updates 設定中均展示真實版本號",
+        ],
+        fixes: [
+          "Quick Create 不再憑空腦補需求，並自動把發起人訂閱到任務",
+          "Inbox 點選通知後立即跳到目標評論；從任務詳情頁 Mark as Done 時自動歸檔",
+          "Task rerun 啟動全新 session，跳過被汙染的 resume 狀態",
+          "受邀成員登入後路由到所在 workspace，不再強制帶去 `/onboarding`",
+        ],
+      },
+      {
+        version: "0.2.20",
+        date: "2026-04-29",
+        title: "Create Issue by Agent、Agent Presence v3 與 Daemon WebSocket 心跳",
+        changes: [],
+        features: [
+          "Create Issue by Agent —— 按 `c` 輸入一句話並選 Agent，任務非同步建立，結果回執送達 Inbox",
+          "Agent Presence v3 —— 可用性與最近 task 拆成兩條更清晰的訊號；任務詳情右側新增 Execution Log，可看到當前 active run 與歷史 run",
+          "Daemon ↔ Server 心跳改走 WebSocket，HTTP 自動 fallback，task 起跑延遲更低",
+          "Mention 選擇器按本機最近使用排序",
+        ],
+        improvements: [
+          "Server 用 Redis 快取 PAT / Daemon Token 校驗，大型團隊不再讓 DB 抗下每次請求",
+          "後端支援透過 `MULTICA_CLAUDE_ARGS` / `MULTICA_CODEX_ARGS` 配置 Agent CLI 預設引數",
+          "Manual 與 Agent 建立任務共享同一個 Dialog 外殼，picker Agent 會被預設設為 assignee",
+        ],
+        fixes: [
+          "Create Issue by Agent 不再卡住 queued task，也不再因附件上傳失敗而重複建立任務",
+          "Agent 評論保留換行，不再渲染成字面量 `\\n`，多行回覆的格式也被完整保留",
+          "Agent 自身發出的根評論不再繼承父評論的 @mention，避免互相喚起的死迴圈",
+          "Windows 下 Cursor Agent 啟動時保留多行 prompt",
+        ],
+      },
+      {
+        version: "0.2.19",
+        date: "2026-04-28",
+        title: "Kiro CLI Runtime、桌面通知紅點與任務標籤過濾",
+        changes: [],
+        features: [
+          "新增 Kiro CLI 作為本地 Agent runtime 選項",
+          "macOS Dock 顯示未讀任務紅點；視窗失焦時彈出原生通知，點選直達對應任務",
+          "任務列表新增 Label 過濾，可與狀態、優先順序、Assignee 等組合使用",
+          "Daemon 透過 WebSocket 接收 task 喚醒，task 起跑延遲顯著降低",
+        ],
+        improvements: [
+          "List/Board 檢視的狀態分組 header 更簡潔，顏色提示更清晰",
+          "評論中作者手寫的 Markdown 連結不再被自動 linkify 替換",
+          "新增 Label 現在樂觀更新，無需等待服務端往返",
+          "Mention 輸入時的任務搜尋結果會隨著輸入實時重新整理",
+        ],
+        fixes: [
+          "Comment 被刪除時會取消已觸發的 Agent task，不再有幽靈 run",
+          "Codex 卡住的對話回合會超時退出，避免佔用配額",
+          "Windows Daemon 不再隨父 shell 關閉被一同殺掉",
+          "Agent 之間的 mention 不再相互觸發，避免死迴圈",
+        ],
+      },
+      {
+        version: "0.2.18",
+        date: "2026-04-27",
+        title: "任務標籤、Labs 設定頁與邀請紅點",
+        changes: [],
+        features: [
+          "任務標籤——給任務上色、分類，列表、看板和詳情頁都能用",
+          "新增 Labs 設定頁，集中放實驗性開關",
+          "有未讀工作區邀請時，側邊欄會出現紅點提示",
+        ],
+        improvements: [
+          "Project 選擇器會顯示當前所選 Project 的圖示",
+          "進入詳情頁時，側邊欄父級選單保持高亮",
+          "自託管部署正確讀取註冊放行相關的環境變數",
+        ],
+        fixes: [
+          "Agent 評論的換行恢復正常顯示",
+          "桌面端 RPM 不再與 Slack / VS Code 在 Fedora 上衝突",
+          "Windows 下 Agent 能正確處理多行 prompt",
+        ],
+      },
+      {
+        version: "0.2.17",
+        date: "2026-04-26",
+        title: "Agent 自定義環境變數、更清晰的失敗資訊與一系列穩定性修復",
+        changes: [],
+        features: [
+          "`multica agent create/update --custom-env KEY=VALUE` 支援為 Agent 注入自定義環境變數",
+          "Agent 失敗資訊會帶上 Runtime CLI 的 stderr 末尾片段，排查 Runtime 報錯更直接",
+          "CLI 更新下載超時支援配置，弱網下 `multica update` 不再被預設超時切斷",
+        ],
+        improvements: [
+          "Daemon 把取消的 task 上報為 `cancelled` 而非 `timeout`，並在按任務取消 task 時同步對齊 Agent 狀態",
+          "Server 心跳拆成 probe/claim 兩步，並補上慢日誌和 model-list running-timeout，丟心跳不再卡住 UI",
+        ],
+        fixes: [
+          "Server 在任務建立/更新時校驗 `assignee_id` 真實存在；DeleteIssue 改用解析後的任務 ID",
+          "Pi Runtime 改為讀寫 `.pi/skills`，不再使用舊的 `.pi/agent/skills` 路徑",
+          "Windows 下 Daemon 啟動 Agent 改用 `CREATE_NEW_CONSOLE`，孫子程序不再彈出額外終端視窗",
+          "Autopilot 的 run-only 上下文正確傳給被調起的 Agent",
+        ],
+      },
+      {
+        version: "0.2.16",
+        date: "2026-04-24",
+        title: "Chat V2、任務右鍵選單與應用內反饋",
+        changes: [],
+        features: [
+          "Chat V2——側邊欄新增 Chat 入口，主區域提供完整的 AI 對話頁面",
+          "任務支援右鍵選單，列表、看板和詳情的操作入口統一收斂",
+          "應用內反饋流程及全新的 Help 啟動器，集中託管文件、支援和反饋入口",
+          "Autopilot 彈窗重設計——更簡的欄位配置，建立與編輯共享一致的排期介面",
+          "Skills 頁面重設計——列表+詳情、卡片化佈局、滾動漸隱和共享 PageHeader / 移動端導航",
+          "文件站重寫為雙語扁平內容樹——中英文章節共用一棵目錄",
+        ],
+        improvements: [
+          "懸停 Agent 頭像即可彈出資料卡，快速瞭解上下文",
+          "桌面應用新增原生右鍵選單，支援複製 / 貼上 / 剪下 / 全選等剪貼簿操作",
+          "Daemon 強化 Agent 提示，避免 Agent 之間形成自互 @ 的迴圈",
+          "Server 新增就緒態健康檢查端點，可對接灰度釋出和 Ingress 探針",
+          "Daemon GC 預設引數收緊，並支援靈活的時長字尾（如 `7d`、`12h`）",
+          "移除 Runtime 的 Test Connection / Ping 功能，可達性改為自動檢測",
+        ],
+        fixes: [
+          "Chat 流式回覆結束時不再閃爍，傳送第一條訊息時輸入框不再跳動",
+          "桌面應用啟動時正確恢復上次的工作區，而不是預設回到第一個",
+          "編輯器只讀渲染路徑正確保留巢狀有序列表",
+          "CLI `browser-login` 現在可以從未執行 Server 的機器上發起",
+          "Windows 下 Daemon 啟動 Agent 不再拉起額外終端視窗；本地 Skill 上報在服務端瞬時錯誤時會自動重試",
+          "`/api/config` 重新對未登入客戶端可達，方便初次 bootstrap",
+          "DeleteWorkspace 增加防禦性 owner 校驗；`/health/realtime` 指標限定授權訪問（安全）",
+          "Hermes ACP Runtime 正確傳遞配置的模型；OpenClaw Agent 發現超時提高到 30s",
+        ],
+      },
+      {
+        version: "0.2.15",
+        date: "2026-04-22",
+        title: "本地 Skills、LaTeX、Focus 模式與孤兒 task 自恢復",
+        changes: [],
+        features: [
+          "支援將 Runtime 本地 Skills 匯入工作區,成為一等工作區資產",
+          "孤兒 task 自動恢復——意外中斷的 Agent 執行會自動重試,必要時可手動重跑",
+          "任務、評論與 Chat 支援 LaTeX 渲染",
+          "Chat Focus 模式——將當前頁面作為上下文分享給對話",
+        ],
+        improvements: [
+          "子任務的 `status_changed` 事件不再向父任務訂閱者刷屏",
+          "Docker 釋出映象改為按架構原生構建,免 QEMU",
+          "側邊欄 Pin 欄位在客戶端派生,排序更跟手",
+          "擴充保留 slug 列表,新工作區 slug 不會再和產品路由衝突",
+        ],
+        fixes: [
+          "Gemini Runtime 模型列表補上 Gemini 3 及若干 CLI 別名",
+          "沒有錨點的頁面上 Chat focus 按鈕改為禁用",
+          "修復 Onboarding 中 Pin 同步、歡迎頁佈局與 Runtime bootstrap 狀態",
+          "`install.ps1` 的系統架構探測更穩健,覆蓋更多 Windows 環境",
+          "`/download` 在 1 小時新鮮度視窗內可回退到上一版本,避免撞上半釋出狀態",
+        ],
+      },
+      {
+        version: "0.2.11",
+        date: "2026-04-21",
+        title: "桌面應用跨平臺打包、CLI 自更新與看板分頁",
+        changes: [],
+        features: [
+          "桌面應用跨平臺打包——同一條釋出流水線產出 macOS、Windows 和 Linux 安裝包",
+          "新增 `multica update` 自更新命令——無需重灌即可升級 CLI 和本地 Daemon",
+          "任務看板所有狀態列都支援分頁（不再只是 Done 列），大積壓下依然流暢",
+        ],
+        fixes: [
+          "本地 Daemon 對 Agent 執行強制端到端工作區隔離（安全）",
+          "Windows 下 Daemon 終端關閉後繼續常駐，後臺 Agent 不再被意外終止",
+          "看板卡片重新顯示描述預覽——列表查詢不再丟掉 description 欄位",
+          "OpenClaw Agent 改為從 Agent 後設資料讀取真實模型，不再回退到預設值",
+          "評論 Markdown 全鏈路保留——移除會誤傷格式的 HTML sanitizer",
+        ],
+      },
+      {
+        version: "0.2.8",
+        date: "2026-04-20",
+        title: "Agent 模型選擇、Kimi Runtime 與自部署登入",
+        changes: [],
+        features: [
+          "Agent 新增 `model` 欄位及按 Provider 聚合的模型下拉框——可在介面或透過 `multica agent create/update --model` 為每個 Agent 選擇 LLM 模型，並從各 Runtime CLI 實時發現可用模型",
+          "新增 Kimi CLI Agent Runtime（Moonshot AI 的 `kimi-cli`，基於 ACP），支援模型選擇、自動授權工具許可權以及流式工具呼叫渲染",
+          "評論和回覆編輯器新增放大按鈕，便於撰寫長文字",
+        ],
+        fixes: [
+          "Agent 工作流將“釋出結果評論”提升為獨立的顯式步驟，確保最終回覆送達任務而不是隻留在終端輸出",
+          "透過 Cmd+K 切換任務時不再出現其他任務的 Agent 實時狀態殘留",
+          "自部署會話 Cookie 的 Secure 標誌改由 `FRONTEND_ORIGIN` 協議決定——HTTP 部署不再因瀏覽器丟棄 Cookie 導致登入失敗；`COOKIE_DOMAIN=<ip>` 會自動回退到 host-only 並輸出警告",
+        ],
+      },
+      {
+        version: "0.2.7",
+        date: "2026-04-18",
+        title: "編輯器建立子任務、自部署門禁與 MCP",
+        changes: [],
+        features: [
+          "直接從編輯器氣泡選單將選中文字建立為子任務",
+          "自部署例項賬戶門禁——`ALLOW_SIGNUP` 和 `ALLOWED_EMAIL_*` 環境變數限制註冊",
+          "Agent 新增 `mcp_config` 欄位恢復 MCP 支援",
+          "桌面應用每小時檢查更新，設定中新增手動檢查按鈕",
+        ],
+        fixes: [
+          "網頁已登入時將會話交接給桌面應用",
+          "修復 `?next=` 開放重定向漏洞",
+          "OpenClaw 停止傳遞不支援的引數，正確傳遞 AgentInstructions",
+        ],
+      },
+      {
+        version: "0.2.5",
+        date: "2026-04-17",
+        title: "CLI Autopilot、Cmd+K 與 Daemon 身份",
+        changes: [],
+        features: [
+          "CLI `autopilot` 命令，管理定時和觸發式自動化",
+          "CLI `issue subscriber` 訂閱管理命令",
+          "Cmd+K 命令面板擴充套件——主題切換、快速建立任務/專案、複製連結、切換工作區",
+          "任務列表卡片可選顯示專案和子任務進度",
+          "Daemon 持久化 UUID 身份——CLI 和桌面應用共用同一個 daemon，跨重啟和機器遷移保持一致",
+          "唯一所有者退出工作區的前置檢查",
+          "評論摺疊狀態跨會話持久化",
+        ],
+        fixes: [
+          "Agent 現在在任意任務狀態下都會響應評論觸發",
+          "修復 Codex 沙箱在 macOS 上的網路訪問配置",
+          "編輯器氣泡選單改用 @floating-ui/dom 重寫，滾動時正確隱藏",
+          "Autopilot 建立者自動訂閱其生成的任務",
+          "Autopilot run-only task 正確解析工作區 ID",
+          "桌面應用 `shell.openExternal` 限制僅允許 http/https 協議（安全）",
+          "重名 Agent 建立返回 409 而非靜默失敗",
+          "桌面應用新建標籤頁繼承當前工作區",
+        ],
+      },
+      {
+        version: "0.2.1",
+        date: "2026-04-16",
+        title: "新增 Agent 執行時",
+        changes: [],
+        features: [
+          "支援 GitHub Copilot CLI 執行時",
+          "支援 Cursor Agent CLI 執行時",
+          "支援 Pi Agent 執行時",
+          "工作區 URL 改造——slug 優先路由（`/{slug}/issues`），舊連結自動重定向",
+        ],
+        fixes: [
+          "Codex 同一任務下跨 task 恢復會話執行緒",
+          "Codex 回合錯誤正確丟擲，不再報告空輸出",
+          "工作區用量按 task 完成時間正確分桶",
+          "Autopilot 執行歷史行整行可點選",
+          "Daemon 和 GC 端點加強工作區隔離校驗（安全）",
+          "邀請郵件中的工作區和邀請人名稱進行 HTML 轉義",
+          "桌面應用開發版和生產版現在可以同時執行",
+        ],
+      },
+      {
+        version: "0.2.0",
+        date: "2026-04-15",
+        title: "桌面應用、Autopilot 與邀請",
+        changes: [],
+        features: [
+          "macOS 桌面應用——原生 Electron 應用，支援標籤頁系統、內建 Daemon 管理、沉浸模式和自動更新",
+          "Autopilot——Agent 定時和觸發式自動化任務",
+          "工作區邀請，支援郵件通知和專用接受頁面",
+          "Agent 自定義 CLI 引數，支援高階執行時配置",
+          "聊天介面重設計，新增未讀追蹤和會話管理最佳化",
+          "建立 Agent 對話方塊顯示執行時所有者和 Mine/All 篩選",
+        ],
+        improvements: [
+          "Inter 字型 + CJK 回退，中英文自動間距",
+          "側邊欄使用者選單改為整行彈出面板",
+          "WebSocket ping/pong 心跳檢測斷線連線",
+          "普通成員現在可以建立 Agent 和管理自己的 Skills",
+        ],
+        fixes: [
+          "Agent 在已參與的執行緒收到回覆時正確觸發",
+          "自部署：Docker 本地上傳檔案持久化，WebSocket URL 自動適配區域網",
+          "Cmd+K 最近任務列表狀態過期",
+        ],
+      },
+      {
+        version: "0.1.33",
+        date: "2026-04-14",
+        title: "Gemini CLI 與 Agent 環境變數",
+        changes: [],
+        features: [
+          "Google Gemini CLI 作為新的 Agent 執行時，支援實時日誌流",
+          "Agent 自定義環境變數（router/proxy 模式），新增專用設定標籤頁",
+          "任務右鍵選單新增「設定父任務」和「新增子任務」",
+          "CLI `--parent` 更新父任務，`--content-stdin` 管道輸入評論內容",
+          "子任務自動繼承父級專案",
+        ],
+        improvements: [
+          "編輯器氣泡選單和連結預覽重寫",
+          "OpenClaw 後端 P0+P1 最佳化（多行 JSON、增量解析）",
+          "自部署 WebSocket URL 自動適配區域網訪問",
+        ],
+        fixes: [
+          "S3 上傳路徑按工作區隔離（安全）",
+          "訂閱和上傳新增工作區成員身份校驗（安全）",
+          "任務狀態改為已取消時自動終止進行中的 task",
+          "Agent 程序 stdout 掛起導致 task 卡住",
+          "Daemon 觸發提示現在嵌入實際的觸發評論內容",
+          "登入和儀表盤跳轉穩定性改進",
+        ],
+      },
+      {
+        version: "0.1.28",
+        date: "2026-04-13",
+        title: "Windows 支援、認證與引導",
+        changes: [],
+        features: [
+          "Windows 支援——CLI 安裝、Daemon 執行和釋出構建",
+          "認證遷移至 HttpOnly Cookie，WebSocket 新增 Origin 白名單",
+          "新工作區全屏引導向導",
+          "Master Agent 聊天視窗可調整大小，會話歷史體驗最佳化",
+          "OpenCode、OpenClaw 和 Hermes 執行時 Token 用量日誌掃描",
+        ],
+        fixes: [
+          "WebSocket 首條訊息認證安全修復",
+          "新增 Content-Security-Policy 響應頭",
+          "子任務進度改為從資料庫計算而非分頁客戶端快取",
+        ],
+      },
+      {
+        version: "0.1.27",
+        date: "2026-04-12",
+        title: "一鍵安裝、自部署與穩定性",
+        changes: [],
+        features: [
+          "一鍵安裝與配置——`curl | bash` 安裝 CLI，`--with-server` 完整自部署，`multica setup` 配置連線環境",
+          "自部署儲存——無 S3 時本地檔案儲存回退，支援自定義 S3 端點（MinIO）",
+          "專案列表頁支援行內編輯屬性（優先順序、狀態、負責人）",
+        ],
+        improvements: [
+          "過期 Agent task 自動清掃；執行卡片立即顯示，無需等待首條訊息",
+          "透過 CLI 上傳的評論附件現在可在 UI 中顯示",
+          "置頂項按使用者隔離，修復側邊欄置頂操作",
+        ],
+        fixes: [
+          "Daemon API 路由和附件上傳新增工作區所有權校驗",
+          "Markdown 清洗器保留程式碼塊不被 HTML 實體轉義",
+          "Next.js 升級至 ^16.2.3 修復 CVE-2026-23869",
+          "OpenClaw 後端重寫以匹配實際 CLI 介面",
+        ],
+      },
+      {
+        version: "0.1.24",
+        date: "2026-04-11",
+        title: "安全加固與通知",
+        changes: [],
+        features: [
+          "子任務變更時通知父任務的訂閱者",
+          "CLI `--project` 篩選任務列表",
+        ],
+        improvements: [
+          "Meta-skill 工作流改為委託 Agent Skills 而非硬編碼邏輯",
+        ],
+        fixes: [
+          "Daemon API 路由新增工作區所有權校驗",
+          "附件上傳和查詢新增工作區所有權驗證",
+          "回覆評論不再繼承父級執行緒的 Agent 提及",
+          "Agent 建立評論缺少 workspace ID",
+          "自部署 Docker 構建問題修復（檔案許可權、CRLF 換行、缺失依賴）",
+        ],
+      },
+      {
+        version: "0.1.23",
+        date: "2026-04-11",
+        title: "置頂、Cmd+K 與專案增強",
+        changes: [],
+        features: [
+          "任務和專案置頂到側邊欄，支援拖拽排序",
+          "Cmd+K 命令面板——最近訪問的任務、頁面導航、專案搜尋",
+          "專案詳情側邊欄屬性面板（替代原概覽標籤頁）",
+          "任務列表新增專案篩選",
+          "專案列表顯示完成進度",
+          "在專案頁按 'C' 建立任務時自動填充專案",
+          "指派人下拉按使用者分配頻率排序",
+        ],
+        fixes: [
+          "Markdown XSS 漏洞——評論渲染增加 rehype-sanitize 和服務端 bluemonday 清洗",
+          "專案看板任務計數不正確",
+          "自部署 Docker 構建缺少 tsconfig 依賴",
+          "Cmd+K 需要按兩次 ESC 才能關閉",
+        ],
+      },
+      {
+        version: "0.1.22",
+        date: "2026-04-10",
+        title: "自部署、ACP 與文件站",
+        changes: [],
+        features: [
+          "全棧 Docker Compose 一鍵自部署",
+          "透過 ACP 協議接入 Hermes Agent Provider",
+          "基於 Fumadocs 搭建文件站（快速入門、CLI 參考、Agent 指南）",
+          "側邊欄和收件箱移動端響應式佈局",
+          "任務詳情側邊欄展示 Token 用量",
+          "支援在 UI 中切換 Agent 執行時",
+          "'C' 快捷鍵快速建立任務",
+          "聊天會話歷史面板，檢視已歸檔對話",
+          "Daemon 新增 Claude Code 和 Codex 最低版本檢查",
+          "官網新增 OpenClaw 和 OpenCode 展示",
+          "`make dev` 一鍵本地開發環境搭建",
+        ],
+        improvements: [
+          "側邊欄重新設計——個人/工作區分組、使用者檔案底欄、⌘K 搜尋入口",
+          "搜尋排序最佳化——大小寫無關匹配、識別符號搜尋（MUL-123）、多詞匹配",
+          "搜尋結果關鍵詞高亮",
+          "每日 Token 用量圖表最佳化，Y 軸標籤更清晰，新增分類 Tooltip",
+          "Master Agent 支援多行輸入",
+          "統一選擇器元件（狀態、優先順序、截止日期、專案、指派人）",
+          "工作區級別儲存隔離，切換工作區時自動載入對應資料",
+          "自部署環境變數缺失時給出啟動警告",
+        ],
+        fixes: [
+          "刪除子任務後父級列表未重新整理",
+          "搜尋索引相容 RDS 上的 pg_bigm 1.2",
+          "建立 Agent 對話方塊錯誤顯示「無可用執行時」",
+          "Claude stream-json 啟動卡住",
+          "多個 Agent 無法同時為同一任務排隊 task",
+          "退出登入未清除工作區和查詢快取",
+          "編輯器為空時拖放區域過小",
+          "Skills 匯入硬編碼 main 分支導致 404",
+          "WebSocket 端點不支援 PAT 認證",
+          "所有 Agent 已歸檔時無法刪除執行時",
+        ],
+      },
+      {
+        version: "0.1.21",
+        date: "2026-04-09",
+        title: "專案、搜尋與 Monorepo",
+        changes: [
+          "專案實體全棧 CRUD——建立、編輯專案並按專案組織任務",
+          "建立任務彈窗新增專案選擇器，CLI 新增專案命令",
+          "基於 pg_bigm 的任務全文搜尋",
+          "Monorepo 拆包——共享 core、UI、views 三個包（Turborepo）",
+          "全屏 Agent 執行日誌檢視",
+          "編輯器支援拖拽上傳檔案並展示檔案卡片",
+          "任務新增附件區域，支援圖片網格和檔案卡片展示",
+          "執行時支援所有者追蹤、篩選、頭像展示和點對點更新通知",
+          "列表檢視行內顯示子任務進度",
+          "列表檢視支援已完成任務分頁載入",
+          "Codex 會話日誌掃描以報告 token 用量",
+          "修復守護程序 repo 快取卡在初始快照的問題",
+        ],
+      },
+      {
+        version: "0.1.20",
+        date: "2026-04-08",
+        title: "子任務、TanStack Query 與用量追蹤",
+        changes: [
+          "子任務支援——在任意任務內建立、檢視和管理子任務",
+          "全面遷移至 TanStack Query 管理服務端狀態（任務、收件箱、工作區、執行時）",
+          "按 task 維度追蹤所有 Agent 提供商的 token 用量",
+          "同一任務支援多個 Agent 併發執行",
+          "看板檢視：Done 列顯示總數並支援無限滾動",
+          "新增 ReadonlyContent 元件，輕量渲染評論中的 Markdown",
+          "表情反應和變更操作支援樂觀更新與回滾",
+          "WebSocket 驅動快取失效，替代輪詢和焦點重新整理",
+          "CLI 登入流程中瀏覽器會話保持不丟失",
+          "守護程序複用已有 worktree 時自動拉取最新遠端程式碼",
+          "修復動態根佈局導致的標籤頁切換卡頓問題",
+        ],
+      },
+      {
+        version: "0.1.18",
+        date: "2026-04-07",
+        title: "OAuth、OpenClaw 與任務載入最佳化",
+        changes: [
+          "支援 Google OAuth 登入",
+          "新增 OpenClaw 執行時，支援在 OpenClaw 基礎設施上執行 Agent",
+          "Agent 實時卡片重新設計——始終吸頂，支援手動展開/收起",
+          "開啟的任務不再分頁限制全量載入，已關閉的任務滾動分頁",
+          "JWT 和 CloudFront Cookie 有效期從 72 小時延長至 30 天",
+          "重新登入後記住上次選擇的工作區",
+          "守護程序確保 Agent task 環境中 multica CLI 在 PATH 上",
+          "新增 PR 模板和麵向 Agent 的 CLI 安裝指南",
+        ],
+      },
+      {
+        version: "0.1.17",
+        date: "2026-04-05",
+        title: "評論分頁與 CLI 最佳化",
+        changes: [
+          "評論列表支援分頁，API 和 CLI 均已適配",
+          "收件箱歸檔操作現在一次性歸檔同一任務的所有通知",
+          "CLI 幫助輸出重新設計，匹配 gh CLI 風格並增加示例",
+          "附件使用 UUIDv7 作為 S3 key，建立任務/評論時自動關聯附件",
+          "支援在已完成或已取消的任務上 @提及已分配的 Agent",
+          "回覆僅 @提及成員時跳過父級提及繼承邏輯",
+          "Worktree 環境配置保留已有的 .env.worktree 變數",
+        ],
+      },
+      {
+        version: "0.1.15",
+        date: "2026-04-03",
+        title: "編輯器重構與 Agent 生命週期",
+        changes: [
+          "統一 Tiptap 編輯器，編輯和展示共用單一 Markdown 渲染管線",
+          "Markdown 貼上、行內程式碼間距和連結樣式修復",
+          "Agent 支援歸檔和恢復——軟刪除替代硬刪除",
+          "預設列表隱藏已歸檔的 Agent",
+          "全應用新增骨架屏載入態、錯誤提示和確認對話方塊",
+          "新增 OpenCode 作為支援的 Agent 提供商",
+          "回覆觸發的 Agent task 自動繼承主執行緒 @提及",
+          "任務和收件箱實時事件細粒度處理，不再全量重新整理",
+          "編輯器中統一圖片上傳流程，支援貼上和按鈕上傳",
+        ],
+      },
+      {
+        version: "0.1.14",
+        date: "2026-04-02",
+        title: "提及與許可權",
+        changes: [
+          "評論中支援 @提及任務，服務端自動展開",
+          "支援 @all 提及工作區所有成員",
+          "收件箱通知點選後自動滾動到對應評論",
+          "倉庫管理獨立為設定頁單獨標籤頁",
+          "支援從網頁端執行時頁面更新 CLI，非 Homebrew 安裝支援直接下載更新",
+          "新增 CLI 命令檢視任務執行記錄和執行訊息",
+          "Agent 許可權模型最佳化——所有者和管理員管理 Agent，成員可管理自己 Agent 的技能",
+          "每個任務序列執行，防止併發 task 衝突",
+          "檔案上傳支援所有檔案型別",
+          "README 重新設計，新增快速入門指南",
+        ],
+      },
+      {
+        version: "0.1.13",
+        date: "2026-04-01",
+        title: "我的任務與國際化",
+        changes: [
+          "我的任務頁面，支援看板、列表檢視和範圍標籤",
+          "落地頁新增簡體中文字地化",
+          "新增關於頁面和更新日誌頁面",
+          "Agent 設定頁支援頭像上傳",
+          "CLI 評論和任務/評論 API 的附件支援",
+          "統一頭像渲染，所有選擇器使用 ActorAvatar 元件",
+          "落地頁 SEO 最佳化和登入流程改進",
+          "CLI 預設使用生產環境 API 地址",
+          "許可證變更為 Apache 2.0",
+        ],
+      },
+      {
+        version: "0.1.3",
+        date: "2026-03-31",
+        title: "Agent 智慧",
+        changes: [
+          "透過評論中的 @提及觸發 Agent",
+          "將 Agent 實時輸出推送到任務詳情頁",
+          "富文字編輯器——提及、連結貼上、表情反應、可摺疊執行緒",
+          "檔案上傳，支援 S3 + CloudFront 簽名 URL 和附件跟蹤",
+          "Agent 驅動的程式碼倉庫檢出，帶 bare clone 快取的 task 隔離",
+          "任務列表檢視的批次操作",
+          "守護程序身份認證和安全加固",
+        ],
+      },
+      {
+        version: "0.1.2",
+        date: "2026-03-28",
+        title: "協作",
+        changes: [
+          "郵箱驗證登入和基於瀏覽器的 CLI 認證",
+          "多工作區守護程序，支援熱過載",
+          "執行時儀表板，含使用量圖表和活動熱力圖",
+          "基於訂閱者的通知模型，替代硬編碼觸發器",
+          "統一的活動時間線，支援評論執行緒回覆",
+          "看板重新設計，支援拖拽排序、篩選和顯示設定",
+          "人類可讀的任務識別符號（如 JIA-1）",
+          "從 ClawHub 和 Skills.sh 匯入技能",
+        ],
+      },
+      {
+        version: "0.1.1",
+        date: "2026-03-25",
+        title: "核心平臺",
+        changes: [
+          "多工作區切換和建立",
+          "Agent 管理 UI，支援技能、工具和觸發器",
+          "統一的 Agent SDK，支援 Claude Code 和 Codex 後端",
+          "評論 CRUD，支援實時 WebSocket 更新",
+          "task 服務層和守護程序 REST 協議",
+          "事件匯流排，支援工作區級別的 WebSocket 隔離",
+          "收件箱通知，支援未讀徽章和歸檔",
+          "CLI 支援 cobra 子命令，用於工作區和任務管理",
+        ],
+      },
+      {
+        version: "0.1.0",
+        date: "2026-03-22",
+        title: "基礎架構",
+        changes: [
+          "Go 後端，支援 REST API、JWT 認證和實時 WebSocket",
+          "Next.js 前端，Linear 風格 UI",
+          "任務支援看板和列表檢視，含拖拽看板",
+          "Agent、收件箱和設定頁面",
+          "一鍵設定、遷移 CLI 和種子工具",
+          "全面測試套件——Go 單元/整合測試、Vitest、Playwright E2E",
+        ],
+      },
+    ],
+  },
+  download: {
+    hero: {
+      macArm64: {
+        title: "Multica for macOS",
+        sub: "Apple Silicon · 內建 daemon，無需配置",
+        primary: "下載 (.dmg)",
+        altZip: "或下載 .zip",
+      },
+      macIntel: {
+        title: "Multica for macOS",
+        sub: "Intel · 內建守護程序，無需配置",
+        primary: "下載 (.dmg)",
+        altZip: "或下載 .zip",
+      },
+      winX64: {
+        title: "Multica for Windows",
+        sub: "內建 daemon，無需配置",
+        primary: "下載 (.exe)",
+      },
+      winArm64: {
+        title: "Multica for Windows",
+        sub: "ARM · 內建 daemon，無需配置",
+        primary: "下載 (.exe)",
+      },
+      linux: {
+        title: "Multica for Linux",
+        sub: "內建 daemon，無需配置",
+        primary: "下載 AppImage",
+        altFormats: "或 .deb / .rpm",
+      },
+      unknown: {
+        title: "選擇你的平臺",
+        sub: "下方是所有支援的安裝包。",
+      },
+      safariMacHint: "在 Intel Mac 上？請在下方選擇 Intel 版本。",
+      archFallbackHint: "架構不對？下方是所有可選格式。",
+    },
+    allPlatforms: {
+      title: "所有平臺",
+      macArm64Label: "macOS · Apple Silicon",
+      macX64Label: "macOS · Intel",
+      winX64Label: "Windows · x64",
+      winArm64Label: "Windows · ARM64",
+      linuxX64Label: "Linux · x64",
+      linuxArm64Label: "Linux · ARM64",
+      formatDmg: ".dmg",
+      formatZip: ".zip",
+      formatExe: ".exe",
+      formatAppImage: ".AppImage",
+      formatDeb: ".deb",
+      formatRpm: ".rpm",
+      unavailable: "暫不可用",
+    },
+    cli: {
+      title: "想用 CLI？",
+      sub: "適合伺服器、遠端開發機、無圖形介面環境。底層 daemon 與 Desktop 相同，透過終端安裝。",
+      installLabel: "安裝",
+      platformGroup: "選擇作業系統",
+      platformMacosLinux: "macOS / Linux",
+      platformWindows: "Windows",
+      startLabel: "啟動 daemon",
+      sshNote: "已經在伺服器上？透過 SSH 執行同樣的命令即可。",
+      copyLabel: "複製",
+      copiedLabel: "已複製",
+    },
+    cloud: {
+      title: "Cloud runtime（等待名單）",
+      sub: "我們將為你託管 runtime，目前尚未上線——留下郵箱，上線後通知你。",
+    },
+    footer: {
+      releaseNotes: "v{version} 更新內容",
+      allReleases: "檢視所有版本",
+      currentVersion: "當前版本：{version}",
+      versionUnavailable: "版本獲取失敗——請前往 GitHub 檢視",
+    },
+  },
+  contactSales: {
+    pageTitle: "聯絡商務",
+    pageDescription:
+      "瞭解如何在你的團隊中落地 Multica 的人類 + Agent 協作工作流。",
+    eyebrow: "聯絡商務",
+    title: "先了解你的需求",
+    fields: {
+      firstName: "名",
+      lastName: "姓",
+      businessEmail: "企業郵箱",
+      businessEmailHint:
+        "請使用真實的企業郵箱域名，方便我們後續與你聯絡。",
+      companyName: "公司名稱",
+      companySize: "公司規模",
+      countryRegion: "國家 / 地區",
+      useCase: "你打算如何使用 Multica 或與我們合作？",
+      goals: "你的目標或挑戰",
+      selectPlaceholder: "請選擇",
+      submit: "提交",
+      submitting: "正在提交…",
+    },
+    companySizes: [
+      { value: "1-10", label: "1 – 10 人" },
+      { value: "11-50", label: "11 – 50 人" },
+      { value: "51-200", label: "51 – 200 人" },
+      { value: "201-500", label: "201 – 500 人" },
+      { value: "501-1000", label: "501 – 1,000 人" },
+      { value: "1000+", label: "1,000 人以上" },
+    ],
+    useCases: [
+      { value: "evaluate", label: "正在為團隊評估 Multica" },
+      { value: "adopt_team", label: "希望在團隊 / 公司內推廣使用" },
+      { value: "self_host", label: "需要在自有基礎設施上自託管" },
+      { value: "integrate", label: "希望與現有工具整合" },
+      { value: "partner", label: "合作 / 渠道合作諮詢" },
+      { value: "other", label: "其他" },
+    ],
+    countries: [
+      "中國大陸",
+      "中國香港",
+      "中國澳門",
+      "中國臺灣",
+      "新加坡",
+      "馬來西亞",
+      "印度尼西亞",
+      "泰國",
+      "越南",
+      "菲律賓",
+      "日本",
+      "韓國",
+      "印度",
+      "阿聯酋",
+      "沙烏地阿拉伯",
+      "以色列",
+      "土耳其",
+      "美國",
+      "加拿大",
+      "英國",
+      "德國",
+      "法國",
+      "荷蘭",
+      "瑞典",
+      "瑞士",
+      "西班牙",
+      "義大利",
+      "愛爾蘭",
+      "挪威",
+      "丹麥",
+      "芬蘭",
+      "比利時",
+      "葡萄牙",
+      "澳大利亞",
+      "紐西蘭",
+      "南非",
+      "巴西",
+      "墨西哥",
+      "阿根廷",
+      "智利",
+      "其他",
+    ],
+    consent: {
+      intro:
+        "Multica, Inc. 尊重你的隱私。我們僅會將你的個人資訊用於管理賬戶，以及提供你所請求的產品或服務。我們偶爾也希望與你分享產品更新、最佳實踐或行業洞察，如果你願意接收，請在下方勾選。",
+      outreach:
+        "我希望接收來自 Multica, Inc. 的一對一溝通，包括服務更新、支援諮詢以及業務相關的跟進。",
+      updates:
+        "我希望接收 Multica 的產品更新、洞察以及活動邀請。",
+      unsubscribe:
+        "你可以隨時取消訂閱我們的郵件。關於我們如何處理你的資料以及隱私權利，請參閱",
+      submitConsent:
+        "點選「提交」即表示你同意 Multica, Inc. 儲存並處理你提交的資訊，以便交付你請求的內容。",
+      privacyLinkLabel: "隱私政策。",
+      privacyLinkHref: "/privacy",
+    },
+    success: {
+      title: "已收到，謝謝！",
+      message:
+        "Multica 團隊會在三個工作日內回覆你。在此期間，歡迎檢視我們的文件，或在 GitHub 上為我們點個 Star。",
+      cta: "返回首頁",
+    },
+    errors: {
+      generic: "提交失敗，請稍後再試。",
+      rateLimit: "該郵箱近期已提交多次，請稍後再試。",
+      freeEmail:
+        "請使用企業郵箱——免費郵箱（gmail、outlook 等）暫不接受。",
+      invalidEmail: "郵箱地址格式不正確。",
+    },
+  },
+  };
 }
