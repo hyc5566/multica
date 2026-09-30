@@ -84,7 +84,8 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
       assets: chosen.assets,
       installerUrl: chosen.release.assets?.find((asset) =>
         asset.name === "install.sh" &&
-        /^https:\/\/github\.com\/hyc5566\/multica\/releases\/download\/zh-tw-v[0-9A-Za-z.-]+\/install\.sh$/.test(asset.browser_download_url),
+        asset.browser_download_url ===
+          `https://github.com/hyc5566/multica/releases/download/${chosen.release.tag_name}/install.sh`,
       )?.browser_download_url,
     };
   } catch (err) {

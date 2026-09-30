@@ -18,6 +18,8 @@ import type { LatestRelease } from "@/features/landing/utils/github-release";
 const ALL_RELEASES_URL = "https://github.com/hyc5566/multica/releases";
 const MIRROR_VERSION = "zh-tw-v0.4.43-zh-tw.7";
 const MIRROR_BASE = "/downloads/0.4.43-zh-tw.7";
+const MIRROR_INSTALLER_URL =
+  `https://github.com/hyc5566/multica/releases/download/${MIRROR_VERSION}/install.sh`;
 
 export function DownloadClient({ release }: { release: LatestRelease }) {
   const [detected, setDetected] = useState<DetectResult | null>(null);
@@ -43,7 +45,9 @@ export function DownloadClient({ release }: { release: LatestRelease }) {
 
   const releaseHtmlUrl =
     release.htmlUrl ??
-    `https://github.com/hyc5566/multica/releases/tag/${MIRROR_VERSION}`;
+    `https://github.com/hyc5566/multica/releases/tag/${version}`;
+  const installerUrl =
+    release.installerUrl ?? (useMirror ? MIRROR_INSTALLER_URL : undefined);
 
   return (
     <>
@@ -63,9 +67,7 @@ export function DownloadClient({ release }: { release: LatestRelease }) {
       </div>
 
       <AllPlatforms assets={assets} fallbackHref={ALL_RELEASES_URL} />
-      <CliSection
-        installerUrl={useMirror ? `${MIRROR_BASE}/install.sh` : release.installerUrl}
-      />
+      <CliSection installerUrl={installerUrl} />
       <CloudSection />
       <VersionInfoFooter
         version={version}

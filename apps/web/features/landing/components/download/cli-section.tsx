@@ -27,7 +27,7 @@ export function CliSection({ installerUrl }: { installerUrl?: string }) {
           <div>
             <CommandLabel>{d.installLabel}</CommandLabel>
             <p className="mb-2 text-label">{d.platformMacosLinux}</p>
-            {installerUrl ? (
+            {installerUrl?.startsWith("https://") ? (
               <CommandRow
                 cmd={`curl -fsSL '${installerUrl}' -o install.sh && bash install.sh --login`}
                 copyLabel={d.copyLabel}

@@ -37,4 +37,9 @@ describe("CliSection", () => {
     render(<CliSection />);
     expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
   });
+
+  it("does not copy a relative installer path as a shell command", () => {
+    render(<CliSection installerUrl="/downloads/0.4.43-zh-tw.7/install.sh" />);
+    expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
+  });
 });
