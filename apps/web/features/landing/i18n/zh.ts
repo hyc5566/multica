@@ -193,12 +193,17 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
       {
         question: "Multica 支援哪些編碼 Agent？",
         answer:
-          "Multica 開箱即用支援 26 款 AI 程式設計工具：Antigravity、Claude Code、CodeBuddy、CodeArts、Codex、Copilot、Cursor、DeepSeek Harness、DevEco Code、Dim、Grok、Hermes、Kimi、Kiro CLI、MiniMax Code、Oh-My-Pi、OpenClaw、OpenCode、Pi、Qoder、Qoder CN、Qwen Code、QwenPaw、Reasonix、Trae CLI、ZeroClaw。守護程序會自動檢測本機已安裝的 CLI 併為每款註冊一個執行時。因為開源，你也可以自己新增後端。",
+          "Multica 支援 26 款 AI 程式開發工具，包括 Antigravity、Claude Code、Codex、Cursor、Hermes、OpenCode 等。守護程序會自動偵測已安裝的 CLI，並為每款工具註冊 runtime。原始碼公開，你也可以自行新增後端。",
       },
       {
-        question: "需要自託管嗎，還是有云版本？",
+        question: "需要自行架設嗎？有雲端版本嗎？",
         answer:
-          "兩者都有。你可以用 Docker Compose 或 Kubernetes 在自己的基礎設施上自託管 Multica，也可以使用我們的託管雲版本。你的資料，你選擇。",
+          "兩者都有。你可以用 Docker Compose 或 Kubernetes 在自己的基礎設施上架設 Multica，也可以使用代管的 Multica Cloud。",
+      },
+      {
+        question: "Multica 可以用於商業用途嗎？",
+        answer:
+          "可以。在自己的組織內部使用 Multica 免費，包括為整個團隊自行架設。若向組織外部提供代管服務，或將 Multica 嵌入銷售或散布的產品，則需要商業授權。常見情境請見[授權說明](/licensing)。",
       },
       {
         question:
@@ -214,19 +219,19 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
       {
         question: "我的程式碼安全嗎？Agent 在哪裡執行？",
         answer:
-          "Agent 在你的機器（本地守護程序）或你自己的雲基礎設施上執行。程式碼永遠不會經過 Multica 伺服器。平臺只協調任務狀態和廣播事件。",
+          "Agent 在你的電腦或連接的 runtime 上執行，直接操作儲存庫。工作區的任務、留言、聊天、附件與 Agent 回報的進度會儲存在 Multica；你設定的模型服務商也會收到工具傳送的提示與程式碼。若要將工作區資料保存在自己的伺服器，請自行架設 Multica。詳見[隱私政策](/privacy)。",
       },
       {
         question: "我可以執行多少個 Agent？",
         answer:
-          "取決於你的硬體。每個 Agent 有可設定的併發限制，你可以連線多臺機器作為執行時。開源版本沒有任何人為限制。",
+          "取決於你的硬體。每個 Agent 都可設定同時執行的數量，也能連接多台機器作為 runtime。自行架設時沒有額外的人為數量上限。",
       },
     ],
   },
 
   footer: {
     tagline:
-      "人類 + Agent 團隊的專案管理。開源、可自託管、為未來的工作方式而建。",
+      "人與 Agent 團隊的專案管理。原始碼公開、可自行架設。",
     cta: "開始使用",
     groups: {
       product: {
@@ -252,7 +257,8 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
         label: "關於",
         links: [
           { label: "關於我們", href: "/about" },
-          { label: "開源", href: "#open-source" },
+          { label: "授權說明", href: "/licensing" },
+          { label: "隱私政策", href: "/privacy" },
           { label: "聯絡商務", href: "/contact-sales" },
           { label: "GitHub", href: githubUrl },
         ],
@@ -3777,15 +3783,15 @@ export function createZhDict(allowSignup: boolean, docsHref: string): LandingDic
     ],
     consent: {
       intro:
-        "Multica, Inc. 尊重你的隱私。我們僅會將你的個人資訊用於管理賬戶，以及提供你所請求的產品或服務。我們偶爾也希望與你分享產品更新、最佳實踐或行業洞察，如果你願意接收，請在下方勾選。",
+        "Multica 尊重你的隱私。我們僅會將你的個人資訊用於管理帳戶，以及提供你所請求的產品或服務。我們偶爾也希望分享產品更新與使用資訊；若願意接收，請在下方勾選。",
       outreach:
-        "我希望接收來自 Multica, Inc. 的一對一溝通，包括服務更新、支援諮詢以及業務相關的跟進。",
+        "我希望接收來自 Multica 的個別聯絡，包括服務更新、支援諮詢與商務後續聯繫。",
       updates:
         "我希望接收 Multica 的產品更新、洞察以及活動邀請。",
       unsubscribe:
         "你可以隨時取消訂閱我們的郵件。關於我們如何處理你的資料以及隱私權利，請參閱",
       submitConsent:
-        "點選「提交」即表示你同意 Multica, Inc. 儲存並處理你提交的資訊，以便交付你請求的內容。",
+        "點選「提交」即表示你同意 Multica 儲存並處理你提交的資訊，以提供你請求的內容。",
       privacyLinkLabel: "隱私政策。",
       privacyLinkHref: "/privacy",
     },
