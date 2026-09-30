@@ -1,5 +1,4 @@
 import {
-  hasCompleteAssetSet,
   parseReleaseAssets,
   type DownloadAssets,
 } from "./parse-release-assets";
@@ -10,15 +9,9 @@ import {
  * by the Next.js fetch cache for 5 minutes (Vercel ISR) so hitting
  * /download costs at most one GitHub API call per region per 5 minutes.
  *
- * Desktop assets don't all land at the same time: CI uploads Linux and
- * Windows within a minute of each other, but macOS is packaged manually
- * (notarization credentials aren't wired into CI yet) and lands tens of
- * minutes later. A packaging job can also fail outright and leave a
- * release permanently short of some platforms. Either way the newest
- * release is not always the newest *downloadable* one, so we pull a
- * short window of recent releases and show the newest whose desktop
- * asset set is complete — every button on the page then resolves to a
- * real file.
+ * Taiwan releases currently publish an Apple Silicon App and macOS/Linux
+ * CLI assets. Choose the newest release with a Mac App instead of requiring
+ * the upstream project's Windows and Linux Desktop artifacts.
  *
  * On any failure (network, rate limit, malformed payload) returns a
  * `null`-shaped result and logs — the page degrades to a "version
@@ -33,10 +26,7 @@ export interface LatestRelease {
   installerUrl?: string;
 }
 
-// Five candidates tolerates four consecutive incomplete releases before
-// the page has to fall back to showing the newest one as-is. Releases
-// ship roughly daily, so that is days of head room — while staying one
-// cheap request.
+// Five candidates tolerate several drafts or releases without a Mac App.
 const GITHUB_RELEASES_URL =
   "https://api.github.com/repos/hyc5566/multica/releases?per_page=5";
 
@@ -108,12 +98,7 @@ interface PickedRelease {
   assets: DownloadAssets;
 }
 
-/**
- * Newest release whose desktop assets are all present. Falls back to the
- * newest release overall when no candidate is complete — the page then
- * shows what does exist plus its "all releases" escape hatch, which
- * still beats reporting no version at all.
- */
+/** Newest release with an Apple Silicon App, or the newest release overall. */
 function pickRelease(
   candidates: GitHubReleasePayload[],
 ): PickedRelease | undefined {
@@ -122,17 +107,15 @@ function pickRelease(
     assets: parseReleaseAssets(release.assets ?? []),
   }));
 
-  const complete = parsed.find((c) => hasCompleteAssetSet(c.assets));
-  if (complete) {
-    if (complete !== parsed[0]) {
-      // Worth a line in the logs: a release that never completes its
-      // asset set is invisible on /download until someone notices.
+  const downloadable = parsed.find((c) => c.assets.macArm64Dmg || c.assets.macArm64Zip);
+  if (downloadable) {
+    if (downloadable !== parsed[0]) {
       console.warn(
         `[download] skipping ${parsed[0]?.release.tag_name ?? "latest release"}` +
-          ` — incomplete desktop assets; showing ${complete.release.tag_name}`,
+          ` — no Apple Silicon App; showing ${downloadable.release.tag_name}`,
       );
     }
-    return complete;
+    return downloadable;
   }
   return parsed[0];
 }

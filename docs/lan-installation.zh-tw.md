@@ -82,7 +82,7 @@ systemctl --user disable --now multica.service
 
 `scripts/install-zh-tw.sh` 與 `scripts/install-zh-tw-s90.sh` 目前都是 `0.4.43-zh-tw.7` 的固定版本入口：以完整 HTTPS 驗證下載 GitHub Release 的 `install.sh`，再傳遞原有 `--login`／`--service` 參數。版本化安裝器包含各平台成品與公開 CA 的固定 SHA-256；下載基址依該 Release 的建置設定決定。首次安裝仍拒絕覆寫既有設定；這兩個入口不是升級工具。登入及 daemon 連線需能連到 `10.1.24.90`：
 
-重建 `/download` 時，將 `apps/web/features/landing/utils/github-release.ts` 指向 `hyc5566/multica` 的穩定 `zh-tw-v` 發行，並只列出該發行實際存在的成品。繁中版目前發布 Apple Silicon ZIP 與 macOS／Linux `install.sh`；沒有對應的 Windows CLI 安裝器時，不顯示上游 Windows 指令。下載頁從同一發行取得安裝腳本，使用者先下載再執行 `bash install.sh --login`；既有安裝的更新方式仍依該發行的 `INSTALL.md`。目前候選僅修改程式，正式下載服務須另經核准部署及驗證。
+重建 `/download` 時，將 `apps/web/features/landing/utils/github-release.ts` 指向 `hyc5566/multica` 的穩定 `zh-tw-v` 發行，並只列出該發行實際存在的成品。繁中版目前發布 Apple Silicon ZIP 與 macOS／Linux `install.sh`；沒有對應的 Windows CLI 安裝器時，不顯示上游 Windows 指令。下載頁從同一發行取得安裝腳本，使用者先下載再執行 `bash install.sh --login`；既有安裝的更新方式仍依該發行的 `INSTALL.md`。2026-09-30 唯讀確認，正式 Caddy 已供應 `.43.7` 的下載鏡像及獨立 HTML 入門指南；路由、來源、校驗碼與後續發布步驟見[下載鏡像與入門指南](getting-started-publishing.zh-tw.md)。本候選分支的 Next.js 下載頁尚未部署，正式 `/download` 目前由 Caddy 靜態頁供應。
 
 ```bash
 curl -q --fail --location --proto '=https' --proto-redir '=https' \

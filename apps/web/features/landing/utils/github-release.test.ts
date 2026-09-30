@@ -90,33 +90,25 @@ describe("fetchLatestRelease", () => {
     expect(result.assets.winX64Exe).toContain("0.2.14");
   });
 
-  // MUL-6313: v0.4.28's Windows packaging job failed and its Linux job
-  // never finished, so the newest release carried Mac builds only and
-  // /download rendered every Windows and Linux button as disabled.
-  it("steps back to the newest complete release when the latest is missing platforms", async () => {
-    vi.spyOn(console, "warn").mockImplementation(() => {});
+  it("keeps the latest Taiwan release when only its Mac App is published", async () => {
     mockFetchWithReleases([
       releasePayload({ tag: "zh-tw-v0.4.28", assets: macOnlyAssets("0.4.28") }),
       releasePayload({ tag: "zh-tw-v0.4.27", assets: completeAssets("0.4.27") }),
     ]);
 
     const result = await fetchLatestRelease();
-    expect(result.version).toBe("zh-tw-v0.4.27");
-    expect(result.htmlUrl).toContain("v0.4.27");
-    expect(result.assets.winX64Exe).toContain("0.4.27");
-    expect(result.assets.linuxArm64Rpm).toContain("0.4.27");
+    expect(result.version).toBe("zh-tw-v0.4.28");
+    expect(result.assets.macArm64Zip).toContain("0.4.28");
+    expect(result.assets.winX64Exe).toBeUndefined();
   });
 
-  // The old implementation only stepped back for the first hour after
-  // publish, so a permanently broken release started showing dead
-  // buttons once that window elapsed. Completeness carries no clock.
-  it("keeps stepping back regardless of how old the incomplete release is", async () => {
+  it("steps back when the latest release has no Mac App", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     mockFetchWithReleases([
       {
         ...releasePayload({
           tag: "zh-tw-v0.4.28",
-          assets: macOnlyAssets("0.4.28"),
+          assets: [],
         }),
         published_at: "2020-01-01T00:00:00Z",
       },
@@ -130,9 +122,9 @@ describe("fetchLatestRelease", () => {
   it("searches past several incomplete releases", async () => {
     vi.spyOn(console, "warn").mockImplementation(() => {});
     mockFetchWithReleases([
-      releasePayload({ tag: "zh-tw-v0.5.2", assets: macOnlyAssets("0.5.2") }),
+      releasePayload({ tag: "zh-tw-v0.5.2", assets: [] }),
       releasePayload({ tag: "zh-tw-v0.5.1", assets: [] }),
-      releasePayload({ tag: "zh-tw-v0.5.0", assets: macOnlyAssets("0.5.0") }),
+      releasePayload({ tag: "zh-tw-v0.5.0", assets: [] }),
       releasePayload({ tag: "zh-tw-v0.4.9", assets: completeAssets("0.4.9") }),
     ]);
 
@@ -140,15 +132,15 @@ describe("fetchLatestRelease", () => {
     expect(result.version).toBe("zh-tw-v0.4.9");
   });
 
-  it("falls back to the latest release when no candidate is complete", async () => {
+  it("falls back to the latest release when no candidate has a Mac App", async () => {
     mockFetchWithReleases([
-      releasePayload({ tag: "zh-tw-v0.4.28", assets: macOnlyAssets("0.4.28") }),
-      releasePayload({ tag: "zh-tw-v0.4.27", assets: macOnlyAssets("0.4.27") }),
+      releasePayload({ tag: "zh-tw-v0.4.28", assets: [] }),
+      releasePayload({ tag: "zh-tw-v0.4.27", assets: [] }),
     ]);
 
     const result = await fetchLatestRelease();
     expect(result.version).toBe("zh-tw-v0.4.28");
-    expect(result.assets.macArm64Dmg).toContain("0.4.28");
+    expect(result.assets.macArm64Dmg).toBeUndefined();
     expect(result.assets.winX64Exe).toBeUndefined();
   });
 

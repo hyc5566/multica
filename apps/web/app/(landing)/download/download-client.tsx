@@ -15,12 +15,20 @@ import {
 } from "@/features/landing/utils/os-detect";
 import type { LatestRelease } from "@/features/landing/utils/github-release";
 
-const ALL_RELEASES_URL =
-  "https://github.com/hyc5566/multica/releases";
+const ALL_RELEASES_URL = "https://github.com/hyc5566/multica/releases";
+const MIRROR_VERSION = "zh-tw-v0.4.43-zh-tw.7";
+const MIRROR_BASE = "/downloads/0.4.43-zh-tw.7";
 
 export function DownloadClient({ release }: { release: LatestRelease }) {
   const [detected, setDetected] = useState<DetectResult | null>(null);
-  const versionUnavailable = release.version === null;
+  const useMirror = release.version === null || release.version === MIRROR_VERSION;
+  const version = release.version ?? MIRROR_VERSION;
+  const assets = useMirror
+    ? {
+        ...release.assets,
+        macArm64Zip: `${MIRROR_BASE}/multica-desktop-0.4.43-zh-tw.7-mac-arm64.zip`,
+      }
+    : release.assets;
 
   useEffect(() => {
     let cancelled = false;
@@ -33,7 +41,9 @@ export function DownloadClient({ release }: { release: LatestRelease }) {
     };
   }, []);
 
-  const releaseHtmlUrl = release.htmlUrl ?? ALL_RELEASES_URL;
+  const releaseHtmlUrl =
+    release.htmlUrl ??
+    `https://github.com/hyc5566/multica/releases/tag/${MIRROR_VERSION}`;
 
   return (
     <>
@@ -47,19 +57,18 @@ export function DownloadClient({ release }: { release: LatestRelease }) {
         <LandingHeader variant="dark" />
         <DownloadHero
           detected={detected}
-          assets={release.assets}
-          versionUnavailable={versionUnavailable}
+          assets={assets}
+          versionUnavailable={false}
         />
       </div>
 
-      <AllPlatforms
-        assets={release.assets}
-        fallbackHref={ALL_RELEASES_URL}
+      <AllPlatforms assets={assets} fallbackHref={ALL_RELEASES_URL} />
+      <CliSection
+        installerUrl={useMirror ? `${MIRROR_BASE}/install.sh` : release.installerUrl}
       />
-      <CliSection installerUrl={release.installerUrl} />
       <CloudSection />
       <VersionInfoFooter
-        version={release.version}
+        version={version}
         releaseHtmlUrl={releaseHtmlUrl}
       />
       <LandingFooter />
@@ -115,6 +124,13 @@ function VersionInfoFooter({
           rel="noreferrer"
         >
           {d.allReleases}
+        </Link>
+        <Link
+          href="/download/guide"
+          lang="zh-Hant"
+          className="underline underline-offset-4"
+        >
+          繁中版入門指南
         </Link>
       </div>
     </section>
