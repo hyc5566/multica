@@ -5,6 +5,7 @@
     "agent_link_no_access": "Vous n'avez pas accès à la discussion avec cet agent."
   },
   "fab": {
+    "move_hint": "Faites glisser pour déplacer. Utilisez les touches fléchées une fois le bouton sélectionné ; la touche Début rétablit sa position.",
     "running": "Multica travaille...",
     "unread_one": "{{count}} discussion non lue",
     "unread_other": "{{count}} discussions non lues",
