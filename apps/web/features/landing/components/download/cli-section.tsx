@@ -2,29 +2,14 @@
 
 import { useState, type ReactNode } from "react";
 import { Check, Copy, Terminal } from "lucide-react";
-import { CliInstallCommand } from "@multica/views/common/cli-install-command";
 import { copyText } from "@multica/ui/lib/clipboard";
 import { useLocale } from "../../i18n";
 
-const SETUP_CMD = "multica setup";
-
 /**
- * The landing palette bypasses the product tokens, so the shared platform
- * switch takes its list and trigger colours from here.
+ * CLI section for the Taiwan release. The published installer supports
+ * macOS and Linux; no Windows command is shown without a matching asset.
  */
-const PLATFORM_TABS = {
-  list: "border border-[#0a0d12]/10 bg-white",
-  trigger:
-    "text-[#0a0d12]/60 hover:text-[#0a0d12] data-active:bg-[#0a0d12]/5 data-active:text-[#0a0d12]",
-};
-
-/**
- * Scenario-first CLI section. Copy leans into servers / remote dev
- * boxes / headless setups rather than positioning CLI as a
- * lightweight Desktop. Two copy-and-paste command blocks; the install one
- * carries the platform switch, since install.sh and install.ps1 differ.
- */
-export function CliSection() {
+export function CliSection({ installerUrl }: { installerUrl?: string }) {
   const { t } = useLocale();
   const d = t.download.cli;
 
@@ -41,30 +26,16 @@ export function CliSection() {
         <div className="mt-10 flex flex-col gap-5">
           <div>
             <CommandLabel>{d.installLabel}</CommandLabel>
-            <CliInstallCommand
-              labels={{
-                group: d.platformGroup,
-                macosLinux: d.platformMacosLinux,
-                windows: d.platformWindows,
-              }}
-              classNames={PLATFORM_TABS}
-            >
-              {(cmd) => (
-                <CommandRow
-                  cmd={cmd}
-                  copyLabel={d.copyLabel}
-                  copiedLabel={d.copiedLabel}
-                />
-              )}
-            </CliInstallCommand>
-          </div>
-          <div>
-            <CommandLabel>{d.startLabel}</CommandLabel>
-            <CommandRow
-              cmd={SETUP_CMD}
-              copyLabel={d.copyLabel}
-              copiedLabel={d.copiedLabel}
-            />
+            <p className="mb-2 text-label">{d.platformMacosLinux}</p>
+            {installerUrl ? (
+              <CommandRow
+                cmd={`curl -fsSL '${installerUrl}' -o install.sh && bash install.sh --login`}
+                copyLabel={d.copyLabel}
+                copiedLabel={d.copiedLabel}
+              />
+            ) : (
+              <p role="status">{t.download.allPlatforms.unavailable}</p>
+            )}
           </div>
         </div>
 

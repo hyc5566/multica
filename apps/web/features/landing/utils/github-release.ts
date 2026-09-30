@@ -30,6 +30,7 @@ export interface LatestRelease {
   publishedAt: string | null;
   htmlUrl: string | null;
   assets: DownloadAssets;
+  installerUrl?: string;
 }
 
 // Five candidates tolerates four consecutive incomplete releases before
@@ -37,7 +38,7 @@ export interface LatestRelease {
 // ship roughly daily, so that is days of head room — while staying one
 // cheap request.
 const GITHUB_RELEASES_URL =
-  "https://api.github.com/repos/multica-ai/multica/releases?per_page=5";
+  "https://api.github.com/repos/hyc5566/multica/releases?per_page=5";
 
 const REVALIDATE_SECONDS = 300;
 
@@ -80,7 +81,7 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
     // today, but the endpoint returns them if that ever changes. A
     // prerelease shadowing a stable version on /download would be a
     // regression.
-    const stable = data.filter((r) => !r.prerelease && !r.draft);
+    const stable = data.filter((r) => !r.prerelease && !r.draft && r.tag_name?.startsWith("zh-tw-v"));
     const chosen = pickRelease(stable);
     if (!chosen) {
       return emptyRelease();
@@ -91,6 +92,10 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
       publishedAt: chosen.release.published_at ?? null,
       htmlUrl: chosen.release.html_url ?? null,
       assets: chosen.assets,
+      installerUrl: chosen.release.assets?.find((asset) =>
+        asset.name === "install.sh" &&
+        /^https:\/\/github\.com\/hyc5566\/multica\/releases\/download\/zh-tw-v[0-9A-Za-z.-]+\/install\.sh$/.test(asset.browser_download_url),
+      )?.browser_download_url,
     };
   } catch (err) {
     console.warn("[download] fetchLatestRelease failed:", err);

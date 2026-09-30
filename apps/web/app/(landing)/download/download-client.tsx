@@ -16,7 +16,7 @@ import {
 import type { LatestRelease } from "@/features/landing/utils/github-release";
 
 const ALL_RELEASES_URL =
-  "https://github.com/multica-ai/multica/releases";
+  "https://github.com/hyc5566/multica/releases";
 
 export function DownloadClient({ release }: { release: LatestRelease }) {
   const [detected, setDetected] = useState<DetectResult | null>(null);
@@ -56,7 +56,7 @@ export function DownloadClient({ release }: { release: LatestRelease }) {
         assets={release.assets}
         fallbackHref={ALL_RELEASES_URL}
       />
-      <CliSection />
+      <CliSection installerUrl={release.installerUrl} />
       <CloudSection />
       <VersionInfoFooter
         version={release.version}
