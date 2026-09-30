@@ -452,7 +452,7 @@ describe("execution log header geometry", () => {
       { locale: "zh-Hans" },
     );
 
-    fireEvent.click(screen.getAllByText("$2.00")[0].closest("button")!);
+    fireEvent.click(screen.getAllByText("$2.00")[0]!.closest("button")!);
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("运行记录")).toBeInTheDocument();
