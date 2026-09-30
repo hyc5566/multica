@@ -338,6 +338,7 @@ const mockViewState = {
 };
 
 vi.mock("@multica/core/issues/stores/view-store", () => ({
+  BOARD_COLUMN_WIDTHS: { compact: 220, default: 280 },
   useClearFiltersOnWorkspaceChange: () => {},
   PROPERTY_VIEW_PREFIX: "property:",
   propertyIdFromViewKey: (key: string) =>

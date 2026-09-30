@@ -114,6 +114,12 @@ vi.mock("@multica/core/workspace/queries", () => ({
   },
 }));
 vi.mock("@multica/core/runtimes", () => ({
+  useRefreshRuntimeProviderUsage: () => ({
+    isPending: false,
+    isError: false,
+    variables: undefined,
+    mutate: vi.fn(),
+  }),
   runtimeListOptions: (wsId: string) => ({
     queryKey: ["runtimes", wsId],
     queryFn: () => Promise.resolve([]),

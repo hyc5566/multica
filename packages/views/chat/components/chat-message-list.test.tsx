@@ -475,7 +475,7 @@ describe("ChatMessageList tool rows (#8835 regression)", () => {
       </I18nProvider>,
     );
 
-    expect(await screen.findByText("src/a.go，另有 1 个文件")).toBeInTheDocument();
+    expect(await screen.findByText("src/a.go，另有 1 個檔案")).toBeInTheDocument();
   });
 });
 
