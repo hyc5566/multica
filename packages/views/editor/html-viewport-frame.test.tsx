@@ -64,6 +64,6 @@ describe("HtmlViewportFrame", () => {
     renderWithI18n(<HtmlViewportFrame viewport="desktop">{frame}</HtmlViewportFrame>, {
       locale: "zh-Hans",
     });
-    expect(screen.getByText(/缩放/)).toHaveTextContent("1440 × 1047 · 缩放 76%");
+    expect(screen.getByText(/縮放/)).toHaveTextContent("1440 × 1047 · 縮放 76%");
   });
 });

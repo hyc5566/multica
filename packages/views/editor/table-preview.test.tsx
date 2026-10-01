@@ -100,7 +100,7 @@ describe("TablePreview", () => {
 
   it("uses the localized counts", () => {
     renderWithI18n(<TablePreview text={"a,b\n1,2\n"} delimiter="," />, { locale: "zh-Hans" });
-    expect(screen.getByText(/1 行/)).toHaveTextContent("1 行 · 2 列");
+    expect(screen.getByText(/1 列/)).toHaveTextContent("1 列 · 2 欄");
   });
 });
 

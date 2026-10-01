@@ -34,48 +34,48 @@ describe("wakeup timeline entries", () => {
     const { t, text } = helpers();
     const read = (e: TimelineEntry) => formatWakeupActivity(e, t, text, getActorName);
     expect(read(entry("wakeup_created", { wakeup: reply }, { actor_type: "agent", actor_id: "a" }))).toBe(
-      "添加了唤醒：当此任务有新评论时（由 Jiayuan 触发）唤醒 Emacs",
+      "新增了喚醒：當此任務有新留言時（由 Jiayuan 觸發）喚醒 Emacs",
     );
     expect(read(entry("wakeup_triggered", { wakeup: { ...reply, condition: { type: "pull_request", event: "checks_finished" } } }))).toBe(
-      "当关联 PR 的 CI 结束时，唤醒了 Emacs",
+      "當關聯 PR 的 CI 結束時，喚醒了 Emacs",
     );
     expect(read(entry("wakeup_triggered", { wakeup: reply, events: ["wakeup.manual"], actor_type: "member", actor_id: "u" }))).toBe(
-      "Jiayuan 立即唤醒了 Emacs",
+      "Jiayuan 立即喚醒了 Emacs",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 1, total: 2, target_type: "agent", target_id: "a", outcome: "woke" }))).toBe(
-      "第 1 阶段的 2 个子任务已全部结束，唤醒了 Emacs",
+      "第 1 階段的 2 個子任務已全部結束，喚醒了 Emacs",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", total: 3, target_type: "member", target_id: "u", outcome: "notified" }))).toBe(
-      "3 个子任务已全部结束，已通知 Jiayuan",
+      "3 個子任務已全部結束，已通知 Jiayuan",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", total: 3, target_type: "agent", target_id: "a", outcome: "merged" }))).toBe(
-      "3 个子任务已全部结束，并入了 Emacs 待开始的运行",
+      "3 個子任務已全部結束，併入了 Emacs 待開始的執行",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 2, total: 1, outcome: "none" }))).toBe(
-      "第 2 阶段的 1 个子任务已全部结束",
+      "第 2 階段的 1 個子任務已全部結束",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 1, total: 2, target_type: "agent", target_id: "a", outcome: "acknowledged" }))).toBe(
-      "第 1 阶段的 2 个子任务已全部结束，Emacs 正在处理，未重复唤醒",
+      "第 1 階段的 2 個子任務已全部結束，Emacs 正在處理，未重複喚醒",
     );
     expect(read(entry("wakeup_triggered", { wakeup: reply, outcome: "merged" }))).toBe(
-      "当此任务有新评论时（由 Jiayuan 触发），并入了 Emacs 待开始的运行",
+      "當此任務有新留言時（由 Jiayuan 觸發），併入了 Emacs 待開始的執行",
     );
     expect(read(entry("wakeup_triggered", { wakeup: reply, outcome: "acknowledged" }))).toBe(
-      "当此任务有新评论时（由 Jiayuan 触发），由 Emacs 自己触发，未重复唤醒",
+      "當此任務有新留言時（由 Jiayuan 觸發），由 Emacs 自己觸發，未重複喚醒",
     );
-    expect(read(entry("wakeup_timed_out", { wakeup: reply, woke: true }))).toContain("唤醒了 Emacs 处理超时");
-    expect(read(entry("wakeup_paused", { wakeup: reply, reason: "loop" }))).toBe("已暂停：与其他唤醒规则互相触发");
-    expect(read(entry("wakeup_checkin", { wakeup: reply, note: "进度 72%" }, { actor_type: "agent", actor_id: "g", coalesced_count: 3 }))).toBe(
-      "静默检查 3 次 · 最近一次：进度 72%",
+    expect(read(entry("wakeup_timed_out", { wakeup: reply, woke: true }))).toContain("喚醒了 Emacs 處理逾時");
+    expect(read(entry("wakeup_paused", { wakeup: reply, reason: "loop" }))).toBe("已暫停：與其他喚醒規則互相觸發");
+    expect(read(entry("wakeup_checkin", { wakeup: reply, note: "進度 72%" }, { actor_type: "agent", actor_id: "g", coalesced_count: 3 }))).toBe(
+      "靜默檢查 3 次 · 最近一次：進度 72%",
     );
   });
 
   it("tags an entry with the rule it came from", () => {
     const { t, text } = helpers();
     const chip = (e: TimelineEntry) => wakeupActivityChip(e, t, text, getActorName);
-    expect(chip(entry("wakeup_triggered", { rule: "child_done" }))).toBe("系统规则");
-    expect(chip(entry("wakeup_triggered", { wakeup: reply }))).toBe("Jiayuan 创建");
-    expect(chip(entry("wakeup_triggered", { wakeup: { ...reply, created_by_agent_id: "a" } }))).toBe("Emacs 创建");
+    expect(chip(entry("wakeup_triggered", { rule: "child_done" }))).toBe("系統規則");
+    expect(chip(entry("wakeup_triggered", { wakeup: reply }))).toBe("Jiayuan 建立");
+    expect(chip(entry("wakeup_triggered", { wakeup: { ...reply, created_by_agent_id: "a" } }))).toBe("Emacs 建立");
     expect(chip(entry("wakeup_created", { wakeup: reply }))).toBeNull();
   });
 

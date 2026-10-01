@@ -60,8 +60,8 @@ describe("IssueWakeupHeaderChip", () => {
     system = [childDone];
     const onOpen = vi.fn();
     renderWithI18n(<IssueWakeupHeaderChip issueId="issue" onOpen={onOpen} />, { locale: "zh-Hans" });
-    const chip = screen.getByRole("button", { name: /Emacs 在等 Jiayuan 回复 \+2/ });
-    expect(chip).toHaveTextContent("Emacs 在等 Jiayuan 回复+2");
+    const chip = screen.getByRole("button", { name: /Emacs 在等 Jiayuan 回覆 \+2/ });
+    expect(chip).toHaveTextContent("Emacs 在等 Jiayuan 回覆+2");
     fireEvent.click(chip);
     expect(onOpen).toHaveBeenCalled();
   });
@@ -69,7 +69,7 @@ describe("IssueWakeupHeaderChip", () => {
   it("names the system rule's target stage", () => {
     system = [childDone];
     renderWithI18n(<IssueWakeupHeaderChip issueId="issue" onOpen={() => {}} />, { locale: "zh-Hans" });
-    expect(screen.getByRole("button", { name: /Grok 在等第 2 阶段完成/ })).toBeVisible();
+    expect(screen.getByRole("button", { name: /Grok 在等第 2 階段完成/ })).toBeVisible();
   });
 
   it("renders nothing when the issue waits for nothing", () => {

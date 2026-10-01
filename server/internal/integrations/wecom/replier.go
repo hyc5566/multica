@@ -36,13 +36,6 @@ func normalizeBindingPath(p string) string {
 	}
 	return p
 }
-const (
-	agentOfflineText  = "⚠️ Agent 目前離線。已收到你的訊息；Agent 上線後會處理。"
-	agentArchivedText = "⚠️ 此 Agent 已封存，無法回覆。請聯絡工作區管理員。"
-	freshPendingText  = "✅ 已準備好以空白上下文執行。你接下來傳送的聊天訊息仍會進入目前對話，但不會帶入先前的上下文。"
-	chatStartedText   = "✅ 已建立新的 Multica 對話。你接下來傳送的訊息會進入該對話。"
-	issueUsageText    = "請填寫任務標題，格式如下：\n\n`/issue <標題>`\n`[描述]`（選填）"
-)
 
 // OutboundReplier implements engine.OutboundReplier for WeCom.
 type OutboundReplier struct {
