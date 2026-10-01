@@ -91,7 +91,7 @@ beforeEach(() => {
 describe("Wakeups sidebar", () => {
   it("describes hourly schedules without exposing interval seconds", () => {
     renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-    expect(screen.getByRole("button", { name: /唤醒 Emacs/ })).toHaveTextContent("每小时唤醒");
+    expect(screen.getByRole("button", { name: /喚醒 Emacs/ })).toHaveTextContent("每小時喚醒");
     expect(screen.queryByText(/3600/)).toBeNull();
   });
   it("describes a daily cron and preserves its expression in details", async () => {
@@ -272,13 +272,13 @@ it("describes the source condition in Chinese, keeping instructions in details",
   wakeup.filter_agent_name = "Grok";
   wakeup.filter_agent_id = "grok";
   renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-  const trigger = screen.getByRole("button", { name: /当 Grok 的运行成功结束时/ });
-  expect(trigger).toHaveTextContent("唤醒 Emacs · 仅触发一次");
+  const trigger = screen.getByRole("button", { name: /當 Grok 的執行成功結束時/ });
+  expect(trigger).toHaveTextContent("喚醒 Emacs · 僅觸發一次");
   expect(screen.queryByText("Check CI")).not.toBeVisible();
   fireEvent.click(trigger);
-  await waitFor(() => expect(screen.getByText("唤醒后要做什么")).toBeVisible());
-  expect(screen.getByText(/以下任一事件发生时/)).toHaveTextContent("当 Grok 的运行失败时");
-  expect(screen.getByText(/监听范围/)).toHaveTextContent("当前任务");
+  await waitFor(() => expect(screen.getByText("喚醒後要做什麼")).toBeVisible());
+  expect(screen.getByText(/以下任一事件發生時/)).toHaveTextContent("當 Grok 的執行失敗時");
+  expect(screen.getByText(/監看範圍/)).toHaveTextContent("目前任務");
 });
 
 it("shows a disabled rule independently from its last successful execution", () => {
@@ -313,11 +313,11 @@ it("names the monitored member in the condition and details", async () => {
   wakeup.filter_actor_id = "member-id";
   wakeup.filter_actor_name = "Jiayuan";
   renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-  const trigger = screen.getByRole("button", { name: /由 Jiayuan 触发/ });
+  const trigger = screen.getByRole("button", { name: /由 Jiayuan 觸發/ });
   expect(trigger).toHaveTextContent("Jiayuan");
   fireEvent.click(trigger);
-  await waitFor(() => expect(screen.getByText(/监听的成员或智能体/)).toBeVisible());
-  expect(screen.getByText(/以下任一事件发生时/)).toHaveTextContent("由 Jiayuan 触发");
+  await waitFor(() => expect(screen.getByText(/監看的成員或 Agent/)).toBeVisible());
+  expect(screen.getByText(/以下任一事件發生時/)).toHaveTextContent("由 Jiayuan 觸發");
 });
 
 it("keeps a redacted actor restriction visible without exposing an ID", () => {
@@ -350,11 +350,11 @@ describe("v2 sidebar", () => {
         created_by_agent: true, created_by_name: "Jiayuan", source_agent_name: "Emacs",
       });
       renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-      const row = screen.getByRole("button", { name: /由 Jiayuan 触发/ });
-      expect(row).toHaveTextContent("唤醒 Emacs · 仅触发一次 · 还剩 2 天 22 小时");
+      const row = screen.getByRole("button", { name: /由 Jiayuan 觸發/ });
+      expect(row).toHaveTextContent("喚醒 Emacs · 僅觸發一次 · 還剩 2 天 22 小時");
       fireEvent.click(row);
-      await waitFor(() => expect(screen.getByText(/来源/)).toHaveTextContent("Emacs 创建（代表 Jiayuan）"));
-      expect(screen.getByText(/有效期/)).toHaveTextContent("超时后唤醒 Emacs 处理");
+      await waitFor(() => expect(screen.getByText(/來源/)).toHaveTextContent("Emacs 建立（代表 Jiayuan）"));
+      expect(screen.getByText(/有效期/)).toHaveTextContent("逾時後喚醒 Emacs 處理");
     } finally {
       vi.useRealTimers();
     }
@@ -378,11 +378,11 @@ describe("v2 sidebar", () => {
       waiting: ["MUL-7704"], target: { type: "agent", id: "a", name: "Emacs" }, blocked: "",
     }];
     renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-    const row = screen.getByRole("button", { name: /当第 1 阶段的子任务全部结束时/ });
-    expect(row).toHaveTextContent("系统");
-    expect(row).toHaveTextContent("唤醒负责人 Emacs · 还差 1 个");
-    expect(screen.getByRole("button", { name: /唤醒 2/ })).toBeVisible();
-    fireEvent.click(screen.getAllByRole("switch", { name: "子任务结束时唤醒负责人" })[0]!);
+    const row = screen.getByRole("button", { name: /當第 1 階段的子任務全部結束時/ });
+    expect(row).toHaveTextContent("系統");
+    expect(row).toHaveTextContent("喚醒負責人 Emacs · 還差 1 個");
+    expect(screen.getByRole("button", { name: /喚醒 2/ })).toBeVisible();
+    fireEvent.click(screen.getAllByRole("switch", { name: "子任務結束時喚醒負責人" })[0]!);
     await waitFor(() => expect(updateSystem).toHaveBeenCalledWith({ rule: "child_done", enabled: false, instruction: "" }));
   });
 
@@ -421,10 +421,10 @@ describe("conditions, limits and history", () => {
       condition: { type: "issue_field", field: "status", value: "in_review" },
     });
     renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-    const row = screen.getByRole("button", { name: /当状态变为in_review时/ });
+    const row = screen.getByRole("button", { name: /當狀態變為in_review時/ });
     fireEvent.click(row);
     await screen.findByRole("dialog");
-    expect(screen.queryByText(/以下任一事件发生时/)).toBeNull();
+    expect(screen.queryByText(/以下任一事件發生時/)).toBeNull();
   });
 
   it("says why the platform paused a rule and how many times it fired", async () => {
@@ -449,11 +449,11 @@ describe("conditions, limits and history", () => {
       { id: "r1", status: "completed", created_at: "2026-09-23T01:00:00Z", started_at: null, completed_at: null, checkin_note: "", triggers: ["time.due"], commented: true },
     ];
     renderWithI18n(<WakeupsSection issueId="issue" />, { locale: "zh-Hans" });
-    fireEvent.click(screen.getByRole("button", { name: /每小时唤醒/ }));
-    expect(await screen.findByText("触发记录")).toBeVisible();
-    expect(screen.getByText("静默检查")).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /每小時喚醒/ }));
+    expect(await screen.findByText("觸發紀錄")).toBeVisible();
+    expect(screen.getByText("靜默檢查")).toBeVisible();
     expect(screen.getByText(/Progress 38%/)).toBeVisible();
-    expect(screen.getByText("运行成功 · 发表了评论")).toBeVisible();
+    expect(screen.getByText("執行成功 · 發表了留言")).toBeVisible();
   });
 
   it("wakes the agent now and deletes the rule after confirmation", async () => {

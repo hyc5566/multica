@@ -336,7 +336,7 @@ describe("IssueRunsDialog", () => {
   it("renders in the member's language", () => {
     open([makeTask({ usage: [usage()] })], "zh-Hans");
 
-    expect(screen.getByRole("heading", { name: "运行记录" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "執行紀錄" })).toBeInTheDocument();
     expect(screen.getByRole("region", { name: "今天" })).toBeInTheDocument();
   });
 });
