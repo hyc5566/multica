@@ -364,3 +364,18 @@ this feature does not authorize deployment.
 
 Desktop 桌面權限的原始碼調查與待驗證條件見
 [Desktop 資料夾權限調查](desktop-permissions.zh-tw.md)。
+
+### 繁中版 CI 契約維護
+
+CI 的 push／PR base 同時涵蓋 `main` 和 `zh-tw`，繁中修正以獨立分支對
+`zh-tw` 開 PR。維持既有 gate，不以跳過測試或移除 CI 工作來處理失敗。
+
+- 翻譯新的共用功能時，要完成目前支援語系的 key 與插值對應；
+  附帶功能新增的 EN key 也需同步法文、日文、韓文與繁中資源。
+- 上游已更新設定頁的文案與插值時，EN 既有值沿用目前上游，避免用舊字典
+  覆蓋新值。退休 key 先檢查目前 source 引用再刪，不刪仍在使用的繁中功能。
+- locale parity 與 MCP contract tests 須通過，不能把缺少翻譯填英文作為修復。
+- Go middleware 簽章改動，也要同步 `agentintegration` tag 下的測試呼叫；
+  `go vet -race -tags agentintegration ./...` 可驗證編譯契約而不執行真實 agent。
+- 新增 schema／quota models 後使用鎖定版本 `make sqlc` 重新產生；再次產生
+  不應有 diff。生成步驟不必連到正式資料庫，可用 `ENV_FILE=/dev/null`。

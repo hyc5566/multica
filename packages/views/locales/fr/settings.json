@@ -16,7 +16,11 @@
       "reorder": "Réordonner {{name}}"
     },
     "reorder_hint": "Glissez les statuts au sein d’une catégorie pour réordonner les tableaux, listes et menus.",
-    "built_in_dialog": {},
+    "built_in_dialog": {
+      "title": "Un statut intégré ne peut pas être modifié",
+      "description": "Les statuts intégrés sont utilisés par Multica et ne peuvent être ni modifiés ni archivés. Vous pouvez toujours changer leur ordre dans la catégorie.",
+      "confirm": "Compris"
+    },
     "editor": {
       "create_title": "Nouvel état",
       "edit_title": "Modifier l'état",
@@ -79,7 +83,8 @@
       "cancelled": "Abandonné."
     },
     "pr_auto_complete_badge": "Définie à la fusion des PR",
-    "built_in_locked": "Les états intégrés pilotent le comportement du système : ils ne peuvent être ni modifiés ni archivés, mais vous pouvez les réordonner."
+    "built_in_locked": "Les états intégrés pilotent le comportement du système : ils ne peuvent être ni modifiés ni archivés, mais vous pouvez les réordonner.",
+    "description": "Organisez les statuts des tâches en quatre catégories de cycle de vie."
   },
   "wakeups": {
     "description": "Règles de la plateforme appliquées à chaque tâche. Chaque tâche peut les modifier dans sa section Réveils.",
@@ -177,7 +182,8 @@
       "empty": "Aucun fuseau horaire correspondant"
     },
     "sticky_comment_bar": {
-      "title": "Épingler la barre de commentaire en bas"
+      "title": "Épingler la barre de commentaire en bas",
+      "hint": "Gardez la barre de commentaires fixée en bas pendant le défilement d’une tâche."
     },
     "running_agent_reply": {
       "title": "En répondant à un agent en cours d'exécution",
@@ -194,7 +200,12 @@
       "quick": "Création avec un agent",
       "manual": "Création manuelle",
       "unsupported": "Indisponible lors de la création avec un agent"
-    }
+    },
+    "general_title": "Général",
+    "description": "Personnalisez votre façon de travailler dans Multica.",
+    "issue_title": "Création de tâches",
+    "device_hint": "Enregistré sur cet appareil.",
+    "issue_scope": "Ces préférences s’appliquent à cet espace de travail sur cet appareil. Elles modifient uniquement les champs visibles lors de la création d’une tâche."
   },
   "shortcuts": {
     "title": "Raccourcis clavier",
@@ -330,7 +341,8 @@
   },
   "chat": {
     "floating_label": "Fenêtre de discussion flottante",
-    "floating_hint": "Afficher le bouton de chat flottant sur chaque page."
+    "floating_hint": "Afficher le bouton de chat flottant sur chaque page.",
+    "floating_title": "Fenêtre flottante"
   },
   "issue": {
     "opening": {
@@ -349,7 +361,11 @@
       "project": "Projet",
       "due_date": "Date d'échéance",
       "start_date": "Date de début"
-    }
+    },
+    "quick_create_title": "Créer avec un agent",
+    "quick_create_description": "Champs affichés dans la barre d’outils de création rapide.",
+    "manual_create_title": "Créer manuellement",
+    "manual_create_description": "Champs affichés dans la barre d’outils de création manuelle."
   },
   "mcp": {
     "description": "Après l’ajout d’un serveur, assignez-le depuis l’onglet MCP d’un agent.",
@@ -378,7 +394,10 @@
     "removed_toast": "Serveur MCP partagé retiré",
     "save_failed_toast": "Impossible d'enregistrer le serveur MCP partagé",
     "rename_failed_toast": "Impossible de renommer le serveur MCP partagé",
-    "remove_failed_toast": "Impossible de retirer le serveur MCP partagé"
+    "remove_failed_toast": "Impossible de retirer le serveur MCP partagé",
+    "title": "MCP",
+    "empty_description": "Ajoutez un serveur ici, puis attribuez-le aux agents concernés depuis leur propre onglet MCP.",
+    "admin_only_note": "Seuls les owners et admins de l’espace de travail peuvent modifier les serveurs MCP partagés."
   },
   "page": {
     "title": "Paramètres",
@@ -405,7 +424,10 @@
       "billing": "Facturation",
       "code": "Code",
       "channels": "Messagerie",
-      "apps": "Applications connectées"
+      "apps": "Applications connectées",
+      "chat": "Discussion",
+      "repositories": "Dépôts",
+      "integrations": "Intégrations"
     },
     "groups": {
       "personal": "Personnel",
@@ -420,7 +442,8 @@
     "search_empty": "Aucun paramètre correspondant",
     "search_results_one": "{{count}} résultat",
     "search_results_other": "{{count}} résultats",
-    "admin_only": "Seuls les propriétaires et administrateurs peuvent modifier ceci"
+    "admin_only": "Seuls les propriétaires et administrateurs peuvent modifier ceci",
+    "device_scope": "Cet appareil"
   },
   "plugins": {
     "title": "Plugins",
@@ -510,8 +533,12 @@
       "deleted": "Plugin publié supprimé",
       "installed_version": "Utilisés",
       "review_install": "Vérifier et installer",
-      "review_upgrade": "Vérifier et mettre à niveau"
-    }
+      "review_upgrade": "Vérifier et mettre à niveau",
+      "description": "Téléversez un paquet de plugin. Multica le stocke et le distribue ; l’auteur du plugin n’a donc pas besoin de son propre serveur."
+    },
+    "description": "Publiez des plugins dans cet espace de travail, puis installez une version précise et examinez exactement ses accès autorisés.",
+    "read_only": "Accès en lecture seule",
+    "read_only_description": "Les owners et admins de l’espace de travail peuvent installer, configurer et supprimer des plugins."
   },
   "properties": {
     "title": "Propriétés",
@@ -639,7 +666,9 @@
     "save": "Mettre à jour le profil",
     "saving": "Mise à jour...",
     "toast_avatar_failed": "Échec de l'envoi de l'avatar",
-    "toast_profile_failed": "Échec de la mise à jour du profil"
+    "toast_profile_failed": "Échec de la mise à jour du profil",
+    "toast_avatar_updated": "Avatar mis à jour",
+    "toast_profile_updated": "Profil mis à jour"
   },
   "notifications": {
     "title": "Notifications de la boîte de réception",
@@ -674,7 +703,8 @@
     "system": {
       "title": "Notifications système",
       "description": "Afficher les notifications système lorsque Multica est en arrière-plan.",
-      "label": "Afficher les notifications système"
+      "label": "Afficher les notifications système",
+      "hint": "Affichez une bannière du système d’exploitation pour les nouveaux éléments de la boîte de réception lorsque l’application n’est pas au premier plan."
     },
     "browser": {
       "label": "Notifications du navigateur",
@@ -728,7 +758,13 @@
       "done": "Terminé"
     },
     "purpose": "S’authentifier auprès du CLI et de l’API.",
-    "usage_help": "Utilisation"
+    "usage_help": "Utilisation",
+    "desktop_rotation": {
+      "title": "Régénérer le token API Desktop ?",
+      "description": "Cette application utilise ce token pour connecter son daemon. Régénérer et reconnecter ? L’ancien token n’est révoqué qu’une fois le remplacement connecté. Attendez d’abord la fin des tâches en cours. Annuler conserve le token existant.",
+      "confirm": "Régénérer et reconnecter",
+      "success": "Token Desktop remplacé et daemon reconnecté."
+    }
   },
   "workspace": {
     "section_general": "Détails de l'espace de travail",
@@ -774,7 +810,12 @@
     "prefix_new_label": "Nouveau préfixe",
     "prefix_rule": "Lettres et chiffres uniquement, 10 caractères au maximum.",
     "prefix_confirm_action": "Remplacer par {{prefix}}",
-    "prefix_external_warning": "Les anciens identifiants comme {{oldExample}} dans les titres de PR, noms de branche, documents et discussions ne sont pas mis à jour : ces liens cesseront de fonctionner."
+    "prefix_external_warning": "Les anciens identifiants comme {{oldExample}} dans les titres de PR, noms de branche, documents et discussions ne sont pas mis à jour : ces liens cesseront de fonctionner.",
+    "toast_logo_updated": "Logo de l’espace de travail mis à jour",
+    "prefix_confirm_title": "Modifier le préfixe des tâches ?",
+    "prefix_confirm_description": "Toutes les tâches seront renumérotées de {{oldPrefix}}-N à {{newPrefix}}-N. Les références externes — titres de pull requests, noms de branches, liens dans la documentation et les discussions — utilisant {{oldPrefix}}-N ne fonctionneront plus.",
+    "manage_hint": "Seuls les admins et owners peuvent modifier les paramètres de l’espace de travail.",
+    "toast_saved": "Paramètres de l’espace de travail enregistrés"
   },
   "delete_workspace_dialog": {
     "title": "Supprimer l'espace de travail",
@@ -819,7 +860,22 @@
     "feature_auto_link_description": "Lie une PR à la tâche dont l’identifiant, par ex. {{example}}, figure dans son titre ou sa branche, ou suit « Closes » dans sa description.",
     "status_paused": "En pause",
     "pause": "Mettre en pause les fonctionnalités GitHub",
-    "resume": "Reprendre les fonctionnalités GitHub"
+    "resume": "Reprendre les fonctionnalités GitHub",
+    "page_description": "Connectez une application GitHub, contrôlez l’affichage des pull requests dans Multica et choisissez ce que vos agents ajoutent à l’historique des commits.",
+    "section_master": "Activer les fonctionnalités GitHub",
+    "master_description_on": "Lorsque cette option est désactivée, toutes les commandes GitHub sont masquées et aucune nouvelle action externe n’est effectuée. Les données existantes sont conservées sur le serveur. Vous n’êtes pas une équipe de développement ? Désactivez-la ici.",
+    "section_connection": "Connexion",
+    "connection_title": "Application GitHub",
+    "connection_description_prefix": "Associez automatiquement les tâches aux pull requests. Une PR est associée lorsque",
+    "connection_description_suffix": "figure dans son nom de branche ou son titre, ou si sa description contient Closes MUL-123. Fusionner une PR avec ce mot-clé de clôture fait aussi passer la tâche à",
+    "connection_description_done": "Terminé",
+    "connection_identifier_example": "MUL-123",
+    "connect_disabled_tooltip": "L’application GitHub n’est pas configurée sur ce serveur",
+    "read_only_hint": "Vue en lecture seule. Seuls les admins et owners de l’espace de travail peuvent connecter ou déconnecter GitHub.",
+    "section_features": "Fonctionnalités",
+    "section_repositories": "Dépôts",
+    "repositories_shortcut_label": "Les URL des dépôts se trouvent dans l’onglet Dépôts",
+    "repositories_shortcut_link": "Gérer les dépôts →"
   },
   "vcs": {
     "section_title": "Git auto-hébergé",
@@ -862,7 +918,9 @@
     "hosts_hint": "GitLab, Gitea ou Forgejo.",
     "connect_another": "Connecter une autre instance",
     "connection_actions": "Actions pour {{url}}",
-    "webhook_done": "C'est enregistré"
+    "webhook_done": "C'est enregistré",
+    "toast_connected": "Fournisseur connecté",
+    "toast_rotated": "Secret du webhook régénéré"
   },
   "lark": {
     "section_title": "Lark",
@@ -937,7 +995,9 @@
     "install_error_installer_bind": "Le bot a été installé, mais votre identité Lark n'a pas pu être associée. Réessayez ou contactez le support.",
     "install_error_session_lost": "La session d'installation a expiré ou a été perdue. Scannez à nouveau pour recommencer.",
     "install_error_forbidden": "Vous n'avez plus la permission d'installer des bots Lark dans cet espace de travail. Demandez à un administrateur de l'espace de travail pour continuer.",
-    "install_error_generic": "Échec de l'installation. Réessayez."
+    "install_error_generic": "Échec de l'installation. Réessayez.",
+    "install_scan_hint_feishu": "Feishu → Scanner → autoriser le nouveau PersonalAgent.",
+    "install_scan_hint_lark": "Lark → Scanner → autoriser le nouveau PersonalAgent."
   },
   "composio": {
     "page_description": "Connectez des applications que vos agents peuvent utiliser.",
@@ -966,7 +1026,8 @@
     "last_used": "Dernière utilisation {{when}}",
     "last_used_never": "Jamais utilisé",
     "expired": "Jeton expiré",
-    "reconnect": "Reconnecter"
+    "reconnect": "Reconnecter",
+    "section_title": "Composio"
   },
   "slack": {
     "section_title": "Slack",
@@ -1073,7 +1134,8 @@
     "byo_submitting": "Connexion…",
     "byo_cancel": "Annuler",
     "byo_success_toast": "Bot DingTalk connecté",
-    "byo_failed_toast": "Impossible de connecter le bot DingTalk"
+    "byo_failed_toast": "Impossible de connecter le bot DingTalk",
+    "groups_overview_description": "Chaque connexion affiche son Agent, son bot DingTalk et les groupes récemment observés."
   },
   "wecom": {
     "section_title": "WeCom",
@@ -1211,7 +1273,11 @@
     "url_label": "URL du dépôt",
     "description_label": "Description",
     "duplicate": "Ce dépôt est déjà ajouté.",
-    "actions_aria": "Actions pour {{url}}"
+    "actions_aria": "Actions pour {{url}}",
+    "url_empty": "(URL vide)",
+    "complete_manual_entry_first": "Complétez ou supprimez le dépôt manuel vide avant l’importation.",
+    "delete_aria": "Supprimer le dépôt",
+    "toast_saved": "Dépôts enregistrés"
   },
   "desktop": {
     "tabs": {
@@ -1228,7 +1294,8 @@
       "up_to_date": "Vous avez la dernière version.",
       "downloading": "La v{{version}} se télécharge en arrière-plan — vous serez averti quand elle sera prête à installer.",
       "check_now": "Vérifier maintenant",
-      "checking": "Vérification…"
+      "checking": "Vérification…",
+      "description": "Contrôlez les mises à jour automatiques en arrière-plan ou recherchez manuellement une nouvelle version."
     },
     "daemon": {
       "title": "Démon",
@@ -1303,7 +1370,10 @@
       "waiting_logs": "En attente de journaux…",
       "reconnect_failed": "Impossible de reconnecter le démon",
       "try_again_moment": "Veuillez réessayer dans un instant.",
-      "try_again": "Veuillez réessayer."
+      "try_again": "Veuillez réessayer.",
+      "description": "Configurez le comportement du daemon d’agents local avec l’application Desktop.",
+      "diagnostics_description": "Informations d’identification et de connexion. Utiles pour signaler un bug ou comprendre pourquoi un runtime n’apparaît pas.",
+      "waiting_logs_description": "Les nouvelles entrées apparaîtront en temps réel."
     }
   },
   "members": {
@@ -1387,13 +1457,30 @@
     "invitation_meta": "Envoyée le {{sent}} · Expire le {{expires}}",
     "revoke_invitation_aria": "Révoquer l'invitation de {{email}}",
     "seats_used": "{{used}} sièges utilisés sur {{purchased}}",
-    "manage_seats": "Gérer les sièges"
+    "manage_seats": "Gérer les sièges",
+    "section_title": "Membres ({{count}})",
+    "pending_title": "Invitations en attente ({{count}})",
+    "pending_status": "En attente",
+    "revoke_invitation_tooltip": "Révoquer l’invitation",
+    "share_links_title": "Liens de partage",
+    "role_field": "Rôle :",
+    "expiry_field": "Expiration :"
   },
   "integrations": {
     "status_connected": "Connecté",
     "status_not_connected": "Non connecté",
     "status_loading": "Vérification...",
-    "status_unknown": "État indisponible"
+    "status_unknown": "État indisponible",
+    "description": "Connectez vos outils et gérez chaque intégration au même endroit.",
+    "code_title": "Code et dépôts",
+    "messaging_title": "Canaux de messagerie",
+    "apps_title": "Vos applications connectées",
+    "apps_scope": "Ces connexions aux applications appartiennent à votre compte. Les connexions aux canaux de l’espace de travail se gèrent ci-dessus.",
+    "github_hint": "Connectez GitHub et configurez l’association des pull requests.",
+    "vcs_hint": "Connectez GitLab, Gitea ou Forgejo.",
+    "apps_hint": "Autorisez des applications pour vos agents via Composio.",
+    "back": "Toutes les intégrations",
+    "channel_hint": "Discutez avec les agents et créez des tâches depuis {{channel}}."
   },
   "pr_merge_status": {
     "label": "Après la fusion des PR, passer la tâche à",

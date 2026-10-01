@@ -114,8 +114,7 @@
     "breadcrumb_title": "任務",
     "breadcrumb_workspace_fallback": "工作區",
     "empty_title": "還沒有任務",
-    "move_failed": "移動任務失敗",
-    "empty_hint": "建立一個任務開始使用。"
+    "move_failed": "移動任務失敗"
   },
   "status": {
     "backlog": "待規劃",
@@ -338,12 +337,10 @@
     },
     "empty": {
       "assigned": {
-        "title": "沒有已分配的任務",
-        "description": "分配到這裡的任務會顯示在此檢視中。"
+        "title": "沒有已分配的任務"
       },
       "created": {
-        "title": "沒有已建立的任務",
-        "description": "由這裡建立的任務會顯示在此檢視中。"
+        "title": "沒有已建立的任務"
       }
     },
     "search_placeholder": "搜尋任務...",
@@ -484,12 +481,7 @@
     "workdir_path_unavailable": "暫無本地 workdir — 這個任務還沒被本地 Agent 執行過",
     "unsubscribe_subtree_succeeded": "已取消訂閱此任務及其子任務。",
     "subscription_update_failed": "無法更新訂閱狀態，請重試。",
-    "pull_requests_empty_title": "尚無關聯的 PR。",
-    "pull_requests_empty": "還沒有關聯的 PR。將本任務的 identifier 寫入 PR 的分支名稱或標題，或在正文中寫在 Closes 後面，即可自動關聯。",
-    "pull_request_state_open": "開啟中",
-    "pull_request_checks_failed_named": "{{failed}}/{{total}} 失敗 · {{names}}",
-    "pull_request_merge_unstable": "不穩定",
-    "pull_request_merge_has_hooks": "存在鉤子"
+    "pull_requests_empty_title": "尚無關聯的 PR。"
   },
   "timeline": {
     "loading": "載入中…"
@@ -682,8 +674,7 @@
   },
   "filtered_empty": {
     "title": "沒有符合篩選條件的任務",
-    "clear_button": "清除篩選",
-    "hint": "調整或清除篩選條件，就能看到這個視圖裡的任務。"
+    "clear_button": "清除篩選"
   },
   "agent_live": {
     "is_working": "{{name}} 在工作",
@@ -745,9 +736,7 @@
     "more_runs_other": "還有 {{count}} 次",
     "strip_aria": "累積費用隨時間的變化——開啟執行時間軸",
     "strip_no_usage": "沒有用量紀錄",
-    "sparkline_now": "現在",
-    "show_past": "顯示歷史執行（{{count}}）",
-    "hide_past": "隱藏歷史執行（{{count}}）"
+    "sparkline_now": "現在"
   },
   "runs_timeline": {
     "title": "執行紀錄",
@@ -1426,50 +1415,5 @@
     "overview_empty": "沒有這類 artifacts。",
     "group_comment_by": "{{name}} 的留言"
   },
-  "usage_detail": {
-    "title": "用量明細",
-    "subtitle_other": "{{identifier}} · {{count}} 次執行",
-    "empty": "這個任務還沒有任何一次執行記錄到 token 用量。",
-    "kpi_cost": "費用",
-    "kpi_cost_hint_other": "{{count}} 次失敗執行佔 {{pct}}%",
-    "kpi_cache": "快取節省",
-    "kpi_cache_hint": "命中率 {{pct}}% · 讀取 {{reads}}",
-    "kpi_tokens": "Token",
-    "kpi_tokens_hint": "輸入 {{input}} · 輸出 {{output}}",
-    "by_agent": "按 Agent 分攤",
-    "by_agent_total": "合計 {{cost}}",
-    "col_run": "執行",
-    "col_model": "模型",
-    "col_duration": "時長",
-    "col_input": "輸入",
-    "col_output": "輸出",
-    "col_cache_read": "快取讀",
-    "col_cache_write": "快取寫",
-    "col_tokens": "Token",
-    "col_cost": "費用",
-    "total": "合計",
-    "note_unpriced_other": "有 {{count}} 次執行沒有用量記錄，不計入合計。",
-    "note_unmapped": "{{models}} 沒有維護價格，token 已計入，費用未計入。",
-    "note_estimate": "費用按各模型公開價目估算；供應商回報實際費用時以回報值為準。",
-    "quota_title": "供應商額度快照",
-    "quota_attribution_note": "這是帳號層級觀測值；同時執行的其他工作也可能影響變化。",
-    "quota_window": "額度視窗",
-    "quota_before": "執行前",
-    "quota_after": "執行後",
-    "quota_delta": "變化",
-    "quota_observed": "觀測時間",
-    "quota_reset": "重置時間",
-    "quota_state": "狀態",
-    "quota_state_comparable": "可比較",
-    "quota_state_same_observation": "同一筆觀測",
-    "quota_state_reset_crossed": "跨越重置",
-    "quota_state_stale": "快照已過期",
-    "quota_state_unavailable": "供應商無法使用",
-    "quota_state_missing": "資料不完整",
-    "quota_show_all_other": "顯示其他 {{count}} 個額度視窗",
-    "quota_requested_model": "本次指定模型",
-    "quota_overlap_other": "另有 {{count}} 次並行執行",
-    "export_runs_csv": "執行 CSV",
-    "export_quota_csv": "額度 CSV"
-  }
+  "usage_detail": {}
 }
