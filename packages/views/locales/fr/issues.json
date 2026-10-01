@@ -235,7 +235,10 @@
     "card_project": "Projet",
     "card_labels": "Étiquettes",
     "card_child_progress": "Avancement des sous-tâches",
-    "show_sub_issues": "Afficher les sous-tâches"
+    "show_sub_issues": "Afficher les sous-tâches",
+    "layout_section": "Disposition",
+    "layout_compact": "Compacte",
+    "layout_default": "Par défaut"
   },
   "view": {
     "tooltip_board": "Vue tableau",
@@ -481,7 +484,9 @@
     "project_directory_path_copied_with_branch": "Chemin du répertoire du projet copié — le travail se trouve sur {{branch}}",
     "workdir_path_copy_failed": "Échec de la copie du chemin du répertoire de travail",
     "workdir_path_unavailable": "Aucun répertoire de travail local — cette tâche n'a pas encore été traitée par un agent local",
-    "pull_requests_empty_title": "Aucune pull request associée."
+    "pull_requests_empty_title": "Aucune pull request associée.",
+    "discard_changes": "Abandonner les modifications",
+    "save_changes": "Enregistrer les modifications"
   },
   "timeline": {
     "loading": "Chargement..."
@@ -794,7 +799,29 @@
     "hover_no_run": "Aucune exécution",
     "hover_idle": "Inactif {{duration}}",
     "note_unmapped": "Aucun tarif connu pour {{models}} ; leurs tokens sont comptés, mais pas leur coût.",
-    "note_estimate": "Le coût est estimé d'après les tarifs publiés des modèles, sauf lorsque le fournisseur a communiqué son propre chiffre."
+    "note_estimate": "Le coût est estimé d'après les tarifs publiés des modèles, sauf lorsque le fournisseur a communiqué son propre chiffre.",
+    "quota_title": "Points de contrôle du quota fournisseur",
+    "quota_attribution_note": "Observations au niveau du compte ; les travaux simultanés peuvent aussi affecter la variation.",
+    "quota_window": "Période",
+    "quota_before": "Avant",
+    "quota_after": "Après",
+    "quota_delta": "Variation",
+    "quota_observed": "Observation",
+    "quota_reset": "Réinitialisation",
+    "quota_state": "État",
+    "quota_state_comparable": "Comparable",
+    "quota_state_same_observation": "Même observation",
+    "quota_state_reset_crossed": "Réinitialisation franchie",
+    "quota_state_stale": "Relevé périmé",
+    "quota_state_unavailable": "Fournisseur indisponible",
+    "quota_state_missing": "Incomplet",
+    "quota_show_all_one": "Afficher {{count}} autre période",
+    "quota_show_all_other": "Afficher {{count}} autres périodes",
+    "quota_requested_model": "Modèle demandé",
+    "quota_overlap_one": "{{count}} exécution simultanée",
+    "quota_overlap_other": "{{count}} exécutions simultanées",
+    "export_runs_csv": "CSV des exécutions",
+    "export_quota_csv": "CSV des quotas"
   },
   "terminate_dialog": {
     "title": "Arrêter cette exécution ?",

@@ -17,8 +17,7 @@
     "confirm": "刪除",
     "deleting": "刪除中...",
     "toast_deleted": "已刪除任務",
-    "toast_delete_failed": "刪除任務失敗",
-    "hint": "工作區任何成員都可以刪除任務。"
+    "toast_delete_failed": "刪除任務失敗"
   },
   "feedback": {
     "title": "反饋",
