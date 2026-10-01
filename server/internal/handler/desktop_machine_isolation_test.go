@@ -17,7 +17,7 @@ import (
 func TestDesktopMachinePATIsolation(t *testing.T) {
 	router := chi.NewRouter()
 	router.Group(func(r chi.Router) {
-		r.Use(middleware.Auth(testHandler.Queries, nil, nil))
+		r.Use(middleware.Auth(testHandler.Queries, nil, nil, nil))
 		r.Post("/api/tokens", testHandler.CreatePersonalAccessToken)
 		r.Post("/api/tokens/current/renew", testHandler.RenewCurrentPersonalAccessToken)
 		r.Delete("/api/tokens/{id}", testHandler.RevokePersonalAccessToken)

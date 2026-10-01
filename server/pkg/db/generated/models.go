@@ -1347,6 +1347,38 @@ type ProjectResource struct {
 	CreatedBy    pgtype.UUID        `json:"created_by"`
 }
 
+type ProviderQuotaObservation struct {
+	ID          pgtype.UUID        `json:"id"`
+	ProbeTarget string             `json:"probe_target"`
+	RuntimeID   pgtype.UUID        `json:"runtime_id"`
+	WorkspaceID pgtype.UUID        `json:"workspace_id"`
+	DaemonID    string             `json:"daemon_id"`
+	Provider    string             `json:"provider"`
+	Status      string             `json:"status"`
+	Source      string             `json:"source"`
+	Snapshot    []byte             `json:"snapshot"`
+	ObservedAt  pgtype.Timestamptz `json:"observed_at"`
+	ReceivedAt  pgtype.Timestamptz `json:"received_at"`
+}
+
+type ProviderQuotaRollup struct {
+	WorkspaceID        pgtype.UUID        `json:"workspace_id"`
+	ProbeTarget        string             `json:"probe_target"`
+	Provider           string             `json:"provider"`
+	WindowID           string             `json:"window_id"`
+	Granularity        string             `json:"granularity"`
+	BucketStart        pgtype.Timestamptz `json:"bucket_start"`
+	SampleCount        int64              `json:"sample_count"`
+	SuccessCount       int64              `json:"success_count"`
+	FailureCount       int64              `json:"failure_count"`
+	MinUsedPercent     pgtype.Float8      `json:"min_used_percent"`
+	MaxUsedPercent     pgtype.Float8      `json:"max_used_percent"`
+	AvgUsedPercent     pgtype.Float8      `json:"avg_used_percent"`
+	LastUsedPercent    pgtype.Float8      `json:"last_used_percent"`
+	ResetCrossingCount int64              `json:"reset_crossing_count"`
+	UpdatedAt          pgtype.Timestamptz `json:"updated_at"`
+}
+
 type QuickAction struct {
 	ID            pgtype.UUID        `json:"id"`
 	WorkspaceID   pgtype.UUID        `json:"workspace_id"`
@@ -1381,19 +1413,6 @@ type RuntimeProfile struct {
 	RuntimeType    string             `json:"runtime_type"`
 }
 
-type SearchIndexChange struct {
-	EntityType  string             `json:"entity_type"`
-	EntityID    pgtype.UUID        `json:"entity_id"`
-	WorkspaceID pgtype.UUID        `json:"workspace_id"`
-	ChangeXid   pgtype.Uint64      `json:"change_xid"`
-	ChangedAt   pgtype.Timestamptz `json:"changed_at"`
-}
-
-type SearchIndexPruneMark struct {
-	Singleton        bool          `json:"singleton"`
-	PrunedThroughXid pgtype.Uint64 `json:"pruned_through_xid"`
-}
-
 type RuntimeProviderUsageSnapshot struct {
 	ProbeTarget   string             `json:"probe_target"`
 	RuntimeID     pgtype.UUID        `json:"runtime_id"`
@@ -1406,6 +1425,19 @@ type RuntimeProviderUsageSnapshot struct {
 	LastSuccessAt pgtype.Timestamptz `json:"last_success_at"`
 	LastErrorCode pgtype.Text        `json:"last_error_code"`
 	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+}
+
+type SearchIndexChange struct {
+	EntityType  string             `json:"entity_type"`
+	EntityID    pgtype.UUID        `json:"entity_id"`
+	WorkspaceID pgtype.UUID        `json:"workspace_id"`
+	ChangeXid   pgtype.Uint64      `json:"change_xid"`
+	ChangedAt   pgtype.Timestamptz `json:"changed_at"`
+}
+
+type SearchIndexPruneMark struct {
+	Singleton        bool          `json:"singleton"`
+	PrunedThroughXid pgtype.Uint64 `json:"pruned_through_xid"`
 }
 
 type SeatCapacityOutbox struct {
@@ -1517,6 +1549,22 @@ type TaskMessage struct {
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`
 	OutputTruncated pgtype.Bool        `json:"output_truncated"`
 	CallID          pgtype.Text        `json:"call_id"`
+}
+
+type TaskQuotaCheckpoint struct {
+	TaskID               pgtype.UUID        `json:"task_id"`
+	WorkspaceID          pgtype.UUID        `json:"workspace_id"`
+	RuntimeID            pgtype.UUID        `json:"runtime_id"`
+	ObservationID        pgtype.UUID        `json:"observation_id"`
+	Phase                string             `json:"phase"`
+	BoundaryAt           pgtype.Timestamptz `json:"boundary_at"`
+	Provider             string             `json:"provider"`
+	RequestedModel       string             `json:"requested_model"`
+	CaptureState         string             `json:"capture_state"`
+	ErrorCode            pgtype.Text        `json:"error_code"`
+	ObservationAgeMs     pgtype.Int8        `json:"observation_age_ms"`
+	OverlappingTaskCount int32              `json:"overlapping_task_count"`
+	CreatedAt            pgtype.Timestamptz `json:"created_at"`
 }
 
 type TaskSupplement struct {
