@@ -347,3 +347,20 @@ reload persistence, resized containers, and iPhone Safari with the software
 keyboard visible before production acceptance. Build through the existing Web
 or Desktop scripts and use the Server handoff runbook for an authorized release;
 this feature does not authorize deployment.
+
+## HYCLV-202：任務側邊面板與 artifacts 用語
+
+沿用 `zh-Hans` 相容性 key，修正 `issues.json` 的 PR 顯示、`pr_automation`、
+`execution_log`、`runs_timeline`、`wakeups`、`deliverables`，以及 `editor.json`
+的附件預覽。產物名稱統一為小寫 `artifacts`；Run 使用「執行」，時間線使用
+「時間軸」，Agent 保留英文。額度觀測與 CSV 匯出的 20 個缺漏 key 也須保留。
+此修改只影響 Web／Desktop 共用字串，不改 API、資料庫或執行行為。
+
+重建時按語意翻譯新增 key，不直接覆蓋整份舊 locale。OpenCC 只作草稿：
+「檢查通過」不能變成「檢查透過」，Agent 前後留空格，檔案表格使用列／欄，
+插值變數與 `_other` 規則維持原樣。同步更新既有元件測試中的文字預期。
+檢查右側 PR、喚醒、artifacts 清單，並點開時間軸及附件預覽；全 locale parity
+仍有其他既存缺漏時應記錄基底比較，不將其宣稱通過。
+
+Desktop 桌面權限的原始碼調查與待驗證條件見
+[Desktop 資料夾權限調查](desktop-permissions.zh-tw.md)。
