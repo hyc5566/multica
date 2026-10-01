@@ -231,10 +231,7 @@
     "save_changes": "保留變更",
     "save": "儲存",
     "cancel": "取消",
-    "section_profile_hint": "管理該 Agent 在工作區內的展示方式。",
-    "section_execution_hint": "選擇執行時、模型、思考強度、速度和並行執行上限。",
-    "section_access_hint": "控制誰可以執行該 Agent 並使用它已連線的能力。",
-    "avatar_hint": "顯示在任務分配、動態和聊天中。"
+    "section_profile_hint": "管理該 Agent 在工作區內的展示方式。"
   },
   "overview": {
     "agent_context": "Agent",
@@ -349,10 +346,7 @@
       "behavior": "行為與能力",
       "execution": "執行配置",
       "execution_hint": "選擇 Agent 使用的執行環境，也可以覆蓋執行環境的預設模型、思考等級和速度。",
-      "access": "訪問許可權",
-      "identity_hint": "為 Agent 設定容易識別的名稱和簡潔的用途。",
-      "behavior_hint": "定義它的工作方式，並新增可使用的工作區 skill。",
-      "access_hint": "控制誰可以執行此 Agent，建立後仍可修改。"
+      "access": "訪問許可權"
     },
     "thinking_label": "思考",
     "speed_label": "速度",
@@ -392,8 +386,7 @@
       "prompt_assistant": "幫助團隊規劃和撰寫專案",
       "thinking": "正在更新草稿…",
       "placeholder": "描述你需要的 Agent…",
-      "send": "傳送訊息",
-      "chat_hint": "通過對話梳理需求，並持續完善右側配置。"
+      "send": "傳送訊息"
     },
     "live_draft": "Agent 配置",
     "live_draft_hint": "對話生成的建議會更新到這裡，你也可以隨時直接調整。",
@@ -414,8 +407,7 @@
       "discard_cancel": "繼續編輯",
       "banner": "您有 {{count}} 條未完成的建立",
       "pick_hint": "選一條繼續。"
-    },
-    "choose_description": "從空白配置開始，或者直接描述需求，通過對話完成建立。"
+    }
   },
   "create_dialog": {
     "title_create": "建立 Agent",
@@ -479,8 +471,7 @@
       "remove_aria": "移除頭像",
       "select_image_toast": "請選擇圖片檔案。",
       "upload_failed_toast": "頭像上傳失敗"
-    },
-    "description_create": "為工作區建立一個新的 AI Agent。"
+    }
   },
   "conversation_starters": {
     "label": "對話開場建議",
@@ -561,8 +552,7 @@
       "edit_aria": "編輯引數 {{index}}",
       "remove_aria": "移除引數 {{index}}",
       "saved_toast": "已儲存自定義引數",
-      "save_failed_toast": "儲存自定義引數失敗",
-      "empty_hint": "新增第一個 token，開始構建啟動命令。"
+      "save_failed_toast": "儲存自定義引數失敗"
     },
     "mcp_config": {
       "managed_title": "由 Multica 管理",
@@ -662,8 +652,7 @@
       "save_failed_toast": "無法儲存 MCP 配置",
       "redacted_title": "已配置，但當前不可見",
       "redacted_hint": "只有 Agent owner 或工作區 admin 可以檢視此配置。",
-      "dialog_json_help": "以 JSON 编辑完整的服务器配置。",
-      "dialog_description": "選擇連線方式並填寫配置資訊。如需編輯完整配置，可切換到 JSON。"
+      "dialog_json_help": "以 JSON 编辑完整的服务器配置。"
     },
     "composio_mcp": {
       "subtitle": "勾選 toolkit，只在你自己（這個 Agent 的建立者）直接或透過下級 Agent 鏈路觸發這個 Agent 時，才把它掛載為 MCP server。",
@@ -678,8 +667,7 @@
       "redacted_title": "已配置——對你隱藏",
       "redacted_hint": "只有該 Agent 的建立者才能檢視或修改它可使用的應用。",
       "shared_warning": "該 Agent 已共享。能夠執行該 Agent 的人可以通過它使用你在此啟用的 Composio 應用。如果這些應用涉及敏感資料，請改用\"私有\"或縮小訪問範圍。",
-      "workspace_warning": "公開給工作區：工作區內任何成員都可以通過該 Agent 使用這些 Composio 應用。",
-      "empty_hint": "你還沒連線任何第三方服務。先去授權一個，再回到這裡勾選允許。"
+      "workspace_warning": "公開給工作區：工作區內任何成員都可以通過該 Agent 使用這些 Composio 應用。"
     },
     "runtime_config": {
       "mode_label": "路由模式",
@@ -698,8 +686,7 @@
       "tls_label": "啟用 TLS",
       "tls_hint": "用 https:// 代替 http:// 連線",
       "saved_toast": "路由配置已儲存",
-      "save_failed_toast": "儲存路由配置失敗",
-      "intro": "選擇 OpenClaw 執行時執行該 Agent 每一回合的方式。Local 模式讓 Agent 直接在守護程序內執行；Gateway 模式則把每一回合轉發到一個 OpenClaw Gateway——適合守護程序宿主只是輕量協調機、希望真正算力落在更強的遠端機器上的場景。"
+      "save_failed_toast": "儲存路由配置失敗"
     },
     "skills": {
       "assigned_title": "分配給 Agent",
@@ -741,14 +728,10 @@
       "add_dialog_confirm_default": "新增",
       "add_dialog_confirm_other": "新增 {{count}} 個 skill",
       "add_dialog_cancel": "取消",
-      "add_failed_toast": "新增 skill 失敗",
-      "intro": "這裡展示該 Agent 實際擁有的全部 skill。工作區 skill 可在此管理；從 Codex 和 Claude Code 繼承的 skill 也可以按 Agent 單獨關閉。",
-      "empty_hint": "新增工作區 skill，把團隊知識共享給這個 Agent。",
-      "add_dialog_description": "選擇一個工作區 skill 分配給該 Agent。"
+      "add_failed_toast": "新增 skill 失敗"
     },
     "integrations": {
-      "members_note": "只有工作區的所有者和管理員可以管理此連線。你可以在\"設定 → 整合\"中檢視已連線的 Bot。",
-      "intro": "把這個 Agent 連線到外部聊天平臺，讓大家在自己熟悉的工具裡直接與它協作。"
+      "members_note": "只有工作區的所有者和管理員可以管理此連線。你可以在\"設定 → 整合\"中檢視已連線的 Bot。"
     },
     "activity": {
       "status": {
@@ -953,8 +936,7 @@
     "tool_kind_write": "編輯",
     "tool_kind_read": "讀取",
     "tool_kind_misc": "其他",
-    "trigger_wakeup": "唤醒触发",
-    "antigravity_live_unavailable": "Antigravity 暫不提供實時執行事件。執行完成後即可檢視執行記錄。"
+    "trigger_wakeup": "唤醒触发"
   },
   "task_failure": {
     "cancelled_by_system": "系統已取消",
