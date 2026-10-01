@@ -340,8 +340,7 @@
         "label": "僅執行",
         "description": "靜默執行，不建立任務"
       }
-    },
-    "schedule_disabled_reason": "該自動化有多個時間表——請到詳情頁編輯。"
+    }
   },
   "schedule_editor": {
     "time_label": "時間",

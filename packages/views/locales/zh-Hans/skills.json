@@ -96,8 +96,7 @@
     "cancel": "取消",
     "add_confirm": "新增（{{num}}）",
     "adding": "新增中...",
-    "added_multi_toast_other": "已新增到 {{count}} 個 Agent",
-    "add_dialog_description": "選擇要獲得所選 skill 的 Agent。"
+    "added_multi_toast_other": "已新增到 {{count}} 個 Agent"
   },
   "toolbar": {
     "result_count_title": "當前結果 / 全部 skill",
@@ -356,9 +355,7 @@
     "conflict_footer": "還有 {{count}} 個衝突決策待處理。",
     "conflict_apply_button": "應用決策",
     "conflict_missing_resolution": "請選擇如何處理這個衝突。",
-    "conflict_name_still_exists": "這個名稱仍然已存在。請換一個名稱或跳過。",
-    "no_skills_hint": "這個執行環境上還沒有可發現的本地 skill。",
-    "no_search_results_title": "沒有匹配的本地 skill"
+    "conflict_name_still_exists": "這個名稱仍然已存在。請換一個名稱或跳過。"
   },
   "file_tree": {
     "no_files": "無檔案",

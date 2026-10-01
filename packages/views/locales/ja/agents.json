@@ -222,7 +222,8 @@
     "discard_changes": "変更を破棄",
     "save_changes": "変更を保存",
     "save": "保存",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "section_profile_hint": "ワークスペース内でのこの Agent の表示を設定します。"
   },
   "overview": {
     "agent_context": "エージェント",

@@ -33,8 +33,7 @@
     "action": "和 Mika 開始",
     "failed": "無法啟動 Mika",
     "dialog_title": "讓 Mika 在哪臺電腦上執行？",
-    "cancel": "取消",
-    "dialog_description": "選擇 Mika 使用的執行環境。之後可以在設定裡更改。"
+    "cancel": "取消"
   },
   "machine": {
     "search_placeholder": "搜尋機器...",
@@ -209,8 +208,7 @@
     "success_title": "電腦已連線",
     "success_description": "電腦已經上線就緒。建立一個 Agent，執行就可以派發到這裡。",
     "view_runtime": "檢視執行環境",
-    "create_agent": "建立 Agent",
-    "live_listening_hint": "守護程序一啟動就會被識別，通常不到一分鐘。"
+    "create_agent": "建立 Agent"
   },
   "cloud_runtime": {
     "action": "雲端執行環境",
@@ -249,8 +247,7 @@
     "validation": {
       "instance_type_required": "例項規格不能為空",
       "disk_size_invalid": "磁碟大小必須是正整數"
-    },
-    "create_hint": "只需要填寫名稱、例項規格和磁碟大小，其餘配置由 Fleet 預設處理。"
+    }
   },
   "update": {
     "cli_version_label": "CLI 版本：",

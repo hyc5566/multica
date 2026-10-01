@@ -230,7 +230,8 @@
     "discard_changes": "변경 취소",
     "save_changes": "변경 저장",
     "save": "저장",
-    "cancel": "취소"
+    "cancel": "취소",
+    "section_profile_hint": "워크스페이스에서 이 Agent가 표시되는 방식을 설정합니다."
   },
   "overview": {
     "agent_context": "에이전트",
