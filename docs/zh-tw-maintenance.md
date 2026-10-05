@@ -347,3 +347,35 @@ reload persistence, resized containers, and iPhone Safari with the software
 keyboard visible before production acceptance. Build through the existing Web
 or Desktop scripts and use the Server handoff runbook for an authorized release;
 this feature does not authorize deployment.
+
+## HYCLV-202：任務側邊面板與 artifacts 用語
+
+沿用 `zh-Hans` 相容性 key，修正 `issues.json` 的 PR 顯示、`pr_automation`、
+`execution_log`、`runs_timeline`、`wakeups`、`deliverables`，以及 `editor.json`
+的附件預覽。產物名稱統一為小寫 `artifacts`；Run 使用「執行」，時間線使用
+「時間軸」，Agent 保留英文。額度觀測與 CSV 匯出的 20 個缺漏 key 也須保留。
+此修改只影響 Web／Desktop 共用字串，不改 API、資料庫或執行行為。
+
+重建時按語意翻譯新增 key，不直接覆蓋整份舊 locale。OpenCC 只作草稿：
+「檢查通過」不能變成「檢查透過」，Agent 前後留空格，檔案表格使用列／欄，
+插值變數與 `_other` 規則維持原樣。同步更新既有元件測試中的文字預期。
+檢查右側 PR、喚醒、artifacts 清單，並點開時間軸及附件預覽；全 locale parity
+仍有其他既存缺漏時應記錄基底比較，不將其宣稱通過。
+
+Desktop 桌面權限的原始碼調查與待驗證條件見
+[Desktop 資料夾權限調查](desktop-permissions.zh-tw.md)。
+
+### 繁中版 CI 契約維護
+
+CI 的 push／PR base 同時涵蓋 `main` 和 `zh-tw`，繁中修正以獨立分支對
+`zh-tw` 開 PR。維持既有 gate，不以跳過測試或移除 CI 工作來處理失敗。
+
+- 翻譯新的共用功能時，要完成目前支援語系的 key 與插值對應；
+  附帶功能新增的 EN key 也需同步法文、日文、韓文與繁中資源。
+- 上游已更新設定頁的文案與插值時，EN 既有值沿用目前上游，避免用舊字典
+  覆蓋新值。退休 key 先檢查目前 source 引用再刪，不刪仍在使用的繁中功能。
+- locale parity 與 MCP contract tests 須通過，不能把缺少翻譯填英文作為修復。
+- Go middleware 簽章改動，也要同步 `agentintegration` tag 下的測試呼叫；
+  `go vet -race -tags agentintegration ./...` 可驗證編譯契約而不執行真實 agent。
+- 新增 schema／quota models 後使用鎖定版本 `make sqlc` 重新產生；再次產生
+  不應有 diff。生成步驟不必連到正式資料庫，可用 `ENV_FILE=/dev/null`。

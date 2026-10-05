@@ -88,7 +88,21 @@
     "quick_actions_heading": "Questions de suivi",
     "quick_actions_aria": "Suggestions pour continuer",
     "quick_actions_regenerate": "Régénérer les suggestions",
-    "quick_actions_regenerate_failed": "Impossible d'actualiser les suggestions. Veuillez réessayer."
+    "quick_actions_regenerate_failed": "Impossible d'actualiser les suggestions. Veuillez réessayer.",
+    "quota_title": "Quota du fournisseur",
+    "quota_attribution_note": "Relevés au niveau du compte ; les variations peuvent inclure d’autres exécutions.",
+    "quota_no_window": "Aucune période de quota comparable (avant : {{before}}, après : {{after}}).",
+    "quota_overlap": "{{count}} autre(s) exécution(s) ont chevauché ces observations.",
+    "usage_missing": "Aucune utilisation de tokens enregistrée pour cette exécution.",
+    "token_count": "{{value}} tokens",
+    "quota_state": {
+      "comparable": "Comparable",
+      "same_observation": "Même observation",
+      "reset_crossed": "Réinitialisation du quota franchie",
+      "stale": "Données périmées",
+      "unavailable": "Indisponible",
+      "missing": "Point de contrôle manquant"
+    }
   },
   "session_history": {
     "untitled": "Sans titre",
@@ -249,6 +263,12 @@
     "rename": "Renommer la discussion",
     "archive": "Archiver la discussion",
     "unarchive": "Désarchiver la discussion",
-    "delete": "Supprimer la discussion"
+    "delete": "Supprimer la discussion",
+    "quota_summary": "Résumé du quota de la session",
+    "quota_summary_description": "Points de contrôle du quota fournisseur pour « {{title}} ».",
+    "quota_empty": "Aucun point de contrôle du quota fournisseur enregistré pour cette session.",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "Exécution"
   }
 }
