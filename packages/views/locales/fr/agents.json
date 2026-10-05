@@ -166,7 +166,45 @@
     "runtime_required_toast": "Associez un runtime avant d'exécuter cet agent.",
     "assign_work": "Assigner du travail",
     "more_actions_aria": "Actions de l'agent",
-    "updated": "Mis à jour {{when}}"
+    "updated": "Mis à jour {{when}}",
+    "usage": {
+      "title": "Utilisation et limites",
+      "source": "Source : {{source}}",
+      "source_official": "officielle",
+      "source_derived": "calculée",
+      "source_unavailable": "indisponible",
+      "refresh": "Actualiser l’utilisation",
+      "provider_quota": "Quota du compte fournisseur",
+      "model": "Modèle : {{model}}",
+      "model_default": "par défaut du runtime",
+      "current_model": "Modèle actuel",
+      "updated_at": "Mis à jour {{when}}",
+      "no_runtime": "Associez un runtime pour consulter l’utilisation du fournisseur.",
+      "runtime_offline": "Le runtime est hors ligne. L’utilisation ne peut pas être actualisée.",
+      "unavailable": "Le fournisseur n’a pas renvoyé de relevé de quota lisible par machine.",
+      "auth_required": "Aucun identifiant utilisable pour le quota n’est disponible. Vérifiez l’autorisation du fournisseur ou le renouvellement des identifiants sur ce runtime.",
+      "claude_unavailable": "Aucun relevé de quota Claude Code n’est encore disponible. Exécutez une tâche Claude avec un daemon Multica compatible, puis actualisez.",
+      "probe_error": "La CLI du runtime n’a pas pu fournir de relevé du quota du compte.",
+      "refresh_hint": "Actualisez maintenant ; les vérifications sont limitées à une fois toutes les 60 secondes, ou davantage si le fournisseur l’exige. L’heure affichée correspond à la dernière observation.",
+      "refresh_countdown": "Actualisation disponible dans {{seconds}} s",
+      "refresh_failed": "L’actualisation a échoué. Les valeurs affichées proviennent de la dernière observation réussie.",
+      "stale": "Ce relevé est périmé ; les valeurs sont historiques et ne représentent pas le quota actuel.",
+      "window_expired": "L’heure de réinitialisation est passée ; l’utilisation actuelle est indisponible.",
+      "multica_7d": "Cet agent dans Multica · 7 jours",
+      "tokens": "tokens",
+      "runs": "exécutions",
+      "multica_scope_hint": "Uniquement les exécutions enregistrées dans Multica ; il s’agit de l’utilisation, pas de la limite du compte fournisseur.",
+      "remaining_unknown": "restant —",
+      "used": "{{value}} % utilisé",
+      "remaining": "{{value}} % restant",
+      "window_5h": "Limite sur 5 heures",
+      "window_weekly": "Limite hebdomadaire",
+      "antigravity_google": "Modèles Google · quota partagé",
+      "antigravity_third_party": "Claude / GPT · quota partagé",
+      "window_value_unavailable": "La source n’a pas fourni de pourcentage utilisable.",
+      "resets": "Réinitialisation {{when}}",
+      "reset_unknown": "Heure de réinitialisation indisponible"
+    }
   },
   "inspector": {
     "section_profile": "Profil",
@@ -199,7 +237,10 @@
     "edit_description_title": "Modifier la description",
     "description_placeholder": "Que fait cet agent ?",
     "save": "Enregistrer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "section_profile_hint": "Définissez l’apparence de cet Agent dans l’espace de travail.",
+    "discard_changes": "Abandonner les modifications",
+    "save_changes": "Enregistrer les modifications"
   },
   "overview": {
     "agent_context": "Agent",
@@ -460,7 +501,9 @@
     "common": {
       "save": "Enregistrer",
       "add": "Ajouter",
-      "unsaved_changes": "Modifications non enregistrées"
+      "unsaved_changes": "Modifications non enregistrées",
+      "discard_changes": "Abandonner les modifications",
+      "save_changes": "Enregistrer les modifications"
     },
     "instructions": {
       "intro": "Définissez le prompt système utilisé à chaque exécution. Markdown est pris en charge.",
