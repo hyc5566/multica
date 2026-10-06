@@ -36,7 +36,7 @@
     "steer_step_read": "已读取"
   },
   "working_filter_error": {
-    "title": "无法加载智能体正在处理的任务"
+    "title": "無法載入 Agent 正在處理的任務"
   },
   "status_catalog_error": {
     "title": "狀態列表載入失敗",

@@ -6,6 +6,27 @@ product behavior. Taiwan-only changes should stay in small, purpose-specific
 commits so the edition can be rebuilt when an upstream rebase becomes more
 expensive than replaying the customization.
 
+## Upstream baseline (HYCLV-248)
+
+The October 6, 2026 integration candidate uses upstream
+`b4ca5b4a23e68b26292a680dca7689a952bb1cd5` (after v0.6.1), starting from
+Taiwan edition `a67a659f9c7eb69a4e802590cbc17c307bacc384`. Preserve the merged
+HYCLV-202 panel translations, locale contracts and CI fixes when rebuilding.
+The prior upstream baseline was `e31da86c90794b5c488279a3ead13ac2f31ac269`.
+
+Prepare integration in a separate worktree and preserve merge topology with
+`git rebase --rebase-merges --onto <new-base> <old-base>`. Historical merge
+resolutions are not automatically replayed; verify the final tree against the
+previous Taiwan tip, including fixes made after a historical merge. Retain the
+CLI `--duplicate-of` options and translate the new working-agent filter error
+and v0.6.1 changelog. The new base has no SQL migration changes; retain the
+Taiwan migration names and customization layers below.
+
+Upstream retires the `multica-working-on-issues` redirect. Before deploying a
+Server built from this base, check whether installed daemons still refer to
+that old skill name; current daemons use `multica-platform`. Candidate tests do
+not establish compatibility for every installed daemon or authorize deployment.
+
 ## Server deployment procedure
 
 For Taiwan-edition Server updates, follow the canonical
