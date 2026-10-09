@@ -131,8 +131,8 @@ pasted URL is handed to the system browser and takes the reader out of the app.
 ## When to add a resource
 
 Add/update a project resource when the user asks for durable project context:
-"把这个 GitHub repo 绑到项目上", "以后都用这个 repo", "agent 总是拿不到这个项目的
-仓库", or "这个项目要在我的本地目录里跑".
+"把這個 GitHub repo 綁定到專案上", "以後都使用這個 repo", "agent 總是無法取得這個專案的
+repo", or "這個專案要在我的本機目錄裡執行".
 
 Project resources are durable and affect future tasks. `multica repo checkout`
 is task-local checkout state.

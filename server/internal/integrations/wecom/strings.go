@@ -21,9 +21,8 @@ package wecom
 // rules. If wecom ever needs a third language with real formatting rules,
 // that is the moment to reach for a framework — not now.
 //
-// The zh-Hans pack is the text this adapter was already sending, character for
-// character. Nothing a Chinese tenant reads changes here; the English pack is
-// new.
+// The zh-Hans compatibility key serves Taiwan Traditional Chinese copy in
+// this fork. Keep the locale key stable for stored profile preferences.
 
 import (
 	"strings"
@@ -271,46 +270,46 @@ func copyFor(l Locale) copyPack {
 
 var copyPacks = map[Locale]copyPack{
 	LocaleZhHans: {
-		AgentOffline:         "⚠️ 智能体当前不在线，你的消息已收到，等它上线后会处理。",
-		AgentArchived:        "⚠️ 该智能体已归档，无法回复。请联系工作区管理员。",
-		FreshPending:         "✅ 已准备从空上下文运行。你的下一条聊天消息仍会进入当前对话，但不会带上之前的上下文。",
-		ChatStarted:          "✅ 已新建 Multica 对话。你的下一条消息会进入该对话。",
-		IssueUsage:           "请填写任务标题，格式如下：\n\n`/issue <标题>`\n`[描述]`（可选）",
-		InvokeDenied:         "⚠️ 你没有权限运行该智能体。如需使用，请联系它的所有者。",
-		BindingPromptPrefix:  "👋 请先绑定你的 Multica 账号，才能与我对话：\n",
-		BindingPromptSuffix:  "\n（链接 15 分钟内有效）",
-		BindingPending:       "👋 绑定链接刚才已经发给你了，就在上方，请直接点击完成绑定。",
-		BindingSentPrivately: "👋 已把绑定链接私发给你，请在与我的单聊里点击完成绑定。",
+		AgentOffline:         "⚠️ Agent 目前離線，你的訊息已收到，等它上線後會處理。",
+		AgentArchived:        "⚠️ 該 Agent 已歸檔，無法回覆。請聯絡工作區管理員。",
+		FreshPending:         "✅ 已準備從空白上下文執行。你的下一則聊天訊息仍會進入目前對話，但不會帶上之前的上下文。",
+		ChatStarted:          "✅ 已建立 Multica 對話。你的下一則訊息會進入該對話。",
+		IssueUsage:           "請填寫任務標題，格式如下：\n\n`/issue <標題>`\n`[描述]`（可選）",
+		InvokeDenied:         "⚠️ 你沒有權限執行該 Agent。如需使用，請聯絡它的擁有者。",
+		BindingPromptPrefix:  "👋 請先綁定你的 Multica 帳號，才能與我對話：\n",
+		BindingPromptSuffix:  "\n（連結 15 分鐘內有效）",
+		BindingPending:       "👋 綁定連結剛才已經發給你了，就在上方，請直接點選完成綁定。",
+		BindingSentPrivately: "👋 已把綁定連結傳送到你的私人對話，請在與我的私人對話裡點選完成綁定。",
 
-		IssueCreatedPrefix:   "✅ 已创建 ",
+		IssueCreatedPrefix:   "✅ 已建立 ",
 		IssueTitleSeparator:  " — ",
-		IssueDuplicatePrefix: "⚠️ 未创建 —— 已存在进行中的 ",
+		IssueDuplicatePrefix: "⚠️ 未建立 —— 已存在進行中的 ",
 
-		StreamNoReply:          "（这轮没有需要回复的内容）",
-		StreamNoReplyWithFiles: "（这轮没有文字回复，附件在下面）",
-		StreamNotStarted:       "已收到，但这条暂时没能开始处理。",
-		StreamFailed:           "⚠️ 这次没跑通，请稍后再试一次。",
-		MediaSendFailed:        "⚠️ 有文件没能发出来，我这边保留着，需要的话我再试一次。",
-		MediaSendUnknown:       "⚠️ 有文件我没收到企业微信的送达回执，可能已经发到了、也可能没有。我不会自动重发，免得发重了；你那边没看到的话说一声，我再发一次。",
-		MediaLookupFailed:      "⚠️ 我这边没查到这条回答带没带文件，所以要是有，这次没发出来。需要的话我再试一次。",
-		StreamCancelled:        "⏹️ 这次处理已取消。",
+		StreamNoReply:          "（這輪沒有需要回覆的內容）",
+		StreamNoReplyWithFiles: "（這輪沒有文字回覆，附件在下面）",
+		StreamNotStarted:       "已收到，但這則暫時沒能開始處理。",
+		StreamFailed:           "⚠️ 這次執行失敗，請稍後再試一次。",
+		MediaSendFailed:        "⚠️ 有檔案無法傳送，我這邊保留著，需要的話我再試一次。",
+		MediaSendUnknown:       "⚠️ 有檔案我沒收到企業微信的送達確認，可能已經送達、也可能沒有。我不會自動重送，避免重複傳送；你那邊沒看到的話說一聲，我再傳送一次。",
+		MediaLookupFailed:      "⚠️ 我這邊沒查到這則回覆是否有附檔案，所以要是有，這次沒能傳送。需要的話我再試一次。",
+		StreamCancelled:        "⏹️ 這次處理已取消。",
 
-		InboxDetailLink: "查看详情",
+		InboxDetailLink: "查看詳情",
 		InboxTypeLabels: map[string]string{
-			"issue_assigned":     "任务指派",
+			"issue_assigned":     "任務指派",
 			"mentioned":          "提及你",
-			"status_changed":     "状态变更",
-			"comment_added":      "新评论",
-			"new_comment":        "新评论",
-			"reaction_added":     "表情反应",
-			"task_failed":        "task 失败",
+			"status_changed":     "狀態變更",
+			"comment_added":      "新留言",
+			"new_comment":        "新留言",
+			"reaction_added":     "表情反應",
+			"task_failed":        "執行失敗",
 			"unassigned":         "取消指派",
-			"assignee_changed":   "指派人变更",
-			"priority_changed":   "优先级变更",
-			"due_date_changed":   "截止日期变更",
-			"start_date_changed": "开始日期变更",
+			"assignee_changed":   "指派人變更",
+			"priority_changed":   "優先順序變更",
+			"due_date_changed":   "截止日期變更",
+			"start_date_changed": "開始日期變更",
 		},
-		InboxTypeFallback: "新消息",
+		InboxTypeFallback: "新訊息",
 	},
 	LocaleEn: {
 		AgentOffline:         "⚠️ The agent is offline right now. Your message was received and will be handled once it's back.",

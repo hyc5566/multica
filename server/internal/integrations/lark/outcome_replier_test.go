@@ -213,7 +213,7 @@ func TestLarkOutcomeReplierAgentOfflineSendsCard(t *testing.T) {
 	if got.InstallationID.AppSecret != "s" {
 		t.Errorf("AppSecret = %q", got.InstallationID.AppSecret)
 	}
-	if !contains(got.CardJSON, "离线") || !contains(got.CardJSON, "Trump") {
+	if !contains(got.CardJSON, "離線") || !contains(got.CardJSON, "Trump") {
 		t.Errorf("CardJSON should embed offline copy and agent name: %s", got.CardJSON)
 	}
 }
@@ -235,7 +235,7 @@ func TestLarkOutcomeReplierAgentArchivedSendsCard(t *testing.T) {
 	if len(stub.interactiveOut) != 1 {
 		t.Fatalf("expected one SendInteractiveCard call, got %d", len(stub.interactiveOut))
 	}
-	if !contains(stub.interactiveOut[0].CardJSON, "归档") {
+	if !contains(stub.interactiveOut[0].CardJSON, "歸檔") {
 		t.Errorf("CardJSON should embed archived copy: %s", stub.interactiveOut[0].CardJSON)
 	}
 }
@@ -247,9 +247,9 @@ func TestLarkOutcomeReplierCommandOutcomesSendGuidance(t *testing.T) {
 		hadMedia bool
 		want     string
 	}{
-		{"fresh pending", OutcomeFreshPending, false, "下一条聊天消息"},
-		{"plain issue usage", OutcomeIssueUsage, false, "请填写任务标题"},
-		{"issue usage with media", OutcomeIssueUsage, true, "请添加标题，并与图片或视频一起重新发送"},
+		{"fresh pending", OutcomeFreshPending, false, "下一則聊天訊息"},
+		{"plain issue usage", OutcomeIssueUsage, false, "請填寫任務標題"},
+		{"issue usage with media", OutcomeIssueUsage, true, "請新增標題，並與圖片或影片一起重新傳送"},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			log := slog.New(slog.NewTextHandler(io.Discard, nil))
@@ -398,7 +398,7 @@ func TestLarkOutcomeReplierNeedsBindingFallsBackToGroupNoticeWhenPrivateUnavaila
 	if len(stub.interactiveOut) != 1 {
 		t.Fatalf("expected one fallback card, got %d", len(stub.interactiveOut))
 	}
-	if !strings.Contains(stub.interactiveOut[0].CardJSON, "请先打开机器人对话并发送一条消息，再回到群里重试") {
+	if !strings.Contains(stub.interactiveOut[0].CardJSON, "請先開啟機器人對話並傳送一則訊息，再回到群裡重試") {
 		t.Fatalf("fallback card should contain private-send-unavailable guidance: %q", stub.interactiveOut[0].CardJSON)
 	}
 }

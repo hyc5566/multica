@@ -8,7 +8,7 @@ describe("mobile i18n singleton", () => {
     await i18n.changeLanguage("en");
   });
 
-  it("loads the English and Simplified Chinese bundles", async () => {
+  it("loads English and Traditional Chinese through the compatible locale key", async () => {
     await i18n.changeLanguage("en");
     expect(i18n.t("actions.cancel")).toBe("Cancel");
     expect(i18n.t("common:actions.cancel")).toBe("Cancel");
@@ -23,7 +23,7 @@ describe("mobile i18n singleton", () => {
   it("formats counts with interpolation", async () => {
     await i18n.changeLanguage("zh-Hans");
     expect(i18n.t("issues:list.count_other", { count: 3 })).toBe(
-      "3 个任务",
+      "3 個任務",
     );
   });
 
@@ -32,7 +32,7 @@ describe("mobile i18n singleton", () => {
     expect(i18n.t("issues:status.todo")).toBe("todo");
     expect(i18n.t("issues:status.in_review")).toBe("in_review");
     expect(i18n.t("issues:status.cancelled")).toBe("cancelled");
-    expect(i18n.t("issues:runs.status.queued")).toBe("排队中");
-    expect(i18n.t("issues:runs.status.completed")).toBe("运行成功");
+    expect(i18n.t("issues:runs.status.queued")).toBe("排隊中");
+    expect(i18n.t("issues:runs.status.completed")).toBe("執行成功");
   });
 });

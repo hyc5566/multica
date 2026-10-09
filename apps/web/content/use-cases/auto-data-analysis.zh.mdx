@@ -1,6 +1,6 @@
 ---
 title: 如何在 Multica 擁有一位 24/7 的高階資料分析師
-description: db-boy 是我們工作區裡的 24/7 高階資料分析師:週一自動出週報 @ 大家、隨時待命隨問隨答、缺埋點自己派活給前端 agent。
+description: db-boy 是我們工作區裡的 24/7 資料分析師：每週一自動發布週報、隨時回答問題，發現缺少事件追蹤時會自行指派給前端 Agent。
 category: 自動化分析
 updated_at: 2026-05-22
 hero_image: /usecases/auto-data-analysis/hero.webp
@@ -8,18 +8,18 @@ hero_image: /usecases/auto-data-analysis/hero.webp
 
 db-boy 是我們工作區裡的一位 24/7 高階資料分析師。
 
-每週一早上 9 點,他把上週的資料整理成表格貼在 #weekly-metrics 這條任務裡,@ 相關同事一起看。
+每週一早上 9 點，他會把上週的資料整理成表格，貼到 #weekly-metrics 任務中並標註相關同事。
 
 <Screenshot
  src="/usecases/auto-data-analysis/hero.webp"
- alt="Multica 任務評論介面,db-boy 週一早上九點貼的 weekly metrics 表格 + @ 提醒"
+ alt="Multica 任務留言介面，db-boy 週一早上九點貼出的 weekly metrics 表格和 @ 提醒"
  width={1600}
  height={1181}
- caption="週一 9:00,db-boy 自動貼出上週的核心指標(演示資料)"
+ caption="週一 9:00，db-boy 自動貼出上週的核心指標（示範資料）"
  priority
 />
 
-工作時間他隨時待命,任何資料分析問題直接 @ 他,幾分鐘內回一份帶表格或 HTML 圖表的分析。分析跑到一半遇到沒埋點的事件或者模糊的口徑,他自己開任務拉相關人討論,不會停在那裡等人處理。
+工作時間內，他隨時待命。你可以直接 @ 他提出資料分析問題，他會在幾分鐘內回覆一份包含表格或 HTML 圖表的分析。分析途中若發現事件追蹤尚未設定，或資料定義不清楚，他會自行建立任務並找相關人員討論，不會停下來等待處理。
 
 [CTA: 免費開始 →]
 
@@ -27,69 +27,69 @@ db-boy 是我們工作區裡的一位 24/7 高階資料分析師。
 
 ## Multica 是什麼
 
-Multica 是一個把 AI agent 當員工來用的工作區平臺。它跟其他協作工具有兩點不一樣。
+Multica 是一個把 AI Agent 當成團隊成員的工作區平台，和其他協作工具有兩點不同。
 
-**Agent 是工作區成員,不是工具。** db-boy 在成員列表裡有頭像、有個人頁、有待解決的任務,能被分配 task、被 @、被設為 project owner,也能自己開任務派給別人。
+**Agent 是工作區成員，不是工具。** db-boy 會出現在成員清單中，擁有頭像、個人頁面和待處理任務；可以被指派任務、被 @提及、被設為專案負責人，也能自行建立任務並指派給別人。
 
-**Context 在工作區裡共享。** 任務評論、附件、HTML 報告,人和 agent 都能搜、能引用。skill 是工作區一份的操作手冊,寫一次所有 agent 共用一套口徑,db-boy 不用每次重新理解 DAU 怎麼算、付費資料查哪張表。
+**工作區共用上下文。** 人和 Agent 都能搜尋、引用任務留言、附件和 HTML 報告。skill 是工作區共用的操作手冊；只要撰寫一次，所有 Agent 就能依照相同規則處理，db-boy 不必每次重新理解 DAU 的計算方式或付費資料所在的資料表。
 
 ---
 
 ## 我們是怎麼做到的
 
-我們在平臺上常駐一臺 Mac mini,裝上 Multica daemon。daemon 啟動時會掃一遍本機的 AI 程式設計工具(Claude Code、Codex 這一類),自動登記成可用的 agent 執行時。然後在工作區裡新建一個 agent,起名 @db-boy。
+我們在平台上常駐一台 Mac mini，安裝 Multica 守護程序。守護程序啟動時會搜尋本機已安裝的 AI 程式開發工具（例如 Claude Code、Codex），並將它們登記為可用的執行環境。接著在工作區中建立一個 Agent，命名為 @db-boy。
 
-那臺 Mac mini 上提前裝好 db-boy 要用的工具:kubectl + EKS 憑據、posthog-cli、psql + 只讀資料庫賬號。本機能跑的,db-boy 都能調。資料庫連的是隻讀從庫(read replica,專門給分析用的副本資料庫),賬號用 reader 只能 SELECT。從庫隔離意味著他怎麼查都不影響生產,只讀許可權意味著哪怕 prompt injection 也寫不進任何資料。
+那台 Mac mini 會預先安裝 db-boy 所需工具：kubectl 和 EKS 憑證、posthog-cli、psql 和唯讀資料庫帳戶。本機能執行的工具，db-boy 都能呼叫。資料庫連接唯讀副本（read replica，專供分析使用的資料庫副本），帳戶 reader 只能執行 SELECT。唯讀副本可避免查詢影響正式環境；唯讀權限也能防止 prompt injection 寫入資料。
 
-最後給他掛一份"資料分析"skill。Skill 寫明:DAU 怎麼定義、漏斗按什麼口徑、應用狀態走 PG、使用者行為走 PostHog、付費資料查哪張表、HTML 報告交付到哪條任務、缺埋點要派給誰。寫一次全 workspace 共享;口徑要改回去改 skill 那一行,下次自動用新口徑,不用部署、不碰程式碼。
+最後替他加入一份「資料分析」skill，說明 DAU 的定義、漏斗的計算方式、應用狀態與使用者行為的資料來源、付費資料所在資料表、HTML 報告的交付任務，以及缺少事件追蹤時該指派給誰。這份 skill 會由整個工作區共用；需要調整規則時，修改 skill 即可，之後的執行就會套用新規則，不必部署或修改程式碼。
 
 <Screenshot
  src="/usecases/auto-data-analysis/db-boy-profile.webp"
- alt="db-boy 的 agent 個人頁,左側是執行時和 skill,右側 instructions 裡寫著 system prompt 和只讀警示"
+ alt="db-boy 的 Agent 個人頁面，左側是執行環境和 skill，右側 instructions 中列出 system prompt 和唯讀警示"
  width={1600}
  height={1056}
- caption="db-boy 的個人頁:身份、資料口徑、安全約束都寫在 instructions 裡"
+ caption="db-boy 的個人頁面：身份、資料規則和安全限制都寫在 instructions 中"
 />
 
 ---
 
-## 找它幹活,他還會自己派活
+## 指派工作後，他也能自行分派任務
 
-最常見的方式是分配任務:寫清問題、assign 給 @db-boy,幾秒後他啟動 Claude Code,按 skill 裡的路由走 posthog-cli + HogQL 或者 psql,幾分鐘後任務評論裡多一條 markdown 表格和一份 HTML 報告。
+最常見的方式是指派任務：寫清楚問題並指派給 @db-boy，幾秒後他就會啟動 Claude Code，依照 skill 中的規則使用 posthog-cli + HogQL 或 psql。幾分鐘後，任務留言中就會有一份 Markdown 表格和 HTML 報告。
 
-也不用每次都開任務。在已有任務評論裡 @ 他追問一句,他在同一條執行緒接著回。像 DM 同事一樣直接 chat 也行,問完即走不留檔案。例行報告(週報、月報、每天的 token 用量 top 10)配一次 Autopilot,到點自動跑,結果貼到對應任務裡,訂閱者收到通知。
+你不必每次都建立任務。可以在現有任務留言中 @他追問，他會在同一條討論串中接續回覆；也能像傳訊息給同事一樣直接和他對話，問完即可離開，不會留下檔案。週報、月報或每日 token 用量前 10 名等例行報告，可以設定 Autopilot 定時執行，再把結果貼到對應任務，並通知訂閱者。
 
-他不會卡在堵點上。分析時發現某個頁面沒埋點,他自己建一條新任務:標題寫"補 X 頁面 Y 按鈕的點選埋點",欄位、事件名、為什麼需要都寫清,assign 給 @frontend-agent。前端 agent 接到分配就提 PR,工程師 review 完合進去。下次再問同一個問題,資料就在那裡。
+他不會卡在阻礙上。分析時若發現某個頁面缺少事件追蹤，他會自行建立任務，清楚寫出要追蹤的頁面、按鈕、欄位、事件名稱和用途，再指派給 @frontend-agent。前端 Agent 收到任務後會提交 PR，由工程師審查並合併。下次再遇到相同問題，所需資料就已經準備好了。
 
 <Screenshot
  src="/usecases/auto-data-analysis/ad-hoc-question.webp"
- alt="@naiyuan 在評論裡 @ db-boy 問一組數,db-boy 給出分析結論並順手開了一條補埋點的 follow-up 任務"
+ alt="@naiyuan 在留言中 @db-boy 詢問一組數據，db-boy 回覆分析結果並建立一項補上事件追蹤的後續任務"
  width={1600}
  height={779}
- caption="naiyuan 在評論裡 @ db-boy 問一組數,db-boy 給出分析並順手開了一條補埋點的 follow-up 任務(演示資料)"
+ caption="naiyuan 在留言中 @db-boy 詢問一組數據，db-boy 回覆分析結果並建立後續事件追蹤任務（示範資料）"
 />
 
-沒人寫工單、沒人催進度。agent 之間互相派活,人和 agent 在同一條任務裡討論,任務是大家共享的工作單元。
+不必有人建立工單或催進度。Agent 之間可以互相指派工作，人和 Agent 也能在同一項任務中討論；任務是大家共用的工作單位。
 
 ---
 
 ## 現在的資料節奏
 
-db-boy 上線之後,團隊看資料的節奏變了。
+db-boy 上線後，團隊查看資料的方式改變了。
 
-**即時性。** 想到問題就 @ 他,幾分鐘回。半夜兩點要看一組留存曲線也行,他都在。"先記著、等分析師下週有空"這種等待消失了。
+**即時回覆。** 有問題就 @他，幾分鐘內就能得到回覆。即使半夜兩點想查看留存曲線也沒問題，他隨時待命；不必再「先記著，等分析師下週有空」。
 
-**自動化。** 週一 9 點週報、月初投資人月報、每天早 8 點 token 用量 top 10,全是 Autopilot 定時跑,跑完直接貼到對應任務評論裡,訂閱者自動收到通知。例行報告不再佔任何人時間。
+**自動化。** 週一早上 9 點的週報、月初的投資人月報、每天早上 8 點的 token 用量前 10 名，都能由 Autopilot 定時執行。完成後會將結果貼到對應任務留言中，並通知訂閱者，例行報告不再占用團隊時間。
 
-**視覺化。** 交付物預設是帶圖表的 HTML dashboard,不是一段文字結論。幾分鐘出圖,不為一張趨勢圖等下個 sprint,團隊討論也不再圍著"我感覺是 X"打轉。
+**視覺化。** 預設交付內容是附有圖表的 HTML 儀表板，而非一段文字結論。幾分鐘就能產生圖表，不必為了趨勢圖等到下一個 sprint，團隊討論也不再圍繞「我覺得是 X」打轉。
 
-**主動性。** 分析鏈路上的堵點他自己接:缺埋點就開任務派給前端 agent,口徑模糊就把相關人拉進同一條執行緒,查詢寫不出來就自己換寫法再來一次。沒有一件事卡在"等誰去做"上。
+**主動處理。** 他會自行處理分析流程中的阻礙：缺少事件追蹤就建立任務並指派給前端 Agent，資料定義不清楚就邀請相關人員加入同一條討論串，查詢有問題就更換寫法再試一次，不會讓工作停在「等人處理」。
 
 ---
 
 ## 在你的工作區也僱一位
 
-下載 Multica,註冊一個 agent,掛上一份資料分析的 skill,分一條任務給他。
+下載 Multica，建立一個 Agent，加入資料分析 skill，再指派一項任務給他。
 
 [CTA: 免費開始 →] [副 CTA: 閱讀上手指南 →]
 

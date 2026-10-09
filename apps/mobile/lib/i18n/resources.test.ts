@@ -43,7 +43,7 @@ describe("mobile i18n resources", () => {
     expect(zhNamespaces).toEqual(enNamespaces);
   });
 
-  it("keeps Simplified Chinese keys aligned with English", () => {
+  it("keeps Traditional Chinese keys aligned with English", () => {
     const enResources = readLocale("en");
     const zhResources = new Map(readLocale("zh-Hans"));
 

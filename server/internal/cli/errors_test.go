@@ -125,7 +125,7 @@ func TestFormatErrorChineseLocale(t *testing.T) {
 	withLang(t, "zh_CN.UTF-8")
 	netErr := &NetworkError{Kind: KindNetworkDNS, Err: errors.New("no such host")}
 	got := FormatError(netErr, false)
-	if !strings.Contains(got, "无法解析") {
+	if !strings.Contains(got, "無法解析") {
 		t.Errorf("expected Chinese DNS message, got %q", got)
 	}
 }
@@ -177,7 +177,7 @@ func TestFormatErrorConflictChineseLocale(t *testing.T) {
 	withLang(t, "zh_CN.UTF-8")
 	httpErr := &HTTPError{StatusCode: 409, Body: `{"error":"a skill with this name already exists"}`}
 	got := FormatError(httpErr, false)
-	if !strings.Contains(got, "请求冲突：") || !strings.Contains(got, "a skill with this name already exists") {
+	if !strings.Contains(got, "請求衝突：") || !strings.Contains(got, "a skill with this name already exists") {
 		t.Errorf("expected Chinese conflict prefix with server message, got %q", got)
 	}
 }
@@ -448,8 +448,8 @@ func TestFormatErrorRejectedTaskTokenDoesNotSuggestAnotherCredential(t *testing.
 			// No sign-in advice, and no claim about a cause it cannot verify.
 			[]string{"multica login", "administrator", "cancelled", "finished", "terminal state"}},
 		{"zh_CN.UTF-8",
-			[]string{"已被拒绝", "不再可用", "不要重试", "不要改用 profile 或成员凭证"},
-			[]string{"multica login", "管理员", "已完成", "被取消", "终态"}},
+			[]string{"已被拒絕", "不再可用", "不要重試", "不要改用 profile 或成員憑證"},
+			[]string{"multica login", "管理員", "已完成", "被取消", "終態"}},
 	} {
 		withLang(t, tc.lang)
 		got := FormatError(httpErr, false)
@@ -465,13 +465,13 @@ func TestFormatErrorRejectedTaskTokenDoesNotSuggestAnotherCredential(t *testing.
 		}
 	}
 
-	// Glossary: an agent execution is `task` in Chinese; 任务 is the product
-	// entity a user files (an issue). Writing this message with 任务 would say
+	// Glossary: an agent execution is `task` in Chinese; 任務 is the product
+	// entity a user files (an issue). Writing this message with 任務 would say
 	// the user's issue was rejected. See conventions.zh.mdx.
 	withLang(t, "zh_CN.UTF-8")
 	zh := FormatError(httpErr, false)
-	if strings.Contains(zh, "任务") {
-		t.Errorf("zh copy used 任务 for an agent execution; it must stay `task`: %q", zh)
+	if strings.Contains(zh, "任務") {
+		t.Errorf("zh copy used 任務 for an agent execution; it must stay `task`: %q", zh)
 	}
 	if !strings.Contains(zh, "task") {
 		t.Errorf("zh copy dropped the `task` term entirely: %q", zh)
@@ -499,14 +499,14 @@ func TestFormatErrorActionableHints(t *testing.T) {
 		enWant []string
 		zhWant []string
 	}{
-		{401, []string{"multica login", "self-hosted", "administrator"}, []string{"multica login", "自托管", "管理员"}},
-		{403, []string{"permission", "workspace"}, []string{"无权", "workspace"}},
+		{401, []string{"multica login", "self-hosted", "administrator"}, []string{"multica login", "自行架設", "管理員"}},
+		{403, []string{"permission", "workspace"}, []string{"無權", "workspace"}},
 		{404, []string{"not found", "list"}, []string{"未找到", "list"}},
-		{409, []string{"conflict", "again"}, []string{"冲突", "重新获取"}},
-		{400, []string{"--help", "expected format"}, []string{"--help", "格式", "参数"}},
-		{422, []string{"--help", "expected format"}, []string{"--help", "格式", "参数"}},
-		{429, []string{"Too many requests"}, []string{"过于频繁"}},
-		{500, []string{"temporarily unavailable", "--debug"}, []string{"暂时不可用", "--debug"}},
+		{409, []string{"conflict", "again"}, []string{"衝突", "重新取得"}},
+		{400, []string{"--help", "expected format"}, []string{"--help", "格式", "參數"}},
+		{422, []string{"--help", "expected format"}, []string{"--help", "格式", "參數"}},
+		{429, []string{"Too many requests"}, []string{"過於頻繁"}},
+		{500, []string{"temporarily unavailable", "--debug"}, []string{"暫時不可用", "--debug"}},
 	}
 	for _, tc := range cases {
 		httpErr := &HTTPError{Method: "GET", Path: "/api/x", StatusCode: tc.status}

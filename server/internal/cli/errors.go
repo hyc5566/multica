@@ -394,67 +394,67 @@ func DetectLanguage() Language {
 var kindMessages = map[ErrorKind][2]string{
 	KindNetworkTimeout: {
 		"Request timed out: the server did not respond in time. Check your network connection or try again later. You can raise the limit with MULTICA_HTTP_TIMEOUT.",
-		"请求超时：服务器未在规定时间内响应。请检查网络连接或稍后重试。可通过 MULTICA_HTTP_TIMEOUT 调高超时时间。",
+		"請求逾時：伺服器未在規定時間內回應。請檢查網路連線或稍後重試。可透過 MULTICA_HTTP_TIMEOUT 調高逾時時間。",
 	},
 	KindNetworkTLSHandshakeTimeout: {
 		"TLS handshake timed out: the connection to the Multica server opened, but the secure handshake never completed. Something on this network path (security software, a VPN, a router, or a firewall) is probably dropping large TLS handshakes; curl or a browser on the same machine may still work. Retry with the environment variable GODEBUG=tlsmlkem=0 set, and keep it set for the CLI and the daemon if that fixes it. MULTICA_HTTP_TIMEOUT does not affect the handshake.",
-		"TLS 握手超时：已连上 Multica 服务器，但安全握手一直没有完成。通常是网络路径上的安全软件、VPN、路由器或防火墙丢弃了较大的 TLS 握手包，同一台机器上的 curl 或浏览器可能仍然正常。请设置环境变量 GODEBUG=tlsmlkem=0 后重试；若因此恢复，请为 CLI 和守护进程长期保留该设置。MULTICA_HTTP_TIMEOUT 对握手无效。",
+		"TLS 握手逾時：已連上 Multica 伺服器，但安全握手一直沒有完成。通常是網路路徑上的安全軟體、VPN、路由器或防火牆丟棄了較大的 TLS 握手包，同一臺機器上的 curl 或瀏覽器可能仍然正常。請設定環境變數 GODEBUG=tlsmlkem=0 後重試；若因此恢復，請為 CLI 和守護程序長期保留該設定。MULTICA_HTTP_TIMEOUT 對握手無效。",
 	},
 	KindNetworkStalled: {
 		"Transfer stalled: the connection stopped sending data before the response was complete. Check your network connection or try again. You can raise the no-progress budget with MULTICA_HTTP_STALL_TIMEOUT.",
-		"传输中断：响应尚未接收完毕，连接就停止发送数据。请检查网络连接或重试。可通过 MULTICA_HTTP_STALL_TIMEOUT 调高无进展等待时间。",
+		"傳輸中斷：回應尚未接收完畢，連線就停止傳送資料。請檢查網路連線或重試。可透過 MULTICA_HTTP_STALL_TIMEOUT 調高無進展等待時間。",
 	},
 	KindNetworkDNS: {
 		"Could not resolve the Multica server address. Check your network connection or the --server-url setting.",
-		"无法解析 Multica 服务器地址。请检查网络连接或 --server-url 配置。",
+		"無法解析 Multica 伺服器位址。請檢查網路連線或 --server-url 設定。",
 	},
 	KindNetworkRefused: {
 		"Could not connect to the Multica server. Make sure the server address is correct and reachable.",
-		"无法连接到 Multica 服务器。请确认服务器地址正确且网络可达。",
+		"無法連線到 Multica 伺服器。請確認伺服器位址正確且網路可達。",
 	},
 	KindNetworkTLS: {
 		"Could not establish a secure connection to the Multica server (TLS/certificate error). Check your system clock and CA certificates.",
-		"无法与 Multica 服务器建立安全连接（TLS/证书错误）。请检查系统时间和 CA 证书。",
+		"無法與 Multica 伺服器建立安全連線（TLS/憑證錯誤）。請檢查系統時間和 CA 憑證。",
 	},
 	KindNetworkOffline: {
 		"Could not reach the Multica server. Check your network connection.",
-		"无法访问 Multica 服务器。请检查网络连接。",
+		"無法存取 Multica 伺服器。請檢查網路連線。",
 	},
 	KindAuthRequired: {
 		"Your session has expired or you are not signed in. Run `multica login` to sign in again. On a self-hosted or non-OAuth setup, ask your administrator for valid credentials.",
-		"登录已过期或尚未登录。请运行 `multica login` 重新登录。自托管或非 OAuth 场景请联系管理员获取有效凭证。",
+		"登入已過期或尚未登入。請執行 `multica login` 重新登入。自行架設或非 OAuth 情境請聯絡管理員取得有效憑證。",
 	},
 	KindTaskTokenRejected: {
 		"This task token was rejected and is no longer usable. Stop here: do not retry, and do not fall back to a profile or member credential, because anything done with one would run as that person rather than as this task. Only the runtime that started this task can supply a valid task token.",
-		"这个 task token 已被拒绝，不再可用。请到此为止：不要重试，也不要改用 profile 或成员凭证 —— 用它们执行的任何操作都会以那个成员的身份运行，而不是以这次 task 的身份运行。只有启动这次 task 的运行时才能提供有效的 task token。",
+		"這個 task token 已被拒絕，不再可用。請到此為止：不要重試，也不要改用 profile 或成員憑證 —— 用它們執行的任何操作都會以那個成員的身分執行，而不是以這次 task 的身分執行。只有啟動這次 task 的執行環境才能提供有效的 task token。",
 	},
 	KindForbidden: {
 		"You do not have permission to access this resource. Check that you are in the right workspace, or ask an administrator to grant access.",
-		"无权访问该资源。请确认当前 workspace 是否正确，或联系管理员授予权限。",
+		"無權存取該資源。請確認目前 workspace 是否正確，或聯絡管理員授予權限。",
 	},
 	KindNotFound: {
 		"The requested resource was not found. Check the ID, or run the matching `list` command to see what exists in this workspace.",
-		"未找到请求的资源。请核对 ID，或运行对应的 list 命令查看当前 workspace 中已有的内容。",
+		"未找到請求的資源。請核對 ID，或執行對應的 list 指令查看目前 workspace 中已有的內容。",
 	},
 	KindConflict: {
 		"The request conflicts with the current state of the resource (it may already exist or have changed since you last fetched it). Re-fetch the latest state and try again.",
-		"请求与资源的当前状态冲突（可能已存在，或自上次获取后已被修改）。请重新获取最新状态后再试。",
+		"請求與資源的目前狀態衝突（可能已存在，或自上次取得後已被修改）。請重新取得最新狀態後再試。",
 	},
 	KindValidation: {
 		"The request was invalid. Check the values you provided; run the command with --help to see the expected format.",
-		"请求无效。请检查所填写的参数；可用 --help 查看期望的格式。",
+		"請求無效。請檢查所填寫的參數；可用 --help 查看期望的格式。",
 	},
 	KindRateLimited: {
 		"Too many requests. Please wait a moment and try again; if this keeps happening, reduce how frequently you call the API.",
-		"请求过于频繁。请稍候重试；若持续出现，请降低 API 调用频率。",
+		"請求過於頻繁。請稍候重試；若持續出現，請降低 API 呼叫頻率。",
 	},
 	KindServerError: {
 		"The Multica service is temporarily unavailable (server error). Please try again later; if it persists, contact support. Re-run with --debug to see the raw server response.",
-		"Multica 服务暂时不可用（服务器错误）。请稍后重试；若持续出现请联系支持。可加 --debug 查看服务器原始响应。",
+		"Multica 服務暫時不可用（伺服器錯誤）。請稍後重試；若持續出現請聯絡支援。可加 --debug 查看伺服器原始回應。",
 	},
 	KindUnknown: {
 		"An unexpected error occurred.",
-		"发生未知错误。",
+		"發生未知錯誤。",
 	},
 }
 
@@ -470,8 +470,8 @@ var kindMessages = map[ErrorKind][2]string{
 // hint literally and burned hours re-sending an unchanged request (GH #6264,
 // GH #5948), and the server-side wording added in MUL-4417 never reached them.
 var serverMessagePrefixes = map[ErrorKind][2]string{
-	KindValidation: {"Invalid request: ", "请求无效："},
-	KindConflict:   {"Request conflict: ", "请求冲突："},
+	KindValidation: {"Invalid request: ", "請求無效："},
+	KindConflict:   {"Request conflict: ", "請求衝突："},
 }
 
 // messageFor returns the localized message for a kind.

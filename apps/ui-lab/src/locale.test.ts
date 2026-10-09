@@ -88,7 +88,7 @@ describe("UI Lab language preference", () => {
       "2 changes",
     );
     expect(chinese(($) => $.lab.preview.changeCount, { count: 2 })).toBe(
-      "2 项修改",
+      "2 項修改",
     );
     expect(
       english(($) => $.lab.notice.loaded, { name: "Custom <design>" }),

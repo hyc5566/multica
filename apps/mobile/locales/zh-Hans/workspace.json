@@ -1,38 +1,38 @@
 {
-  "title": "选择工作区",
-  "members": "成员",
-  "agents": "智能体",
-  "select": "选择工作区",
+  "title": "選擇工作區",
+  "members": "成員",
+  "agents": "Agent",
+  "select": "選擇工作區",
   "switch": {
-    "title": "切换工作区",
-    "message": "切换到 {{name}}？",
-    "confirm": "切换",
-    "current_a11y": "{{name}} 是当前工作区",
-    "switch_a11y": "切换到 {{name}}"
+    "title": "切換工作區",
+    "message": "切換到 {{name}}？",
+    "confirm": "切換",
+    "current_a11y": "{{name}} 是當前工作區",
+    "switch_a11y": "切換到 {{name}}"
   },
-  "empty": "你还没有加入任何工作区。请联系工作区管理员以获取邀请。",
+  "empty": "你還沒有加入任何工作區。請聯繫工作區管理員以取得邀請。",
   "agent": {
-    "title": "智能体",
-    "empty": "还没有智能体",
-    "search_placeholder": "搜索智能体...",
-    "coming_soon": "智能体功能即将上线。"
+    "title": "Agent",
+    "empty": "還沒有 Agent",
+    "search_placeholder": "搜尋 Agent...",
+    "coming_soon": "Agent 功能即將上線。"
   },
   "actions": {
-    "retry": "重试",
-    "sign_out": "退出登录"
+    "retry": "重試",
+    "sign_out": "登出"
   },
   "auth": {
-    "signed_in_as": "当前登录账号"
+    "signed_in_as": "當前登入帳號"
   },
   "errors": {
-    "load_failed": "工作区加载失败：{{message}}"
+    "load_failed": "工作區載入失敗：{{message}}"
   },
   "pins": {
     "errors": {
-      "load_failed": "固定项加载失败：{{message}}"
+      "load_failed": "固定項載入失敗：{{message}}"
     },
-    "empty": "还没有固定项。",
-    "unavailable_issue": "该固定任务不可用。",
-    "unavailable_project": "该固定项目不可用。"
+    "empty": "還沒有固定項。",
+    "unavailable_issue": "該固定任務不可用。",
+    "unavailable_project": "該固定專案不可用。"
   }
 }

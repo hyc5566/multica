@@ -13,7 +13,7 @@ import { Play } from "lucide-react";
  * component.
  *
  * Usage in MDX (registered in the docs MDX components map):
- *   <VideoEmbed provider="bilibili" id="BV1cv7Y6gEg7" title="Multica 介绍视频" />
+ *   <VideoEmbed provider="bilibili" id="BV1cv7Y6gEg7" title="Multica 介紹影片" />
  */
 
 type Provider = "bilibili" | "youtube";
@@ -23,7 +23,7 @@ interface ProviderConfig {
   embedUrl: (id: string, autoplay: boolean) => string;
   /** Canonical watch page — the load-failure / slow-network fallback link. */
   watchUrl: (id: string) => string;
-  /** Human label for the fallback link ("在 Bilibili 观看"). */
+  /** Human label for the fallback link ("Watch on Bilibili"). */
   siteName: string;
   /** Validates the id shape so a typo renders a notice, not a broken frame. */
   isValidId: (id: string) => boolean;
@@ -64,13 +64,13 @@ export function VideoEmbed({
   if (!config || !id || !config.isValidId(id)) {
     return (
       <div className="not-prose my-7 rounded-lg border border-border bg-muted/30 p-4 text-sm text-muted-foreground">
-        视频暂时无法加载{title ? `：${title}` : ""}。
+        影片暫時無法載入{title ? `：${title}` : ""}。
       </div>
     );
   }
 
   const watchUrl = config.watchUrl(id);
-  const label = title ?? "观看视频";
+  const label = title ?? "觀看影片";
 
   return (
     <figure className="not-prose my-7">
@@ -101,14 +101,14 @@ export function VideoEmbed({
         )}
       </div>
       <figcaption className="mt-2 text-xs text-muted-foreground">
-        加载缓慢或无法播放？
+        載入緩慢或無法播放？
         <a
           href={watchUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="underline underline-offset-2 hover:text-foreground"
         >
-          在 {config.siteName} 观看
+          在 {config.siteName} 觀看
         </a>
       </figcaption>
     </figure>

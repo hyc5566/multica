@@ -67,7 +67,7 @@ const handshakeTimeout = 15 * time.Second
 // 图文混排 started routing: a person who has just watched the bot answer a
 // screenshot, then gets told it only handles text, reads that as the bot
 // being broken rather than as this one kind not being supported.
-const unsupportedMsgTypeReceipt = "抱歉，我暂时无法处理这类消息。"
+const unsupportedMsgTypeReceipt = "抱歉，我暫時無法處理這類訊息。"
 
 // wecomChannel is one installation's aibot smart-bot WebSocket connection.
 // The engine.Supervisor builds one per active installation via the

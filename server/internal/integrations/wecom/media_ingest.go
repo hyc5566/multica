@@ -42,8 +42,8 @@ import (
 // the Chinese product voice the rest of this adapter already writes in
 // (wecom_channel.go's receipt, router.go's session titles).
 const (
-	mediaUnreadableNotice = "抱歉，有附件没能收到，麻烦重新发一次。"
-	mediaTooLargeNotice   = "抱歉，附件太大了，我这边收不下。"
+	mediaUnreadableNotice = "抱歉，有附件沒能收到，麻煩重新發一次。"
+	mediaTooLargeNotice   = "抱歉，附件太大了，我這邊收不下。"
 )
 
 // mediaStorage is the slice of storage.Storage this resolver drives.

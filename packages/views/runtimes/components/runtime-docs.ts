@@ -7,6 +7,7 @@ export function daemonRuntimesDocsHref(language?: string): string {
 export function customRuntimeDocsHref(language?: string): string {
   const base = daemonRuntimesDocsHref(language);
   if (language?.startsWith("zh")) {
+    // The external upstream guide keeps this anchor in Simplified Chinese.
     return `${base}#${encodeURIComponent("自定义运行时配置")}`;
   }
   if (language?.startsWith("ja")) {

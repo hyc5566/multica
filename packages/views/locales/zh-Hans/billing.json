@@ -15,7 +15,7 @@
   },
   "buy": {
     "title": "購買 credits / 管理賬單",
-    "no_tiers": "未配置任何價格檔位。Cloud 那邊應該沒有配 Stripe key——checkout 會返回 503。",
+    "no_tiers": "未設定任何價格檔位。Cloud 那邊應該沒有配 Stripe key——checkout 會返回 503。",
     "tier_money_to_credits": "{{money}} → {{credits}} credits",
     "tier_bonus": " + 贈送 {{credits}}",
     "tier_bonus_with_expiry": " + 贈送 {{credits}}（{{expiry}}）",
@@ -103,8 +103,8 @@
     "errors": {
       "action_title": "賬單操作失敗",
       "temporarily_unavailable": "賬單服務暫時不可用，請稍後重試。",
-      "not_enabled": "此部署未启用工作区订阅，请联系管理员。",
-      "permission_changed": "你的工作區角色已不允許執行此操作。重新整理頁面可檢視當前許可權。",
+      "not_enabled": "此部署未啟用工作區訂閱，請聯繫管理員。",
+      "permission_changed": "你的工作區角色已不允許執行此操作。重新整理頁面可檢視當前權限。",
       "checkout_response": "服務端響應無法讀取，無法開啟 Checkout。請保留當前週期並重試。",
       "already_subscribed": "這個工作區已經有訂閱，當前套餐已重新整理。",
       "checkout_failed": "無法建立 Checkout，請稍後重試。",
@@ -124,12 +124,12 @@
     },
     "past_due": {
       "title": "付款資訊需要處理",
-      "description": "開啟 Billing Portal 更新付款方式。上方的套餐徽章顯示當前可用許可權。",
+      "description": "開啟 Billing Portal 更新付款方式。上方的套餐徽章顯示當前可用權限。",
       "grace_description": "請在 {{date}} 前更新付款方式，以繼續使用 Pro。"
     },
     "subscription_notice": {
       "canceling_title": "訂閱已安排取消",
-      "canceling_description": "此訂閱計劃於 {{date}} 取消。上方的套餐徽章顯示當前實際生效的許可權。",
+      "canceling_description": "此訂閱計劃於 {{date}} 取消。上方的套餐徽章顯示當前實際生效的權限。",
       "canceling_description_without_date": "這個訂閱將在當前週期結束時取消。",
       "incomplete_title": "訂閱開通尚未完成",
       "incomplete_description": "開啟賬單管理，完成或檢查付款設定。",
@@ -205,7 +205,7 @@
       "members_over_capacity_description": "當前工作區有 {{actual}} 名成員，但只購買了 {{purchased}} 個席位。繼續邀請前，請補足席位或移除成員。",
       "occupancy_over_capacity_description": "當前工作區已佔用 {{occupied}} 個席位，但只購買了 {{purchased}} 個（{{members}} 名成員和 {{reserved}} 個待接受邀請）。繼續邀請前，請補足席位、移除成員或撤銷待接受邀請。",
       "updated": "席位購買已提交",
-      "available_help": "可用席位如何计算"
+      "available_help": "可用席位如何計算"
     },
     "seat_purchase": {
       "title": "新增席位",
@@ -214,12 +214,12 @@
       "additional_hint": "請輸入增加數量，而不是新的席位總數。",
       "preview_loading": "正在更新估算金額...",
       "preview_unreadable": "無法讀取估算結果。請修改席位數或重試。",
-      "preview_failed": "暫時無法獲取估算金額，請稍後重試。",
+      "preview_failed": "暫時無法取得估算金額，請稍後重試。",
       "capacity_out_of_sync": "Stripe 席位數與計費記錄不一致。再次購買前，請聯絡支援人員。",
       "in_progress": "另一筆席位購買正在處理中。請等待其完成；若長時間未完成，請聯絡支援人員。",
       "purchase_unreadable": "無法讀取購買響應。請重試當前報價；系統會複用同一購買請求。",
       "purchase_failed": "無法新增席位。可使用同一報價重試；報價過期時請重新整理。",
-      "payment_failed": "付款未能完成。請在 Stripe 更新付款方式，然後重新獲取報價。",
+      "payment_failed": "付款未能完成。請在 Stripe 更新付款方式，然後重新取得報價。",
       "quote_changed": "席位數或估算金額已變化，請檢視重新整理後的報價再確認。",
       "seats_after": "購買後席位",
       "charge_today": "預計今日費用",
@@ -230,7 +230,7 @@
       "pending_description_other": "Stripe 正在確認訂閱更新至 {{count}} 個席位。",
       "delayed_title": "席位確認時間超出預期",
       "delayed_description": "自動檢查已停止，購買仍可能完成。開始另一筆購買前，請稍後再檢視或聯絡支援人員。",
-      "delayed_description_with_expiry": "自動檢查已停止。若到 {{date}} 仍在等待，請重新載入頁面後再獲取報價；若狀態仍未更新，請聯絡支援人員。",
+      "delayed_description_with_expiry": "自動檢查已停止。若到 {{date}} 仍在等待，請重新載入頁面後再取得報價；若狀態仍未更新，請聯絡支援人員。",
       "submitted_other": "購買 {{count}} 個席位的請求已提交。Stripe 確認後會顯示新容量。",
       "error_title": "無法更新估算金額"
     },
@@ -250,7 +250,7 @@
     "load_failed_title": "無法開啟工作區賬單頁",
     "load_failed_description": "你已從 Stripe 返回，但我們無法載入工作區列表來開啟對應的賬單頁。請到「工作區設定 → 賬單」確認當前狀態。",
     "workspace_missing_title": "找不到該工作區",
-    "workspace_missing_description": "你已從 Stripe 返回，但該工作區對你已不可用——可能已被刪除，或你的訪問許可權發生了變化。請到你預期的那個工作區的賬單頁確認當前狀態。",
+    "workspace_missing_description": "你已從 Stripe 返回，但該工作區對你已不可用——可能已被刪除，或你的訪問權限發生了變化。請到你預期的那個工作區的賬單頁確認當前狀態。",
     "retry": "重試",
     "go_to_app": "前往 Multica"
   }

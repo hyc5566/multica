@@ -1,27 +1,27 @@
 ---
 title: 快速上手
-description: 连接一台电脑，创建你的第一个 Agent，并让它完成第一个任务。
+description: 連接一臺電腦，建立你的第一個 Agent，並讓它完成第一個任務。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
 <Callout type="info">
-Agent 执行前，运行它的电脑上需要有至少一款已安装并登录的[支持的 AI 编程工具](/providers)，例如 Claude Code、Codex 或 Cursor。Multica 不自带这些工具。
+Agent 執行前，執行它的電腦上需要有至少一款已安裝並登入的[支援的 AI 編程工具](/providers)，例如 Claude Code、Codex 或 Cursor。Multica 不自帶這些工具。
 </Callout>
 
-## 1. 登录，进入工作区
+## 1. 登入，進入工作區
 
-用 Web（[multica.ai](https://multica.ai)）或 [Multica Desktop](https://multica.ai/download) 登录，支持邮箱验证码和 Google。
+用 Web（[multica.ai](https://multica.ai)）或 [Multica Desktop](https://multica.ai/download) 登入，支援電子郵件驗證碼和 Google。
 
-- **Desktop**：可以自动连接这台电脑。
-- **Web**：需要在下一步通过命令行连接。
+- **Desktop**：可以自動連接這臺電腦。
+- **Web**：需要在下一步通過命令列連接。
 
-## 2. 连接一台电脑
+## 2. 連接一臺電腦
 
-Agent 在你连接的电脑上执行工作。打开侧边栏底部的 **配置 → 运行时**：
+Agent 在你連接的電腦上執行工作。開啟側邊欄底部的 **設定 → 執行環境**：
 
-- **用 Desktop**：Desktop 会自动把这台电脑注册为运行时，并检测已安装的 AI 编程工具。刚安装的工具，点"刷新"重新检测。
-- **用 Web，或需要添加另一台电脑**：点右上角的 **添加电脑**，在目标电脑的终端里运行弹窗给出的两条命令：
+- **用 Desktop**：Desktop 會自動把這臺電腦註冊為執行環境，並檢測已安裝的 AI 編程工具。剛安裝的工具，點"刷新"重新檢測。
+- **用 Web，或需要新增另一臺電腦**：點右上角的 **新增電腦**，在目標電腦的終端裡執行彈窗給出的兩條命令：
 
  **macOS / Linux**
 
@@ -37,59 +37,59 @@ Agent 在你连接的电脑上执行工作。打开侧边栏底部的 **配置 �
  multica setup
  ```
 
- `multica setup` 会打开浏览器完成登录，然后让守护进程在后台运行。守护进程上线后，弹窗通常在一分钟内自动检测到这台电脑。
+ `multica setup` 會開啟瀏覽器完成登入，然後讓守護程序在後臺執行。守護程序上線後，彈窗通常在一分鐘內自動檢測到這臺電腦。
 
-**成功标志**：运行时列表里出现一台在线的电脑。
+**成功標誌**：執行環境列表裡出現一臺在線的電腦。
 
-![Add a computer 弹窗：两条命令与等待检测提示](/images/docs/quickstart-add-computer.webp)
+![Add a computer 彈窗：兩條命令與等待檢測提示](/images/docs/quickstart-add-computer.webp)
 
 <Callout type="info">
-自托管实例的连接命令略有不同，见[自托管快速上手](/self-host-quickstart)。
+自託管實例的連接命令略有不同，見[自託管快速上手](/self-host-quickstart)。
 </Callout>
 
-## 3. 创建一个 Agent
+## 3. 建立一個 Agent
 
-打开侧边栏的 **工作区 → Agent**，点 **新建 Agent**，选择一条路径：
+開啟側邊欄的 **工作區 → Agent**，點 **新建 Agent**，選擇一條路徑：
 
-- **从空白开始**：自己填字段。最少只需要名称，再确认运行时和 AI 编程工具即可创建。
-- **通过 AI 创建**：描述你想要什么，由 Agent Builder 提问并生成配置。这条路径需要一个在线运行时。
+- **從空白開始**：自己填欄位。最少只需要名稱，再確認執行環境和 AI 編程工具即可建立。
+- **通過 AI 建立**：描述你想要什麼，由 Agent Builder 提問並生成設定。這條路徑需要一個在線執行環境。
 
-其余配置可以之后完善，详见[创建和配置 Agent](/agents-create)。
+其餘設定可以之後完善，詳見[建立和設定 Agent](/agents-create)。
 
-**成功标志**：Agent 列表中出现你的 Agent，并显示为在线。
+**成功標誌**：Agent 列表中出現你的 Agent，並顯示為在線。
 
-![创建 Agent 的起点选择页：Start blank 与 Build with AI](/images/docs/quickstart-new-agent.webp)
+![建立 Agent 的起點選擇頁：Start blank 與 Build with AI](/images/docs/quickstart-new-agent.webp)
 
-## 4. 把第一个任务交给它
+## 4. 把第一個任務交給它
 
-点侧边栏顶部的 **新建任务**（或按快捷键 `C`）。在默认的 Agent 模式下：
+點側邊欄頂部的 **新建任務**（或按快捷鍵 `C`）。在預設的 Agent 模式下：
 
-1. 在 **创建者** 中选择刚创建的 Agent；
-2. 用一两句话描述要做的事，例如"介绍一下这个工作区可以怎么用"；
-3. 提交。Multica 会创建任务、把 Agent 设为负责人并立即开始执行。
+1. 在 **建立者** 中選擇剛建立的 Agent；
+2. 用一兩句話描述要做的事，例如"介紹一下這個工作區可以怎麼用"；
+3. 提交。Multica 會建立任務、把 Agent 設為負責人並立即開始執行。
 
-![新建任务弹窗的 Agent 模式：Created by 已选中 Multica Assistant](/images/docs/quickstart-new-issue.webp)
+![新建任務彈窗的 Agent 模式：Created by 已選中 Multica Assistant](/images/docs/quickstart-new-issue.webp)
 
-## 5. 查看进度和结果
+## 5. 查看進度和結果
 
-提交后打开这条任务：执行日志显示运行状态，Agent 的进展和回复出现在时间线中。
+提交後開啟這條任務：執行日誌顯示執行狀態，Agent 的進展和回覆出現在時間線中。
 
-**成功标志**：执行日志状态变为"已完成"，时间线中出现 Agent 的回复。需要查看完整过程时，点"查看记录"。
+**成功標誌**：執行日誌狀態變為"已完成"，時間線中出現 Agent 的回覆。需要查看完整過程時，點"查看記錄"。
 
-![任务中 Agent 的回复与已完成的执行日志](/images/docs/quickstart-run-result.webp)
+![任務中 Agent 的回覆與已完成的執行日誌](/images/docs/quickstart-run-result.webp)
 
-## 常见问题
+## 常見問題
 
-| 现象 | 先检查什么 |
+| 現象 | 先檢查什麼 |
 |---|---|
-| 没有找到运行时 | 确认 AI 编程工具已经安装并能在终端中运行。Desktop 点"刷新"；CLI 方式重新运行 `multica setup`。 |
-| 运行时显示离线 | Desktop 保持打开；CLI 方式运行 `multica daemon status`，未启动时运行 `multica daemon start`。 |
-| 任务一直排队 | 确认 Agent 使用的运行时在线。运行时达到并发上限时，新运行会继续排队。 |
+| 沒有找到執行環境 | 確認 AI 編程工具已經安裝並能在終端中執行。Desktop 點"刷新"；CLI 方式重新執行 `multica setup`。 |
+| 執行環境顯示離線 | Desktop 保持開啟；CLI 方式執行 `multica daemon status`，未啟動時執行 `multica daemon start`。 |
+| 任務一直排隊 | 確認 Agent 使用的執行環境在線。執行環境達到併發上限時，新執行會繼續排隊。 |
 
-更多情况见[故障排查](/troubleshooting)。
+更多情況見[故障排查](/troubleshooting)。
 
-## 接下来
+## 接下來
 
-- [核心概念](/concepts) — 三分钟认识 Multica 的全部核心对象。
-- [Multica 的工作方式](/how-multica-works) — 理解任务、Agent、运行时和每次执行之间的关系。
-- [让 Agent 开始工作](/triggering-agents) — 除了分配，还有 @评论、对话和自动化三种触发方式。
+- [核心概念](/concepts) — 三分鐘認識 Multica 的全部核心對象。
+- [Multica 的工作方式](/how-multica-works) — 理解任務、Agent、執行環境和每次執行之間的關係。
+- [讓 Agent 開始工作](/triggering-agents) — 除了分配，還有 @留言、對話和自動化三種觸發方式。

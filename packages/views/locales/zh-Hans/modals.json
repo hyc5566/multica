@@ -12,7 +12,7 @@
   },
   "delete_issue": {
     "title": "刪除任務",
-    "description": "將永久刪除該任務及其所有評論。此操作不可撤銷。",
+    "description": "將永久刪除該任務及其所有留言。此操作不可撤銷。",
     "cancel": "取消",
     "confirm": "刪除",
     "deleting": "刪除中...",
@@ -36,7 +36,7 @@
     "searching": "搜尋中...",
     "no_results": "未找到任務。",
     "prompt_to_search": "輸入關鍵詞搜尋任務",
-    "suggested_similar": "标题相似",
+    "suggested_similar": "標題相似",
     "suggested_recent": "最近查看"
   },
   "set_parent": {
@@ -124,13 +124,13 @@
     "repos_url_placeholder": "https://github.com/owner/repo 或 git@github.com:owner/repo.git",
     "repos_add": "新增",
     "repos_selected": "已選",
-    "source_pill_local": "本地目錄",
+    "source_pill_local": "本機目錄",
     "source_tab_repos": "GitHub 倉庫",
-    "source_tab_local": "本地目錄",
-    "local_heading": "使用本機的本地工作目錄",
-    "local_on_device": "繫結到 {{device}}",
+    "source_tab_local": "本機目錄",
+    "local_heading": "使用本機的本機工作目錄",
+    "local_on_device": "綁定到 {{device}}",
     "local_this_machine": "本機",
-    "local_daemon_offline": "守護程序未執行——啟動後才能繫結本地目錄。",
+    "local_daemon_offline": "守護程序未執行——啟動後才能綁定本機目錄。",
     "local_pick": "選擇目錄…",
     "local_picking": "正在開啟選擇器…",
     "local_change": "更換目錄…",
@@ -138,7 +138,7 @@
     "local_pick_failed": "無法開啟目錄選擇器。",
     "local_invalid_dir": "該目錄不可用，請重新選擇。",
     "local_hint": "其他機器上的 Agent 看不到這個路徑，會啟動失敗。需要協作請用倉庫模式。",
-    "repos_ref_default": "默认分支"
+    "repos_ref_default": "預設分支"
   },
   "create_issue": {
     "sr_manual": "新建任務",
@@ -186,7 +186,7 @@
     "toast_link_subissues_partial": "{{total}} 個子任務中有 {{failed}} 個關聯失敗",
     "toast_link_labels_failed": "關聯標籤失敗",
     "toast_set_properties_failed": "有 {{count}} 個自定義屬性設定失敗",
-    "unavailable_property_removed": "一个已不可用的自定义属性已从草稿移除，请确认后重新提交。",
+    "unavailable_property_removed": "一個已不可用的自定義屬性已從草稿移除，請確認後重新提交。",
     "switch_to_agent": "切換到 Agent",
     "switch_to_agent_tooltip": "切換到通過 Agent 建立——一句話描述，讓它替你建",
     "switch_to_manual": "切換到手動",
@@ -248,11 +248,11 @@
     }
   },
   "mark_duplicate": {
-    "title": "标记为重复",
-    "description": "搜索原始任务。当前任务会被取消，并关联到它。",
-    "toast_success": "已标记为 {{identifier}} 的重复",
-    "toast_failed": "无法标记为重复",
-    "error_target_is_duplicate": "{{identifier}} 本身是重复任务，请选择它的原始任务",
-    "error_has_duplicates": "已有任务被标记为此任务的重复，请先解除这些标记"
+    "title": "標記為重複",
+    "description": "搜尋原始任務。當前任務會被取消，並關聯到它。",
+    "toast_success": "已標記為 {{identifier}} 的重複",
+    "toast_failed": "無法標記為重複",
+    "error_target_is_duplicate": "{{identifier}} 本身是重複任務，請選擇它的原始任務",
+    "error_has_duplicates": "已有任務被標記為此任務的重複，請先解除這些標記"
   }
 }

@@ -1,110 +1,110 @@
 ---
-title: 钉钉 Bot
-description: 把 Agent 接入钉钉，在私聊或群聊中直接交代工作。
+title: 釘釘 Bot
+description: 把 Agent 接入釘釘，在私聊或群聊中直接交代工作。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-把[Agent](/agents)接入钉钉后，Agent 所在工作区的成员可以私聊 Bot、在群里 @ Bot，或用 `/issue` 指令直接创建 Multica [任务](/issues)。对话和执行记录会保存到 Multica 工作区。
+把[Agent](/agents)接入釘釘後，Agent 所在工作區的成員可以私聊 Bot、在群裡 @ Bot，或用 `/issue` 指令直接建立 Multica [任務](/issues)。對話和執行記錄會儲存到 Multica 工作區。
 
 <Callout type="info">
-钉钉集成[由社区维护](/community-maintained)，不提供官方支持 SLA。遇到问题请提交到 [GitHub 任务](https://github.com/multica-ai/multica/issues)。
+釘釘整合[由社區維護](/community-maintained)，不提供官方支援 SLA。遇到問題請提交到 [GitHub 任務](https://github.com/multica-ai/multica/issues)。
 </Callout>
 
 
-## 连接 Bot
+## 連接 Bot
 
-Agent 创建者或工作区 owner/admin 可以将 Agent 接入钉钉，Agent 跟钉钉 Bot 是 1:1 的连接关系。
+Agent 建立者或工作區 owner/admin 可以將 Agent 接入釘釘，Agent 跟釘釘 Bot 是 1:1 的連接關係。
 
-## 1. 创建 Stream 模式机器人
+## 1. 建立 Stream 模式機器人
 
-1. 在[钉钉开放平台](https://open-dev.dingtalk.com)创建一个**企业内部应用**。
-2. 开启机器人能力，其中**消息接收模式**设为 **Stream 模式**。
+1. 在[釘釘開放平臺](https://open-dev.dingtalk.com)建立一個**企業內部應用**。
+2. 開啟機器人能力，其中**消息接收模式**設為 **Stream 模式**。
 
-## 2. 给机器人授权
+## 2. 給機器人授權
 
-默认已添加“机器人发消息权限”（`qyapi_robot_sendmsg`）。如需在 Multica 平台显示 Bot 名称，需手动添加“钉群基础信息管理权限”（`qyapi_chat_manage`）。
+預設已新增“機器人發消息權限”（`qyapi_robot_sendmsg`）。如需在 Multica 平臺顯示 Bot 名稱，需手動新增“釘群基礎資訊管理權限”（`qyapi_chat_manage`）。
 
-## 3. 获取应用凭证
+## 3. 獲取應用憑證
 
-进入**凭证与基础信息**页面，复制 **Client ID（AppKey）** 和 **Client Secret（AppSecret）**。
+進入**憑證與基礎資訊**頁面，複製 **Client ID（AppKey）** 和 **Client Secret（AppSecret）**。
 
-## 4. 把 Agent 接入钉钉
+## 4. 把 Agent 接入釘釘
 
-1. 回到 Multica，打开 **Agent → _你的 Agent_ → 能力 → 集成**。
-2. 点击**连接钉钉**。
-3. 填入 **AppKey** 和 **AppSecret** 后提交。
+1. 回到 Multica，開啟 **Agent → _你的 Agent_ → 能力 → 整合**。
+2. 點擊**連接釘釘**。
+3. 填入 **AppKey** 和 **AppSecret** 後提交。
 
-## 5. 关联钉钉账号与 Multica 平台账号
+## 5. 關聯釘釘帳戶與 Multica 平臺帳戶
 
-在钉钉上跟 Bot 私聊，或者在群里 @ Bot，触发一次关联请求，你会在 Bot 私聊对话框中收到一个链接（有效期约 15 分钟），点击链接后看到连接成功的提示即大功告成。
+在釘釘上跟 Bot 私聊，或者在群裡 @ Bot，觸發一次關聯請求，你會在 Bot 私聊對話框中收到一個連結（有效期約 15 分鐘），點擊連結後看到連接成功的提示即大功告成。
 
 
-## 在钉钉中给 Agent 交代工作
+## 在釘釘中給 Agent 交代工作
 
 ### 私聊
 
-直接给 Bot 发消息即可。Agent 处理完任务后，会将结果回复至私聊对话框中。
+直接給 Bot 發消息即可。Agent 處理完任務後，會將結果回覆至私聊對話框中。
 
 ### 群聊
 
-把 Bot 加入钉群，再发送 `@your-bot <消息>`。每次追问都要重新 @，Bot 只处理 @ 它的消息。
+把 Bot 加入釘群，再傳送 `@your-bot <消息>`。每次追問都要重新 @，Bot 只處理 @ 它的消息。
 
-### 发送图片
+### 傳送圖片
 
-私聊和群聊都支持图文混排消息，图片支持 PNG、JPEG、GIF、WebP 和 BMP；每条消息最多 4 张，每张不超过 10 MB。暂不支持文件和语音消息。
+私聊和群聊都支援圖文混排消息，圖片支援 PNG、JPEG、GIF、WebP 和 BMP；每條消息最多 4 張，每張不超過 10 MB。暫不支援檔案和語音消息。
 
-注意，群聊中的图文混排消息，@ Bot 产生的内容也会作为消息内容的一部分发送给智能体，如果想精准剔除掉 Bot 名称，需添加“钉群基础信息管理权限”（`qyapi_chat_manage`）。
+注意，群聊中的圖文混排消息，@ Bot 產生的內容也會作為消息內容的一部分傳送給 Agent，如果想精準剔除掉 Bot 名稱，需新增“釘群基礎資訊管理權限”（`qyapi_chat_manage`）。
 
-### 引用消息继续追问
+### 引用消息繼續追問
 
-使用钉钉的引用功能选中一条消息，再输入本轮内容；群聊中仍需 @ Bot。Multica 会把钉钉回调提供的、受支持的引用内容放在本轮消息前，作为智能体的上下文。引用中的 `/issue`、`/new` 或 `/clear` 只是引用内容，不会作为本轮指令执行。
+使用釘釘的引用功能選中一條消息，再輸入本輪內容；群聊中仍需 @ Bot。Multica 會把釘釘回調提供的、受支援的引用內容放在本輪消息前，作為 Agent 的上下文。引用中的 `/issue`、`/new` 或 `/clear` 只是引用內容，不會作為本輪指令執行。
 
-### 消息处理反馈
+### 消息處理反饋
 
-Multica 收到钉钉消息后，会尝试在用户原消息上添加钉钉的`收到`表情，以表示已将消息交由智能体处理；智能体处理完成、并成功将消息发送到钉钉后，`收到`表情会被替换为`Done`；任务被取消后，会撤回`收到`表情。
+Multica 收到釘釘消息後，會嘗試在使用者原消息上新增釘釘的`收到`表情，以表示已將消息交由 Agent 處理；Agent 處理完成、併成功將消息傳送到釘釘後，`收到`表情會被替換為`Done`；任務被取消後，會撤回`收到`表情。
 
-表情反馈依赖钉钉接口，不保证即时更新。判断结果时请结合 Bot 回复和 Multica 中的运行记录。
+表情反饋依賴釘釘介面，不保證即時更新。判斷結果時請結合 Bot 回覆和 Multica 中的執行記錄。
 
-### 使用 `/issue` 创建任务
+### 使用 `/issue` 建立任務
 
-发送 `/issue <标题>` 或者 `/issue <标题>{换行}<详细描述>`，就可以创建一个新 Multica 任务，并自动指派给 Bot 连接着的 Agent。同一条消息内的图片也会以附件的形式添加到该任务中。跟普通对话消息不一样的是，`/issue` 指令不会在 Multica 的“[对话](/chat)”中留下记录。
+傳送 `/issue <標題>` 或者 `/issue <標題>{換行}<詳細描述>`，就可以建立一個新 Multica 任務，並自動指派給 Bot 連接著的 Agent。同一條消息內的圖片也會以附件的形式新增到該任務中。跟普通對話消息不一樣的是，`/issue` 指令不會在 Multica 的“[對話](/chat)”中留下記錄。
 
 ### 使用 `/new` 新建 Chat
 
-发送 `/new` 会创建一个新的空 Multica Chat，后续钉钉消息会路由到新 Chat。发送 `/new <消息>` 会创建新 Chat，并把消息作为第一轮。之前的 Chat 仍保存在 Multica 中，可以继续使用。
+傳送 `/new` 會建立一個新的空 Multica Chat，後續釘釘消息會路由到新 Chat。傳送 `/new <消息>` 會建立新 Chat，並把消息作為第一輪。之前的 Chat 仍儲存在 Multica 中，可以繼續使用。
 
-### 使用 `/clear` 清空当前上下文
+### 使用 `/clear` 清空當前上下文
 
-发送 `/clear` 会保留当前 Multica Chat，并把新的 Agent 可见上下文应用到下一条消息。发送 `/clear <消息>` 会把消息作为边界后的第一轮。完整 Chat 历史仍会显示在 Multica 中。
+傳送 `/clear` 會保留當前 Multica Chat，並把新的 Agent 可見上下文應用到下一條消息。傳送 `/clear <消息>` 會把消息作為邊界後的第一輪。完整 Chat 歷史仍會顯示在 Multica 中。
 
-## 管理连接
+## 管理連接
 
 - 在 **Agent → _你的 Agent_ → 能力 → 整合**頁面，Agent 建立者與工作區 owner/admin 可以連線或中斷連線。連線後會顯示 Bot 名稱、成功處理訊息的群組及活躍狀態；具有 Agent 檢視權限的工作區成員都能查看。最近 90 天沒有成功處理訊息的群組會歸入**長期未活躍**，展開時才載入。
 - 在**設定 → 訊息頻道 → 釘釘**頁面，可查看目前工作區內所有有檢視權限且已連線釘釘的 Agent，以及 Bot 在群組中的活躍狀態。工作區 owner/admin 可以中斷列表中任一 Agent 的釘釘連線，或將群組從列表移除。中斷連線會停止 Bot 收訊，但保留安裝紀錄供稽核；移除群組不會刪除對話或訊息。已關聯釘釘帳號的成員日後再次在群組中 @ Bot，且 Multica 成功收到訊息時，群組會重新出現。
 
 
-## 自部署配置
+## 自部署設定
 
-Multica Cloud 用户可跳过本节。自托管部署需要先设置一个用于加密钉钉 `AppSecret` 的密钥：
+Multica Cloud 使用者可跳過本節。自託管部署需要先設定一個用於加密釘釘 `AppSecret` 的密鑰：
 
 ```dotenv
 MULTICA_DINGTALK_SECRET_KEY=<base64-encoded 32-byte key>
 ```
 
-可以这样生成：
+可以這樣生成：
 
 ```bash
 openssl rand -base64 32
 ```
 
-重启 API 服务后，再连接钉钉。该密钥需要长期保存：更换或丢失后，已有 token 无法解密，需要重新连接。
+重啟 API 服務後，再連接釘釘。該密鑰需要長期儲存：更換或丟失後，已有 token 無法解密，需要重新連接。
 
-账号绑定链接使用 `MULTICA_APP_URL`，未设置时回退到 `FRONTEND_ORIGIN`；它需要指向成员可以访问的 Multica 地址。
+帳戶綁定連結使用 `MULTICA_APP_URL`，未設定時回退到 `FRONTEND_ORIGIN`；它需要指向成員可以訪問的 Multica 地址。
 
 
-## 接下来
+## 接下來
 
-- [聊天集成](/channels) —— Channel 引擎、会话与授权是怎么运作的
-- [Agent](/agents) · [Chat](/chat) · [任务](/issues)
-- [环境变量](/environment-variables) —— 完整的自部署配置参考
+- [聊天整合](/channels) —— Channel 引擎、會話與授權是怎麼運作的
+- [Agent](/agents) · [Chat](/chat) · [任務](/issues)
+- [環境變數](/environment-variables) —— 完整的自部署設定參考

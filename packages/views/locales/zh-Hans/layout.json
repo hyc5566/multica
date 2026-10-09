@@ -30,7 +30,7 @@
   "help": {
     "trigger": "幫助",
     "download_desktop": "桌面端",
-    "docs": "文件",
+    "docs": "檔案",
     "changelog": "更新日誌",
     "discord": "Discord",
     "feedback": "反饋",
@@ -48,7 +48,7 @@
     "invitation_workspace_fallback": "工作區",
     "invitation_join": "加入",
     "invitation_decline": "拒絕",
-    "log_out": "退出登入",
+    "log_out": "登出",
     "new_issue": "新建任務",
     "new_issue_shortcut": "C",
     "pinned_label": "固定",

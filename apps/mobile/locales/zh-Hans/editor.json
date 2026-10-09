@@ -1,22 +1,22 @@
 {
   "a11y": {
     "mention_someone": "提及某人",
-    "bullet_list": "无序列表",
-    "checklist": "清单",
-    "code_block": "代码块",
+    "bullet_list": "無序列表",
+    "checklist": "清單",
+    "code_block": "代碼塊",
     "quote": "引用",
-    "attach_image": "添加图片",
-    "attach_file": "添加文件"
+    "attach_image": "新增圖片",
+    "attach_file": "新增檔案"
   },
   "code": {
-    "copied": "代码已复制",
-    "copy": "复制代码"
+    "copied": "代碼已複製",
+    "copy": "複製代碼"
   },
   "upload": {
-    "file_too_large_title": "文件过大",
-    "file_too_large_message": "文件必须小于 100 MB。",
-    "failed": "上传失败",
-    "error": "未知错误"
+    "file_too_large_title": "檔案過大",
+    "file_too_large_message": "檔案必須小於 100 MB。",
+    "failed": "上傳失敗",
+    "error": "未知錯誤"
   },
   "a11y.mention_someone": "提及某人"
 }

@@ -17,7 +17,7 @@
     "headline_line1": "你的 AI 隊友，",
     "headline_line2": "在",
     "headline_emphasis": "同一個工作區。",
-    "lede": "像給同事派活一樣把任務交給它們——它們會接手、更新狀態，做完還會留下評論。",
+    "lede": "像給同事派活一樣把任務交給它們——它們會接手、更新狀態，做完還會留下留言。",
     "lede_web": "桌面端自帶執行環境，無需安裝。在 web 端繼續可以連線你自己的 CLI。",
     "download_desktop": "下載桌面端",
     "continue_on_web": "在 web 端繼續",
@@ -50,7 +50,7 @@
     "skip": "跳過",
     "cancel": "取消",
     "close": "關閉",
-    "log_out": "退出登入"
+    "log_out": "登出"
   },
   "source_backfill": {
     "eyebrow": "順便問一句",
@@ -117,14 +117,14 @@
     "copy_aria": "複製",
     "intro": "這臺電腦上需要安裝一個 Agent 執行時（Claude Code、Codex、Cursor 等）才能執行你的 Agent。也支援伺服器和遠端開發機。",
     "step1_label": "安裝 Multica CLI",
-    "platform_group": "选择你的系统",
+    "platform_group": "選擇你的系統",
     "platform_macos_linux": "macOS / Linux",
     "platform_windows": "Windows",
     "step2_label": "啟動守護程序"
   },
   "cloud_waitlist": {
     "intro_main": "雲執行環境尚未上線。留下電子郵件，上線時通過郵件通知你。",
-    "intro_warning": "提示：未配置執行時，Agent 就無法工作——如果現在跳過，在你回來安裝之前不會啟動任何執行。",
+    "intro_warning": "提示：未設定執行時，Agent 就無法工作——如果現在跳過，在你回來安裝之前不會啟動任何執行。",
     "email_label": "電子郵件",
     "email_placeholder": "you@work.com",
     "reason_label": "為什麼選擇雲？",
@@ -188,11 +188,11 @@
     "create_failed_toast": "建立工作區失敗",
     "creation_disabled_eyebrow": "工作區建立已停用",
     "creation_disabled_headline": "請聯絡管理員邀請你加入工作區。",
-    "creation_disabled_lede": "該 Multica 例項不允許建立新的工作區。等管理員把你邀請到某個工作區後，接受邀請並重新整理即可繼續。",
-    "creation_disabled_logout": "退出登入",
+    "creation_disabled_lede": "該 Multica 執行個體不允許建立新的工作區。等管理員把你邀請到某個工作區後，接受邀請並重新整理即可繼續。",
+    "creation_disabled_logout": "登出",
     "creation_disabled_eyebrow_resume": "你的工作區",
     "creation_disabled_headline_resume": "繼續使用 {{name}}。",
-    "creation_disabled_lede_resume": "該例項已停用建立工作區，繼續進入你已有的工作區即可。"
+    "creation_disabled_lede_resume": "該執行個體已停用建立工作區，繼續進入你已有的工作區即可。"
   },
   "step_runtime": {
     "scanning_headline": "正在連線這臺電腦...",

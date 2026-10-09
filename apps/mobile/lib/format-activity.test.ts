@@ -59,9 +59,9 @@ describe("formatActivity duplicate marks (MUL-7349)", () => {
         entry("duplicate_unmarked", { original_identifier: "MUL-1", to: "todo" }),
         noActor,
       ),
-    ).toBe("取消了这个任务对 MUL-1 的重复标记，并移至 todo");
+    ).toBe("取消了這個任務對 MUL-1 的重複標記，並移至 todo");
     expect(
       formatActivity(entry("duplicate_added", { duplicate_identifier: "MUL-2" }), noActor),
-    ).toBe("把 MUL-2 标记为这个任务的重复");
+    ).toBe("把 MUL-2 標記為這個任務的重複");
   });
 });

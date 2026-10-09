@@ -465,7 +465,7 @@ func TestIssueConfirmationKeepsAnOrdinaryTitleVerbatim(t *testing.T) {
 		"[Bug]: 登录失败",
 	} {
 		res := engine.Result{IssueIdentifier: "MUL-1", IssueTitle: title}
-		if got, want := issueCreatedText(res, copyFor(DefaultLocale)), "✅ 已创建 MUL-1 — "+title; got != want {
+		if got, want := issueCreatedText(res, copyFor(DefaultLocale)), "✅ 已建立 MUL-1 — "+title; got != want {
 			t.Fatalf("the reporter's own title came back altered:\n got %q\nwant %q", got, want)
 		}
 	}
@@ -488,7 +488,7 @@ func TestIssueDuplicateIsNotReportedAsCreated(t *testing.T) {
 	if res.IssueDuplicate {
 		text = issueDuplicateText(res, copyFor(DefaultLocale))
 	}
-	if strings.Contains(text, "已创建") {
+	if strings.Contains(text, "已建立") {
 		t.Errorf("a duplicate was reported as created: %q", text)
 	}
 	if !strings.Contains(text, "MUL-99") {

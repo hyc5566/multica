@@ -1102,7 +1102,7 @@ func TestHTTPClient_SendBindingPromptCard_HappyPath(t *testing.T) {
 	if !strings.Contains(capturedBody["content"], "multica.test/lark/bind") {
 		t.Errorf("binding card should embed BindURL: %q", capturedBody["content"])
 	}
-	if !strings.Contains(capturedBody["content"], "去绑定") {
+	if !strings.Contains(capturedBody["content"], "前往綁定") {
 		t.Errorf("binding card should carry the localized CTA: %q", capturedBody["content"])
 	}
 }

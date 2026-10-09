@@ -13,10 +13,10 @@ describe("NotFound", () => {
     );
 
     expect(
-      screen.getByRole("heading", { name: "页面未找到" }),
+      screen.getByRole("heading", { name: "頁面未找到" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByText("你要查找的页面不存在或已被移动。"),
+      screen.getByText("你要查找的頁面不存在或已被移動。"),
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "返回 Multica" })).toHaveAttribute(
       "href",

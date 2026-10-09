@@ -436,11 +436,11 @@ func renderNoticeCard(header, body string) (string, error) {
 // match the §4.6 design: an offline agent will run when the daemon
 // comes back; an archived agent needs operator action.
 const (
-	agentOfflineCopy             = "Agent 当前离线，消息已记录。下次 daemon 上线后会自动继续处理。"
-	agentArchivedCopy            = "这个 Agent 已被归档，无法继续处理消息。请联系工作区管理员恢复或重新绑定。"
-	freshPendingCopy             = "✅ 已准备从空上下文运行。你的下一条聊天消息仍会进入当前对话，但不会带上之前的上下文。"
-	chatStartedCopy              = "✅ 已新建 Multica 对话。你的下一条消息会进入该对话。"
-	issueUsageCopy               = "请填写任务标题，格式如下：\n\n`/issue <标题>`\n`[描述]`（可选）"
-	issueUsageWithMediaCopy      = "请添加标题，并与图片或视频一起重新发送（*图片或视频可以位于命令之前或之后*）：\n\n`/issue <标题>`\n`[描述]`（可选）"
-	bindingPromptUnavailableCopy = "你还未绑定 Multica 账户，绑定卡片未能发送到你的私聊。\n请先打开机器人对话并发送一条消息，再回到群里重试；仍失败请联系管理员检查应用可用范围。"
+	agentOfflineCopy             = "Agent 目前離線，訊息已記錄。下次 daemon 上線後會自動繼續處理。"
+	agentArchivedCopy            = "這個 Agent 已被歸檔，無法繼續處理訊息。請聯絡工作區管理員恢復或重新綁定。"
+	freshPendingCopy             = "✅ 已準備從空白上下文執行。你的下一則聊天訊息仍會進入目前對話，但不會帶上之前的上下文。"
+	chatStartedCopy              = "✅ 已建立 Multica 對話。你的下一則訊息會進入該對話。"
+	issueUsageCopy               = "請填寫任務標題，格式如下：\n\n`/issue <標題>`\n`[描述]`（可選）"
+	issueUsageWithMediaCopy      = "請新增標題，並與圖片或影片一起重新傳送（*圖片或影片可以位於命令之前或之後*）：\n\n`/issue <標題>`\n`[描述]`（可選）"
+	bindingPromptUnavailableCopy = "你還未綁定 Multica 帳戶，綁定卡片未能傳送到你的私人對話。\n請先開啟機器人對話並傳送一則訊息，再回到群裡重試；仍失敗請聯絡管理員檢查應用程式可用範圍。"
 )

@@ -62,14 +62,14 @@ describe("the UI Lab data boundary", () => {
     locale = "zh";
     expect((await api.getIssue(first)).title).toBe("Custom title");
     expect((await api.getIssue(first)).status).toBe("done");
-    expect((await api.getIssue(second)).title).toBe("优化命令菜单的键盘导航");
-    expect((await api.getIssue(first)).description).toContain("## 目标");
+    expect((await api.getIssue(second)).title).toBe("優化指令選單的鍵盤導覽");
+    expect((await api.getIssue(first)).description).toContain("## 目標");
     expect(
       (await api.listComments(first)).find((row) => row.id === comment.id)
         ?.content,
     ).toBe("My comment");
     const response = await api.listIssueTableRows({
-      query: { ...query, search: "键盘导航" },
+      query: { ...query, search: "鍵盤導覽" },
       group_key: null,
       group: { kind: "status" },
       hierarchy: { enabled: false },

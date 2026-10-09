@@ -1,24 +1,24 @@
 ---
-title: AI 编程工具对照
-description: 比较 Multica 支持的 AI 编程工具，以及模型、MCP、会话和 Skill 的差异。
+title: AI 編程工具對照
+description: 比較 Multica 支援的 AI 編程工具，以及模型、MCP、會話和 Skill 的差異。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Multica 不会替代你使用的 AI 编程工具。运行时会调用电脑上已经安装并登录的工具，再把执行进度和结果写回任务。
+Multica 不會替代你使用的 AI 編程工具。執行環境會調用電腦上已經安裝並登入的工具，再把執行進度和結果寫回任務。
 
-如果你已经在使用其中一款，通常可以直接沿用。选择工具时的四个判断维度：
+如果你已經在使用其中一款，通常可以直接沿用。選擇工具時的四個判斷維度：
 
-- 电脑上是否已经安装；
-- 账号可以使用哪些模型；
-- 是否需要由 Multica 配置 MCP；
-- 团队要复用哪些 skill。
+- 電腦上是否已經安裝；
+- 帳戶可以使用哪些模型；
+- 是否需要由 Multica 設定 MCP；
+- 團隊要複用哪些 skill。
 
-安装方法见 [安装 AI 编程工具](/install-agent-runtime)。
+安裝方法見 [安裝 AI 編程工具](/install-agent-runtime)。
 
-## 支持的工具
+## 支援的工具
 
-| 工具 | 检测命令 | 会话恢复 | Multica 管理 MCP | Skill 注入位置 |
+| 工具 | 檢測命令 | 會話恢復 | Multica 管理 MCP | Skill 注入位置 |
 |---|---|---:|---:|---|
 | Antigravity | `agy` | ✓ | — | `.agents/skills/` |
 | Claude Code | `claude` | ✓ | ✓ | `.claude/skills/` |
@@ -30,7 +30,7 @@ Multica 不会替代你使用的 AI 编程工具。运行时会调用电脑上�
 | DeepSeek Harness | `dsh` | ✓ | ✓ | `.dsh/skills/` |
 | DevEco Code | `deveco` | ✓ | — | `.deveco/skills/` |
 | Grok | `grok` | ✓ | ✓ | `.grok/skills/` |
-| Hermes | `hermes` | ✓ | ✓ | 单次执行的 `HERMES_HOME/skills/` |
+| Hermes | `hermes` | ✓ | ✓ | 單次執行的 `HERMES_HOME/skills/` |
 | Kimi CLI | `kimi` | ✓ | ✓ | `.kimi/skills/` |
 | Kiro CLI | `kiro-cli` | ✓ | ✓ | `.kiro/skills/` |
 | MiniMax Code | `mcode` | — | ✓ | `.minimax/skills/` |
@@ -41,59 +41,59 @@ Multica 不会替代你使用的 AI 编程工具。运行时会调用电脑上�
 | Qoder CLI | `qodercli` | ✓ | ✓ | `.qoder/skills/` |
 | Qoder CN CLI | `qoderclicn` | ✓ | ✓ | `.qoder/skills/` |
 | Qwen Code | `qwen` | ✓ | ✓ | `.qwen/skills/` |
-| QwenPaw | `qwenpaw` | ✓ | ✓ | 单次执行的工作区 `skills/` |
+| QwenPaw | `qwenpaw` | ✓ | ✓ | 單次執行的工作區 `skills/` |
 | Reasonix | `reasonix` | ✓ | ✓ | `.reasonix/skills/` |
 | Trae CLI | `traecli` | ✓ | ✓ | `.traecli/skills/` |
 | Dim | `dim` | ✓ | ✓ | — |
 
-"Multica 管理 MCP" 表示你可以在 Agent 配置中填写 MCP server，由 Multica 在执行前传给对应工具。它不代表该工具本身没有其他 MCP 配置方式。
+"Multica 管理 MCP" 表示你可以在 Agent 設定中填寫 MCP server，由 Multica 在執行前傳給對應工具。它不代表該工具本身沒有其他 MCP 設定方式。
 
-## 模型来源
+## 模型來源
 
-创建 Agent 时，模型列表来自对应的运行时。有些工具提供固定的模型名称，有些会根据本机配置、登录账号和订阅权益返回可用模型。
+建立 Agent 時，模型列表來自對應的執行環境。有些工具提供固定的模型名稱，有些會根據本機設定、登入帳戶和訂閱權益返回可用模型。
 
-不选择模型时，Multica 使用该工具的默认设置。列表为空时，先确认运行时在线并且工具已经登录，再刷新模型列表。
+不選擇模型時，Multica 使用該工具的預設設定。列表為空時，先確認執行環境在線並且工具已經登入，再刷新模型列表。
 
-QwenPaw 和 MiniMax Code 是例外：它们不接受在 Multica 侧选择的模型，因此选择框不可用，显示为"由运行时管理"。请改在工具自身的配置里选择模型。模型列表为空属于正常情况，并不表示运行时离线。
+QwenPaw 和 MiniMax Code 是例外：它們不接受在 Multica 側選擇的模型，因此選擇框不可用，顯示為"由執行環境管理"。請改在工具自身的設定裡選擇模型。模型列表為空屬於正常情況，並不表示執行環境離線。
 
-DeepSeek Harness 的模型目录由运行时自身提供（`dsh --profile multica --list-models`）。它的模型 id 采用 `provider/model` 形式（例如 `deepseek-official/deepseek-chat`），请从列表中选择完整 id。
+DeepSeek Harness 的模型目錄由執行環境自身提供（`dsh --profile multica --list-models`）。它的模型 id 採用 `provider/model` 形式（例如 `deepseek-official/deepseek-chat`），請從列表中選擇完整 id。
 
 <Callout type="info">
-不同工具可能使用不同的模型名称。更换 AI 编程工具后，原有的模型值在新工具中无效，需要重新选择。
+不同工具可能使用不同的模型名稱。更換 AI 編程工具後，原有的模型值在新工具中無效，需要重新選擇。
 </Callout>
 
-## 会话恢复
+## 會話恢復
 
-表格中标记 ✓ 的工具支持在后续执行中继续已有会话。前提是原来的会话仍然存在，并且运行由能够访问它的运行时执行。MiniMax Code 0.1.2 尚未通过 ACP 声明会话加载能力，因此后续执行会新建 MCode 会话。
+表格中標記 ✓ 的工具支援在後續執行中繼續已有會話。前提是原來的會話仍然存在，並且執行由能夠訪問它的執行環境執行。MiniMax Code 0.1.2 尚未通過 ACP 聲明會話載入能力，因此後續執行會新建 MCode 會話。
 
-Multica 会保存工具返回的会话标识。下一次在同一任务中继续工作时，运行时会尝试恢复这段会话；无法恢复时，会创建一个新会话继续执行。Pi 保存的是本地会话文件路径，因此更依赖原来的电脑和文件。
+Multica 會儲存工具返回的會話標識。下一次在同一任務中繼續工作時，執行環境會嘗試恢復這段會話；無法恢復時，會建立一個新會話繼續執行。Pi 儲存的是本地會話檔案路徑，因此更依賴原來的電腦和檔案。
 
-有关重试和会话恢复的规则，见 [运行](/tasks#手动重试)。
+有關重試和會話恢復的規則，見 [執行](/tasks#手動重試)。
 
-## MCP 配置
+## MCP 設定
 
-Antigravity、GitHub Copilot CLI、DevEco Code 和 Pi 暂不读取 Agent 中的 MCP 配置，因此创建 Agent 时不会显示这一项。
+Antigravity、GitHub Copilot CLI、DevEco Code 和 Pi 暫不讀取 Agent 中的 MCP 設定，因此建立 Agent 時不會顯示這一項。
 
 <Callout type="warning">
-MCP server 的命令、参数和环境变量会随 Agent 配置保存在服务器端。不要把不需要共享的本地凭据直接写入配置。
+MCP server 的命令、參數和環境變數會隨 Agent 設定儲存在伺服器端。不要把不需要共享的本地憑據直接寫入設定。
 </Callout>
 
 ## Skill 注入方式
 
-执行开始前，Multica 会把 Agent 绑定的 skill 写入上表对应的位置，让工具通过自己的原生机制发现它们。
+執行開始前，Multica 會把 Agent 綁定的 skill 寫入上表對應的位置，讓工具通過自己的原生機制發現它們。
 
-仓库里原本存在的 skill 不会被覆盖。如果名称冲突，Multica 会为注入的副本使用另一个目录名；执行结束后，只清理自己创建的文件。
+倉庫裡原本存在的 skill 不會被覆蓋。如果名稱衝突，Multica 會為注入的副本使用另一個目錄名；執行結束後，只清理自己建立的檔案。
 
-Codex、Hermes 和 OpenClaw 的处理稍有不同：
+Codex、Hermes 和 OpenClaw 的處理稍有不同：
 
-- Codex 使用单次执行的 `CODEX_HOME`，不会把 skill 写进系统级 Codex 目录。
-- Hermes 使用单次执行的 `HERMES_HOME`。已有的本地配置仍然可以被读取，但绑定的 skill 与会话数据按运行隔离。这套隔离只在 Agent 绑定了 skill 时启用，没有绑定 skill 的运行使用本机原有的 Hermes 主目录。
-- OpenClaw 使用当前执行工作目录下的 `skills/`，并由单次执行配置把该目录设为工作区。
+- Codex 使用單次執行的 `CODEX_HOME`，不會把 skill 寫進系統級 Codex 目錄。
+- Hermes 使用單次執行的 `HERMES_HOME`。已有的本地設定仍然可以被讀取，但綁定的 skill 與會話資料按執行隔離。這套隔離只在 Agent 綁定了 skill 時啟用，沒有綁定 skill 的執行使用本機原有的 Hermes 主目錄。
+- OpenClaw 使用當前執行工作目錄下的 `skills/`，並由單次執行設定把該目錄設為工作區。
 
-如何创建和绑定 skill，见 [Skills](/skills)。
+如何建立和綁定 skill，見 [Skills](/skills)。
 
-## 接下来
+## 接下來
 
-- [创建和配置 Agent](/agents-create) — 模型与思考强度设置。
-- [安装 AI 编程工具](/install-agent-runtime) — 安装与检测步骤。
-- [守护进程与运行时](/daemon-runtimes) — 运行时注册与并发。
+- [建立和設定 Agent](/agents-create) — 模型與思考強度設定。
+- [安裝 AI 編程工具](/install-agent-runtime) — 安裝與檢測步驟。
+- [守護程序與執行環境](/daemon-runtimes) — 執行環境註冊與併發。

@@ -446,7 +446,7 @@ function Workbench({
                 size="sm"
                 variant={locale === value ? "secondary" : "ghost"}
                 aria-pressed={locale === value}
-                lang={value === "zh" ? "zh-Hans" : "en"}
+                lang={value === "zh" ? "zh-TW" : "en"}
                 onClick={() => onLocaleChange(value)}
               >
                 {value === "en" ? "EN" : "中文"}

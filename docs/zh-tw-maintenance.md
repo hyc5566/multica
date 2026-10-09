@@ -338,6 +338,8 @@ there is no new dependency or database migration.
 
 未儲存語系偏好的 Web 新訪客預設繁體中文；明確選擇英文等既有語系時保留 cookie 偏好。入口頁和登入頁透過 `apps/web/lib/locale-routing.ts` 共用這項決策。相容性 key `zh-Hans` 仍載入繁中資源，不更動 API／資料庫語系 enum。重建時檢查首頁、登入頁、導航與 Agent 頁，並核對翻譯 key 和插值不變。
 
+HYCLV-254 的全面中文掃描也涵蓋 Mobile 的獨立 locale、UI Lab、文件站導覽與正文、CLI 錯誤、飛書／企業微信通知，以及內建 skill 的中文範例。更新時保留 JSON key、插值、程式識別字與指令；同步文件內部的標題錨點和文案測試。外部上游網站的 URL 錨點、簡體輸入的搜尋／解析別名、供應商原始回應與測試輸入保留原文，以維持相容性。日文資源不能用中文轉換工具批次處理。
+
 ## Uniform board layout layer (HYCLV-43)
 
 To rebuild this optional Taiwan-edition UI feature on a fresh upstream:

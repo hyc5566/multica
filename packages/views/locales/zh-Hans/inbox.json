@@ -28,7 +28,7 @@
     "open_in_new_tab": "在新標籤頁開啟"
   },
   "list": {
-    "loading_selection": "正在加载通知…",
+    "loading_selection": "正在載入通知…",
     "empty": "暫無通知",
     "mark_done_tooltip": "標為已完成",
     "archive_tooltip": "歸檔",
@@ -42,9 +42,9 @@
     "archived_empty": "暫無已歸檔通知",
     "unarchive_tooltip": "取消歸檔",
     "actions_aria": "通知操作",
-    "load_more": "加载更多",
-    "loading_more": "加载中...",
-    "retry": "重试"
+    "load_more": "載入更多",
+    "loading_more": "載入中...",
+    "retry": "重試"
   },
   "detail": {
     "select_prompt": "選擇一條通知檢視詳情",
@@ -66,19 +66,19 @@
     "priority_changed": "優先順序已更改",
     "start_date_changed": "開始日期已更改",
     "due_date_changed": "截止日期已更改",
-    "new_comment": "新評論",
+    "new_comment": "新留言",
     "mentioned": "提及了你",
     "review_requested": "請求審閱",
     "task_completed": "執行已完成",
     "task_failed": "執行失敗",
     "agent_blocked": "Agent 被阻塞",
     "agent_completed": "Agent 已完成",
-    "reaction_added": "添加了表情反應",
+    "reaction_added": "新增了表情反應",
     "quick_create_done": "通過 Agent 建立",
     "quick_create_failed": "通過 Agent 建立失敗",
     "quick_create_unconfirmed": "通過 Agent 建立結果未確認",
     "autopilot_paused": "自動化已暫停",
-    "children_done": "子任务已全部结束",
+    "children_done": "子任務已全部結束",
     "autopilot_quota_exceeded": "自動化執行次數已用完"
   },
   "labels": {
@@ -90,11 +90,11 @@
     "removed_start_date": "移除了開始日期",
     "set_due_date_to": "截止日期設為 {{date}}",
     "removed_due_date": "移除了截止日期",
-    "reacted_to_comment": "用 {{emoji}} 回應了你的評論",
+    "reacted_to_comment": "用 {{emoji}} 回應了你的留言",
     "created_with_agent": "通過 Agent 建立：{{identifier}}",
     "failed_with_detail": "失敗：{{detail}}",
     "autopilot_quota_blocked": "執行已被阻止：額度已用完",
-    "children_done_stage": "第 {{stage}} 阶段的子任务已全部结束"
+    "children_done_stage": "第 {{stage}} 階段的子任務已全部結束"
   },
   "toasts": {
     "source_context_retry_started": "已使用原始上下文開始重試",
@@ -102,7 +102,7 @@
     "unarchived": "已恢復通知"
   },
   "errors": {
-    "archived_lookup_failed": "无法加载链接指向的通知",
+    "archived_lookup_failed": "無法載入連結指向的通知",
     "source_context_retry_failed": "無法使用原始上下文重試",
     "source_context_retry_unavailable": "該上下文已無法重試，請從派生起點重新發起。",
     "mark_read_failed": "標為已讀失敗",
@@ -115,6 +115,6 @@
     "archive_completed_failed": "歸檔已完成失敗",
     "unarchive_failed": "取消歸檔失敗",
     "archived_load_failed": "無法載入已歸檔通知",
-    "filters_load_failed": "无法加载筛选项"
+    "filters_load_failed": "無法載入篩選項"
   }
 }

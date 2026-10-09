@@ -1,7 +1,7 @@
 {
   "header": {
     "back": "返回",
-    "log_out": "退出登入"
+    "log_out": "登出"
   },
   "not_found": {
     "title": "未找到邀請",
@@ -20,8 +20,8 @@
   "main": {
     "join_title": "加入 {{workspace_name}}",
     "fallback_workspace_name": "工作區",
-    "invited_role_admin": "邀請你以管理員身份加入。",
-    "invited_role_member": "邀請你以成員身份加入。",
+    "invited_role_admin": "邀請你以管理員身分加入。",
+    "invited_role_member": "邀請你以成員身分加入。",
     "already_handled_accepted": "此邀請已被接受。",
     "already_handled_declined": "此邀請已被拒絕。",
     "expired": "此邀請已過期。",
@@ -35,7 +35,7 @@
     "decline_failed": "拒絕邀請失敗"
   },
   "batch": {
-    "log_out": "退出登入",
+    "log_out": "登出",
     "empty_title": "沒有待處理的邀請",
     "empty_hint": "繼續建立你自己的工作區。",
     "empty_continue": "繼續建立",
@@ -47,7 +47,7 @@
     "error_generic": "處理邀請失敗，請重試。",
     "row_workspace_fallback": "工作區",
     "row_inviter_fallback": "某人",
-    "row_invited_admin": "{{inviter}} 邀請你以管理員身份加入",
-    "row_invited_member": "{{inviter}} 邀請你以成員身份加入"
+    "row_invited_admin": "{{inviter}} 邀請你以管理員身分加入",
+    "row_invited_member": "{{inviter}} 邀請你以成員身分加入"
   }
 }

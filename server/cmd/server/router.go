@@ -991,9 +991,9 @@ func NewRouterWithOptions(pool *pgxpool.Pool, hub *realtime.Hub, bus *events.Bus
 				// platforms. Session titles use the wecom-flavored wording
 				// (Chinese product voice — wecom deployments are China-only).
 				wecomSession := engine.NewChatSession(queries, pool, wecom.TypeWecom, engine.SessionTitles{
-					Group:    "企业微信群聊",
-					Direct:   "企业微信单聊",
-					Fallback: "企业微信会话",
+					Group:    "企業微信群聊",
+					Direct:   "企業微信單聊",
+					Fallback: "企業微信對話",
 				})
 
 				wecom.RegisterWecom(channelRegistry, wecom.ChannelDeps{

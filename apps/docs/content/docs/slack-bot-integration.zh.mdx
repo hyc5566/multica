@@ -1,24 +1,24 @@
 ---
 title: Slack Bot
-description: 为 Agent 创建一个 Slack Bot，在私聊、频道以及 /issue、/new、/clear 命令中使用它。
+description: 為 Agent 建立一個 Slack Bot，在私聊、頻道以及 /issue、/new、/clear 命令中使用它。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Multica 使用你自己的 Slack app。连接后，团队成员可以私聊 Bot、在频道里 @ 它、用 `/issue` 创建任务、用 `/new` 新建 Multica Chat，或用 `/clear` 重置当前 Chat 的 Agent 上下文。
+Multica 使用你自己的 Slack app。連接後，團隊成員可以私聊 Bot、在頻道里 @ 它、用 `/issue` 建立任務、用 `/new` 新建 Multica Chat，或用 `/clear` 重置當前 Chat 的 Agent 上下文。
 
-一个 Slack app 对应一个 Multica Agent。需要接入多个 Agent 时，为每个 Agent 分别创建 app。
+一個 Slack app 對應一個 Multica Agent。需要接入多個 Agent 時，為每個 Agent 分別建立 app。
 
-## 开始前
+## 開始前
 
-连接需要工作区 owner 或 admin 完成，最终把两个凭据填入 Multica：
+連接需要工作區 owner 或 admin 完成，最終把兩個憑據填入 Multica：
 
-- Bot User OAuth Token，以 `xoxb-` 开头；
-- App-level Token，以 `xapp-` 开头。
+- Bot User OAuth Token，以 `xoxb-` 開頭；
+- App-level Token，以 `xapp-` 開頭。
 
-## 1. 从 manifest 创建 Slack app
+## 1. 從 manifest 建立 Slack app
 
-打开 [Slack API Apps](https://api.slack.com/apps)，点击 **Create New App → From a manifest**，选择 Slack workspace，然后在 **YAML** 中粘贴以下内容：
+開啟 [Slack API Apps](https://api.slack.com/apps)，點擊 **Create New App → From a manifest**，選擇 Slack workspace，然後在 **YAML** 中粘貼以下內容：
 
 ```yaml
 display_information:
@@ -69,134 +69,134 @@ settings:
  token_rotation_enabled: false
 ```
 
-创建前可以把两个 `Multica` 改成 Agent 的名字。不要删除 manifest 中的权限或事件，否则私聊、频道提及、回复、`/issue`、`/new` 或 `/clear` 可能无法工作。
+建立前可以把兩個 `Multica` 改成 Agent 的名字。不要刪除 manifest 中的權限或事件，否則私聊、頻道提及、回覆、`/issue`、`/new` 或 `/clear` 可能無法工作。
 
 <Callout type="warning">
-Slack slash command 名称在整个 workspace 中共享。如果其他已安装 app 占用了 `/new` 或 `/clear`，Slack 会在创建或更新 app 时拒绝冲突命令。可以先解决名称冲突，也可以发送消息形式的 `@Multica /new [消息]` 或 `@Multica /clear [消息]`，绕过原生 slash command 拦截。
+Slack slash command 名稱在整個 workspace 中共享。如果其他已安裝 app 佔用了 `/new` 或 `/clear`，Slack 會在建立或更新 app 時拒絕衝突命令。可以先解決名稱衝突，也可以傳送消息形式的 `@Multica /new [消息]` 或 `@Multica /clear [消息]`，繞過原生 slash command 攔截。
 </Callout>
 
 <Callout type="warning">
-如果这个 Slack app 是在附件支持上线前安装的，请添加 `files:read` Bot scope，并将 app 重新安装到 workspace。在重新安装 app 前，新增 scope 不会应用到现有 Bot token。
+如果這個 Slack app 是在附件支援上線前安裝的，請新增 `files:read` Bot scope，並將 app 重新安裝到 workspace。在重新安裝 app 前，新增 scope 不會應用到現有 Bot token。
 </Callout>
 
-Bot 使用 Socket Mode 主动连接 Slack，不需要配置公网 Request URL 或 OAuth Redirect URL。
+Bot 使用 Socket Mode 主動連接 Slack，不需要設定公網 Request URL 或 OAuth Redirect URL。
 
-## 2. 获取两个 token
+## 2. 獲取兩個 token
 
 ### Bot token
 
-1. 在 Slack app 中打开 **Install App**。
-2. 点击 **Install to Workspace** 并批准权限。
-3. 复制 **Bot User OAuth Token**，它以 `xoxb-` 开头。
+1. 在 Slack app 中開啟 **Install App**。
+2. 點擊 **Install to Workspace** 並批准權限。
+3. 複製 **Bot User OAuth Token**，它以 `xoxb-` 開頭。
 
 
 ### App-level token
 
-1. 打开 **Basic Information → App-Level Tokens**。
-2. 点击 **Generate Token and Scopes**。
-3. 添加 `connections:write` scope。
-4. 生成并复制以 `xapp-` 开头的 token。
+1. 開啟 **Basic Information → App-Level Tokens**。
+2. 點擊 **Generate Token and Scopes**。
+3. 新增 `connections:write` scope。
+4. 生成並複製以 `xapp-` 開頭的 token。
 
 
-## 3. 连接到 Agent
+## 3. 連接到 Agent
 
-1. 在 Multica 中打开 **Agent**，选择要接入 Slack 的 Agent。
-2. 进入 **集成**，点击 **连接 Slack**。
+1. 在 Multica 中開啟 **Agent**，選擇要接入 Slack 的 Agent。
+2. 進入 **整合**，點擊 **連接 Slack**。
 3. 填入 Bot token 和 App-level token。
-4. 点击 **连接**。
+4. 點擊 **連接**。
 
-Multica 会验证两个 token 是否来自同一个 app。连接成功后，页面会显示 **已连接到 Slack**。
+Multica 會驗證兩個 token 是否來自同一個 app。連接成功後，頁面會顯示 **已連接到 Slack**。
 
 <Callout type="warning">
-两个 token 会加密保存在 Multica 服务器上。Token 即凭据，不要写进任务、评论或代码仓库。已连接到其他 Agent 或工作区的 app 不能直接重复使用，需先断开原连接。
+兩個 token 會加密儲存在 Multica 伺服器上。Token 即憑據，不要寫進任務、留言或程式碼倉庫。已連接到其他 Agent 或工作區的 app 不能直接重複使用，需先斷開原連接。
 </Callout>
 
 ## 第一次使用
 
-成员第一次私聊或 @ Bot 时，会收到一个账号绑定链接。用该工作区的 Multica 账号登录后，再回到 Slack 发送消息。
+成員第一次私聊或 @ Bot 時，會收到一個帳戶綁定連結。用該工作區的 Multica 帳戶登入後，再回到 Slack 傳送消息。
 
-链接只能使用一次，并会在 15 分钟后过期。过期后再给 Bot 发一条消息即可获得新链接。同一 Multica 工作区中的多个 Bot 如果来自同一个 Slack workspace，通常可以复用已有绑定。
+連結只能使用一次，並會在 15 分鐘後過期。過期後再給 Bot 發一條消息即可獲得新連結。同一 Multica 工作區中的多個 Bot 如果來自同一個 Slack workspace，通常可以複用已有綁定。
 
-只有当前 Multica 工作区的成员可以使用 Bot。
+只有當前 Multica 工作區的成員可以使用 Bot。
 
 ## 在 Slack 中交代工作
 
 ### 私聊
 
-从 Slack 侧栏的 **Apps** 打开 Bot，直接发送消息，不需要 @。
+從 Slack 側欄的 **Apps** 開啟 Bot，直接傳送消息，不需要 @。
 
-### 频道和群聊
+### 頻道和群聊
 
-先运行 `/invite @your-bot` 把 Bot 加入频道，再发送 `@your-bot 你的要求`。每个 thread 会形成独立会话；追问时继续在原 thread 中 @ Bot。
+先執行 `/invite @your-bot` 把 Bot 加入頻道，再傳送 `@your-bot 你的要求`。每個 thread 會形成獨立會話；追問時繼續在原 thread 中 @ Bot。
 
-Bot 只会响应明确 @ 它的频道消息。执行时，它会在权限允许的范围内读取该 thread 的近期上下文。
+Bot 只會響應明確 @ 它的頻道消息。執行時，它會在權限允許的範圍內讀取該 thread 的近期上下文。
 
-### 发送文件
+### 傳送檔案
 
-在私聊里，或者在 @ 提及 Bot 的频道消息里直接带上文件。文件会作为附件进入同一项工作，Agent 可以结合文件和你的诉求一起处理。
+在私聊裡，或者在 @ 提及 Bot 的頻道消息裡直接帶上檔案。檔案會作為附件進入同一項工作，Agent 可以結合檔案和你的訴求一起處理。
 
-这需要 `files:read` 权限 —— 如果这个应用是在附件支持之前安装的，参考第 1 步的提示。单个文件不超过 20 MiB，一条消息最多带 10 个。超出大小、仍在上传，或者存放在 Slack 之外（比如 Google Drive、Dropbox 链接）的文件会被跳过，消息文本仍然会交给 Agent。
+這需要 `files:read` 權限 —— 如果這個應用是在附件支援之前安裝的，參考第 1 步的提示。單一檔案不超過 20 MiB，一條消息最多帶 10 個。超出大小、仍在上傳，或者存放在 Slack 之外（比如 Google Drive、Dropbox 連結）的檔案會被跳過，消息文本仍然會交給 Agent。
 
-### 用 `/issue` 创建任务
+### 用 `/issue` 建立任務
 
-在频道或私聊中输入：
+在頻道或私聊中輸入：
 
 ```text
-/issue Safari 登录成功后仍然停留在登录页
+/issue Safari 登入成功後仍然停留在登入頁
 ```
 
-这条命令不需要 @ Bot。Multica 会把描述交给当前 Bot 对应的 Agent，由它整理标题和正文并创建任务。Slack 会先显示一条仅你可见的接收提示；创建完成后，你会在 Multica 收件箱中收到通知。
+這條命令不需要 @ Bot。Multica 會把描述交給當前 Bot 對應的 Agent，由它整理標題和正文並建立任務。Slack 會先顯示一條僅你可見的接收提示；建立完成後，你會在 Multica 收件箱中收到通知。
 
 ### 用 `/new` 新建 Chat
 
-在与 Bot 的私聊中，发送 `/new` 会立即创建一个空的、可见的新 Chat；发送 `/new <消息>` 会把消息作为新 Chat 的第一轮。裸 `/new` 在第一条有效用户消息到来前显示为“新对话”，之后沿用现有的首条消息标题逻辑。
+在與 Bot 的私聊中，傳送 `/new` 會立即建立一個空的、可見的新 Chat；傳送 `/new <消息>` 會把消息作為新 Chat 的第一輪。裸 `/new` 在第一條有效使用者消息到來前顯示為“新對話”，之後沿用現有的首條消息標題邏輯。
 
-旧 Chat 仍保留在 Multica 中，并可继续从 Web、桌面端或移动端发送消息；只有 Slack 这条外部会话的后续消息会切换到新 Chat。
+舊 Chat 仍保留在 Multica 中，並可繼續從 Web、桌面端或移動端傳送消息；只有 Slack 這條外部會話的後續消息會切換到新 Chat。
 
-在频道或 thread 中，Slack 原生 slash command 的 payload 不包含目标 thread。请在目标 thread 里发送 `@Multica /new [消息]`。
+在頻道或 thread 中，Slack 原生 slash command 的 payload 不包含目標 thread。請在目標 thread 裡傳送 `@Multica /new [消息]`。
 
-### 用 `/clear` 清空当前 Chat 上下文
+### 用 `/clear` 清空當前 Chat 上下文
 
-在与 Bot 的私聊中，`/clear` 会保留当前 Multica Chat，只重置 Agent 可见的上下文。完整 Chat 历史仍保存在 Multica 中。`/clear <消息>` 会把消息作为新上下文的第一轮；裸 `/clear` 会把边界应用到下一条真实消息。
+在與 Bot 的私聊中，`/clear` 會保留當前 Multica Chat，只重置 Agent 可見的上下文。完整 Chat 歷史仍儲存在 Multica 中。`/clear <消息>` 會把消息作為新上下文的第一輪；裸 `/clear` 會把邊界應用到下一條真實消息。
 
-在频道或 thread 中，请在目标 thread 里发送 `@Multica /clear [消息]`，让 Multica 把边界应用到正确的会话。
+在頻道或 thread 中，請在目標 thread 裡傳送 `@Multica /clear [消息]`，讓 Multica 把邊界應用到正確的會話。
 
-## 管理连接
+## 管理連接
 
-打开 **设置 → 消息渠道 → Slack** 可以查看所有已连接的 Slack Bot。工作区 owner 和 admin 可以断开连接。
+開啟 **設定 → 消息渠道 → Slack** 可以查看所有已連接的 Slack Bot。工作區 owner 和 admin 可以斷開連接。
 
-断开后，Socket Mode 连接会停止，Bot 不再接收新消息。已有的对话和审计记录不会随之删除。
+斷開後，Socket Mode 連接會停止，Bot 不再接收新消息。已有的對話和審計記錄不會隨之刪除。
 
-## 自托管配置
+## 自託管設定
 
-Multica Cloud 无需额外配置。自托管部署需要先设置一个用于加密 Slack token 的密钥：
+Multica Cloud 無需額外設定。自託管部署需要先設定一個用於加密 Slack token 的密鑰：
 
 ```dotenv
-MULTICA_SLACK_SECRET_KEY=<base64 编码的 32 字节密钥>
+MULTICA_SLACK_SECRET_KEY=<base64 編碼的 32 字節密鑰>
 ```
 
-可以这样生成：
+可以這樣生成：
 
 ```bash
 openssl rand -base64 32
 ```
 
-重启 API 服务后，再连接 Slack app。该密钥需要长期保存：更换或丢失后，已有 token 无法解密，需要重新连接。
+重啟 API 服務後，再連接 Slack app。該密鑰需要長期儲存：更換或丟失後，已有 token 無法解密，需要重新連接。
 
-账号绑定链接使用 `MULTICA_APP_URL`，未设置时回退到 `FRONTEND_ORIGIN`；它需要指向成员可以访问的 Multica 地址。
+帳戶綁定連結使用 `MULTICA_APP_URL`，未設定時回退到 `FRONTEND_ORIGIN`；它需要指向成員可以訪問的 Multica 地址。
 
-## 常见问题
+## 常見問題
 
-- **连接时提示 token 无效**：检查前缀，并确认两个 token 来自同一个 app。
-- **无法验证 app**：确认 manifest 包含 `users:read`，更新权限后重新安装 app。
-- **私聊没有入口**：确认 `app_home.messages_tab_enabled` 为 `true`。
-- **频道里没有回复**：确认 Bot 已被邀请进频道，并在消息中 @ 了它。
-- **`/issue`、`/new` 或 `/clear` 不存在**：确认 manifest 包含这三个 slash command 和 `commands` scope，随后重新安装 app。如果 Slack 提示 `/new` 或 `/clear` 已被占用，请改用 `@Multica` 消息形式，或先解决 workspace 级命令冲突。
-- **文件没有送达 Agent**：确认 manifest 里包含 `files:read`，并且在添加该权限后重新安装过应用，同时确认文件不超过 20 MiB。
-- **Bot 不执行**：检查 Agent 是否已归档，以及它使用的[运行时](/daemon-runtimes)是否在线。
+- **連接時提示 token 無效**：檢查前綴，並確認兩個 token 來自同一個 app。
+- **無法驗證 app**：確認 manifest 包含 `users:read`，更新權限後重新安裝 app。
+- **私聊沒有入口**：確認 `app_home.messages_tab_enabled` 為 `true`。
+- **頻道里沒有回覆**：確認 Bot 已被邀請進頻道，並在消息中 @ 了它。
+- **`/issue`、`/new` 或 `/clear` 不存在**：確認 manifest 包含這三個 slash command 和 `commands` scope，隨後重新安裝 app。如果 Slack 提示 `/new` 或 `/clear` 已被佔用，請改用 `@Multica` 消息形式，或先解決 workspace 級命令衝突。
+- **檔案沒有送達 Agent**：確認 manifest 裡包含 `files:read`，並且在新增該權限後重新安裝過應用，同時確認檔案不超過 20 MiB。
+- **Bot 不執行**：檢查 Agent 是否已歸檔，以及它使用的[執行環境](/daemon-runtimes)是否在線。
 
-## 接下来
+## 接下來
 
-- [聊天集成](/channels) — 平台对比、会话隔离和账号绑定机制。
-- [与 Agent 对话](/chat) — Bot 背后的对话与执行模型。
-- [任务](/issues) — `/issue` 创建的工作单位。
+- [聊天整合](/channels) — 平臺對比、會話隔離和帳戶綁定機制。
+- [與 Agent 對話](/chat) — Bot 背後的對話與執行模型。
+- [任務](/issues) — `/issue` 建立的工作單位。

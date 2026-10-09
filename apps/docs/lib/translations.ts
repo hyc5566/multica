@@ -5,16 +5,16 @@ import type { Lang } from "./i18n";
 // English uses Fumadocs defaults, so only the translated locales override them.
 export const uiTranslations: Partial<Record<Lang, Partial<Translations>>> = {
   zh: {
-    search: "搜索",
-    searchNoResult: "没有找到结果",
-    toc: "本页目录",
-    tocNoHeadings: "无章节",
-    lastUpdate: "最后更新于",
-    chooseLanguage: "选择语言",
-    nextPage: "下一页",
-    previousPage: "上一页",
-    chooseTheme: "切换主题",
-    editOnGithub: "在 GitHub 上编辑",
+    search: "搜尋",
+    searchNoResult: "沒有找到結果",
+    toc: "本頁目錄",
+    tocNoHeadings: "無章節",
+    lastUpdate: "最後更新於",
+    chooseLanguage: "選擇語言",
+    nextPage: "下一頁",
+    previousPage: "上一頁",
+    chooseTheme: "切換主題",
+    editOnGithub: "在 GitHub 上編輯",
   },
   ko: {
     search: "검색",
@@ -57,7 +57,7 @@ export const uiTranslations: Partial<Record<Lang, Partial<Translations>>> = {
 // Display name shown in the LanguageToggle dropdown.
 export const localeLabels: Record<Lang, string> = {
   en: "English",
-  zh: "简体中文",
+  zh: "繁體中文",
   ko: "한국어",
   ja: "日本語",
   fr: "Français",
@@ -73,10 +73,10 @@ export const homeCopy = {
     byline: ["Getting started", "Updated July 2026", "2 min read"],
   },
   zh: {
-    eyebrow: "Multica 文档",
-    titleLead: "Multica 是人类与 AI Agent",
+    eyebrow: "Multica 文件",
+    titleLead: "Multica 是人類與 AI Agent",
     titleAccent: "共同工作的地方。",
-    byline: ["开始使用", "2026 年 7 月更新", "阅读约 2 分钟"],
+    byline: ["開始使用", "2026 年 7 月更新", "閱讀約 2 分鐘"],
   },
   ko: {
     eyebrow: "Multica 문서",

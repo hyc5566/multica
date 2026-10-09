@@ -127,7 +127,7 @@ html[lang|="ja"] .landing-light {
    locales keep the original treatment untouched.
 
    `[lang|="zh"]` is the BCP-47 language-range selector: it matches exactly `zh`
-   or `zh-<region>` (app/layout.tsx emits `zh-CN`, `ja-JP`, `ko-KR`), never an
+   or `zh-<region>` (app/layout.tsx emits `zh-TW`, `ja-JP`, `ko-KR`), never an
    unrelated subtag such as `zha`. Scoped to headings so the footer wordmark — a
    Latin-only <span> rendering "multica" at up to 16rem — keeps its tuned
    tracking on every locale. */

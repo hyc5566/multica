@@ -1,33 +1,33 @@
-# 弹窗
+# 彈窗
 
-从 `@multica/ui/components/ui/dialog` 导入。
+從 `@multica/ui/components/ui/dialog` 匯入。
 
-## 使用规则
+## 使用規則
 
-Dialog 用于需要模态界面的独立操作。上下文选项使用 Popover；重要操作确认使用 AlertDialog。
+Dialog 用於需要模態介面的獨立操作。上下文選項使用 Popover；重要操作確認使用 AlertDialog。
 
-组合使用 `Dialog`、`DialogTrigger`、`DialogContent`、`DialogHeader`、`DialogTitle`、`DialogDescription`、`DialogFooter` 和 `DialogClose`。Dialog 没有 `variant` 属性；表单和长内容只是同一组件的不同组合。
+組合使用 `Dialog`、`DialogTrigger`、`DialogContent`、`DialogHeader`、`DialogTitle`、`DialogDescription`、`DialogFooter` 和 `DialogClose`。Dialog 沒有 `variant` 屬性；表單和長內容只是同一組件的不同組合。
 
-## 行为
+## 行為
 
-提供标题和简短说明。由组件处理焦点限制、Escape、点击外部关闭和焦点恢复。使用 `DialogTrigger`，让焦点能返回打开按钮。表单字段需要标签。长内容和窄屏下，底部操作必须可访问。
+提供標題和簡短說明。由組件處理焦點限制、Escape、點擊外部關閉和焦點恢復。使用 `DialogTrigger`，讓焦點能返回開啟按鈕。表單欄位需要標籤。長內容和窄屏下，底部操作必須可訪問。
 
-提交成功后再关闭；失败时保留输入并显示错误。UI Lab 中的保存是本地演示，不发送 API 请求。
+提交成功後再關閉；失敗時保留輸入並顯示錯誤。UI Lab 中的儲存是本地演示，不傳送 API 請求。
 
-## 正确示例
+## 正確示例
 
 ```tsx
 <Dialog>
-  <DialogTrigger render={<Button />}>编辑标题</DialogTrigger>
+  <DialogTrigger render={<Button />}>編輯標題</DialogTrigger>
   <DialogContent>
     <DialogHeader>
-      <DialogTitle>编辑标题</DialogTitle>
-      <DialogDescription>更新任务标题。</DialogDescription>
+      <DialogTitle>編輯標題</DialogTitle>
+      <DialogDescription>更新任務標題。</DialogDescription>
     </DialogHeader>
-    <label>标题<Input defaultValue="检查界面" /></label>
+    <label>標題<Input defaultValue="檢查介面" /></label>
     <DialogFooter>
       <DialogClose render={<Button variant="outline" />}>取消</DialogClose>
-      <Button onClick={saveThenClose}>保存</Button>
+      <Button onClick={saveThenClose}>儲存</Button>
     </DialogFooter>
   </DialogContent>
 </Dialog>
@@ -37,21 +37,21 @@ Dialog 用于需要模态界面的独立操作。上下文选项使用 Popover�
 
 ```tsx
 <div role="dialog" className="fixed inset-0">
-  <Input placeholder="标题" />
-  <Button onClick={() => { save(); close(); }}>保存</Button>
+  <Input placeholder="標題" />
+  <Button onClick={() => { save(); close(); }}>儲存</Button>
 </div>
 ```
 
-仅设置 role 不会提供无障碍名称、焦点管理和关闭行为。异步保存成功前不要关闭弹窗。
+僅設定 role 不會提供無障礙名稱、焦點管理和關閉行為。異步儲存成功前不要關閉彈窗。
 
-## 动效
+## 動效
 
-弹窗和遮罩读取 `packages/ui/styles/tokens.css` 中的 `--dialog-enter-duration`、`--dialog-exit-duration`、`--dialog-enter-easing` 和 `--dialog-exit-easing`。默认保持现有的 100ms/ease 动画，弹窗同时淡入淡出并在 95% 和 100% 之间缩放。
+彈窗和遮罩讀取 `packages/ui/styles/tokens.css` 中的 `--dialog-enter-duration`、`--dialog-exit-duration`、`--dialog-enter-easing` 和 `--dialog-exit-easing`。預設保持現有的 100ms/ease 動畫，彈窗同時淡入淡出並在 95% 和 100% 之間縮放。
 
-参数影响网页端和桌面端的共享 Dialog，以及使用 DialogContent 的组合；调用方自行覆盖动画时除外。不影响 Popover、Tooltip、AlertDialog 和 JavaScript 动效常量。
+參數影響網頁端和桌面端的共享 Dialog，以及使用 DialogContent 的組合；調用方自行覆蓋動畫時除外。不影響 Popover、Tooltip、AlertDialog 和 JavaScript 動效常量。
 
-遵循系统减少动态效果设置，禁用弹窗和遮罩动画。UI Lab 的播放速度仅用于预览，不参与导出。打开、关闭和重播真实组件，也要快速交替打开与关闭，检查中断效果。
+遵循系統減少動態效果設定，禁用彈窗和遮罩動畫。UI Lab 的播放速度僅用於預覽，不參與匯出。開啟、關閉和重播真實組件，也要快速交替開啟與關閉，檢查中斷效果。
 
-## 应用修改
+## 應用修改
 
-检查两种主题和键盘操作。保存方案，或导出 CSS 并合并到 `packages/ui/styles/tokens.css` 的 `:root` 区块。导出不会直接修改产品代码。
+檢查兩種主題和鍵盤操作。儲存方案，或匯出 CSS 併合併到 `packages/ui/styles/tokens.css` 的 `:root` 區塊。匯出不會直接修改產品程式碼。

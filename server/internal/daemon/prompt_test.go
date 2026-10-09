@@ -130,7 +130,7 @@ func TestBuildQuickCreatePromptAssigneeIncludesSquads(t *testing.T) {
 		"multica squad list",
 		"Squads are first-class assignees",
 		"Treat bare @-routing as an assignee directive",
-		"让 @独立团 review 这个 PR",
+		"讓 @獨立團 review 這個 PR",
 		"pass the squad's `id` as `--assignee-id`",
 	}
 	for _, s := range mustContain {

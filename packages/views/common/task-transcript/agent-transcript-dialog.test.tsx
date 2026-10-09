@@ -914,7 +914,7 @@ describe("AgentTranscriptDialog — cancel reason", () => {
       },
     });
 
-    expect(screen.getByText(/本地目錄出錯/)).toBeInTheDocument();
+    expect(screen.getByText(/本機目錄出錯/)).toBeInTheDocument();
     expect(
       screen.queryByText(/Local directory error/),
     ).not.toBeInTheDocument();

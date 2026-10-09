@@ -75,7 +75,7 @@ export default async function Layout({
 
   return (
     <html
-      lang={lang}
+      lang={lang === "zh" ? "zh-TW" : lang}
       suppressHydrationWarning
       className={cn(
         "antialiased",

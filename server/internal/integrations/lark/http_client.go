@@ -1421,7 +1421,7 @@ func bindingPromptTemplate(bindURL string) (string, error) {
 				"tag": "div",
 				"text": map[string]any{
 					"tag":     "lark_md",
-					"content": "你还没有绑定 Multica 账户。点击下方按钮完成绑定后即可使用此 Agent。",
+					"content": "你還沒有綁定 Multica 帳戶。點選下方按鈕完成綁定後即可使用此 Agent。",
 				},
 			},
 			map[string]any{
@@ -1429,7 +1429,7 @@ func bindingPromptTemplate(bindURL string) (string, error) {
 				"actions": []any{
 					map[string]any{
 						"tag":  "button",
-						"text": map[string]any{"tag": "plain_text", "content": "去绑定"},
+						"text": map[string]any{"tag": "plain_text", "content": "前往綁定"},
 						"type": "primary",
 						"url":  bindURL,
 					},

@@ -186,7 +186,7 @@ still fails closed because the effective config.toml model is unknown;
 
 ### conversation_starters
 
-The product calls this feature **Conversation starters** (中文：对话开场建议).
+The product calls this feature **Conversation starters** (中文：對話開場建議).
 Use that name when talking to a human — the wire field `conversation_starters`
 is an implementation detail they never see. A human configures them on the
 agent's **Instructions** tab; the deep link is

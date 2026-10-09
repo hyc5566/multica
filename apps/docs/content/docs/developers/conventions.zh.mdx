@@ -1,224 +1,224 @@
 ---
-title: 开发规范
-description: 代码命名规范、i18n 翻译术语表、中文风格指南的唯一权威来源。
+title: 開發規範
+description: 程式碼命名規範、i18n 翻譯術語表、中文風格指南的唯一權威來源。
 ---
 
-写 Multica 代码、改翻译、写中文产品文案，都从这一页查。
+寫 Multica 程式碼、改翻譯、寫中文產品文案，都從這一頁查。
 
 ---
 
-## 1. 代码命名
+## 1. 程式碼命名
 
 ### 路由
 
-工作区前置路由（用户进入工作区之前能访问的路由）必须用单个单词，或者 `/{noun}/{verb}` 格式。
+工作區前置路由（使用者進入工作區之前能存取的路由）必須用單個單詞，或者 `/{noun}/{verb}` 格式。
 
 - ✅ `/login`、`/inbox`、`/workspaces/new`
 - ❌ `/new-workspace`、`/create-team`、`/accept-invite`
 
-根目录的连字符词组会跟用户自选 workspace slug 冲突，逼着团队不停审保留字列表。把名词（`workspaces`）保留下来，整个 `/workspaces/*` 子树自动受保护。
+根目錄的連字符詞組會跟使用者自選 workspace slug 衝突，讓團隊必須不斷審查保留字清單。保留名詞（`workspaces`），整個 `/workspaces/*` 子樹就會自動受到保護。
 
-### 工作区路由
+### 工作區路由
 
-永远用 `/{slug}/{section}` —— `/{slug}/issues`、`/{slug}/agents`、`/{slug}/settings`。共享代码不要复制路由逻辑，统一走 `useNavigation().push()`，不要直接用框架的 link API。
+永遠用 `/{slug}/{section}` —— `/{slug}/issues`、`/{slug}/agents`、`/{slug}/settings`。共享程式碼不要複製路由邏輯，統一走 `useNavigation().push()`，不要直接用框架的 link API。
 
-### 包与模块
+### 包與模塊
 
-monorepo 的包边界是硬约束：
+monorepo 的包邊界是硬約束：
 
-| 包 | 可依赖 | 不能依赖 |
+| 包 | 可依賴 | 不能依賴 |
 | --- | --- | --- |
-| `packages/core` | 仅平台无关基础库 | `react-dom`、`localStorage`、`process.env`、`next/*`、UI 库 |
-| `packages/ui` | 无业务依赖 | `@multica/core`、业务逻辑 |
+| `packages/core` | 僅平臺無關基礎庫 | `react-dom`、`localStorage`、`process.env`、`next/*`、UI 庫 |
+| `packages/ui` | 無業務依賴 | `@multica/core`、業務邏輯 |
 | `packages/views` | `core/`、`ui/` | `next/*`、`react-router-dom`、stores |
 | `apps/web/platform/` | `next/*` | 其他 app |
 | `apps/desktop/.../platform/` | `react-router-dom`、electron | 其他 app |
-| `apps/mobile/` | `@multica/core` 的类型和纯函数 | Web/Desktop 的 React 页面、store 和平台实现 |
+| `apps/mobile/` | `@multica/core` 的類型和純函數 | Web/Desktop 的 React 頁面、store 和平臺實現 |
 
-Web 和 Desktop 都有的逻辑，**必须**抽到共享包。"小段重复"也不算例外。Mobile 拥有独立的 UI、数据层和发布流程，只共享类型与纯函数。
+Web 和 Desktop 都有的邏輯，**必須**抽到共享包。"小段重複"也不算例外。Mobile 擁有獨立的 UI、資料層和發佈流程，只共享類型與純函數。
 
-### 文件与组件
+### 檔案與組件
 
-- 文件名：`kebab-case.tsx` / `kebab-case.ts`（如 `agent-row-actions.tsx`）
-- 组件：`PascalCase`（如 `AgentRowActions`）
+- 檔名：`kebab-case.tsx` / `kebab-case.ts`（如 `agent-row-actions.tsx`）
+- 組件：`PascalCase`（如 `AgentRowActions`）
 - Hook：`useCamelCase`（如 `useWorkspaceId`）
-- 测试：与源文件同目录，命名 `<file>.test.ts(x)`
-- Zustand store：`<feature>-store.ts`，导出名 `use<Feature>Store`
+- 測試：與原始檔同目錄，命名 `<file>.test.ts(x)`
+- Zustand store：`<feature>-store.ts`，匯出名 `use<Feature>Store`
 
-### 数据库（Go + sqlc）
+### 資料庫（Go + sqlc）
 
-- 表名：`snake_case` 单数（`user`、`workspace`、`agent_runtime`）
-- 字段：`snake_case`（`workspace_id`、`created_at`、`last_seen_at`）
-- 关联字段：`<table>_id`
-- 布尔：`is_<state>` 或者 `<state>_at`（状态变化优先用时间戳形式）
-- 迁移文件：`NNN_descriptive_name.up.sql` + `.down.sql`，**永远写双向**
-- 不创建数据库 foreign key，也不使用级联删除或级联更新；关系校验和清理由应用层完成
-- 所有索引都使用 `CREATE INDEX CONCURRENTLY` 或 `CREATE UNIQUE INDEX CONCURRENTLY`，每条 concurrent index 单独占一个 migration 文件
+- 表名：`snake_case` 單數（`user`、`workspace`、`agent_runtime`）
+- 欄位：`snake_case`（`workspace_id`、`created_at`、`last_seen_at`）
+- 關聯欄位：`<table>_id`
+- 布爾：`is_<state>` 或者 `<state>_at`（狀態變化優先用時間戳形式）
+- 遷移檔案：`NNN_descriptive_name.up.sql` + `.down.sql`，**永遠寫雙向**
+- 不建立資料庫 foreign key，也不使用級聯刪除或級聯更新；關係校驗和清理由應用層完成
+- 所有索引都使用 `CREATE INDEX CONCURRENTLY` 或 `CREATE UNIQUE INDEX CONCURRENTLY`，每條 concurrent index 單獨佔一個 migration 檔案
 
 ### Go
 
-- 标准 `gofmt` + `go vet`，无例外
-- Handler 文件按域命名：`agent.go`、`auth.go`、`runtime.go`
-- 测试：`<file>_test.go` 同目录
-- handler 里 UUID 解析遵守根 `AGENTS.md` 的规则：边界输入用 `parseUUIDOrBadRequest`，可信回环用 `parseUUID`（panic 版），永远不要直接用 `util.ParseUUID` 不查 error
+- 標準 `gofmt` + `go vet`，無例外
+- Handler 檔案按域命名：`agent.go`、`auth.go`、`runtime.go`
+- 測試：`<file>_test.go` 同目錄
+- handler 裡 UUID 解析遵守根 `AGENTS.md` 的規則：邊界輸入用 `parseUUIDOrBadRequest`，可信迴環用 `parseUUID`（panic 版），永遠不要直接用 `util.ParseUUID` 不查 error
 
 ### TypeScript
 
-- 网络上 API 响应是 `snake_case`，api client 在边界处转成 `camelCase`。**TS 代码内部一律 camelCase**
-- 类型：`PascalCase`（`Issue`、`AgentRuntime`），不加 `IPrefix`，不加 `_t` 后缀
-- 枚举：优先用 string literal union，需要 runtime 迭代时才用 `enum`
-- TanStack Query key：用 `<feature>/queries.ts` 里的工厂函数，例如 `issueKeys.detail(id)`
+- 網路上的 API 回應採用 `snake_case`，api client 在邊界處轉成 `camelCase`。**TS 程式碼內部一律 camelCase**
+- 類型：`PascalCase`（`Issue`、`AgentRuntime`），不加 `IPrefix`，不加 `_t` 後綴
+- 枚舉：優先用 string literal union，需要 runtime 迭代時才用 `enum`
+- TanStack Query key：用 `<feature>/queries.ts` 裡的工廠函數，例如 `issueKeys.detail(id)`
 
-### API 边界
+### API 邊界
 
-- 网络响应必须用 `packages/core/api/schema.ts` 中的 `parseWithFallback` 和 zod schema 解析，不能直接 `as T`
-- 新增或修改 endpoint 时，同步更新 schema，并覆盖字段缺失或格式错误的测试
-- 下游 UI 对可选字段提供默认值；服务端枚举的 `switch` 必须有 `default` 分支
-- 已安装的 Desktop 可能连接更新的 backend，不能假设前后端永远同版本
+- 網路回應必須用 `packages/core/api/schema.ts` 中的 `parseWithFallback` 和 zod schema 解析，不能直接 `as T`
+- 新增或修改 endpoint 時，同步更新 schema，並涵蓋欄位缺失或格式錯誤的測試
+- 下游 UI 對可選欄位提供預設值；服務端枚舉的 `switch` 必須有 `default` 分支
+- 已安裝的 Desktop 可能連接更新的 backend，不能假設前後端永遠同版本
 
-### Runtime 显示名
+### Runtime 顯示名
 
-`AgentRuntime.name` 是 daemon 的原始技术名（例如 `Codex (host)`），用户别名在 `custom_name`。用户可见文案不得直接渲染 `runtime.name`，要用共享 helper，保证别名和 provider 一致（MUL-5248、#5260）：
+`AgentRuntime.name` 是 daemon 的原始技術名稱（例如 `Codex (host)`），使用者別名在 `custom_name`。使用者可見文案不得直接渲染 `runtime.name`，要用共享 helper，確保別名和 provider 一致（MUL-5248、#5260）：
 
-- 独立展示 runtime（列表、标签、确认弹窗、窗口标题）：`runtimeDisplayLabel(runtime)` → 别名 + provider，无别名时回退 daemon 名。
-- 旁边已经单独显示 provider 图标/文字时：`runtimeDisplayName(runtime)` → 只显示别名，避免重复 provider。
-- 在机器分组内：机器标题用 `machine.title`，子行用 `runtimeRowLabel(runtime, machine.title)`。
-- runtime 选择器用 `buildRuntimeMachines` 按机器分组，不要自己拼扁平的原始名列表。
+- 獨立展示 runtime（列表、標籤、確認彈窗、窗口標題）：`runtimeDisplayLabel(runtime)` → 別名 + provider，無別名時回退 daemon 名。
+- 旁邊已經單獨顯示 provider 圖示/文字時：`runtimeDisplayName(runtime)` → 只顯示別名，避免重複 provider。
+- 在機器分組內：機器標題用 `machine.title`，子行用 `runtimeRowLabel(runtime, machine.title)`。
+- runtime 選擇器用 `buildRuntimeMachines` 按機器分組，不要自己拼扁平的原始名列表。
 
-原始 `runtime.name` 只允许用于内部识别——hostname 解析、分组、搜索 haystack、协议 payload——绝不能进入 JSX 文本、i18n 参数、`<Select>` label 或窗口标题。
+原始 `runtime.name` 只允許用於內部識別——hostname 解析、分組、搜尋 haystack、協議 payload——絕不能進入 JSX 文本、i18n 參數、`<Select>` label 或窗口標題。
 
-### Issue 编号
+### Issue 編號
 
-每个 issue 有人类可读的编号，比如 `MUL-123`：工作区 `issue_prefix`（大写字母和数字，通常 3 个字符，最长 10 个）+ 流水号。工作区管理员可以在**设置 → 常规**中修改前缀；修改会让所有现有 issue 重新编号，外部引用——PR 标题、分支名、文档与聊天里的链接——里的旧前缀会失效。
+每個 issue 有人類可讀的編號，比如 `MUL-123`：工作區 `issue_prefix`（大寫字母和數字，通常 3 個字符，最長 10 個）+ 流水號。工作區管理員可以在**設定 → 常規**中修改前綴；修改會讓所有現有 issue 重新編號，外部引用——PR 標題、分支名、文件與聊天裡的連結——裡的舊前綴會失效。
 
-### 代码注释
+### 程式碼註釋
 
-**只允许英文**。Go 和 TypeScript 都强制。如果在代码里看到中文注释，那就是 bug，替换掉。
+**只允許英文**。Go 和 TypeScript 都強制。如果在程式碼裡看到中文註釋，那就是 bug，替換掉。
 
 ### Commit message
 
-Conventional 格式：`feat(scope)`、`fix(scope)`、`refactor(scope)`、`docs`、`test(scope)`、`chore(scope)`。按意图原子化分组。
+Conventional 格式：`feat(scope)`、`fix(scope)`、`refactor(scope)`、`docs`、`test(scope)`、`chore(scope)`。按意圖原子化分組。
 
 ---
 
-## 2. i18n 翻译术语表
+## 2. i18n 翻譯術語表
 
-这是每个翻译 PR 都必须遵守的术语表。原本在 `packages/views/locales/glossary.md`，那个文件已删除，由这一页取代。
+這是每個翻譯 PR 都必須遵守的術語表。原本在 `packages/views/locales/glossary.md`，那個文件已刪除，由這一頁取代。
 
-### 核心区分：日常词 vs Multica 专有词
+### 核心區分：日常詞 vs Multica 專有詞
 
-Multica 的产品名词分两类：
+Multica 的產品名詞分兩類：
 
-- **日常词** —— 用户会直接说出口的词。**完整翻译成中文**，是不是数据库实体都一样：`issue` → 任务、`workspace` → 工作区、`project` → 项目。
-- **Multica 专有词** —— 中文里没有对应词的概念（`skill`），或用户可能要照着敲、照着比对的 schema 标识符（`todo`、`in_progress`、`task_id`）。**用小写英文**呈现，读起来像类型名。
+- **日常詞** —— 使用者會直接說出口的詞。**完整翻譯成中文**，是不是資料庫實體都一樣：`issue` → 任務、`workspace` → 工作區、`project` → 專案。
+- **Multica 專有詞** —— 中文裡沒有對應詞的概念（`skill`），或使用者可能要照著敲、照著比對的 schema 標識符（`todo`、`in_progress`、`task_id`）。**用小寫英文**呈現，讀起來像類型名。
 
-其余规则以 `apps/docs/content/docs/*.zh.mdx` 为准 —— docs 是已经实战 20+ 篇的 CN voice 标准。`*.zh.mdx`、`*.ja.mdx`、`*.ko.mdx` 的正文现在也一律按下面的表格来。
+其餘規則以 `apps/docs/content/docs/*.zh.mdx` 為準 —— 這些文件是臺灣繁體中文語氣與用語的依據。`*.zh.mdx`、`*.ja.mdx`、`*.ko.mdx` 的正文現在也一律按下面的表格處理。
 
-### `issue` 就是产品里的「任务」，必须翻译
+### `issue` 就是產品裡的「任務」，必須翻譯
 
-`issue` 是这个「用户提出、Agent 去做的事」的英文产品名。在英文之外的每种语言里，它就是当地最日常的那个「任务」词：
+`issue` 是這個「使用者提出、由 Agent 處理的事」的英文產品名。在英文之外的每種語言裡，它就是當地最日常的「任務」一詞：
 
-| 实体 | en | zh-Hans | ja | ko | fr |
+| 實體 | en | zh-Hans | ja | ko | fr |
 | --- | --- | --- | --- | --- | --- |
-| 提交出来的一件事（`issue`） | Issue | **任务** | **タスク** | **태스크** | **Tâche** |
+| 提交出來的一件事（`issue`） | Issue | **任務** | **タスク** | **태스크** | **Tâche** |
 | Agent 的一次執行記錄（API / DB 中為 `task`） | **Run** | **執行** | **実行** | **실행** | **Exécution** |
 
-这两个概念用户都看得到，而且**不是一回事** —— 一个任务下面可以有多次运行。任何一种语言都不能把两者写成同一个词。`Task` 不再是 Agent 单次运行的用户侧产品名，只保留为已经稳定的内部标识符。
+這兩個概念使用者都看得到，而且**不是一回事** —— 一個任務下面可以有多次執行。任何一種語言都不能把兩者寫成同一個詞。`Task` 不再是 Agent 單次執行的使用者介面產品名稱，只保留為已穩定的內部識別字。
 
-不跟着改的部分：
+不跟著改的部分：
 
-- **API / DB 字段**永远是 `issue` / `task` / `skill`：`issue_status`、`task_id`、`skill_uuid`。开发者正文称产品对象为 Run；需要对照协议时可写成「Run（API 中为 `task_id`）」。
-- **代码引用和字面命令**保持英文：`multica issue ...`、Slack 与飞书的 `/issue` 斜杠命令。
-- **`skill`** 在中文里仍用小写英文 —— Multica 特有概念，没有公认中文译法；标题可大写为 `Skills`。
-- **表示「问题」的 issue** 不是这个实体：机器卡片上的 `{{count}} issues` 是 `{{count}} 个异常` / `問題 {{count}} 件` / `문제 {{count}}개`，不要用实体那个词。
+- **API / DB 欄位**永遠是 `issue` / `task` / `skill`：`issue_status`、`task_id`、`skill_uuid`。開發者正文稱產品物件為 Run；需要對照協定時可寫成「Run（API 中為 `task_id`）」。
+- **程式碼引用和字面命令**保持英文：`multica issue ...`、Slack 與飛書的 `/issue` 斜槓命令。
+- **`skill`** 在中文裡仍用小寫英文 —— Multica 特有概念，沒有公認中文譯法；標題可大寫為 `Skills`。
+- **表示「問題」的 issue** 不是這個實體：機器卡片上的 `{{count}} issues` 是 `{{count}} 個異常` / `問題 {{count}} 件` / `문제 {{count}}개`，不要用實體那個詞。
 
-**为什么 `issue` 要译，而 `skill` 不译**：用户每天都在提任务、看任务，而 "issue" 这个词在中文、日文、韩文里除了开发圈黑话之外没有含义，当地人本来就用「任务」在说这件事。`skill` 则是 Multica 特有概念，没有哪个中文词能承载它的意思。
+**為什麼 `issue` 要翻譯，而 `skill` 不翻譯**：使用者每天都在建立和查看任務，而 "issue" 這個詞在中文、日文、韓文裡除了開發圈術語之外沒有其他含義，當地人本來就用「任務」來稱呼這件事。`skill` 則是 Multica 特有概念，沒有合適的中文詞能完整表達它的意思。
 
-其它产品名词同样按「有没有稳定的本地日常词」来判断：
+其它產品名詞同樣按「有沒有穩定的本地日常詞」來判斷：
 
-- **`project` 翻成"项目"**：中文里早就稳定的日常词。飞书 / Tower / Teambition / PingCode / GitHub Projects 中文版 0 例外都翻译成"项目"，没有产品保留 `project`。
-- **`autopilot` 翻成"自动化"**：autopilot 在中文里联想到特斯拉的"自动驾驶"，跟产品功能（按周期启动 Agent 运行）对应不上。Notion / 飞书都用"自动化"，是行业共识。
+- **此臺灣繁體中文分支將 `project` 翻成「專案」**：本地化時採用符合臺灣用語的「專案」，不代表其他產品或中文地區都使用相同譯法。
+- **`autopilot` 翻成"自動化"**：autopilot 在中文裡聯想到特斯拉的"自動駕駛"，跟產品功能（按週期啟動 Agent 執行）對應不上。Notion / 飛書都用"自動化"，是行業共識。
 
-### 完整翻译 —— 概念词
+### 完整翻譯 —— 概念詞
 
 | 英 | 中 |
 | --- | --- |
-| Workspace | **工作区** |
+| Workspace | **工作區** |
 | Agent | **Agent** |
-| Project | **项目** |
-| Autopilot | **自动化** |
-| Daemon | **守护进程** |
-| Runtime | **运行时** |
+| Project | **專案** |
+| Autopilot | **自動化** |
+| Daemon | **守護程序** |
+| Runtime | **執行環境** |
 | Inbox | **收件箱** |
-| Comment | **评论** |
-| Reply | **回复** |
+| Comment | **留言** |
+| Reply | **回覆** |
 | Notifications | **通知** |
-| Member | **成员** |
-| Label | **标签** |
-| Settings | **设置** |
-| Onboarding | **上手引导** |
+| Member | **成員** |
+| Label | **標籤** |
+| Settings | **設定** |
+| Onboarding | **上手引導** |
 
-### 不翻 —— 品牌名 + 通用缩写
+### 不翻 —— 品牌名 + 通用縮寫
 
-| 类别 | 词 |
+| 類別 | 詞 |
 | --- | --- |
 | 品牌 | **Multica**、GitHub、Slack、Google、Anthropic、OpenAI、Claude、Codex、Cursor、Linear、Jira |
-| 缩写 | API、CLI、URL、SDK、OAuth、JWT、SSO、WebSocket、HTTP、JSON、YAML、SQL |
+| 縮寫 | API、CLI、URL、SDK、OAuth、JWT、SSO、WebSocket、HTTP、JSON、YAML、SQL |
 
-### 完整翻译 —— 通用 UI 词
+### 完整翻譯 —— 通用 UI 詞
 
 | 英 | 中 |
 | --- | --- |
-| Invite / Invitation | 邀请 |
-| Search | 搜索 |
-| Email | 邮箱（label）/ 邮件（action） |
-| Password | 密码 |
-| Sign in / Log in | 登录 |
-| Sign up | 注册 |
-| Sign out / Log out | 退出登录 |
-| Save / Cancel / Delete | 保存 / 取消 / 删除 |
-| Confirm / Continue / Back | 确认 / 继续 / 返回 |
-| Edit / New / Create / Add | 编辑 / 新建 / 创建 / 添加 |
-| Remove / Send / Open / Close | 移除 / 发送 / 打开 / 关闭 |
-| Preview / Download / Upload | 预览 / 下载 / 上传 |
-| Done / Loading... | 完成 / 加载中... |
-| Profile / Account / Appearance | 个人资料 / 账号 / 外观 |
-| Theme / Language | 主题 / 语言 |
-| Light / Dark / System | 浅色 / 深色 / 跟随系统 |
-| Active / Archived | 活跃（或 启用）/ 已归档 |
-| Status / Priority | 状态 / 优先级 |
-| Assignee / Reporter | 负责人 / 报告人 |
-| Description / Title | 描述 / 标题 |
-| Date / Time | 日期 / 时间 |
+| Invite / Invitation | 邀請 |
+| Search | 搜尋 |
+| Email | 電子郵件（label）/ 郵件（action） |
+| Password | 密碼 |
+| Sign in / Log in | 登入 |
+| Sign up | 註冊 |
+| Sign out / Log out | 登出 |
+| Save / Cancel / Delete | 儲存 / 取消 / 刪除 |
+| Confirm / Continue / Back | 確認 / 繼續 / 返回 |
+| Edit / New / Create / Add | 編輯 / 新增 / 建立 / 新增 |
+| Remove / Send / Open / Close | 移除 / 傳送 / 開啟 / 關閉 |
+| Preview / Download / Upload | 預覽 / 下載 / 上傳 |
+| Done / Loading... | 完成 / 載入中... |
+| Profile / Account / Appearance | 個人資料 / 帳戶 / 外觀 |
+| Theme / Language | 主題 / 語言 |
+| Light / Dark / System | 淺色 / 深色 / 跟隨系統 |
+| Active / Archived | 活躍（或 啟用）/ 已歸檔 |
+| Status / Priority | 狀態 / 優先順序 |
+| Assignee / Reporter | 負責人 / 報告人 |
+| Description / Title | 描述 / 標題 |
+| Date / Time | 日期 / 時間 |
 | Today / Yesterday / Tomorrow | 今天 / 昨天 / 明天 |
-| Empty / Failed / Success | 空 / 失败 / 成功 |
-| Error / Warning | 错误 / 警告 |
+| Empty / Failed / Success | 空 / 失敗 / 成功 |
+| Error / Warning | 錯誤 / 警告 |
 
-### 角色名 + 状态名（小写英文，不翻）
+### 角色名 + 狀態名（小寫英文，不翻）
 
-这些是 schema-level 标识符，中文环境也保持小写英文：
+這些是 schema-level 標識符，中文環境也保持小寫英文：
 
 - 角色：`owner` / `admin` / `member`
-- Issue 状态：`backlog` / `todo` / `in_progress` / `in_review` / `done` / `blocked` / `cancelled`
-- Issue 状态分类：`unstarted` / `started` / `done` / `closed`
+- Issue 狀態：`backlog` / `todo` / `in_progress` / `in_review` / `done` / `blocked` / `cancelled`
+- Issue 狀態分類：`unstarted` / `started` / `done` / `closed`
 
-UI 里展示这些值时保持英文（必要时用 code-style 包起来）：
+UI 裡展示這些值時保持英文（必要時用 code-style 包起來）：
 
-- "你需要 owner 权限"
-- "已切换到 in_progress"
+- "你需要 owner 權限"
+- "已切換到 in_progress"
 
-### 词组组合规则
+### 詞組組合規則
 
-英文词（实体名 + 品牌名 + 缩写）与中文之间**加单空格**：
+英文詞（實體名 + 品牌名 + 縮寫）與中文之間**加單空格**：
 
-- "Create new issue" → "新建任务"（`任务` 是中文，不加空格）
-- "Assign to agent" → "分配给 Agent"
-- "Configure runtime" → "配置运行时"
-- "Stop daemon" → "停止守护进程"
+- "Create new issue" → "新建任務"（`任務` 是中文，不加空格）
+- "Assign to agent" → "分配給 Agent"
+- "Configure runtime" → "設定執行環境"
+- "Stop daemon" → "停止守護程序"
 
-### 复数与计数
+### 複數與計數
 
-i18next 用 `_one` / `_other`；中文不区分语法单复数，只填 `_other`。
+i18next 用 `_one` / `_other`；中文不區分語法單複數，只填 `_other`。
 
 ```json
 // en/issues.json
@@ -229,34 +229,34 @@ i18next 用 `_one` / `_other`；中文不区分语法单复数，只填 `_other`
 
 // zh-Hans/issues.json
 {
-  "issue_count_other": "{{count}} 个任务"
+  "issue_count_other": "{{count}} 個任務"
 }
 ```
 
-常见计数格式：
+常見計數格式：
 
-- `{{count}} issues` → `{{count}} 个任务`
-- `{{count}} agents` → `{{count}} 个 Agent`
-- `{{count}} workspaces` → `{{count}} 个工作区`
-- `{{count}} comments` → `{{count}} 条评论`
-- `{{count}} members` → `{{count}} 位成员`
-- `{{count}} skills` → `{{count}} 个 skill`
+- `{{count}} issues` → `{{count}} 個任務`
+- `{{count}} agents` → `{{count}} 個 Agent`
+- `{{count}} workspaces` → `{{count}} 個工作區`
+- `{{count}} comments` → `{{count}} 條留言`
+- `{{count}} members` → `{{count}} 位成員`
+- `{{count}} skills` → `{{count}} 個 skill`
 
 ### 插值
 
-用 `{{var}}` 形式。中文翻译可以调整位置以符合中文语序。
+用 `{{var}}` 形式。中文翻譯可以調整位置以符合中文語序。
 
 ```json
 // en
 { "welcome_message": "Welcome back, {{name}}!" }
 
 // zh-Hans
-{ "welcome_message": "欢迎回来，{{name}}！" }
+{ "welcome_message": "歡迎回來，{{name}}！" }
 ```
 
-### Key 命名约定
+### Key 命名約定
 
-3 层嵌套：`feature.component.action`。
+3 層嵌套：`feature.component.action`。
 
 ```json
 {
@@ -268,7 +268,7 @@ i18next 用 `_one` / `_other`；中文不区分语法单复数，只填 `_other`
 }
 ```
 
-实例：
+實例：
 
 - `issues.toolbar.batch_update_success`
 - `issues.detail.comment_form.placeholder`
@@ -277,60 +277,60 @@ i18next 用 `_one` / `_other`；中文不区分语法单复数，只填 `_other`
 
 ### Web-only / Desktop-only 文案位置
 
-- 共享文案：放 namespace JSON 顶层
+- 共享文案：放 namespace JSON 頂層
 - Web-only：放 `web` 段
 - Desktop-only：放 `desktop` 段
 
-参考 `auth.json`（`web` 段含 `prefer_desktop` / `desktop_handoff.*`）。
+參考 `auth.json`（`web` 段含 `prefer_desktop` / `desktop_handoff.*`）。
 
 ---
 
-## 3. 中文风格
+## 3. 中文風格
 
-### 标点
+### 標點
 
-- 中文用全角标点：`，。：；！？`
-- 引号：用 `"..."`（直引号），与英文 source 保持一致。**不要**用 `「」` 或弯引号
-- 省略号：用 `...`（三点）而非 `…`（单字符），与英文 source 保持一致
-- 中英混排：英文词左右各加 1 个空格（详见词组组合规则）
+- 中文用全角標點：`，。：；！？`
+- 引號：用 `"..."`（直引號），與英文 source 保持一致。**不要**用 `「」` 或彎引號
+- 省略號：用 `...`（三點）而非 `…`（單字符），與英文 source 保持一致
+- 中英混排：英文詞左右各加 1 個空格（詳見詞組組合規則）
 
-### 风格原则
+### 風格原則
 
-- **简洁直白**：避免翻译腔，"对于 X 来说"、"作为 X"、"我们的"
-- **错误信息**：温和但明确，"无法保存修改" 优于 "保存修改失败了！"
-- **按钮**：动词开头，2-4 字最佳。"取消"、"保存修改"、"立即同步"
-- **Tooltip**：完整短句。"复制链接到剪贴板"
-- **placeholder**：示例性提示。"输入任务标题..."
+- **簡潔直白**：避免翻譯腔，"對於 X 來說"、"作為 X"、"我們的"
+- **錯誤訊息**：溫和但明確，"無法儲存修改" 優於 "儲存修改失敗了！"
+- **按鈕**：動詞開頭，2-4 字最佳。"取消"、"儲存修改"、"立即同步"
+- **Tooltip**：完整短句。"複製連結到剪貼簿"
+- **placeholder**：示例性提示。"輸入任務標題..."
 
 ### UI 描述性文案
 
-description 默认省略。添加前先问：**没有这句话，用户会误解什么或做错什么？** 如果标题、标签、控件、当前值或按钮已经表达清楚，就不添加。
+description 預設省略。新增前先問：**沒有這句話，使用者會誤解什麼或做錯什麼？** 如果標題、標籤、控制項、目前值或按鈕已經表達清楚，就不必新增。
 
-- 同一事实只说一次，放在最相关的控件旁，不在页头、分组、字段、空状态和弹窗中反复解释。
-- 优先用准确的标签或具体示例，避免用一段话讲解显然的操作。除非能消除实际歧义，不写“创建一个开始使用”“点击下方”“之后可以修改”等通用提示。
-- 权限、费用、不可撤销后果、运行前提、输入限制和错误恢复信息应在相关状态下直接可见，不藏进只能悬停查看的帮助中。
-- 首次使用说明只在需要的位置展示；高级用法与诊断细节放入可明确打开、支持键盘操作的帮助中。
-- 保留输入标签、无障碍名称和必要的描述关联。不要把删掉的视觉废话全部转成屏幕阅读器专用文本。
-- 同时检查英文、各语言翻译和移动端独立文案。PR 评审检查新增信息、同屏重复、显示条件和保留的约束；字数只是复查信号，不是自动删除标准。
+- 同一事實只說一次，放在最相關的控制項旁，不在頁首、分組、欄位、空狀態和對話框中反覆解釋。
+- 優先用準確的標籤或具體示例，避免用一段話講解顯然的操作。除非能消除實際歧義，不寫“建立一個開始使用”“點擊下方”“之後可以修改”等通用提示。
+- 權限、費用、不可撤銷的後果、執行前提、輸入限制和錯誤復原資訊，應在相關狀態下直接顯示，不要藏在只能以滑鼠懸停查看的說明中。
+- 首次使用說明只在需要的位置顯示；進階用法與診斷細節放入可明確開啟、支援鍵盤操作的說明中。
+- 保留輸入標籤、無障礙名稱和必要的描述關聯。不要把刪掉的視覺廢話全部轉成屏幕閱讀器專用文本。
+- 同時檢查英文、各語言翻譯和行動版獨立文案。PR 審查新增資訊、同一畫面中的重複內容、顯示條件和保留的限制；字數只是複查訊號，不是自動刪除標準。
 
-共享设置组件已经支持可选 description。示例与新增调用默认省略，不增加强制填写描述的组件属性，也不另建一份文案规范。
+共享設定組件已經支援可選 description。示例與新增調用預設省略，不增加強制填寫描述的組件屬性，也不另建一份文案規範。
 
-### 拿不准的时候去哪查
+### 拿不準的時候去哪查
 
-术语表没覆盖的词，按这个顺序查：
+術語表沒覆蓋的詞，按這個順序查：
 
-1. `apps/docs/content/docs/*.zh.mdx` —— CN voice 事实标准，20+ 篇高度一致
-2. `packages/views/locales/zh-Hans/auth.json` 和 `editor.json` —— JSON 结构 + selector API 用法参考
-3. `packages/views/auth/login-page.tsx` —— 组件层 selector API 调用参考
-4. `packages/views/settings/components/preferences-tab.tsx` —— 语言切换器参考
+1. `apps/docs/content/docs/*.zh.mdx` —— 臺灣繁體中文用語依據，多篇文件採用一致風格
+2. `packages/views/locales/zh-Hans/auth.json` 和 `editor.json` —— JSON 結構 + selector API 用法參考
+3. `packages/views/auth/login-page.tsx` —— 組件層 selector API 調用參考
+4. `packages/views/settings/components/preferences-tab.tsx` —— 語言切換器參考
 
 ---
 
-## 修改这一页时
+## 修改這一頁時
 
-改本页规则的同时还要：
+改本頁規則的同時還要：
 
-1. 把规则在相关 locale JSON / AGENTS.md / docs 页面里同步落地
-2. PR 描述里写明改了什么，方便 reviewer 检查下游是否跟着改了
+1. 把規則在相關 locale JSON / AGENTS.md / docs 頁面裡同步落地
+2. PR 描述裡寫明改了什麼，方便 reviewer 檢查下游是否跟著改了
 
-本页是契约，其他文档不能 override。
+本頁是契約，其他文件不能 override。

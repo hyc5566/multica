@@ -55,7 +55,7 @@
     "class": {
       "auth": "認證",
       "rate_limit": "限流",
-      "timeout": "超時",
+      "timeout": "逾時",
       "provider": "模型服務",
       "runtime": "執行環境",
       "agent": "Agent",

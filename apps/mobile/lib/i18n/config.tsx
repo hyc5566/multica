@@ -35,14 +35,8 @@ function matchSupportedLocale(candidates: string[]): SupportedLocale {
   for (const candidate of candidates) {
     if (!candidate) continue;
     const lowered = candidate.toLowerCase();
-    // Simplified Chinese is the only Chinese bundle today. Do not silently
-    // rewrite Traditional Chinese (zh-Hant/TW/HK/MO) to Simplified.
-    if (
-      lowered.startsWith("zh-hant") ||
-      ["zh-tw", "zh-hk", "zh-mo"].includes(lowered)
-    ) {
-      return DEFAULT_LOCALE;
-    }
+    // All Chinese device locales use this fork's Traditional Chinese bundle.
+    // Keep the stored/API locale key compatible with existing preferences.
     if (lowered.startsWith("zh")) return "zh-Hans";
     if (lowered.startsWith("en")) return "en";
   }
