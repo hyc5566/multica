@@ -6,7 +6,32 @@ product behavior. Taiwan-only changes should stay in small, purpose-specific
 commits so the edition can be rebuilt when an upstream rebase becomes more
 expensive than replaying the customization.
 
-## Upstream baseline (HYCLV-248)
+## Upstream baseline (HYCLV-254)
+
+The October 9, 2026 candidate rebases the HYCLV-248 Taiwan tip
+`1bc8edf57bb4d86a0705fde5d2471ec704048352` from upstream
+`b4ca5b4a23e68b26292a680dca7689a952bb1cd5` onto
+`10a7e519da96e8e1819934c24f89bc55a71f88b5`. Preserve merge topology and
+verify historical merge resolutions against the previous Taiwan tree.
+Keep the existing Taiwan layers, release mirror, `--duplicate-of` options,
+and HYCLV-202 translations. Upstream now owns multi-value text/URL properties,
+the durable Lark typing cleanup ledger, session fixes and Desktop navigation
+alignment. Retain those behaviors and the Go 1.26.9 / Next.js 16.3.8 security
+updates. Translate `multi_text` / `multi_url` as `文字清單` / `連結清單`;
+preserve URL validation and `{{value}}` interpolation. The onboarding guide
+uses upstream's Kimi Code CLI installer paths and Windows Git Bash prerequisite,
+with Taiwan wording; do not restore the retired Kimi installer URLs.
+
+This update is **not a same-schema deployment**. Migration 564 extends property
+types; its down migration refuses rollback while any `multi_text` / `multi_url`
+definitions remain, including archived ones. Migrations 565–572 add durable
+typing cleanup state and concurrent indexes. Migration 569 abandons excess
+pending rows and clears installation snapshots; down migrations do not restore
+that data. Review database backup/restore and installed-client compatibility
+before any separately authorized deployment. Test fresh migration and upgrade
+from the previous Taiwan schema in an isolated database.
+
+## Previous upstream baseline (HYCLV-248)
 
 The October 6, 2026 integration candidate uses upstream
 `b4ca5b4a23e68b26292a680dca7689a952bb1cd5` (after v0.6.1), starting from
