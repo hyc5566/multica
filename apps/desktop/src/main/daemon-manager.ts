@@ -1013,7 +1013,9 @@ async function probeLocalRuntimes(): Promise<LocalRuntimeProbe> {
 // applied by fix-path in main/index.ts — as a top-level const it would
 // snapshot process.env at import time, before that block runs.
 function desktopSpawnEnv(): NodeJS.ProcessEnv {
-  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop" };
+  // zh-tw: the daemon follows the bundled CLI itself when the App replaces its
+  // bundle, restarting only when idle under its claim barrier.
+  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop", MULTICA_ZH_TW_DESKTOP_SELF_RELOAD: "1" };
 }
 
 function scheduleStatusRefresh(): void {

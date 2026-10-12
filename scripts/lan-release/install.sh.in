@@ -45,13 +45,12 @@ destination="$share_root/$version"
 wrapper="$install_root/bin/multica"
 previous=''
 lock="$share_root/.upgrade.lock"
-tmp='' locked=false created=false committed=false
+tmp='' created=false committed=false
 # Until the launcher points at the new version, a failure leaves no partial
 # version directory behind, so a retry starts clean.
 cleanup() {
   [[ -n "$tmp" ]] && rm -rf -- "$tmp"
   [[ $created == true && $committed == false ]] && rm -rf -- "$destination"
-  [[ $locked == true ]] && rm -rf -- "$lock"
   return 0
 }
 trap cleanup EXIT
@@ -66,19 +65,22 @@ if [[ $mode == --upgrade ]]; then
   # Only replace a launcher this installer created: a hard link to
   # share/multica-zh-tw/<version>/launcher. Anything else is left untouched.
   [[ -f "$wrapper" && ! -L "$wrapper" && -d "$share_root" ]] || { echo "No zh-tw installation at $wrapper; install first." >&2; exit 2; }
-  # One upgrade per installation root at a time (mkdir is atomic). Everything
-  # below — reading the current version, switching, pruning — happens under it.
-  if ! mkdir "$lock" 2>/dev/null; then
-    holder=$(cat "$lock/pid" 2>/dev/null || true)
-    if [[ -n "$holder" ]] && kill -0 "$holder" 2>/dev/null; then
-      echo "Another upgrade (PID $holder) is in progress; retry later." >&2; exit 75
-    fi
-    # Left behind by an interrupted upgrade; take it over.
-    rm -rf -- "$lock"
-    mkdir "$lock" 2>/dev/null || { echo 'Another upgrade is starting; retry later.' >&2; exit 75; }
+  # One upgrade per installation root at a time. A kernel lock on an open
+  # file is released when this process exits, however it exits, so there is
+  # never a stale lock to judge. Everything below — reading the current
+  # version, switching, pruning — happens while it is held.
+  exec 9>>"$lock"
+  lock_tool=${MULTICA_INSTALL_LOCK_TOOL:-auto}  # auto|flock|perl (tests pin one)
+  if [[ $lock_tool == auto ]]; then
+    if command -v flock >/dev/null; then lock_tool=flock; elif command -v perl >/dev/null; then lock_tool=perl; fi
   fi
-  locked=true
-  echo $$ > "$lock/pid"
+  case "$lock_tool" in
+    flock) flock -n 9 && lock_status=0 || lock_status=$? ;;
+    # perl locks the shared open file description; it stays locked after perl exits.
+    perl) perl -MFcntl=:flock -e 'open(my $fh, ">&=", 9) or exit 2; flock($fh, LOCK_EX | LOCK_NB) or exit 1' && lock_status=0 || lock_status=$? ;;
+    *) echo 'Upgrading needs flock or perl to serialize upgrades.' >&2; exit 2 ;;
+  esac
+  [[ $lock_status == 0 ]] || { echo 'Another upgrade is in progress; retry later.' >&2; exit 75; }
   for candidate in "$share_root"/*/launcher; do
     if [[ -f "$candidate" && "$candidate" -ef "$wrapper" ]]; then previous=$(basename "$(dirname "$candidate")"); break; fi
   done

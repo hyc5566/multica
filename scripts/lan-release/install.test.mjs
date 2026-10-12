@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, statSync, readdirSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
 test('installer verifies artifacts, uses default configuration and preserves existing installs', () => {
@@ -96,7 +96,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     assert.match(again.stdout, /Already at 0\.4\.41-zh-tw\.5/);
     const third = upgradeTo('0.4.41-zh-tw.6');
     assert.equal(third.status, 0, third.stderr);
-    assert.deepEqual(readdirSync(share).sort(), ['0.4.41-zh-tw.5', '0.4.41-zh-tw.6']);
+    assert.deepEqual(readdirSync(share).filter((name) => !name.startsWith('.')).sort(), ['0.4.41-zh-tw.5', '0.4.41-zh-tw.6']);
     const badUpgrade = join(root, 'install-bad.sh');
     writeFileSync(badUpgrade, render('0'.repeat(64), '0.4.41-zh-tw.7'));
     assert.equal(spawnSync('bash', [badUpgrade, '--upgrade'], {env}).status, 1);
@@ -108,18 +108,31 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     assert.equal(downgrade.status, 2, 'downgrade refused');
     assert.match(downgrade.stderr, /Refusing to replace/);
     assert.equal(launcherIno(), before);
-    // A live upgrade holds the lock; a dead holder's lock is taken over.
+    // A running upgrade holds a kernel lock; an exited one leaves nothing to judge.
     const lock = join(share, '.upgrade.lock');
-    mkdirSync(lock); writeFileSync(join(lock, 'pid'), String(process.pid));
-    const blocked = upgradeTo('0.4.41-zh-tw.8');
-    assert.equal(blocked.status, 75, blocked.stderr);
-    assert.equal(launcherIno(), before);
-    assert.equal(existsSync(join(share, '0.4.41-zh-tw.8')), false);
-    writeFileSync(join(lock, 'pid'), '999999');
+    const holdLock = (tool) => tool === 'flock'
+      ? spawn('flock', [lock, 'sleep', '30'], {stdio: 'ignore', detached: true})
+      : spawn('perl', ['-MFcntl=:flock', '-e', 'open(my $f, ">>", $ARGV[0]) or die; flock($f, LOCK_EX) or die; sleep 30', lock], {stdio: 'ignore', detached: true});
+    const upgradeWith = (version, tool) => {
+      const next = join(root, `install-${version}.sh`);
+      writeFileSync(next, render(hash, version));
+      return spawnSync('bash', [next, '--upgrade'], {env: {...env, MULTICA_INSTALL_LOCK_TOOL: tool}, encoding: 'utf8'});
+    };
+    for (const tool of ['flock', 'perl']) {
+      const holder = holdLock(tool);
+      spawnSync('sleep', ['0.5']);
+      const blocked = upgradeWith('0.4.41-zh-tw.8', tool);
+      process.kill(-holder.pid);  // the whole group: flock's child inherits the lock
+      assert.equal(blocked.status, 75, `${tool}: ${blocked.stderr}`);
+      assert.match(blocked.stderr, /Another upgrade is in progress/);
+      assert.equal(launcherIno(), before, `${tool}: launcher unchanged while locked`);
+      assert.equal(existsSync(join(share, '0.4.41-zh-tw.8')), false);
+      spawnSync('sleep', ['0.2']);
+    }
+    assert.ok(existsSync(lock), 'lock file left behind by earlier runs');
     mkdirSync(join(share, '0.4.41-zh-tw.8')); writeFileSync(join(share, '0.4.41-zh-tw.8/partial'), 'x');
-    const takeover = upgradeTo('0.4.41-zh-tw.8');
+    const takeover = upgradeWith('0.4.41-zh-tw.8', 'perl');
     assert.equal(takeover.status, 0, takeover.stderr);
-    assert.equal(existsSync(lock), false, 'lock released');
     assert.equal(existsSync(join(share, '0.4.41-zh-tw.8/partial')), false, 'leftover version restarted clean');
     // Pruning happens after the switch: a failed removal only warns.
     const stuck = join(share, '0.4.41-zh-tw.6/stuck');
