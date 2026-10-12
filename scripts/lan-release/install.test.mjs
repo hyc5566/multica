@@ -118,7 +118,9 @@ test('installer verifies artifacts, uses default configuration and preserves exi
       writeFileSync(next, render(hash, version));
       return spawnSync('bash', [next, '--upgrade'], {env: {...env, MULTICA_INSTALL_LOCK_TOOL: tool}, encoding: 'utf8'});
     };
-    for (const tool of ['flock', 'perl']) {
+    const lockTools = ['flock', 'perl'].filter((tool) => spawnSync('sh', ['-c', `command -v ${tool}`]).status === 0);
+    assert.ok(lockTools.length > 0, 'flock or perl is required for --upgrade');
+    for (const tool of lockTools) {
       const holder = holdLock(tool);
       spawnSync('sleep', ['0.5']);
       const blocked = upgradeWith('0.4.41-zh-tw.8', tool);
@@ -131,7 +133,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     }
     assert.ok(existsSync(lock), 'lock file left behind by earlier runs');
     mkdirSync(join(share, '0.4.41-zh-tw.8')); writeFileSync(join(share, '0.4.41-zh-tw.8/partial'), 'x');
-    const takeover = upgradeWith('0.4.41-zh-tw.8', 'perl');
+    const takeover = upgradeWith('0.4.41-zh-tw.8', lockTools.at(-1));
     assert.equal(takeover.status, 0, takeover.stderr);
     assert.equal(existsSync(join(share, '0.4.41-zh-tw.8/partial')), false, 'leftover version restarted clean');
     // Pruning happens after the switch: a failed removal only warns.

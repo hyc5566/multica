@@ -89,8 +89,13 @@ type HealthResponse struct {
 	// version change on disk but hasn't restarted into it yet — it was busy at
 	// the last barrier check and will retry when idle. Omitted when empty, so
 	// older consumers see no change. Diagnostic only: nothing keys off it.
-	ReloadPendingReason string            `json:"reload_pending_reason,omitempty"`
-	Workspaces          []healthWorkspace `json:"workspaces"`
+	ReloadPendingReason string `json:"reload_pending_reason,omitempty"`
+	// ZhTWSelfReload tells the zh-tw Desktop that this daemon follows its
+	// bundled CLI by itself (idle-only, under the claim barrier), so the App
+	// must not stop it for a version mismatch. A capability, not a version
+	// check: older zh-tw daemons never report it.
+	ZhTWSelfReload bool              `json:"zh_tw_self_reload,omitempty"`
+	Workspaces     []healthWorkspace `json:"workspaces"`
 }
 
 type healthWorkspace struct {
@@ -371,6 +376,7 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 			SkippedAgents:         d.skippedAgentsSnapshot(),
 
 			ReloadPendingReason: d.reloadPending(),
+			ZhTWSelfReload:      d.zhTWDesktopSelfReload(),
 			Workspaces:          wsList,
 		}
 		if reporter, ok := d.repoCache.(interface{ Activity() repocache.Activity }); ok {

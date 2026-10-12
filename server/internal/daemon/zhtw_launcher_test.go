@@ -76,3 +76,24 @@ func TestAutoUpdateLoop_DesktopWithoutOptInStillSkips(t *testing.T) {
 		t.Fatal("Desktop-managed daemon without the opt-in must not reload")
 	}
 }
+
+func TestZhTWDesktopSelfReloadCapability(t *testing.T) {
+	d := &Daemon{cfg: Config{LaunchedBy: "desktop", AutoReloadEnabled: true}}
+	t.Setenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD", "1")
+	if !d.zhTWDesktopSelfReload() {
+		t.Fatal("opted-in Desktop daemon must report the capability")
+	}
+	d.cfg.AutoReloadEnabled = false
+	if d.zhTWDesktopSelfReload() {
+		t.Fatal("auto-reload turned off: the daemon cannot follow the bundle")
+	}
+	d.cfg = Config{AutoReloadEnabled: true}
+	if d.zhTWDesktopSelfReload() {
+		t.Fatal("a standalone daemon is not Desktop-managed")
+	}
+	t.Setenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD", "")
+	d.cfg = Config{LaunchedBy: "desktop", AutoReloadEnabled: true}
+	if d.zhTWDesktopSelfReload() {
+		t.Fatal("no opt-in, no capability")
+	}
+}
