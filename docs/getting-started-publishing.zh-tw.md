@@ -26,3 +26,52 @@
 3. 使用可信任的公開 CA 對正式 HTTPS 執行 GET，核對 `/download`、`/download/guide`、`/download/install.sh`、App ZIP、`SHA256SUMS` 的狀態、內容與雜湊。以 320、390、1440px 檢視指南，檢查鍵盤焦點和所有連結；真實安裝仍須另做人工驗收。
 
 若新路由或內容驗證失敗，保留現場證據，依核准的發布備份恢復對應的 Caddyfile 內容和持久卷檔案，先 `caddy validate` 再 reload，重新核對公開端點。Caddyfile 是單檔 bind mount，恢復時保留 inode；有其他部署後不可整份覆蓋舊備份。本文件記錄目前可重建來源，不授權服務變更。
+
+## 發行頻道與自動更新（HYCLV-265 起）
+
+自 `X.Y.Z-zh-tw.N` 正式版起，App 與 CLI 都讀同一份發行頻道 `https://10.1.24.90:45671/downloads/latest.json`：
+
+| 對象 | 檢查時機 | 更新方式 |
+| --- | --- | --- |
+| macOS App（`src/main/zh-tw-app-update.ts`） | 開啟後 30 秒，之後每 24 小時 | 詢問使用者；同意後 App 自己下載 ZIP、核對大小／SHA-256、bundle ID、版本與 `codesign`，等 daemon 沒有執行中的任務再結束、替換 bundle 並重開；前一版留在 `~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/` |
+| CLI daemon（launcher 安裝） | daemon 啟動 2 分鐘後，之後每 24 小時 | 閒置時下載頻道指定且 SHA-256 相符的 `install.sh`，執行 `--upgrade`；launcher 原子切換到新版本目錄，daemon 經 launcher 重新啟動；保留前一版本目錄 |
+
+固定安裝指令是 `curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash`，因此每個正式版都要在 GitHub 發布為 **Latest**，並附上該版 `install.sh`。只有 `X.Y.Z-zh-tw.N` 會進入頻道；`-rc.N` 與 git-describe 版本不會被自動更新。
+
+### 發布順序
+
+1. `scripts/lan-release/build.sh VERSION OUT https://10.1.24.90:45671/downloads/VERSION CA` 建置 CLI 與安裝器；App 在 m5 以 `scripts/build-desktop-zh-tw-macos.sh` 用**同一個 commit** 建置，ZIP 放進 `OUT`。
+2. `scripts/lan-release/manifest.sh OUT https://10.1.24.90:45671/downloads/VERSION <GitHub 版本說明 URL> OUT/multica-desktop-VERSION-mac-arm64.zip` 產生 `latest.json`；`scripts/lan-release/render-download-page.sh OUT OUT/download.html` 產生下載頁。重新產生 `SHA256SUMS` 把兩者納入。
+3. 把 `OUT` 複製到 Caddy 持久卷 `/config/releases/VERSION/`，用公開 CA 對 `https://10.1.24.90:45671/downloads/VERSION/` 下所有檔案 GET 並比對 SHA-256。
+4. 發布 GitHub Release `zh-tw-vVERSION`（Latest），資產含 `install.sh`、CLI archives、`s90-ca.crt`、App ZIP、`SHA256SUMS`。
+5. 最後才切換頻道：把 `latest.json`、`download.html` 複製到 `/config/releases/`（先寫暫存檔再 `mv`）。這一步之後各機器才會看到新版；回復時把兩個檔案換回前一版即可停止推送。
+
+### Caddy 路由（一次設定，之後換版不改 Caddyfile）
+
+```caddy
+@zhtw_channel path /downloads/latest.json
+handle @zhtw_channel {
+	root * /config/releases
+	header Cache-Control "no-store"
+	file_server
+}
+@zhtw_release path_regexp ^/downloads/[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+/
+handle @zhtw_release {
+	uri strip_prefix /downloads
+	root * /config/releases
+	file_server
+}
+@zhtw_download path /download /download/
+handle @zhtw_download {
+	root * /config/releases
+	rewrite * /download.html
+	header Cache-Control "no-store"
+	file_server
+}
+```
+
+新路由取代現有 `@download_435`；`/download/install.sh` 改為 `redir https://github.com/hyc5566/multica/releases/latest/download/install.sh 302`。既有 `/downloads/0.4.43-zh-tw.*` 路由保留給舊安裝。修改正式 Caddyfile 與持久卷仍依 `docs/server-handoff.zh-tw.md` 及核准方案執行。
+
+### 舊版過渡
+
+0.4.x 與 `0.6.0-131-g2ca7196c3b` 等舊版不含更新程式，需手動升級一次：App 下載新版取代；CLI 執行 `curl -fsSL …/install.sh | bash -s -- --upgrade` 後重啟 daemon。舊 launcher 關閉自動重載，升級後必須重啟 daemon 才會換版。

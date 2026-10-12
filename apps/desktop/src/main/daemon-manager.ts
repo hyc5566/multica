@@ -1480,6 +1480,20 @@ function stopLogTail(): void {
   }
 }
 
+/** The server the App is connected to, once the renderer has reported it. */
+export function getTargetApiBaseUrl(): string | null {
+  return targetApiBaseUrl;
+}
+
+/** Active agent tasks on the managed daemon; 0 when no daemon runs, null when unknown. */
+export async function getDaemonActiveTaskCount(): Promise<number | null> {
+  const active = await ensureActiveProfile();
+  if (!active) return 0;
+  const health = await fetchHealthAtPort(active.port);
+  if (!health) return 0;
+  return typeof health.active_task_count === "number" ? health.active_task_count : null;
+}
+
 export function setupDaemonManager(
   windowGetter: () => BrowserWindow | null,
 ): void {
