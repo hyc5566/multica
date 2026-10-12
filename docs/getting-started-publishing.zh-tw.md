@@ -71,7 +71,7 @@ handle @zhtw_download {
 }
 ```
 
-新路由取代現有 `@download_435`；`/download/install.sh` 改為 `redir https://github.com/hyc5566/multica/releases/latest/download/install.sh 302`。既有 `/downloads/0.4.43-zh-tw.*` 路由保留給舊安裝。修改正式 Caddyfile 與持久卷仍依 `docs/server-handoff.zh-tw.md` 及核准方案執行。
+這一段必須放在所有既有 `/downloads/0.4.43-*` 路由**之後**：Caddy 的 `handle` 依出現順序比對，`@zhtw_release` 的 regex 也會符合 `0.4.43-zh-tw.N`，放在前面會讓舊版路徑回 404（2026-10-12 首次發布時發生約一分鐘，已修正）。新路由取代現有 `@download_435`；`/download/install.sh` 改為 `redir https://github.com/hyc5566/multica/releases/latest/download/install.sh 302`。既有 `/downloads/0.4.43-zh-tw.*` 路由保留給舊安裝。修改正式 Caddyfile 與持久卷仍依 `docs/server-handoff.zh-tw.md` 及核准方案執行。
 
 ### 舊版過渡
 
