@@ -2,7 +2,7 @@ import { app, dialog, type BrowserWindow } from "electron";
 import { createHash } from "node:crypto";
 import { execFile, spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { access, constants, mkdir, rm, writeFile } from "node:fs/promises";
+import { access, constants, mkdir, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
@@ -93,6 +93,23 @@ export function findAppUpdate(
   };
 }
 
+/**
+ * Why this bundle cannot replace itself, or null when it can. A translocated
+ * or mounted copy is read-only, so asking before a long download would only
+ * end in an error.
+ */
+export async function bundleNotUpdatableReason(bundle: string): Promise<string | null> {
+  if (bundle.includes("/AppTranslocation/") || bundle.startsWith("/Volumes/")) {
+    return "App 目前是從「下載項目」或磁碟映像直接開啟。";
+  }
+  try {
+    await access(dirname(bundle), constants.W_OK);
+    return null;
+  } catch {
+    return `沒有權限寫入 ${dirname(bundle)}。`;
+  }
+}
+
 /** `/Applications/X.app/Contents/MacOS/X` → `/Applications/X.app`. */
 export function appBundlePath(exePath: string): string | null {
   const macos = dirname(exePath);
@@ -119,6 +136,7 @@ mkdir -p -- "$(dirname "$rollback")"
 if ! mv -- "$current" "$rollback"; then echo "cannot move current bundle"; open -- "$current"; exit 1; fi
 if ! mv -- "$next" "$current"; then
   echo "cannot install new bundle; restoring"
+  [ -e "$current" ] && rm -rf -- "$current"
   mv -- "$rollback" "$current"
   open -- "$current"
   exit 1
@@ -177,16 +195,19 @@ async function plistValue(bundle: string, key: string): Promise<string> {
 
 /** Download, verify and stage the new bundle; returns the staged path. */
 async function stageUpdate(update: AppUpdate, currentBundle: string, workDir: string): Promise<string> {
-  await access(dirname(currentBundle), constants.W_OK).catch(() => {
-    throw new Error(`沒有權限寫入 ${dirname(currentBundle)}`);
-  });
+  const notUpdatable = await bundleNotUpdatableReason(currentBundle);
+  if (notUpdatable) throw new Error(notUpdatable);
   await rm(join(workDir, "staging"), { recursive: true, force: true });
   await mkdir(join(workDir, "staging"), { recursive: true });
   const zip = join(workDir, `multica-desktop-${update.version}.zip`);
   await downloadVerified(update, zip);
   await run("/usr/bin/ditto", ["-x", "-k", zip, join(workDir, "staging")]);
   await rm(zip, { force: true });
-  const staged = join(workDir, "staging", basename(currentBundle));
+  // The archive's bundle name need not match a renamed local copy; the swap
+  // installs it under the current path. Bundle ID and version decide.
+  const bundles = (await readdir(join(workDir, "staging"))).filter((name) => name.endsWith(".app"));
+  if (bundles.length !== 1) throw new Error("更新檔內應該剛好有一個 App");
+  const staged = join(workDir, "staging", bundles[0]!);
   const [id, currentId, version] = await Promise.all([
     plistValue(staged, "CFBundleIdentifier"),
     plistValue(currentBundle, "CFBundleIdentifier"),
@@ -245,6 +266,16 @@ export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
       const manifest = await fetchManifest(manifestUrlFor(deps.getApiBaseUrl()));
       const update = findAppUpdate(manifest, app.getVersion(), key);
       if (!update) return;
+      const notUpdatable = await bundleNotUpdatableReason(currentBundle);
+      if (notUpdatable) {
+        await dialog.showMessageBox({
+          type: "info",
+          title: "Multica 繁中版有新版本",
+          message: `有新版本 ${update.version}，但這個位置的 App 無法自動更新。`,
+          detail: `${notUpdatable}\n請結束 App，把它移到「應用程式」資料夾後重新開啟，之後就能自動更新。`,
+        });
+        return;
+      }
       const window = deps.getMainWindow();
       const options = {
         type: "info" as const,

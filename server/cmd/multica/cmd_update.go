@@ -54,7 +54,7 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 			return nil
 		}
 		fmt.Fprintf(os.Stderr, "Upgrading to %s with the release installer...\n", latest.TagName)
-		output, err := cli.UpdateViaZhTWInstaller(latest.TagName, updateDownloadTimeout)
+		output, err := cli.UpdateViaZhTWInstaller(latest.TagName, version, updateDownloadTimeout)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "%s\n", output)
 			return fmt.Errorf("update failed: %w", err)

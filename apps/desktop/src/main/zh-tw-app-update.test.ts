@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -14,6 +14,7 @@ vi.mock("electron", () => ({
 
 import {
   appBundlePath,
+  bundleNotUpdatableReason,
   DEFAULT_RELEASE_MANIFEST_URL,
   findAppUpdate,
   isNewerZhTWVersion,
@@ -77,6 +78,24 @@ describe("zh-tw app update channel", () => {
     expect(platformKey("linux", "x64")).toBeNull();
     expect(appBundlePath("/Applications/Multica 繁中版.app/Contents/MacOS/Multica 繁中版")).toBe("/Applications/Multica 繁中版.app");
     expect(appBundlePath("/opt/multica/multica")).toBeNull();
+  });
+});
+
+describe("bundle location", () => {
+  it("refuses translocated, mounted and read-only bundles before downloading", async () => {
+    expect(await bundleNotUpdatableReason("/private/var/folders/x/AppTranslocation/ABC/d/Multica 繁中版.app")).toMatch(/下載項目/);
+    expect(await bundleNotUpdatableReason("/Volumes/Multica/Multica 繁中版.app")).toMatch(/下載項目/);
+    const dir = mkdtempSync(join(tmpdir(), "zh-tw-bundle-"));
+    try {
+      expect(await bundleNotUpdatableReason(join(dir, "Multica 繁中版.app"))).toBeNull();
+      chmodSync(dir, 0o555);
+      if (process.getuid?.() !== 0) {
+        expect(await bundleNotUpdatableReason(join(dir, "Multica 繁中版.app"))).toMatch(/沒有權限/);
+      }
+    } finally {
+      chmodSync(dir, 0o755);
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
 

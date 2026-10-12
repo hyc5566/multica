@@ -191,8 +191,10 @@ func FetchZhTWReleaseManifest(manifestURL string) (*ZhTWReleaseManifest, error) 
 // UpdateViaZhTWInstaller upgrades a launcher-managed CLI installation by
 // running the release's own checksum-pinned installer with --upgrade. The
 // installer swaps the launcher atomically; the running daemon keeps its old
-// binary until it restarts through the launcher.
-func UpdateViaZhTWInstaller(targetVersion string, timeout time.Duration) (string, error) {
+// binary until it restarts through the launcher. Only an upgrade beyond
+// currentVersion is accepted, whoever asked for it; rollback is the explicit
+// `ln -f` the installer prints.
+func UpdateViaZhTWInstaller(targetVersion, currentVersion string, timeout time.Duration) (string, error) {
 	manifestURL := ZhTWReleaseManifestURL()
 	if manifestURL == "" {
 		return "", fmt.Errorf("%s is not set", ZhTWReleaseManifestURLEnv)
@@ -206,6 +208,9 @@ func UpdateViaZhTWInstaller(targetVersion string, timeout time.Duration) (string
 	}
 	if strings.TrimPrefix(targetVersion, "v") != manifest.Version {
 		return "", fmt.Errorf("requested %s but the release channel offers %s", targetVersion, manifest.Version)
+	}
+	if !IsNewerZhTWVersion(manifest.Version, currentVersion) {
+		return "", fmt.Errorf("release channel offers %s, which is not newer than %s", manifest.Version, currentVersion)
 	}
 	script, err := fetchLimited(manifest.CLI.InstallURL, zhTWMaxInstallerBytes, updateDownloadTimeoutOrDefault(timeout))
 	if err != nil {
