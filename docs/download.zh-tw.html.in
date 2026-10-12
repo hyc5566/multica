@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="下載 Multica 繁中版 App，或用一行指令安裝 CLI 與 daemon，讓 Agent 在你的電腦上執行任務。">
+<title>下載 Multica 繁中版</title>
+<style>
+:root{color-scheme:light;--ink:#182d2b;--muted:#526663;--paper:#f6f7f2;--card:#fff;--line:#d4dfd8;--accent:#176650;--soft:#e8f1e8;--warning:#fff4db}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.8 system-ui,-apple-system,"Noto Sans TC",sans-serif}
+a{color:var(--accent);text-underline-offset:4px}a:focus-visible,summary:focus-visible,button:focus-visible{outline:3px solid var(--accent);outline-offset:4px}
+.skip{position:absolute;left:20px;top:-80px;background:#fff;padding:10px}.skip:focus{top:10px}
+header,main,footer{max-width:980px;margin:auto;padding:20px 24px}header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;font-size:15px}header nav a{margin-left:16px}
+h1{font-size:clamp(30px,5vw,46px);line-height:1.25;margin:20px 0 8px}h2{font-size:26px;line-height:1.4;margin:0 0 14px}h3{font-size:19px;margin:26px 0 8px}p{margin:10px 0}
+.lead{font-size:19px;color:var(--muted);margin-bottom:24px}.note{color:var(--muted);font-size:15px}
+.quick{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-bottom:36px}
+.card,section{padding:26px;border:1px solid var(--line);border-radius:14px;background:var(--card)}section{margin-bottom:22px;scroll-margin-top:16px}
+.card h2{font-size:21px;margin-bottom:6px}.button{display:inline-block;margin:12px 0 6px;padding:11px 22px;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;text-decoration:none}.button:hover{filter:brightness(.94)}
+.cmd{position:relative;margin:12px 0 6px}pre{background:#182d2b;color:#eef7f0;padding:16px 18px;border-radius:8px;overflow:auto;line-height:1.7;font-size:14px;margin:12px 0}
+.cmd pre{padding-right:78px}.copy{position:absolute;top:8px;right:8px;border:1px solid #6f8f88;background:#24403c;color:#eef7f0;border-radius:6px;padding:4px 10px;font-size:13px;cursor:pointer}
+code{font:.88em/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;overflow-wrap:anywhere}p code,li code,td code{background:var(--paper);padding:2px 5px;border-radius:4px}pre code{overflow-wrap:normal;background:none;padding:0}.cmd pre code{white-space:pre-wrap;overflow-wrap:anywhere}.nowrap{white-space:nowrap}
+.callout{background:var(--soft);padding:14px 18px;border-radius:8px;margin:16px 0}.warning{background:var(--warning)}
+ol,ul{padding-left:24px}li{margin:8px 0}table{border-collapse:collapse;width:100%;font-size:15px}th,td{border-top:1px solid var(--line);padding:8px;text-align:left;vertical-align:top}
+details{border-top:1px solid var(--line);padding:12px 0}summary{cursor:pointer;font-weight:650}
+footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-right:16px}
+@media(max-width:760px){.quick{grid-template-columns:minmax(0,1fr)}header nav a{margin:0 16px 0 0}header,main,footer{padding:16px}.card,section{padding:20px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">跳到主要內容</a>
+<header><strong>Multica 繁中版</strong><nav aria-label="網站"><a href="/">回到首頁</a><a href="/login">登入</a><a href="/help">基本使用說明</a><a href="/download/guide">完整安裝手冊</a></nav></header>
+<main id="main">
+<h1>下載 Multica 繁中版</h1>
+<p class="lead">在自己的電腦安裝 App 或 CLI，連上內網 Multica，讓 Agent 在這台電腦上執行任務。目前版本 <strong class="nowrap">@VERSION@</strong>。</p>
+
+<div class="quick">
+  <div class="card">
+    <h2>macOS App</h2>
+    <p class="note">Apple Silicon（M 系列晶片）。內含 CLI 與背景服務 daemon。</p>
+    <a class="button" href="@APP_URL@">下載 App（@VERSION@）</a>
+    <p class="note">SHA-256：<code>@APP_SHA256@</code><br><a href="@NOTES_URL@">版本說明</a> · 第一次安裝請看<a href="#app">下方步驟</a>。</p>
+  </div>
+  <div class="card">
+    <h2>CLI（Linux／macOS）</h2>
+    <p class="note">x86_64、ARM64 都適用。這行指令固定不變，永遠安裝最新版。</p>
+    <div class="cmd"><pre><code id="install-cmd">curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash</code></pre><button class="copy" type="button" data-copy="install-cmd" hidden>複製</button></div>
+    <p class="note">安裝後還要登入並啟動 daemon，第一次安裝請看<a href="#cli">下方步驟</a>。</p>
+  </div>
+</div>
+
+<section id="updates" aria-labelledby="updates-title">
+  <h2 id="updates-title">安裝後會自動檢查更新</h2>
+  <table>
+    <tr><th scope="row">App</th><td>開啟後約 30 秒檢查一次，之後每 24 小時再檢查。有新版會先詢問你；按「立即更新」後，App 直接下載、核對 SHA-256 與簽章後重新啟動，不需要透過 Agent。執行中的任務不會中斷；內附的 CLI 與 daemon 會在任務結束後換成新版。</td></tr>
+    <tr><th scope="row">CLI</th><td>daemon 啟動約 2 分鐘後檢查一次，之後每 24 小時再檢查。有新版且沒有執行中的任務時，daemon 用該版的安裝腳本自行更新並重新啟動，帳號設定不變；前一版保留供回復。</td></tr>
+  </table>
+  <p class="note">CLI 想手動更新，執行 <code>multica update</code>。不要自動更新：啟動 daemon 前設定 <code>MULTICA_DAEMON_AUTO_UPDATE=false</code>。</p>
+</section>
+
+<section id="before" aria-labelledby="before-title">
+  <h2 id="before-title">第一次安裝前</h2>
+  <ol>
+    <li><strong>帳號</strong>：先到 <a href="/login">登入頁</a> 用公司信箱註冊或登入，建立或加入工作區。</li>
+    <li><strong>網路</strong>：電腦要能連到內網 <code>https://10.1.24.90:45671</code>；CLI 安裝指令另外需要連到 GitHub。</li>
+    <li><strong>Agent 工具</strong>：在同一個作業系統帳號下先安裝要用的 Agent CLI（Claude Code、Codex、Antigravity 等），daemon 會從 PATH 自動偵測。</li>
+  </ol>
+</section>
+
+<section id="app" aria-labelledby="app-title">
+  <h2 id="app-title">用 App 安裝（macOS）</h2>
+  <ol>
+    <li>按上方「下載 App」，下載完成後在「下載項目」中按兩下 ZIP 解壓縮。</li>
+    <li>把 <strong>Multica 繁中版</strong> 拖到「應用程式」資料夾。</li>
+    <li>第一次開啟：在「應用程式」對 App 按右鍵 →「打開」。若 macOS 顯示無法驗證開發者，到「系統設定 → 隱私權與安全性」，在最下方按「仍要打開」。這個 App 採本機簽章，尚未經 Apple 公證。</li>
+    <li>用內網帳號登入。App 會自動安裝內附 CLI、啟動 daemon，並登記這台電腦。</li>
+    <li>到工作區的「執行環境」頁面，確認這台電腦顯示在線，並列出偵測到的 Agent。</li>
+  </ol>
+  <div class="callout">之後不用再手動下載：App 會自己檢查並詢問是否更新。若 App 放在你沒有寫入權限的位置，更新會失敗並保留原版，請改放到「應用程式」。</div>
+</section>
+
+<section id="cli" aria-labelledby="cli-title">
+  <h2 id="cli-title">用 CLI 安裝（Linux／macOS）</h2>
+  <h3>1. 建立個人 API token</h3>
+  <p>在 Web 登入後，到「設定 → API Token」建立個人 token。只在終端機提示時貼上，不要貼進議題、聊天或指令參數。</p>
+  <h3>2. 安裝 CLI</h3>
+  <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash</code></pre>
+  <p>安裝到 <code>~/.local/bin/multica</code>，並自動設定內網位址與 s90 憑證；下載的檔案都會核對 SHA-256。若畫面提示 <code>Add to PATH</code>，照著把該行加到 <code>~/.bashrc</code> 或 <code>~/.zshrc</code>。</p>
+  <h3>3. 登入並啟動 daemon</h3>
+  <pre><code>multica login --token
+multica daemon start</code></pre>
+  <p>也可以在安裝時一起完成：把第 2 步改成 <code>curl -fsSL …/install.sh | bash -s -- --login</code>。</p>
+  <h3>4. 確認狀態</h3>
+  <pre><code>multica daemon status
+multica runtime list</code></pre>
+  <p>看到這台電腦的 runtime 為 online 就完成了。</p>
+  <details id="service">
+    <summary>Linux：讓 daemon 常駐（systemd 使用者服務）</summary>
+    <p>全新安裝時，用這行<strong>取代</strong>第 2、3 步，會完成安裝、登入，並建立啟用 <code>multica.service</code>：</p>
+    <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash -s -- --service</code></pre>
+    <p>常用指令：<code>systemctl --user status multica.service</code>、<code>systemctl --user restart multica.service</code>、<code>journalctl --user -u multica.service -n 50</code>。關閉終端機不會停止服務；登出後或開機未登入也要接單，請管理員執行 <code>loginctl enable-linger 你的帳號</code>。不要同時用 App、手動 CLI 與 systemd 啟動多份 daemon。</p>
+  </details>
+</section>
+
+<section id="upgrade" aria-labelledby="upgrade-title">
+  <h2 id="upgrade-title">從舊版升級</h2>
+  <p>舊版不會自動更新，需要手動升級一次，之後就會自動檢查。</p>
+  <ul>
+    <li><strong>App</strong>：等執行中的任務結束，結束舊 App，下載新版取代「應用程式」中的舊版後重新開啟。帳號與設定會保留。舊版留下的 daemon 不會自己換版，新 App 會在它沒有任務時重新啟動它；完成後在「執行環境」頁確認這台電腦的 CLI 版本與 App 相同。若仍是舊版，請在沒有任務時，在「執行環境」頁打開這台電腦，按「重啟」。</li>
+    <li><strong>CLI</strong>：執行下面這行，保留原本的登入與設定，只替換程式；之後重新啟動 daemon（用 systemd 的人執行 <code>systemctl --user restart multica.service</code>，其他人執行 <code>multica daemon stop</code> 再 <code>multica daemon start</code>）。
+      <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash -s -- --upgrade</code></pre></li>
+  </ul>
+</section>
+
+<section id="faq" aria-labelledby="faq-title">
+  <h2 id="faq-title">常見問題</h2>
+  <details><summary>安裝時出現「Existing configuration」或「Existing installation」</summary><p>這台電腦已經裝過，腳本為了保護原本的設定而停止。改用上面「從舊版升級」的 <code>--upgrade</code> 指令。</p></details>
+  <details><summary>公司網路出現 TLS 驗證失敗</summary><p>若公司使用 TLS 代理，向管理員取得代理的公開 CA 憑證檔，執行前設定 <code>export MULTICA_INSTALL_CA_FILE=/path/to/proxy-ca.crt</code> 再重試。安裝腳本不會關閉 TLS 驗證。</p></details>
+  <details><summary>更新後想退回前一版</summary><p>CLI：升級完成時畫面會印出回復指令（<code>ln -f …/launcher ~/.local/bin/multica</code>），執行後重新啟動 daemon。App：前一版保留在 <code>~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/</code>，結束 App 後把它搬回「應用程式」。</p></details>
+  <details><summary>想先檢查安裝腳本再執行</summary><pre><code>curl -fsSLo install.sh https://github.com/hyc5566/multica/releases/latest/download/install.sh
+less install.sh
+bash install.sh</code></pre></details>
+</section>
+</main>
+<footer><a href="/download/guide">完整安裝手冊</a><a href="/help">基本使用說明</a><a href="https://github.com/hyc5566/multica/releases">繁中版發行紀錄</a><a href="@BASE_URL@/SHA256SUMS">本版 SHA256SUMS</a></footer>
+<script>
+for (const button of document.querySelectorAll("[data-copy]")) {
+  button.hidden = !navigator.clipboard;
+  button.addEventListener("click", async () => {
+    await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
+    button.textContent = "已複製";
+    setTimeout(() => { button.textContent = "複製"; }, 2000);
+  });
+}
+</script>
+</body>
+</html>

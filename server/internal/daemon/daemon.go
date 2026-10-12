@@ -5188,6 +5188,14 @@ func (d *Daemon) tryBeginServerUpdate(ctx context.Context) serverUpdateAcquireRe
 // the restart — extracted so the server-triggered path (handleUpdate) and the
 // auto-update poller (autoUpdateLoop) share the exact same execution body.
 func (d *Daemon) runUpdate(targetVersion string) (string, error) {
+	if cli.ZhTWReleaseManifestURL() != "" {
+		d.logger.Info("updating CLI via the zh-tw release installer...", "target_version", targetVersion)
+		out, err := cli.UpdateViaZhTWInstaller(targetVersion, d.cfg.CLIVersion, cli.DefaultUpdateDownloadTimeout)
+		if err != nil {
+			return out, fmt.Errorf("zh-tw installer update failed: %w", err)
+		}
+		return out, nil
+	}
 	if cli.IsBrewInstall() {
 		d.logger.Info("updating CLI via Homebrew...")
 		out, err := cli.UpdateViaBrew()
@@ -5359,6 +5367,14 @@ func (d *Daemon) triggerRestart() bool {
 // restart would run — probing os.Executable() directly would read the old
 // Cellar path under brew and miss the upgrade entirely.
 func (d *Daemon) restartTargetBinary() (string, error) {
+	// The zh-tw launcher re-exports the installation's environment and execs
+	// the version it currently points at, so restarting through it follows
+	// an installer upgrade while the old versioned binary stays in place.
+	if launcher := os.Getenv(cli.ZhTWLauncherEnv); filepath.IsAbs(launcher) {
+		if info, err := os.Stat(launcher); err == nil && info.Mode().IsRegular() {
+			return launcher, nil
+		}
+	}
 	newBin, err := resolveSelfExecutable()
 	if err != nil {
 		return "", err

@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, statSync, readdirSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { spawnSync } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 
 test('installer verifies artifacts, uses default configuration and preserves existing installs', () => {
@@ -21,8 +21,9 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     writeFileSync(join(fakebin, 'curl'), '#!/bin/sh\nfor arg do target="$arg"; done\ncp "$FIXTURE_ARCHIVE" "$target"\n', {mode: 0o755});
     const template = readFileSync(new URL('./install.sh.in', import.meta.url), 'utf8');
     const installer = join(root, 'install.sh');
-    const render = (checksum) => template.replaceAll('@VERSION@', '0.4.41-zh-tw.4-rc.1')
+    const render = (checksum, version = '0.4.41-zh-tw.4-rc.1') => template.replaceAll('@VERSION@', version)
       .replaceAll('@BASE_URL@', 'https://example.com/release')
+      .replaceAll('@MANIFEST_URL@', 'https://example.com/latest.json')
       .replaceAll('@DOWNLOAD_CA_SHA256@', hash)
       .replace(/@(LINUX|DARWIN)_(AMD64|ARM64)@/g, checksum);
     const installRoot = join(root, "local space ' $literal");
@@ -39,7 +40,13 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const wrapper = join(installRoot, 'bin/multica');
     const result = spawnSync(wrapper, ['version'], {env, encoding: 'utf8'});
     assert.equal(result.status, 0, result.stderr);
-    assert.equal(result.stdout, 'false\nfalse\nversion\n');
+    assert.equal(result.stdout, 'true\ntrue\nversion\n');
+    const launcherText = readFileSync(wrapper, 'utf8');
+    assert.match(launcherText, /MULTICA_DAEMON_AUTO_UPDATE_INTERVAL=\$\{MULTICA_DAEMON_AUTO_UPDATE_INTERVAL:-24h\}/);
+    assert.match(launcherText, /MULTICA_ZH_TW_RELEASE_MANIFEST_URL=https:\/\/example\.com\/latest\.json/);
+    assert.ok(launcherText.includes('MULTICA_ZH_TW_LAUNCHER='));
+    const optOut = spawnSync(wrapper, ['version'], {env: {...env, MULTICA_DAEMON_AUTO_UPDATE: 'false'}, encoding: 'utf8'});
+    assert.equal(optOut.stdout, 'false\ntrue\nversion\n');
     assert.match(readFileSync(wrapper, 'utf8'), /SSL_CERT_FILE=/);
     assert.match(readFileSync(wrapper, 'utf8'), /MULTICA_SERVER_URL=https:\/\/10\.1\.24\.90:45671/);
     assert.match(readFileSync(join(installRoot, 'share/multica-zh-tw/0.4.41-zh-tw.4-rc.1/ca-bundle.crt'), 'utf8'), /BEGIN CERTIFICATE/);
@@ -51,7 +58,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     assert.equal(failedLogin.status, 7);
     assert.doesNotMatch(failedLogin.stdout, /daemon\nstart\n/);
     const explicitProfile = spawnSync(wrapper, ['--profile', 'optional', 'version'], {env, encoding: 'utf8'});
-    assert.equal(explicitProfile.stdout, 'false\nfalse\n--profile\noptional\nversion\n');
+    assert.equal(explicitProfile.stdout, 'true\ntrue\n--profile\noptional\nversion\n');
     assert.doesNotMatch(readFileSync(wrapper, 'utf8'), /--profile/);
     writeFileSync(join(fakebin, 'systemctl'), '#!/bin/sh\nprintf "%s\\n" "$*" >> "$FIXTURE_SYSTEMCTL_LOG"\n', {mode: 0o755});
     const serviceHome = join(root, 'service-home'); mkdirSync(serviceHome);
@@ -62,11 +69,90 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const unit = readFileSync(join(serviceHome, '.config/systemd/user/multica.service'), 'utf8');
     assert.ok(unit.includes('service %% space $$path/bin/multica" daemon start --foreground'));
     assert.match(unit, /Restart=on-failure/);
+    assert.match(unit, /Environment=MULTICA_DAEMON_SUPERVISOR=systemd/);
     assert.match(readFileSync(systemctlLog, 'utf8'), /--user enable --now multica.service/);
     assert.match(service.stdout, /Service ready/);
     const previous = readFileSync(wrapper, 'utf8');
     assert.equal(spawnSync('bash', [installer], {env}).status, 2);
     assert.equal(readFileSync(wrapper, 'utf8'), previous);
+
+    // --upgrade keeps configuration, swaps the launcher, retains one rollback.
+    mkdirSync(join(home, '.multica'), {recursive: true});
+    writeFileSync(join(home, '.multica/config.json'), '{"token":"keep"}');
+    const share = join(installRoot, 'share/multica-zh-tw');
+    const upgradeTo = (version) => {
+      const next = join(root, `install-${version}.sh`);
+      writeFileSync(next, render(hash, version));
+      return spawnSync('bash', [next, '--upgrade'], {env, encoding: 'utf8'});
+    };
+    const second = upgradeTo('0.4.41-zh-tw.5');
+    assert.equal(second.status, 0, second.stderr);
+    assert.match(second.stdout, /Upgraded 0\.4\.41-zh-tw\.4-rc\.1 -> 0\.4\.41-zh-tw\.5/);
+    assert.equal(statSync(wrapper).ino, statSync(join(share, '0.4.41-zh-tw.5/launcher')).ino);
+    assert.ok(existsSync(join(share, '0.4.41-zh-tw.4-rc.1/multica')), 'previous version kept for rollback');
+    assert.equal(readFileSync(join(home, '.multica/config.json'), 'utf8'), '{"token":"keep"}');
+    const again = upgradeTo('0.4.41-zh-tw.5');
+    assert.equal(again.status, 0);
+    assert.match(again.stdout, /Already at 0\.4\.41-zh-tw\.5/);
+    const third = upgradeTo('0.4.41-zh-tw.6');
+    assert.equal(third.status, 0, third.stderr);
+    assert.deepEqual(readdirSync(share).filter((name) => !name.startsWith('.')).sort(), ['0.4.41-zh-tw.5', '0.4.41-zh-tw.6']);
+    const badUpgrade = join(root, 'install-bad.sh');
+    writeFileSync(badUpgrade, render('0'.repeat(64), '0.4.41-zh-tw.7'));
+    assert.equal(spawnSync('bash', [badUpgrade, '--upgrade'], {env}).status, 1);
+    assert.equal(statSync(wrapper).ino, statSync(join(share, '0.4.41-zh-tw.6/launcher')).ino, 'failed upgrade leaves launcher');
+    assert.equal(existsSync(join(share, '0.4.41-zh-tw.7')), false, 'failed upgrade leaves no partial version');
+    const launcherIno = () => statSync(wrapper).ino;
+    const before = launcherIno();
+    const downgrade = upgradeTo('0.4.41-zh-tw.5');
+    assert.equal(downgrade.status, 2, 'downgrade refused');
+    assert.match(downgrade.stderr, /Refusing to replace/);
+    assert.equal(launcherIno(), before);
+    // A running upgrade holds a kernel lock; an exited one leaves nothing to judge.
+    const lock = join(share, '.upgrade.lock');
+    const holdLock = (tool) => tool === 'flock'
+      ? spawn('flock', [lock, 'sleep', '30'], {stdio: 'ignore', detached: true})
+      : spawn('perl', ['-MFcntl=:flock', '-e', 'open(my $f, ">>", $ARGV[0]) or die; flock($f, LOCK_EX) or die; sleep 30', lock], {stdio: 'ignore', detached: true});
+    const upgradeWith = (version, tool) => {
+      const next = join(root, `install-${version}.sh`);
+      writeFileSync(next, render(hash, version));
+      return spawnSync('bash', [next, '--upgrade'], {env: {...env, MULTICA_INSTALL_LOCK_TOOL: tool}, encoding: 'utf8'});
+    };
+    const lockTools = ['flock', 'perl'].filter((tool) => spawnSync('sh', ['-c', `command -v ${tool}`]).status === 0);
+    assert.ok(lockTools.length > 0, 'flock or perl is required for --upgrade');
+    for (const tool of lockTools) {
+      const holder = holdLock(tool);
+      spawnSync('sleep', ['0.5']);
+      const blocked = upgradeWith('0.4.41-zh-tw.8', tool);
+      process.kill(-holder.pid);  // the whole group: flock's child inherits the lock
+      assert.equal(blocked.status, 75, `${tool}: ${blocked.stderr}`);
+      assert.match(blocked.stderr, /Another upgrade is in progress/);
+      assert.equal(launcherIno(), before, `${tool}: launcher unchanged while locked`);
+      assert.equal(existsSync(join(share, '0.4.41-zh-tw.8')), false);
+      spawnSync('sleep', ['0.2']);
+    }
+    assert.ok(existsSync(lock), 'lock file left behind by earlier runs');
+    mkdirSync(join(share, '0.4.41-zh-tw.8')); writeFileSync(join(share, '0.4.41-zh-tw.8/partial'), 'x');
+    const takeover = upgradeWith('0.4.41-zh-tw.8', lockTools.at(-1));
+    assert.equal(takeover.status, 0, takeover.stderr);
+    assert.equal(existsSync(join(share, '0.4.41-zh-tw.8/partial')), false, 'leftover version restarted clean');
+    // Pruning happens after the switch: a failed removal only warns.
+    const stuck = join(share, '0.4.41-zh-tw.6/stuck');
+    mkdirSync(stuck); writeFileSync(join(stuck, 'file'), 'x'); chmodSync(stuck, 0o555);
+    const pruneFail = upgradeTo('0.4.41-zh-tw.10');
+    chmodSync(stuck, 0o755);
+    assert.equal(pruneFail.status, 0, pruneFail.stderr);
+    assert.match(pruneFail.stderr, /Warning: could not remove/);
+    assert.equal(statSync(wrapper).ino, statSync(join(share, '0.4.41-zh-tw.10/launcher')).ino);
+    const noInstall = spawnSync('bash', [badUpgrade, '--upgrade'], {env: {...env, MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'none')}});
+    assert.equal(noInstall.status, 2);
+    rmSync(join(home, '.multica'), {recursive: true});
+
+    // `curl ... | bash` reads the whole script before running anything.
+    const piped = spawnSync('bash', [], {env: {...env, MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'piped')}, input: render(hash), encoding: 'utf8'});
+    assert.equal(piped.status, 0, piped.stderr);
+    assert.match(piped.stdout, /Installed 0\.4\.41-zh-tw\.4-rc\.1/);
+    assert.match(piped.stdout, /Add to PATH/);
     mkdirSync(join(home, '.multica'));
     const config = join(home, '.multica/config.json');
     writeFileSync(config, '{"workspaces_root":"/keep"}');
@@ -90,7 +176,7 @@ test('repository entry points fetch the fixed release with verified HTTPS and fo
       FIXTURE_CURL_LOG: log, FIXTURE_INSTALLER: fixture};
     for (const name of ['install-zh-tw.sh', 'install-zh-tw-s90.sh']) {
       const script = new URL(`../${name}`, import.meta.url).pathname;
-      for (const args of [[], ['--login'], ['--service']]) {
+      for (const args of [[], ['--login'], ['--service'], ['--upgrade']]) {
         const result = spawnSync('bash', [script, ...args], {env, encoding: 'utf8'});
         assert.equal(result.status, 0, result.stderr);
         assert.equal(result.stdout.trim(), args.join('\n'));
@@ -101,7 +187,7 @@ test('repository entry points fetch the fixed release with verified HTTPS and fo
         assert.ok(curlArgs.includes('--proto-redir'));
         assert.ok(curlArgs.includes('=https'));
         assert.ok(!curlArgs.includes('--insecure'));
-        assert.ok(curlArgs.includes('https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.7/install.sh'));
+        assert.ok(curlArgs.includes('https://github.com/hyc5566/multica/releases/latest/download/install.sh'));
         assert.equal(existsSync(curlArgs.at(-1)), false, 'temporary installer is cleaned up');
       }
       const failure = spawnSync('bash', [script, '--login'], {env: {...env, FIXTURE_CURL_STATUS: '60'}, encoding: 'utf8'});
@@ -111,5 +197,30 @@ test('repository entry points fetch the fixed release with verified HTTPS and fo
       assert.equal(spawnSync('bash', [script, '--invalid'], {env}).status, 2);
       assert.equal(spawnSync('bash', [script, '--login', '--service'], {env}).status, 2);
     }
+  } finally { rmSync(root, {recursive: true, force: true}); }
+});
+
+test('manifest.sh writes the release channel for one build', () => {
+  const root = mkdtempSync(join(tmpdir(), 'multica-manifest-'));
+  try {
+    const release = join(root, 'release'); mkdirSync(release);
+    const version = '0.6.1-zh-tw.2', base = `https://s90.example:45671/downloads/${version}`;
+    writeFileSync(join(release, 'BUILD.txt'), `version=${version}\ncommit=${'a'.repeat(40)}\n`);
+    writeFileSync(join(release, 'install.sh'), `#!/usr/bin/env bash\nversion='${version}'\n`);
+    const zip = join(root, `multica-desktop-${version}-mac-arm64.zip`);
+    writeFileSync(zip, 'zip-bytes');
+    const script = new URL('./manifest.sh', import.meta.url).pathname;
+    const notes = 'https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.6.1-zh-tw.2';
+    const result = spawnSync('bash', [script, release, base, notes, zip], {encoding: 'utf8'});
+    assert.equal(result.status, 0, result.stderr);
+    const manifest = JSON.parse(readFileSync(join(release, 'latest.json'), 'utf8'));
+    const sha = (path) => createHash('sha256').update(readFileSync(path)).digest('hex');
+    assert.equal(manifest.version, version);
+    assert.equal(manifest.cli.install_url, `${base}/install.sh`);
+    assert.equal(manifest.cli.install_sha256, sha(join(release, 'install.sh')));
+    assert.deepEqual(manifest.desktop['darwin-arm64'], {url: `${base}/multica-desktop-${version}-mac-arm64.zip`, sha256: sha(zip), size: 9});
+    assert.equal(spawnSync('bash', [script, release, 'https://s90.example/downloads/0.6.1-zh-tw.3', notes]).status, 2);
+    writeFileSync(join(release, 'BUILD.txt'), `version=0.6.1-zh-tw.2-rc.1\ncommit=${'a'.repeat(40)}\n`);
+    assert.equal(spawnSync('bash', [script, release, base, notes]).status, 2, 'release candidates never enter the channel');
   } finally { rmSync(root, {recursive: true, force: true}); }
 });

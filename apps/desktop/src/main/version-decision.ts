@@ -6,6 +6,8 @@ export interface VersionCheckHealth {
   status?: string;
   cli_version?: string;
   active_task_count?: number;
+  /** zh-tw daemons that reload into the bundled CLI themselves report this. */
+  zh_tw_self_reload?: boolean;
 }
 
 export type VersionAction = "restart" | "defer" | "ok" | "not_running";
@@ -31,7 +33,14 @@ export function decideVersionAction(
   if (!bundled || !runningVersion) return "ok";
   if (runningVersion === bundled) return "ok";
 
-  const activeTasks = running.active_task_count ?? 0;
-  if (activeTasks > 0) return "defer";
+  // A daemon that reports zh_tw_self_reload restarts itself into the bundled
+  // CLI once idle, atomically under its claim barrier; stopping it from here
+  // could race a task claimed after the health snapshot. Decided by the
+  // reported capability, never by version format: older zh-tw releases match
+  // the format but cannot reload, so they take the idle restart below.
+  if (running.zh_tw_self_reload === true) return "defer";
+  // An unknown task count is not "idle".
+  const activeTasks = running.active_task_count;
+  if (activeTasks === undefined || activeTasks > 0) return "defer";
   return "restart";
 }

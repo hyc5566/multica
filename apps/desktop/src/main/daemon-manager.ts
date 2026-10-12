@@ -197,6 +197,8 @@ interface HealthPayload {
   active_task_count?: number;
   running_task_count?: number;
   resource_wait_task_count?: number;
+  /** zh-tw: the daemon reloads into the bundled CLI itself when idle. */
+  zh_tw_self_reload?: boolean;
   profile?: string;
   launched_by?: string;
   agents?: string[];
@@ -1004,7 +1006,9 @@ async function probeLocalRuntimes(): Promise<LocalRuntimeProbe> {
 // applied by fix-path in main/index.ts — as a top-level const it would
 // snapshot process.env at import time, before that block runs.
 function desktopSpawnEnv(): NodeJS.ProcessEnv {
-  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop" };
+  // zh-tw: the daemon follows the bundled CLI itself when the App replaces its
+  // bundle, restarting only when idle under its claim barrier.
+  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop", MULTICA_ZH_TW_DESKTOP_SELF_RELOAD: "1" };
 }
 
 function scheduleStatusRefresh(): void {
@@ -1474,6 +1478,23 @@ function stopLogTail(): void {
   }
 }
 
+/** The server the App is connected to, once the renderer has reported it. */
+export function getTargetApiBaseUrl(): string | null {
+  return targetApiBaseUrl;
+}
+
+let preserveDaemonOnQuit = false;
+
+/**
+ * Keep the daemon running through the next quit. Used when the App quits only
+ * to replace its own bundle: stopping the daemon would cancel running agent
+ * tasks after the 30-second shutdown drain. The relaunched App restarts the
+ * daemon into its bundled CLI once the daemon is idle (version-mismatch path).
+ */
+export function preserveDaemonOnNextQuit(): void {
+  preserveDaemonOnQuit = true;
+}
+
 export function setupDaemonManager(
   windowGetter: () => BrowserWindow | null,
 ): void {
@@ -1616,6 +1637,7 @@ export function setupDaemonManager(
     setDesiredDaemonRunning(false);
     stopPolling();
     stopLogTail();
+    if (preserveDaemonOnQuit) return;
 
     loadPrefs().then(async (prefs) => {
       if (prefs.autoStop) {
