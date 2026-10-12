@@ -274,6 +274,14 @@ there is no new dependency or database migration.
 
 ### Desktop artifact retention
 
+The stable download page and release copies are maintained by
+`scripts/lan-release/stage-latest.mjs` and `publish-latest.sh`; see
+[the publishing procedure](getting-started-publishing.zh-tw.md). Keep the version
+only in the page introduction and use `/downloads/latest/` for manual downloads.
+After validating each immutable release, copy it over the latest assets and
+regenerate their checksums before switching the page/channel. Automatic updater
+manifest URLs remain versioned to pin downloads already in progress.
+
 - Keep exactly two installable Desktop archives in the controlled checkout's
   `artifacts/` directory: the current build and its immediate predecessor.
   `scripts/build-desktop-zh-tw-macos.sh` enforces this only after a new archive
