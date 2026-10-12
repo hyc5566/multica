@@ -115,7 +115,7 @@ func TestUpdateViaZhTWInstallerVerifiesAndRunsUpgrade(t *testing.T) {
 	t.Setenv(ZhTWLauncherEnv, "/home/user/.local/bin/multica")
 
 	manifest = validManifest(server.URL+"/install.sh", strings.Repeat("0", 64))
-	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", 0); err == nil || !strings.Contains(err.Error(), "checksum") {
+	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", "0.6.1-zh-tw.1", 0); err == nil || !strings.Contains(err.Error(), "checksum") {
 		t.Fatalf("checksum mismatch not rejected: %v", err)
 	}
 	if _, err := os.Stat(marker); err == nil {
@@ -123,10 +123,18 @@ func TestUpdateViaZhTWInstallerVerifiesAndRunsUpgrade(t *testing.T) {
 	}
 
 	manifest = validManifest(server.URL+"/install.sh", hex.EncodeToString(sum[:]))
-	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.9", 0); err == nil {
+	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.9", "0.6.1-zh-tw.1", 0); err == nil {
 		t.Fatal("version not offered by the channel was accepted")
 	}
-	out, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", 0)
+	for _, current := range []string{"0.6.1-zh-tw.2", "0.6.1-zh-tw.3", "0.6.0-131-g2ca7196c3b"} {
+		if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", current, 0); err == nil || !strings.Contains(err.Error(), "not newer") {
+			t.Fatalf("current %s: channel version not newer was accepted: %v", current, err)
+		}
+	}
+	if _, err := os.Stat(marker); err == nil {
+		t.Fatal("installer ran for a version that is not an upgrade")
+	}
+	out, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", "0.6.1-zh-tw.1", 0)
 	if err != nil {
 		t.Fatalf("UpdateViaZhTWInstaller: %v (%s)", err, out)
 	}
@@ -139,7 +147,7 @@ func TestUpdateViaZhTWInstallerVerifiesAndRunsUpgrade(t *testing.T) {
 func TestUpdateViaZhTWInstallerRequiresLauncher(t *testing.T) {
 	t.Setenv(ZhTWReleaseManifestURLEnv, "https://s90.example/latest.json")
 	t.Setenv(ZhTWLauncherEnv, "")
-	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", 0); err == nil {
+	if _, err := UpdateViaZhTWInstaller("0.6.1-zh-tw.2", "0.6.1-zh-tw.1", 0); err == nil {
 		t.Fatal("non-launcher installation was upgraded")
 	}
 }

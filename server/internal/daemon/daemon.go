@@ -5190,7 +5190,7 @@ func (d *Daemon) tryBeginServerUpdate(ctx context.Context) serverUpdateAcquireRe
 func (d *Daemon) runUpdate(targetVersion string) (string, error) {
 	if cli.ZhTWReleaseManifestURL() != "" {
 		d.logger.Info("updating CLI via the zh-tw release installer...", "target_version", targetVersion)
-		out, err := cli.UpdateViaZhTWInstaller(targetVersion, cli.DefaultUpdateDownloadTimeout)
+		out, err := cli.UpdateViaZhTWInstaller(targetVersion, d.cfg.CLIVersion, cli.DefaultUpdateDownloadTimeout)
 		if err != nil {
 			return out, fmt.Errorf("zh-tw installer update failed: %w", err)
 		}

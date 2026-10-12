@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, statSync, readdirSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, statSync, readdirSync, chmodSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -101,6 +101,34 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     writeFileSync(badUpgrade, render('0'.repeat(64), '0.4.41-zh-tw.7'));
     assert.equal(spawnSync('bash', [badUpgrade, '--upgrade'], {env}).status, 1);
     assert.equal(statSync(wrapper).ino, statSync(join(share, '0.4.41-zh-tw.6/launcher')).ino, 'failed upgrade leaves launcher');
+    assert.equal(existsSync(join(share, '0.4.41-zh-tw.7')), false, 'failed upgrade leaves no partial version');
+    const launcherIno = () => statSync(wrapper).ino;
+    const before = launcherIno();
+    const downgrade = upgradeTo('0.4.41-zh-tw.5');
+    assert.equal(downgrade.status, 2, 'downgrade refused');
+    assert.match(downgrade.stderr, /Refusing to replace/);
+    assert.equal(launcherIno(), before);
+    // A live upgrade holds the lock; a dead holder's lock is taken over.
+    const lock = join(share, '.upgrade.lock');
+    mkdirSync(lock); writeFileSync(join(lock, 'pid'), String(process.pid));
+    const blocked = upgradeTo('0.4.41-zh-tw.8');
+    assert.equal(blocked.status, 75, blocked.stderr);
+    assert.equal(launcherIno(), before);
+    assert.equal(existsSync(join(share, '0.4.41-zh-tw.8')), false);
+    writeFileSync(join(lock, 'pid'), '999999');
+    mkdirSync(join(share, '0.4.41-zh-tw.8')); writeFileSync(join(share, '0.4.41-zh-tw.8/partial'), 'x');
+    const takeover = upgradeTo('0.4.41-zh-tw.8');
+    assert.equal(takeover.status, 0, takeover.stderr);
+    assert.equal(existsSync(lock), false, 'lock released');
+    assert.equal(existsSync(join(share, '0.4.41-zh-tw.8/partial')), false, 'leftover version restarted clean');
+    // Pruning happens after the switch: a failed removal only warns.
+    const stuck = join(share, '0.4.41-zh-tw.6/stuck');
+    mkdirSync(stuck); writeFileSync(join(stuck, 'file'), 'x'); chmodSync(stuck, 0o555);
+    const pruneFail = upgradeTo('0.4.41-zh-tw.10');
+    chmodSync(stuck, 0o755);
+    assert.equal(pruneFail.status, 0, pruneFail.stderr);
+    assert.match(pruneFail.stderr, /Warning: could not remove/);
+    assert.equal(statSync(wrapper).ino, statSync(join(share, '0.4.41-zh-tw.10/launcher')).ino);
     const noInstall = spawnSync('bash', [badUpgrade, '--upgrade'], {env: {...env, MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'none')}});
     assert.equal(noInstall.status, 2);
     rmSync(join(home, '.multica'), {recursive: true});
