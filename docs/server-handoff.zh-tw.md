@@ -8,6 +8,8 @@
 
 適用於單機 Docker、共用 PostgreSQL／Redis／上傳檔案、Caddy 代理，且新舊映像的 migration 檔案內容完全相同的 Server 更新。Web／Desktop 發布另行安排，不因 Server 切流成功就宣稱它們已更新。
 
+更新分工依[維護總覽](zh-tw-maintenance.md#update-ownership)：App／Multica CLI 由使用者依網站的統一指引更新，只有 Server 更新由 agent 處理。Server 交接不附帶替換使用者的 App／CLI，或重啟客戶端 daemon 來換版。下方 daemon 註冊、心跳與派送驗證是連線相容性查核；不代表已更新客戶端，也不以所有使用者都換版作為 Server 任務的結案條件。
+
 2026-09-10 的驗證基準：
 
 - Server／Web `.41.4`（`b8f2144f9`）已部署至 s90；這與平順切換基礎設施初始化是不同操作。

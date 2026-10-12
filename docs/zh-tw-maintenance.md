@@ -6,6 +6,26 @@ product behavior. Taiwan-only changes should stay in small, purpose-specific
 commits so the edition can be rebuilt when an upstream rebase becomes more
 expensive than replaying the customization.
 
+## Update ownership
+
+App and Multica CLI updates are performed by users through the shared
+[download and update guide](https://10.1.24.90:45671/download). Agents maintain
+the Server; they do not install or replace user App bundles or Multica CLI
+binaries, or restart client daemons to complete an upgrade. This applies to
+all client machines, including m2 and m5.
+
+Server maintenance must not include client upgrades as an incidental step or
+wait for every user to upgrade before completing an otherwise verified Server
+task. Check API compatibility with installed clients and verify their daemon
+registration and heartbeat without replacing their binaries. Record client
+upgrade needs and direct users to the same website instructions.
+
+This policy governs who applies client updates. It does not disable the App's
+or daemon's built-in update mechanisms, or replace the checks for an explicitly
+requested release build or publication. Keep client installation separate from
+building and publishing downloadable release assets. Historical agent-driven
+client installation instructions are not the current maintenance workflow.
+
 ## Server deployment procedure
 
 For Taiwan-edition Server updates, follow the canonical
@@ -273,6 +293,10 @@ there is no new dependency or database migration.
   process identity, version, and rollback path.
 
 ### Desktop artifact retention
+
+These are release-artifact and user rollback guidelines. Agents may manage
+artifacts in an authorized build checkout; installation and removal of App
+bundles on user machines follow the [update ownership policy](#update-ownership).
 
 - Keep exactly two installable Desktop archives in the controlled checkout's
   `artifacts/` directory: the current build and its immediate predecessor.
