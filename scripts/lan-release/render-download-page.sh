@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Render the standalone /download page from a release's latest.json, so the
-# page always names exactly the App package the update channel offers.
+# page shows the current version and stable download links.
 usage='Usage: render-download-page.sh RELEASE_DIR OUTPUT_HTML'
 release_dir=${1:?$usage}
 output=${2:?$usage}
@@ -14,9 +14,11 @@ const [manifestPath, templatePath, outputPath] = process.argv.slice(2);
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const app = manifest.desktop?.['darwin-arm64'];
 if (!app) throw new Error('latest.json has no darwin-arm64 App package');
-const base = manifest.cli.install_url.replace(/\/install\.sh$/, '');
+const base = new URL('../latest/', manifest.cli.install_url).href.replace(/\/$/, '');
+const appUrl = `${base}/multica-desktop-latest-mac-arm64.zip`;
+const notesUrl = new URL('../latest', manifest.notes_url).href;
 const escape = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const values = {VERSION: manifest.version, APP_URL: app.url, APP_SHA256: app.sha256, NOTES_URL: manifest.notes_url, BASE_URL: base};
+const values = {VERSION: manifest.version, APP_URL: appUrl, APP_SHA256: app.sha256, NOTES_URL: notesUrl, BASE_URL: base};
 let html = fs.readFileSync(templatePath, 'utf8');
 for (const [key, value] of Object.entries(values)) {
   if (!value) throw new Error(`missing ${key}`);

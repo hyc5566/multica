@@ -37,7 +37,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
   <div class="card">
     <h2>macOS App</h2>
     <p class="note">Apple Silicon（M 系列晶片）。內含 CLI 與背景服務 daemon。</p>
-    <a class="button" href="@APP_URL@">下載 App（@VERSION@）</a>
+    <a class="button" href="@APP_URL@" download="multica-desktop-latest-mac-arm64.zip">下載 App（latest）</a>
     <p class="note">SHA-256：<code>@APP_SHA256@</code><br><a href="@NOTES_URL@">版本說明</a> · 第一次安裝請看<a href="#app">下方步驟</a>。</p>
   </div>
   <div class="card">
