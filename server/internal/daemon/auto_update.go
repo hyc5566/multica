@@ -61,6 +61,14 @@ func ParseSelfVersion(raw string) string {
 	return line
 }
 
+// zhTWDesktopSelfReload reports whether this Desktop-launched daemon follows
+// the App's bundled CLI itself: the zh-tw Desktop opts in through the
+// environment, and the operator has not turned auto-reload off.
+func (d *Daemon) zhTWDesktopSelfReload() bool {
+	return d.cfg.LaunchedBy == "desktop" && d.cfg.AutoReloadEnabled &&
+		os.Getenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD") == "1"
+}
+
 // autoUpdateInitialDelay is how long the loop waits after Run() returns before
 // performing its first version check. The daemon has plenty to do at startup
 // (auth, register, sync workspaces, kick off heartbeats); we don't want to add
@@ -121,7 +129,7 @@ func (d *Daemon) autoUpdateLoop(ctx context.Context) {
 		// runs from — in place. It opts in so the daemon follows that binary
 		// with the same idle-only, claim-barrier restart as any out-of-band
 		// upgrade, instead of being stopped from outside mid-claim.
-		if os.Getenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD") != "1" {
+		if !d.zhTWDesktopSelfReload() {
 			d.logger.Info("auto-update: skipped (managed by Desktop)")
 			return
 		}

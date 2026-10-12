@@ -105,7 +105,7 @@ multica runtime list</code></pre>
   <h2 id="upgrade-title">從舊版升級</h2>
   <p>舊版不會自動更新，需要手動升級一次，之後就會自動檢查。</p>
   <ul>
-    <li><strong>App</strong>：等執行中的任務結束，結束舊 App，下載新版取代「應用程式」中的舊版後重新開啟。帳號與設定會保留。</li>
+    <li><strong>App</strong>：等執行中的任務結束，結束舊 App，下載新版取代「應用程式」中的舊版後重新開啟。帳號與設定會保留。舊版留下的 daemon 不會自己換版，新 App 會在它沒有任務時重新啟動它；完成後在「執行環境」頁確認這台電腦的 CLI 版本與 App 相同。若仍是舊版，請在沒有任務時，在「執行環境」頁打開這台電腦，按「重啟」。</li>
     <li><strong>CLI</strong>：執行下面這行，保留原本的登入與設定，只替換程式；之後重新啟動 daemon（用 systemd 的人執行 <code>systemctl --user restart multica.service</code>，其他人執行 <code>multica daemon stop</code> 再 <code>multica daemon start</code>）。
       <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash -s -- --upgrade</code></pre></li>
   </ul>

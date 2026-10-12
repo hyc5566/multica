@@ -197,6 +197,8 @@ interface HealthPayload {
   active_task_count?: number;
   running_task_count?: number;
   resource_wait_task_count?: number;
+  /** zh-tw: the daemon reloads into the bundled CLI itself when idle. */
+  zh_tw_self_reload?: boolean;
   profile?: string;
   launched_by?: string;
   agents?: string[];

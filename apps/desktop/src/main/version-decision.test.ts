@@ -61,22 +61,21 @@ describe("decideVersionAction", () => {
     ).toBe("defer");
   });
 
-  it("never stops a zh-tw release daemon; it reloads itself when idle", () => {
+  it("leaves a self-reloading zh-tw daemon alone; older ones get the idle restart", () => {
     expect(
       decideVersionAction("0.6.1-zh-tw.2", {
         status: "running",
         cli_version: "0.6.1-zh-tw.1",
         active_task_count: 0,
+        zh_tw_self_reload: true,
       }),
     ).toBe("defer");
-    // A pre-channel daemon cannot reload itself; the idle restart remains.
-    expect(
-      decideVersionAction("0.6.1-zh-tw.2", {
-        status: "running",
-        cli_version: "0.6.0-131-g2ca7196c3b",
-        active_task_count: 0,
-      }),
-    ).toBe("restart");
+    // Same version format, no capability (e.g. 0.4.43-zh-tw.7): App restarts it when idle.
+    for (const cli_version of ["0.4.43-zh-tw.7", "0.6.0-131-g2ca7196c3b"]) {
+      expect(
+        decideVersionAction("0.6.1-zh-tw.2", { status: "running", cli_version, active_task_count: 0 }),
+      ).toBe("restart");
+    }
   });
 
   it("returns defer when versions differ but daemon is busy", () => {
