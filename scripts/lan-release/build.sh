@@ -18,7 +18,9 @@ build_date=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 mkdir -p "$out"
 cp "$ca_file" "$out/s90-ca.crt"
 ca_checksum=$(sha256sum "$out/s90-ca.crt")
-sed "s|@VERSION@|$version|g; s|@BASE_URL@|$base_url|g; s|@DOWNLOAD_CA_SHA256@|${ca_checksum%% *}|g" \
+# The release channel sits beside the versioned directories: <base>/../latest.json.
+manifest_url="${base_url%/*}/latest.json"
+sed "s|@VERSION@|$version|g; s|@BASE_URL@|$base_url|g; s|@MANIFEST_URL@|$manifest_url|g; s|@DOWNLOAD_CA_SHA256@|${ca_checksum%% *}|g" \
   "$repo/scripts/lan-release/install.sh.in" > "$out/install.sh"
 export CGO_ENABLED=0
 export GOMAXPROCS=${GOMAXPROCS:-4}

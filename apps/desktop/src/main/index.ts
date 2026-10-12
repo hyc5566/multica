@@ -5,7 +5,13 @@ import { pathToFileURL } from "url";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import fixPath from "fix-path";
 import { installLanTrust } from "./lan-trust";
-import { setupDaemonManager, requestDaemonTrustRefresh } from "./daemon-manager";
+import {
+  setupDaemonManager,
+  requestDaemonTrustRefresh,
+  getDaemonActiveTaskCount,
+  getTargetApiBaseUrl,
+} from "./daemon-manager";
+import { setupZhTWAppUpdate } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
 import { openExternalSafely, downloadURLSafely } from "./external-url";
 import { installContextMenu } from "./context-menu";
@@ -842,8 +848,13 @@ if (!gotTheLock) {
     createWindow();
 
     // This local package is not signed or published by Multica. Never let it
-    // consume the official app's update feed.
+    // consume the official app's update feed; it follows the s90 channel.
     setupDaemonManager(() => mainWindow);
+    setupZhTWAppUpdate({
+      getMainWindow: () => mainWindow,
+      getApiBaseUrl: getTargetApiBaseUrl,
+      getActiveTaskCount: getDaemonActiveTaskCount,
+    });
     setupLocalDirectory(() => mainWindow);
 
     app.on("activate", () => {

@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Delegate to the immutable release installer, whose artifact hashes are generated
-# after this source commit is built. Both repository entry points target s90.
-version='0.4.43-zh-tw.7'
-installer_url="https://github.com/hyc5566/multica/releases/download/zh-tw-v$version/install.sh"
-[[ ${1:-} == "" || ${1:-} == --login || ${1:-} == --service ]] || { echo 'Usage: install.sh [--login|--service]' >&2; exit 2; }
-[[ $# -le 1 ]] || { echo 'Usage: install.sh [--login|--service]' >&2; exit 2; }
+# Delegate to the latest published release installer, whose artifact hashes are
+# generated after its source commit is built. Both entry points target s90.
+installer_url="https://github.com/hyc5566/multica/releases/latest/download/install.sh"
+[[ ${1:-} == "" || ${1:-} == --login || ${1:-} == --service || ${1:-} == --upgrade ]] || { echo 'Usage: install.sh [--login|--service|--upgrade]' >&2; exit 2; }
+[[ $# -le 1 ]] || { echo 'Usage: install.sh [--login|--service|--upgrade]' >&2; exit 2; }
 command -v curl >/dev/null
 tmp=$(mktemp -d)
 trap 'rm -rf -- "$tmp"' EXIT
