@@ -1116,6 +1116,10 @@ func runDaemonForeground(cmd *cobra.Command) error {
 
 	// Check if the daemon needs to restart after a CLI update.
 	if restartBin := d.RestartBinary(); restartBin != "" {
+		if daemonSupervisedBySystemd() {
+			logger.Info("daemon updated; exiting for systemd to restart it", "path", restartBin)
+			return errSupervisorRestart
+		}
 		logger.Info("restarting daemon with updated binary", "path", restartBin)
 
 		// The successor will open daemon.log through its own rotating writer,

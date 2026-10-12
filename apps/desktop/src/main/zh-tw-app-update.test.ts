@@ -86,12 +86,13 @@ describe("swap script", () => {
     if (root) rmSync(root, { recursive: true, force: true });
   });
 
-  function setup() {
+  function setup(openFailsForNew = false) {
     root = mkdtempSync(join(tmpdir(), "zh-tw-swap-"));
     const bin = join(root, "bin");
     mkdirSync(bin);
     // `open` and `xattr` are macOS tools; record calls instead.
-    writeFileSync(join(bin, "open"), `#!/bin/sh\necho "$2" >> "${root}/opened"\n`, { mode: 0o755 });
+    const openFail = openFailsForNew ? `[ "$(cat "$2/version")" = new ] && exit 1\n` : "";
+    writeFileSync(join(bin, "open"), `#!/bin/sh\necho "$2" >> "${root}/opened"\n${openFail}exit 0\n`, { mode: 0o755 });
     writeFileSync(join(bin, "xattr"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
     const script = join(root, "swap.sh");
     writeFileSync(script, SWAP_SCRIPT, { mode: 0o700 });
@@ -122,5 +123,13 @@ describe("swap script", () => {
     expect(result.status).toBe(1);
     expect(readFileSync(join(current, "version"), "utf8")).toBe("old");
     expect(existsSync(rollback)).toBe(false);
+  });
+
+  it("puts the old bundle back when the new one fails to launch", () => {
+    const { script, current, next, rollback, env } = setup(true);
+    const result = spawnSync("bash", [script, "999999", current, next, rollback, join(root, "swap.log")], { env });
+    expect(result.status).toBe(1);
+    expect(readFileSync(join(current, "version"), "utf8")).toBe("old");
+    expect(readFileSync(join(root, "opened"), "utf8").trim().split("\n")).toEqual([current, current]);
   });
 });

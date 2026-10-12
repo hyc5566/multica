@@ -51,7 +51,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
 <section id="updates" aria-labelledby="updates-title">
   <h2 id="updates-title">安裝後會自動檢查更新</h2>
   <table>
-    <tr><th scope="row">App</th><td>開啟後約 30 秒檢查一次，之後每 24 小時再檢查。有新版會先詢問你；按「立即更新」後，App 直接下載、核對 SHA-256 與簽章，等執行中的任務跑完再重新啟動。內附的 CLI 與 daemon 一起更新，不需要透過 Agent。</td></tr>
+    <tr><th scope="row">App</th><td>開啟後約 30 秒檢查一次，之後每 24 小時再檢查。有新版會先詢問你；按「立即更新」後，App 直接下載、核對 SHA-256 與簽章後重新啟動，不需要透過 Agent。執行中的任務不會中斷；內附的 CLI 與 daemon 會在任務結束後換成新版。</td></tr>
     <tr><th scope="row">CLI</th><td>daemon 啟動約 2 分鐘後檢查一次，之後每 24 小時再檢查。有新版且沒有執行中的任務時，daemon 用該版的安裝腳本自行更新並重新啟動，帳號設定不變；前一版保留供回復。</td></tr>
   </table>
   <p class="note">CLI 想手動更新，執行 <code>multica update</code>。不要自動更新：啟動 daemon 前設定 <code>MULTICA_DAEMON_AUTO_UPDATE=false</code>。</p>

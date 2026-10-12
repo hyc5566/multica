@@ -196,6 +196,7 @@ After=network-online.target
 Type=simple
 ExecStart="$unit_wrapper" daemon start --foreground
 Environment="PATH=$unit_path"
+Environment=MULTICA_DAEMON_SUPERVISOR=systemd
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=90
