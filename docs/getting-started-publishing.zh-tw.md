@@ -2,7 +2,7 @@
 
 主要內容來源是 [getting-started.zh-tw.html](getting-started.zh-tw.html)。這份 HTML 不需要 JavaScript 或外部字型，可單獨開啟。頁面目前說明 `0.4.43-zh-tw.7`；發布新版本前須更新版本、平台、安裝器、CA 與連結，再重新驗證。
 
-## 目前 s90 發布狀態
+## 歷史 s90 發布狀態（2026-09-30）
 
 2026-09-30 在 `linker-SYS-540A-TR` 唯讀核對：正式 Caddy 已經供應下列入口，本次分支整合沒有修改或重載服務。
 
@@ -44,11 +44,23 @@
 2. `scripts/lan-release/manifest.sh OUT https://10.1.24.90:45671/downloads/VERSION <GitHub 版本說明 URL> OUT/multica-desktop-VERSION-mac-arm64.zip` 產生 `latest.json`；`scripts/lan-release/render-download-page.sh OUT OUT/download.html` 產生下載頁。重新產生 `SHA256SUMS` 把兩者納入。
 3. 把 `OUT` 複製到 Caddy 持久卷 `/config/releases/VERSION/`，用公開 CA 對 `https://10.1.24.90:45671/downloads/VERSION/` 下所有檔案 GET 並比對 SHA-256。
 4. 發布 GitHub Release `zh-tw-vVERSION`（Latest），資產含 `install.sh`、CLI archives、`s90-ca.crt`、App ZIP、`SHA256SUMS`。
-5. 最後才切換頻道：把 `latest.json`、`download.html` 複製到 `/config/releases/`（先寫暫存檔再 `mv`）。這一步之後各機器才會看到新版；回復時把兩個檔案換回前一版即可停止推送。
+5. 執行 `node scripts/lan-release/stage-latest.mjs OUT NEW_STAGE`，核對來源 `SHA256SUMS`、App 大小／雜湊、installer 雜湊與 `BUILD.txt`。工具把安裝檔複製到全新目錄，將 App 改名為 `multica-desktop-latest-mac-arm64.zip`，重新產生對應檔名的 `SHA256SUMS` 與下載頁。既有輸出目錄會被拒絕；驗證失敗不發布。
+6. 最後才切換頻道：先執行 `sh scripts/lan-release/publish-latest.sh NEW_STAGE RELEASES_ROOT` 預覽，正式發布經核准後加 `--apply`。`RELEASES_ROOT` 是 Caddy 的 `/config/releases` 持久卷；工具需在能存取該目錄的環境執行，容器內沒有 Node 時先在主機 stage，再把候選目錄和 POSIX shell 工具複製進容器。工具先備份原有 `latest/`、`latest.json`、`download.html`，再複製覆蓋 `latest/` 的安裝檔，每個檔案先寫暫存檔再 `mv`；檢查碼驗證完成後才切換根目錄的頻道與頁面。任何步驟失敗立即停止，依印出的備份路徑回復；不繼續發布其他元件。
+
+下載頁只有頂部顯示目前版本；App、SHA256SUMS 與版本說明都使用固定的 `latest` 連結。每次更新都必須執行第 5、6 步，不能只上傳版本化檔案。`latest/SHA256SUMS` 會列出實際的 latest App 檔名。自動更新頻道的 `latest.json` 仍保留版本化 App／installer URL，使已開始的更新下載固定在同一版；請勿把頻道內的 URL 改為可被覆蓋的路徑。
+
+發布後對 `/download`、`/downloads/latest/multica-desktop-latest-mac-arm64.zip`、`/downloads/latest/SHA256SUMS` 執行 HTTPS GET（使用可信 CA），比對頁面、實際下載檔名與 SHA-256，並確認版本化 URL 仍可下載。多檔更新期間，手動下載可能碰到短暫的檢查碼差異，應重新取得 App 與 SHA256SUMS；不可略過驗證。回復時先把備份的安裝檔逐檔以暫存檔加 `mv` 還原，再還原 `latest.json` 與 `download.html`，重新 GET 驗證。首次發布前没有 latest 目錄時，回復舊頁與頻道即可停止提供新連結；不必刪除已驗證的副本。
 
 ### Caddy 路由（一次設定，之後換版不改 Caddyfile）
 
 ```caddy
+@zhtw_latest path /downloads/latest/*
+handle @zhtw_latest {
+	uri strip_prefix /downloads/latest
+	root * /config/releases/latest
+	header Cache-Control "no-store"
+	file_server
+}
 @zhtw_channel path /downloads/latest.json
 handle @zhtw_channel {
 	root * /config/releases
