@@ -1,4 +1,4 @@
-import { app, dialog, Notification, type BrowserWindow } from "electron";
+import { app, dialog, type BrowserWindow } from "electron";
 import { createHash } from "node:crypto";
 import { execFile, spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
@@ -16,7 +16,6 @@ import { openExternalSafely } from "./external-url";
 export const DEFAULT_RELEASE_MANIFEST_URL = "https://10.1.24.90:45671/downloads/latest.json";
 export const STARTUP_CHECK_DELAY_MS = 30_000;
 export const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
-export const BUSY_RETRY_MS = 60_000;
 const MAX_MANIFEST_BYTES = 64 * 1024;
 const MAX_APP_ZIP_BYTES = 1024 * 1024 * 1024;
 const ZH_TW_VERSION = /^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)$/;
@@ -125,8 +124,13 @@ if ! mv -- "$next" "$current"; then
   exit 1
 fi
 xattr -dr com.apple.quarantine "$current" 2>/dev/null || true
-echo "installed; rollback kept at $rollback"
+if open -- "$current"; then echo "installed; rollback kept at $rollback"; exit 0; fi
+echo "new bundle failed to launch; restoring the previous one"
+failed="$(dirname "$rollback")/failed-$(basename "$current")"
+rm -rf -- "$failed"
+mv -- "$current" "$failed" && mv -- "$rollback" "$current"
 open -- "$current"
+exit 1
 `;
 
 function run(file: string, args: string[]): Promise<string> {
@@ -197,8 +201,8 @@ async function stageUpdate(update: AppUpdate, currentBundle: string, workDir: st
 export type ZhTWAppUpdateDeps = {
   getMainWindow: () => BrowserWindow | null;
   getApiBaseUrl: () => string | null;
-  /** Active agent tasks on the local daemon; null when unknown. */
-  getActiveTaskCount: () => Promise<number | null>;
+  /** Keep the daemon (and its running tasks) alive through the update quit. */
+  preserveDaemonOnQuit: () => void;
 };
 
 export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
@@ -219,25 +223,8 @@ export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
     });
   };
 
-  const waitForIdleDaemon = async (version: string): Promise<void> => {
-    let notified = false;
-    for (;;) {
-      const active = await deps.getActiveTaskCount();
-      if (!active) return;
-      if (!notified && Notification.isSupported()) {
-        new Notification({
-          title: `Multica 繁中版 ${version} 已下載`,
-          body: `等待 ${active} 個執行中的任務完成後，App 會自動重新啟動並完成更新。`,
-        }).show();
-        notified = true;
-      }
-      await new Promise((resolve) => setTimeout(resolve, BUSY_RETRY_MS));
-    }
-  };
-
   const install = async (update: AppUpdate): Promise<void> => {
     const staged = await stageUpdate(update, currentBundle, workDir);
-    await waitForIdleDaemon(update.version);
     const script = join(workDir, "swap.sh");
     await writeFile(script, SWAP_SCRIPT, { mode: 0o700 });
     const rollback = join(workDir, "rollback", basename(currentBundle));
@@ -245,6 +232,9 @@ export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
       detached: true,
       stdio: "ignore",
     }).unref();
+    // Running agent tasks belong to the daemon, not to this window: keep it
+    // alive across the swap instead of stopping it (which would cancel them).
+    deps.preserveDaemonOnQuit();
     app.quit();
   };
 
@@ -261,8 +251,8 @@ export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
         title: "Multica 繁中版有新版本",
         message: `可以更新到 ${update.version}（目前 ${app.getVersion()}）。`,
         detail:
-          "App 會直接下載並核對 SHA-256 與簽章，完成後重新啟動；執行中的任務會先跑完，不會被中斷。" +
-          "內附的 CLI 與 daemon 會一起更新。",
+          "App 會直接下載並核對 SHA-256 與簽章，完成後重新啟動。執行中的任務不會中斷；" +
+          "內附的 CLI 與 daemon 會在任務結束後換成新版。",
         buttons: update.notesUrl ? ["立即更新", "稍後提醒", "查看版本說明"] : ["立即更新", "稍後提醒"],
         defaultId: 0,
         cancelId: 1,

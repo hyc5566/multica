@@ -1485,13 +1485,16 @@ export function getTargetApiBaseUrl(): string | null {
   return targetApiBaseUrl;
 }
 
-/** Active agent tasks on the managed daemon; 0 when no daemon runs, null when unknown. */
-export async function getDaemonActiveTaskCount(): Promise<number | null> {
-  const active = await ensureActiveProfile();
-  if (!active) return 0;
-  const health = await fetchHealthAtPort(active.port);
-  if (!health) return 0;
-  return typeof health.active_task_count === "number" ? health.active_task_count : null;
+let preserveDaemonOnQuit = false;
+
+/**
+ * Keep the daemon running through the next quit. Used when the App quits only
+ * to replace its own bundle: stopping the daemon would cancel running agent
+ * tasks after the 30-second shutdown drain. The relaunched App restarts the
+ * daemon into its bundled CLI once the daemon is idle (version-mismatch path).
+ */
+export function preserveDaemonOnNextQuit(): void {
+  preserveDaemonOnQuit = true;
 }
 
 export function setupDaemonManager(
@@ -1636,6 +1639,7 @@ export function setupDaemonManager(
     setDesiredDaemonRunning(false);
     stopPolling();
     stopLogTail();
+    if (preserveDaemonOnQuit) return;
 
     loadPrefs().then(async (prefs) => {
       if (prefs.autoStop) {

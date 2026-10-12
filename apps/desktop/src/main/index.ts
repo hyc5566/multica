@@ -8,8 +8,8 @@ import { installLanTrust } from "./lan-trust";
 import {
   setupDaemonManager,
   requestDaemonTrustRefresh,
-  getDaemonActiveTaskCount,
   getTargetApiBaseUrl,
+  preserveDaemonOnNextQuit,
 } from "./daemon-manager";
 import { setupZhTWAppUpdate } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
@@ -854,7 +854,7 @@ if (!gotTheLock) {
     setupZhTWAppUpdate({
       getMainWindow: () => mainWindow,
       getApiBaseUrl: getTargetApiBaseUrl,
-      getActiveTaskCount: getDaemonActiveTaskCount,
+      preserveDaemonOnQuit: preserveDaemonOnNextQuit,
     });
     setupLocalDirectory(() => mainWindow);
 

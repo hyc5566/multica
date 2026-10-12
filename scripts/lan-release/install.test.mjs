@@ -69,6 +69,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const unit = readFileSync(join(serviceHome, '.config/systemd/user/multica.service'), 'utf8');
     assert.ok(unit.includes('service %% space $$path/bin/multica" daemon start --foreground'));
     assert.match(unit, /Restart=on-failure/);
+    assert.match(unit, /Environment=MULTICA_DAEMON_SUPERVISOR=systemd/);
     assert.match(readFileSync(systemctlLog, 'utf8'), /--user enable --now multica.service/);
     assert.match(service.stdout, /Service ready/);
     const previous = readFileSync(wrapper, 'utf8');
