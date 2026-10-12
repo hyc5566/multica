@@ -33,7 +33,7 @@
 
 | 對象 | 檢查時機 | 更新方式 |
 | --- | --- | --- |
-| macOS App（`src/main/zh-tw-app-update.ts`） | 開啟後 30 秒，之後每 24 小時 | 詢問使用者；同意後 App 自己下載 ZIP、核對大小／SHA-256、bundle ID、版本與 `codesign`，結束時保留 daemon 不停止（避免取消執行中的任務），替換 bundle 並重開；新版無法開啟時自動換回舊版。重開的 App 在 daemon 閒置後才把它重啟成內附的新 CLI。前一版留在 `~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/` |
+| macOS App（`src/main/zh-tw-app-update.ts`） | 開啟後 30 秒，之後每 24 小時 | 詢問使用者；同意後 App 自己下載 ZIP、核對大小／SHA-256、bundle ID、版本與 `codesign`，結束時保留 daemon 不停止（避免取消執行中的任務），替換 bundle 並重開；新版無法開啟時自動換回舊版。daemon 偵測到 App 內附的 CLI 已換版後，於閒置時在 claim barrier 下自行重啟成新版（`MULTICA_ZH_TW_DESKTOP_SELF_RELOAD`）；App 不從外部停止 zh-tw 正式版 daemon。0.6.0-131 等舊 daemon 沒有這個能力，第一次手動換版時仍由 App 在閒置時重啟。前一版留在 `~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/` |
 | CLI daemon（launcher 安裝） | daemon 啟動 2 分鐘後，之後每 24 小時 | 閒置時下載頻道指定且 SHA-256 相符的 `install.sh`，執行 `--upgrade`；launcher 原子切換到新版本目錄，daemon 經 launcher 重新啟動（由 systemd 管理時改為結束程序，交給 `Restart=on-failure` 以新版重啟）；保留前一版本目錄 |
 
 固定安裝指令是 `curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash`，因此每個正式版都要在 GitHub 發布為 **Latest**，並附上該版 `install.sh`。只有 `X.Y.Z-zh-tw.N` 會進入頻道；`-rc.N` 與 git-describe 版本不會被自動更新。

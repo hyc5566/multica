@@ -3,6 +3,7 @@ package daemon
 import (
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"strings"
 	"time"
@@ -114,12 +115,20 @@ var selfReloadProbeTimeout = 10 * time.Second
 // Each tick is silent on the happy path so the log stays uncluttered for users
 // who run the daemon for weeks at a time.
 func (d *Daemon) autoUpdateLoop(ctx context.Context) {
+	desktopSelfReload := false
 	if d.cfg.LaunchedBy == "desktop" {
-		d.logger.Info("auto-update: skipped (managed by Desktop)")
-		return
+		// The Taiwan Desktop replaces its own bundle — and the CLI this daemon
+		// runs from — in place. It opts in so the daemon follows that binary
+		// with the same idle-only, claim-barrier restart as any out-of-band
+		// upgrade, instead of being stopped from outside mid-claim.
+		if os.Getenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD") != "1" {
+			d.logger.Info("auto-update: skipped (managed by Desktop)")
+			return
+		}
+		desktopSelfReload = true
 	}
 
-	pullEnabled := d.cfg.AutoUpdateEnabled
+	pullEnabled := d.cfg.AutoUpdateEnabled && !desktopSelfReload
 	switch {
 	case !pullEnabled:
 		d.logger.Info("auto-update: disabled")

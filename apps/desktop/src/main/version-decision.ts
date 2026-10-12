@@ -8,6 +8,8 @@ export interface VersionCheckHealth {
   active_task_count?: number;
 }
 
+const ZH_TW_RELEASE_VERSION = /^\d+\.\d+\.\d+-zh-tw\.\d+$/;
+
 export type VersionAction = "restart" | "defer" | "ok" | "not_running";
 
 /**
@@ -31,7 +33,12 @@ export function decideVersionAction(
   if (!bundled || !runningVersion) return "ok";
   if (runningVersion === bundled) return "ok";
 
-  const activeTasks = running.active_task_count ?? 0;
-  if (activeTasks > 0) return "defer";
+  // zh-tw release daemons restart themselves into the bundled CLI once idle,
+  // atomically under their claim barrier; stopping them from here could race
+  // a task claimed after the health snapshot.
+  if (ZH_TW_RELEASE_VERSION.test(runningVersion)) return "defer";
+  // An unknown task count is not "idle".
+  const activeTasks = running.active_task_count;
+  if (activeTasks === undefined || activeTasks > 0) return "defer";
   return "restart";
 }

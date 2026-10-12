@@ -52,11 +52,29 @@ describe("decideVersionAction", () => {
     ).toBe("restart");
   });
 
-  it("treats missing active_task_count as 0 (old daemon that still reports cli_version)", () => {
+  it("defers when active_task_count is missing — unknown is not idle (zh-tw)", () => {
     expect(
       decideVersionAction("v1.2.3", {
         status: "running",
         cli_version: "v1.2.2",
+      }),
+    ).toBe("defer");
+  });
+
+  it("never stops a zh-tw release daemon; it reloads itself when idle", () => {
+    expect(
+      decideVersionAction("0.6.1-zh-tw.2", {
+        status: "running",
+        cli_version: "0.6.1-zh-tw.1",
+        active_task_count: 0,
+      }),
+    ).toBe("defer");
+    // A pre-channel daemon cannot reload itself; the idle restart remains.
+    expect(
+      decideVersionAction("0.6.1-zh-tw.2", {
+        status: "running",
+        cli_version: "0.6.0-131-g2ca7196c3b",
+        active_task_count: 0,
       }),
     ).toBe("restart");
   });
