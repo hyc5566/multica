@@ -35,9 +35,9 @@ test('successive verified releases overwrite stable downloads; corrupt releases 
       const result = run(process.execPath, [staging, release, stage]);
       assert.equal(result.status, 0, result.stderr);
       const oldPage = readFileSync(join(published, 'download.html'), 'utf8');
-      assert.equal(run('bash', [publisher, stage, published]).status, 0);
+      assert.equal(run('sh', [publisher, stage, published]).status, 0);
       assert.equal(readFileSync(join(published, 'download.html'), 'utf8'), oldPage, 'preview never publishes');
-      const applied = run('bash', [publisher, stage, published, '--apply']);
+      const applied = run('sh', [publisher, stage, published, '--apply']);
       assert.equal(applied.status, 0, applied.stderr);
       const stable = join(published, 'latest');
       assert.equal(readFileSync(join(stable, 'multica-desktop-latest-mac-arm64.zip'), 'utf8'), files[appName]);
