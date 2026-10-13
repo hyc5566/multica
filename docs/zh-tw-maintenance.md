@@ -67,6 +67,11 @@ patch. Rebuild it as two small commits after the localization layers:
 
 Keep these invariants when replaying onto a newer upstream:
 
+- the Claude probe reads `~/.claude/.credentials.json` first and, on macOS
+  only, falls back to the `Claude Code-credentials` Keychain item when the file
+  is missing or expired; it never deletes or rewrites credentials (HYCLV-292:
+  without the fallback every macOS runtime stays `auth_required`);
+
 - a daemon reconnect and the five-minute Server scheduler may request a probe,
   but both pass through the same database bucket reservation;
 - one built-in provider account is keyed by daemon plus provider, while a
