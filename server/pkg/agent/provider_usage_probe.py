@@ -507,6 +507,9 @@ def http_json(
     return value
 
 
+CLAUDE_KEYCHAIN_SERVICE = "Claude Code-credentials"
+
+
 def claude_credential_path() -> pathlib.Path:
     config_dir = os.environ.get("CLAUDE_CONFIG_DIR", "").strip()
     if config_dir:
@@ -514,10 +517,12 @@ def claude_credential_path() -> pathlib.Path:
     return pathlib.Path.home() / ".claude" / ".credentials.json"
 
 
-def fetch_claude(limiter: LocalRateLimiter, observed_at: dt.datetime) -> Dict[str, Any]:
-    credential = read_json(
-        claude_credential_path(), "Claude Code is not signed in on this machine."
-    )
+def claude_access_token(credential: Mapping[str, Any], observed_at: dt.datetime) -> str:
+    """Return an unexpired access token from a Claude Code credential document.
+
+    The file and the macOS Keychain item share the same JSON shape. Expired or
+    unknown expiry is reported as auth_required without contacting Anthropic.
+    """
     oauth = credential.get("claudeAiOauth")
     if not isinstance(oauth, Mapping):
         raise ProbeFailure("auth_required", "Claude Code OAuth credentials are missing.")
@@ -525,14 +530,86 @@ def fetch_claude(limiter: LocalRateLimiter, observed_at: dt.datetime) -> Dict[st
     expires_at = number(oauth.get("expiresAt")) or 0
     if not isinstance(access_token, str) or not access_token:
         raise ProbeFailure("auth_required", "Claude Code OAuth credentials are missing.")
-    now_ms = observed_at.timestamp() * 1000
-    if expires_at <= now_ms:
+    if expires_at <= observed_at.timestamp() * 1000:
         # The native CLI owns refresh-token rotation and credential persistence.
         # A quota observation must not invalidate the CLI's saved refresh token.
         raise ProbeFailure(
             "auth_required",
             "Claude Code OAuth credentials have expired. Renew the session in Claude Code.",
         )
+    return access_token
+
+
+def claude_keychain_credential() -> Optional[Mapping[str, Any]]:
+    """Read Claude Code's macOS Keychain item, or None when it is unavailable.
+
+    On macOS, Claude Code stores OAuth credentials in the login Keychain instead
+    of ~/.claude/.credentials.json. Claude Code writes the item through
+    /usr/bin/security, so reading it with the same tool does not normally show
+    an access prompt. A locked Keychain or a prompt must never stall the daemon:
+    the read is bounded, stderr is discarded, and any failure returns None.
+    Only the default config dir is supported; CLAUDE_CONFIG_DIR uses a
+    different, suffixed Keychain service name. This is read-only.
+    """
+    if sys.platform != "darwin" or os.environ.get("CLAUDE_CONFIG_DIR", "").strip():
+        return None
+    try:
+        result = subprocess.run(
+            ["security", "find-generic-password", "-s", CLAUDE_KEYCHAIN_SERVICE, "-w"],
+            check=False,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return None
+    raw = result.stdout.strip()
+    if result.returncode != 0 or not raw:
+        return None
+    if not raw.startswith("{"):
+        # `security -w` prints hex when the stored bytes are not plain text.
+        try:
+            raw = bytes.fromhex(raw).decode("utf-8")
+        except (ValueError, UnicodeError):
+            return None
+    try:
+        value = json.loads(raw)
+    except json.JSONDecodeError:
+        return None
+    return value if isinstance(value, Mapping) else None
+
+
+def claude_usage_token(observed_at: dt.datetime) -> str:
+    """Pick the Claude Code access token without modifying any credential.
+
+    Order:
+    1. ~/.claude/.credentials.json (or CLAUDE_CONFIG_DIR) when it holds an
+       unexpired token. This is the only source on Linux.
+    2. On macOS, the Keychain item when the file is missing, unreadable or
+       expired. A stale file left from an older login must not hide a live
+       Keychain session.
+    3. Otherwise report the file's failure (not signed in / expired).
+
+    Expired credentials are never deleted or rewritten: the access token can
+    expire while the refresh token is still valid, and the Claude CLI renews it
+    on its next run. Deleting the file would sign the CLI out.
+    """
+    try:
+        return claude_access_token(
+            read_json(claude_credential_path(), "Claude Code is not signed in on this machine."),
+            observed_at,
+        )
+    except ProbeFailure as file_failure:
+        keychain = claude_keychain_credential()
+        if keychain is None:
+            raise file_failure
+        return claude_access_token(keychain, observed_at)
+
+
+def fetch_claude(limiter: LocalRateLimiter, observed_at: dt.datetime) -> Dict[str, Any]:
+    access_token = claude_usage_token(observed_at)
     limiter.admit("claude", request_count=1)
     payload = http_json(
         CLAUDE_USAGE_URL,

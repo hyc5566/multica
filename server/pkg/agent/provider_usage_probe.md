@@ -8,7 +8,7 @@ Supported providers:
 
 | Provider | Local credential | Direct endpoint |
 |---|---|---|
-| Claude Code | `~/.claude/.credentials.json` (or `CLAUDE_CONFIG_DIR`) | `https://api.anthropic.com/api/oauth/usage` |
+| Claude Code | `~/.claude/.credentials.json` (or `CLAUDE_CONFIG_DIR`), then macOS Keychain `Claude Code-credentials` | `https://api.anthropic.com/api/oauth/usage` |
 | Antigravity | macOS Keychain or `~/.gemini/...` OAuth files | `https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary` |
 | Codex | `~/.codex/auth.json` (or `CODEX_HOME`) | `https://chatgpt.com/backend-api/wham/usage` |
 
@@ -85,6 +85,21 @@ does not contact the provider and returns `status: "rate_limited"` with
   token could invalidate the CLI session. Expired or unknown expiry returns
   `auth_required`; renew the session in Claude Code before refreshing quota.
   This observation failure does not block agent task execution.
+- Claude credential order: the credentials file is used when it holds an
+  unexpired access token (the only source on Linux). On macOS, Claude Code keeps
+  its login in the Keychain item `Claude Code-credentials` and usually has no
+  file, so when the file is missing, unreadable or expired the helper reads that
+  item with `security find-generic-password -w` (5-second timeout, stdin and
+  stderr detached). Claude Code writes the item through `/usr/bin/security`, so
+  this read normally shows no access prompt; a locked Keychain or a prompt
+  makes the read fail and the probe returns the file's `auth_required` result
+  instead of stalling the daemon. The Keychain is only consulted for the
+  default config dir, because `CLAUDE_CONFIG_DIR` uses a suffixed service name.
+- The helper never deletes, renames or rewrites an expired Claude credential.
+  An expired access token usually still has a valid refresh token, and the
+  Claude CLI renews it on its next run; removing the file would sign the CLI
+  out and block agent tasks. A stale file is also not a reason to skip the
+  Keychain, which is why an expired file falls through to it.
 - The daemon discards helper stderr and exposes only validated normalized JSON.
 - Client input cannot select an endpoint, credential path, or command.
 - Do not enable shell tracing around the helper or copy credentials into
