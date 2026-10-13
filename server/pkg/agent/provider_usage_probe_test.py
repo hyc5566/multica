@@ -8,6 +8,7 @@ import pathlib
 import ssl
 import tempfile
 import unittest
+from typing import Any, Dict
 from unittest import mock
 
 
@@ -367,6 +368,8 @@ class ProviderFetchTests(unittest.TestCase):
                 path.write_text(original)
                 limiter = mock.Mock()
                 with mock.patch.object(probe, "claude_credential_path", return_value=path), mock.patch.object(
+                    probe, "claude_keychain_credential", return_value=None
+                ), mock.patch.object(
                     probe, "http_json"
                 ) as request, self.assertRaises(probe.ProbeFailure) as raised:
                     probe.fetch_claude(limiter, OBSERVED_AT)
@@ -374,6 +377,124 @@ class ProviderFetchTests(unittest.TestCase):
                 request.assert_not_called()
                 limiter.admit.assert_not_called()
                 self.assertEqual(path.read_text(), original)
+
+    def claude_credential(self, token: str, expires_at: Any) -> Dict[str, Any]:
+        return {"claudeAiOauth": {
+            "accessToken": token,
+            "refreshToken": "test-refresh-token",
+            "expiresAt": expires_at,
+        }}
+
+    def fetch_claude_with(self, path: pathlib.Path, keychain: Any) -> Any:
+        limiter = mock.Mock()
+        with (
+            mock.patch.object(probe, "claude_credential_path", return_value=path),
+            mock.patch.object(probe, "claude_keychain_credential", return_value=keychain) as read_keychain,
+            mock.patch.object(probe, "http_json", return_value={"five_hour": {"utilization": 7}}) as request,
+        ):
+            try:
+                result = probe.fetch_claude(limiter, OBSERVED_AT)
+            except probe.ProbeFailure as failure:
+                result = failure
+        return result, read_keychain, request
+
+    def test_claude_prefers_unexpired_credentials_file_over_keychain(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / ".credentials.json"
+            path.write_text(json.dumps(self.claude_credential("file-token", 9_999_999_999_999)))
+            result, read_keychain, request = self.fetch_claude_with(
+                path, self.claude_credential("keychain-token", 9_999_999_999_999)
+            )
+        read_keychain.assert_not_called()
+        self.assertEqual(request.call_args.kwargs["headers"]["Authorization"], "Bearer file-token")
+        self.assertEqual(result["windows"][0]["used_percent"], 7)
+
+    def test_claude_falls_back_to_keychain_when_file_missing_or_expired(self) -> None:
+        for file_content in (None, self.claude_credential("stale-file-token", 1)):
+            with self.subTest(file=file_content is not None), tempfile.TemporaryDirectory() as directory:
+                path = pathlib.Path(directory) / ".credentials.json"
+                if file_content is not None:
+                    path.write_text(json.dumps(file_content))
+                original = path.read_text() if path.exists() else None
+                result, read_keychain, request = self.fetch_claude_with(
+                    path, self.claude_credential("keychain-token", 9_999_999_999_999)
+                )
+                read_keychain.assert_called_once_with()
+                self.assertEqual(
+                    request.call_args.kwargs["headers"]["Authorization"], "Bearer keychain-token"
+                )
+                self.assertEqual(result["status"], "available")
+                # The stale file is neither deleted nor rewritten.
+                self.assertEqual(path.read_text() if path.exists() else None, original)
+
+    def test_claude_reports_file_failure_when_keychain_unavailable(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / ".credentials.json"
+            result, _, request = self.fetch_claude_with(path, None)
+        self.assertIsInstance(result, probe.ProbeFailure)
+        self.assertEqual(result.status, "auth_required")
+        self.assertEqual(result.message, "Claude Code is not signed in on this machine.")
+        request.assert_not_called()
+
+    def test_claude_expired_keychain_is_auth_required_without_request(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = pathlib.Path(directory) / ".credentials.json"
+            result, _, request = self.fetch_claude_with(path, self.claude_credential("keychain-token", 1))
+        self.assertIsInstance(result, probe.ProbeFailure)
+        self.assertEqual(result.status, "auth_required")
+        self.assertIn("expired", result.message)
+        request.assert_not_called()
+
+    def test_claude_keychain_read_is_bounded_and_read_only(self) -> None:
+        payload = json.dumps(self.claude_credential("keychain-token", 9_999_999_999_999))
+        completed = mock.Mock(returncode=0, stdout=payload + "\n")
+        with (
+            mock.patch.object(probe.sys, "platform", "darwin"),
+            mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": ""}),
+            mock.patch.object(probe.subprocess, "run", return_value=completed) as run,
+        ):
+            self.assertEqual(probe.claude_keychain_credential(), json.loads(payload))
+        args, kwargs = run.call_args
+        self.assertEqual(
+            args[0],
+            ["security", "find-generic-password", "-s", "Claude Code-credentials", "-w"],
+        )
+        self.assertEqual(kwargs["timeout"], 5)
+        self.assertIs(kwargs["stdin"], probe.subprocess.DEVNULL)
+        self.assertIs(kwargs["stderr"], probe.subprocess.DEVNULL)
+
+    def test_claude_keychain_decodes_hex_output(self) -> None:
+        payload = json.dumps(self.claude_credential("keychain-token", 9_999_999_999_999))
+        completed = mock.Mock(returncode=0, stdout=payload.encode().hex())
+        with (
+            mock.patch.object(probe.sys, "platform", "darwin"),
+            mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": ""}),
+            mock.patch.object(probe.subprocess, "run", return_value=completed),
+        ):
+            self.assertEqual(probe.claude_keychain_credential(), json.loads(payload))
+
+    def test_claude_keychain_unavailable_cases_return_none(self) -> None:
+        cases = {
+            "linux": ("linux", "", None),
+            "custom_config_dir": ("darwin", "/custom/claude", None),
+            "timeout": ("darwin", "", probe.subprocess.TimeoutExpired("security", 5)),
+            "missing_item": ("darwin", "", mock.Mock(returncode=44, stdout="")),
+            "garbage": ("darwin", "", mock.Mock(returncode=0, stdout="not-json")),
+        }
+        for name, (platform, config_dir, outcome) in cases.items():
+            with (
+                self.subTest(name),
+                mock.patch.object(probe.sys, "platform", platform),
+                mock.patch.dict(os.environ, {"CLAUDE_CONFIG_DIR": config_dir}),
+                mock.patch.object(probe.subprocess, "run") as run,
+            ):
+                if isinstance(outcome, BaseException):
+                    run.side_effect = outcome
+                else:
+                    run.return_value = outcome
+                self.assertIsNone(probe.claude_keychain_credential())
+                if outcome is None:
+                    run.assert_not_called()
 
     def test_antigravity_uses_direct_quota_summary_endpoint(self) -> None:
         limiter = mock.Mock()
