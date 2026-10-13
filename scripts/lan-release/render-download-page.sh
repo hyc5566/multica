@@ -18,7 +18,11 @@ const base = new URL('../latest/', manifest.cli.install_url).href.replace(/\/$/,
 const appUrl = `${base}/multica-desktop-latest-mac-arm64.zip`;
 const notesUrl = new URL('../latest', manifest.notes_url).href;
 const escape = (value) => String(value).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-const values = {VERSION: manifest.version, APP_URL: appUrl, APP_SHA256: app.sha256, NOTES_URL: notesUrl, BASE_URL: base};
+const published = new Date(manifest.published_at);
+if (Number.isNaN(published.getTime())) throw new Error('latest.json has no valid published_at');
+const publishedDate = new Intl.DateTimeFormat('sv-SE', {timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit'}).format(published);
+const values = {VERSION: manifest.version, APP_URL: appUrl, APP_SHA256: app.sha256, NOTES_URL: notesUrl, BASE_URL: base,
+  PUBLISHED_AT: published.toISOString(), PUBLISHED_DATE: publishedDate};
 let html = fs.readFileSync(templatePath, 'utf8');
 for (const [key, value] of Object.entries(values)) {
   if (!value) throw new Error(`missing ${key}`);
