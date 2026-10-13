@@ -28,7 +28,7 @@ test('successive verified releases overwrite stable downloads; corrupt releases 
       for (const [name, bytes] of Object.entries(files)) writeFileSync(join(release, name), bytes);
       writeFileSync(join(release, 'SHA256SUMS'), Object.entries(files).map(([name, bytes]) => `${hash(bytes)}  ${name}\n`).join(''));
       const base = `https://s90.example/downloads/${version}`;
-      const manifest = {version, commit: 'a'.repeat(40), notes_url: `https://github.com/hyc5566/multica/releases/tag/zh-tw-v${version}`,
+      const manifest = {version, commit: 'a'.repeat(40), published_at: '2026-10-12T18:30:00Z', notes_url: `https://github.com/hyc5566/multica/releases/tag/zh-tw-v${version}`,
         cli: {install_url: `${base}/install.sh`, install_sha256: hash(files['install.sh'])},
         desktop: {'darwin-arm64': {url: `${base}/${appName}`, sha256: hash(files[appName]), size: files[appName].length}}};
       writeFileSync(join(release, 'latest.json'), JSON.stringify(manifest));
@@ -46,6 +46,7 @@ test('successive verified releases overwrite stable downloads; corrupt releases 
       assert.equal(verified.status, 0, verified.stderr);
       const html = readFileSync(join(published, 'download.html'), 'utf8');
       assert.equal(html.split(version).length - 1, 1);
+      assert.ok(html.includes('2026-10-13</time>'), 'release date uses Taiwan time');
       assert.ok(html.includes('https://s90.example/downloads/latest/multica-desktop-latest-mac-arm64.zip'));
       assert.ok(html.includes('https://s90.example/downloads/latest/SHA256SUMS'));
       assert.ok(html.includes('https://github.com/hyc5566/multica/releases/latest'));
