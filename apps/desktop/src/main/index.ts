@@ -5,6 +5,7 @@ import { pathToFileURL } from "url";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import fixPath from "fix-path";
 import { installLanTrust } from "./lan-trust";
+import { DESKTOP_PROTOCOL as PROTOCOL, handleDesktopDeepLink } from "./desktop-deep-link";
 import {
   setupDaemonManager,
   requestDaemonTrustRefresh,
@@ -128,9 +129,8 @@ if (process.platform !== "win32") {
 }
 
 // The Taiwan-localized package is intentionally isolated from the official
-// Desktop app: it has its own deep-link scheme, single-instance lock, and
-// userData directory, and it never replaces the official auto-update channel.
-const PROTOCOL = "multica-zh-tw";
+// Desktop app: it has its own single-instance lock and userData directory,
+// while sharing the official Web login protocol and keeping its own updates.
 const PACKAGED_APP_NAME = "Multica 繁中版";
 const devLog = is.dev ? createBestEffortDevLog() : undefined;
 
@@ -196,29 +196,7 @@ function dispatchToMainRenderer(
 }
 
 function handleDeepLink(url: string): void {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== `${PROTOCOL}:`) return;
-
-    // multica://auth/callback?token=<jwt>
-    if (parsed.hostname === "auth" && parsed.pathname === "/callback") {
-      const token = parsed.searchParams.get("token");
-      if (token) dispatchToMainRenderer("auth:token", token);
-      return;
-    }
-
-    // multica://invite/<invitationId>
-    // Dispatched from the web invite page when the user chooses "Open in
-    // desktop app". The renderer opens the invite overlay — no tab, no
-    // route persistence, so deep-linking the same invite twice stays safe.
-    if (parsed.hostname === "invite") {
-      const id = parsed.pathname.replace(/^\//, "");
-      if (id) dispatchToMainRenderer("invite:open", decodeURIComponent(id));
-      return;
-    }
-  } catch {
-    // Ignore malformed URLs
-  }
+  handleDesktopDeepLink(url, dispatchToMainRenderer);
 }
 
 // --- Window creation -----------------------------------------------------

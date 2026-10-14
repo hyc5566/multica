@@ -22,7 +22,7 @@ extraResources:
 protocols:
   - name: Multica 繁中版
     schemes:
-      - multica-zh-tw
+      - multica
 asarUnpack:
   - resources/**
 mac:
