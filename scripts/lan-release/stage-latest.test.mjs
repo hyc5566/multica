@@ -23,7 +23,10 @@ test('successive verified releases overwrite stable downloads; corrupt releases 
       const release = join(published, version), stage = join(root, `stage-${version}`);
       mkdirSync(release);
       const appName = `multica-desktop-${version}-mac-arm64.zip`;
+      const releaseLabel = version === '0.6.1-zh-tw.1' ? 'A' : 'B';
+      const summary = `Release ${releaseLabel}: 修復登入回跳 & <安全文字>`;
       const files = {[appName]: `App-${version}`, 'install.sh': `installer-${version}`,
+        'RELEASE-NOTES.md': `# Release notes\n\n${summary}\n\n- Detailed changes\n`,
         'BUILD.txt': `version=${version}\ncommit=${'a'.repeat(40)}\n`};
       for (const [name, bytes] of Object.entries(files)) writeFileSync(join(release, name), bytes);
       writeFileSync(join(release, 'SHA256SUMS'), Object.entries(files).map(([name, bytes]) => `${hash(bytes)}  ${name}\n`).join(''));
@@ -50,6 +53,9 @@ test('successive verified releases overwrite stable downloads; corrupt releases 
       assert.ok(html.includes('https://s90.example/downloads/latest/multica-desktop-latest-mac-arm64.zip'));
       assert.ok(html.includes('https://s90.example/downloads/latest/SHA256SUMS'));
       assert.ok(html.includes('https://github.com/hyc5566/multica/releases/latest'));
+      assert.ok(html.includes(`Release ${releaseLabel}: 修復登入回跳 &#38; &#60;安全文字&#62;`),
+        'release summary comes from this release, with HTML escaped');
+      assert.ok(!html.includes('macOS Claude 用量修復'), 'no hardcoded previous-release summary');
       assert.equal(JSON.parse(readFileSync(join(published, 'latest.json'))).desktop['darwin-arm64'].url, manifest.desktop['darwin-arm64'].url);
       writeFileSync(join(release, appName), 'corrupt');
       const rejected = join(root, `rejected-${version}`);

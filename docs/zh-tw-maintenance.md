@@ -421,6 +421,13 @@ Desktop 桌面權限的原始碼調查與待驗證條件見
 
 ### 繁中版 CI 契約維護
 
+下載頁的本版更新簡介由 `scripts/lan-release/render-download-page.sh` 讀取同版
+`RELEASE-NOTES.md` 的第一個正文段落，與 `latest.json` 的版本一起產生。
+每版發行說明必須提供簡短正文（可先放 Markdown 標題）；缺少正文時停止產生，
+不能在模板留下固定的舊版簡介。發布驗證除了版本、下載連結與 checksum，
+也要核對正式 `/download` 顯示的簡介符合本版變更。以
+`node --test scripts/lan-release/stage-latest.test.mjs` 驗證連續兩版的簡介更新與安全輸出。
+
 CI 的 push／PR base 同時涵蓋 `main` 和 `zh-tw`，繁中修正以獨立分支對
 `zh-tw` 開 PR。維持既有 gate，不以跳過測試或移除 CI 工作來處理失敗。
 
