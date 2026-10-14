@@ -24,8 +24,10 @@ Apply these layers in order when rebuilding the branch:
    HTML and platform metadata.
 2. Desktop identity: use `apps/desktop/electron-builder.zh-tw.yml` to give the
    local edition its own product name, bundle identifier, executable name,
-   protocol, and user-data directory. It must be installable beside upstream
-   Multica.
+   and user-data directory. Use the upstream `multica://` protocol for Web
+   login handoff, with the same scheme in the main handler and package config.
+   Both editions can be installed, but the OS chooses one application for
+   shared protocol links; they no longer have separate deep-link handlers.
 3. Generated backend copy: localize Mika and onboarding content created by the
    server. Code comments remain English.
 4. Local build tooling: use `scripts/build-desktop-zh-tw-macos.sh` for an
