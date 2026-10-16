@@ -205,6 +205,45 @@ for this candidate. Before deployment, separately review the upstream
 impact, database backup/restore and application compatibility. No production
 migration or deployment is authorized by candidate preparation.
 
+### October 16, 2026 integration baseline (HYCLV-342)
+
+The candidate moves from `e31da86c90794b5c488279a3ead13ac2f31ac269` to
+`9f82479231b2d34544cd1193cd0b4fd386f6e7bc` (v0.6.2 plus later main) and
+replaces the merge-based `zh-tw` history at
+`1836dd618a38ed6ec776f8b01fc472601c93ca1d` with a linear replay.
+
+- `zh-tw` carried two equivalent Taiwan lineages: the HYCLV-179 rebased line
+  ending at `3e7afa1b19` and the older line merged into it (`3e7afa1b19` and
+  the merge `2ca7196c3b` have identical trees). Replay only the rebased line,
+  the first-parent commits through `45b5f5aa63`, and every commit after
+  `d99cd5ad94`; drop the cherry-picked upstream `ca6d042b05`. Verify that
+  every non-conflicting file matches a direct three-way merge of the old
+  `zh-tw` and the new upstream.
+- `8d16290b11` (task quota checkpoints) historically committed a conflict
+  marker in `server/internal/daemon/daemon.go`; `47c33aa306` removes it. The
+  commits between them do not compile, as in the original history.
+- Upstream MUL-7988 (`daemon.port` records, a profile lifetime lock and a
+  fallback health port) partly supersedes the installer's dynamic-port layer.
+  Keep `MULTICA_DAEMON_DYNAMIC_PORT`: the foreground daemon reserves its
+  OS-assigned listener with `reserveDaemonEndpoint`, still writes
+  `daemon.endpoint.json` for older Taiwan CLIs, and also publishes
+  `daemon.port`; other profiles use upstream `bindDaemonHealthPort`. Desktop
+  token rotation and CA trust refresh probe through `fetchProfileHealth` and
+  post `/restart/idle` to the port that answered.
+- Upstream Windows TMP/TEMP task policy and the Taiwan `MULTICA_CA_CERT_FILE`
+  task environment both apply; copy the CA before the non-Windows early return.
+- Upstream MUL-7776 forbids raw error text in 500 responses; Taiwan
+  provider-usage handlers log the cause and return stable copy.
+- The landing changelog had lost the upstream 0.4.44–0.6.0 entries because an
+  earlier integration kept the Taiwan `zh.ts` wholesale. Follow the upstream
+  entry list and translate new entries; never keep that file wholesale.
+- Upstream migrations 564–572 add list property types and Lark typing cleanup;
+  569 rewrites existing rows and clears snapshots, and its down migration
+  cannot restore them. This is not a same-schema deployment.
+- Upstream MUL-7488 local worktree normalization needs Git 2.40 or later. s90
+  has Git 2.34.1: those execenv tests fail there on pure upstream too, and a
+  daemon using that Git cannot normalize resumed local worktrees.
+
 Resolve locale conflicts semantically:
 
 - preserve the newest upstream JSON shape, keys, interpolation variables, and
