@@ -283,7 +283,7 @@ describe("AgentTranscriptDialog", () => {
 
   it.each([
     { locale: "en", label: "Agent", model: "Model" },
-    { locale: "zh-Hans", label: "智能体", model: "模型" },
+    { locale: "zh-Hans", label: "Agent", model: "模型" },
     { locale: "ja", label: "エージェント", model: "モデル" },
     { locale: "ko", label: "에이전트", model: "모델" },
     { locale: "fr", label: "Agent", model: "Modèle" },
@@ -1036,7 +1036,7 @@ describe("AgentTranscriptDialog — reason vs raw diagnostics", () => {
       },
     });
 
-    await userEvent.click(screen.getByRole("button", { name: "執行詳情" }));
+    await userEvent.click(screen.getByRole("button", { name: "執行詳細資訊" }));
 
     expect(screen.getByText("原始診斷")).toBeInTheDocument();
     expect(screen.queryByText("Technical details")).not.toBeInTheDocument();
