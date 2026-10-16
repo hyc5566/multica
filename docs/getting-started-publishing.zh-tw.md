@@ -49,7 +49,7 @@
 
 下載頁只有頂部顯示目前版本；App、SHA256SUMS 與版本說明都使用固定的 `latest` 連結。每次更新都必須執行第 5、6 步，不能只上傳版本化檔案。`latest/SHA256SUMS` 會列出實際的 latest App 檔名。自動更新頻道的 `latest.json` 仍保留版本化 App／installer URL，使已開始的更新下載固定在同一版；請勿把頻道內的 URL 改為可被覆蓋的路徑。
 
-發布後對 `/download`、`/downloads/latest/multica-desktop-latest-mac-arm64.zip`、`/downloads/latest/SHA256SUMS` 執行 HTTPS GET（使用可信 CA），比對頁面、實際下載檔名與 SHA-256，並確認版本化 URL 仍可下載。多檔更新期間，手動下載可能碰到短暫的檢查碼差異，應重新取得 App 與 SHA256SUMS；不可略過驗證。回復時先把備份的安裝檔逐檔以暫存檔加 `mv` 還原，再還原 `latest.json` 與 `download.html`，重新 GET 驗證。首次發布前没有 latest 目錄時，回復舊頁與頻道即可停止提供新連結；不必刪除已驗證的副本。
+發布後對 `/download`、`/downloads/latest/multica-desktop-latest-mac-arm64.zip`、`/downloads/latest/SHA256SUMS` 執行 HTTPS GET（使用可信 CA），比對頁面、實際下載檔名與 SHA-256，並確認版本化 URL 仍可下載。多檔更新期間，手動下載可能碰到短暫的檢查碼差異，應重新取得 App 與 SHA256SUMS；不可略過驗證。回復時先把備份的安裝檔逐檔以暫存檔加 `mv` 還原，再還原 `latest.json` 與 `download.html`，重新 GET 驗證。首次發布前沒有 latest 目錄時，回復舊頁與頻道即可停止提供新連結；不必刪除已驗證的副本。
 
 ### Caddy 路由（一次設定，之後換版不改 Caddyfile）
 
