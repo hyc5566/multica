@@ -105,9 +105,6 @@ type healthWorkspace struct {
 
 // listenHealth binds the health port for callers without a prebound listener.
 func (d *Daemon) listenHealth() (net.Listener, error) {
-	if d.cfg.HealthListener != nil {
-		return d.cfg.HealthListener, nil
-	}
 	addr := fmt.Sprintf("127.0.0.1:%d", d.cfg.HealthPort)
 	ln, err := net.Listen("tcp", addr)
 	if err != nil {
