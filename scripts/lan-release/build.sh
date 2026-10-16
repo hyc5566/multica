@@ -29,7 +29,7 @@ cd "$repo/server"
 for platform in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
   mkdir "$out/$platform"
   GOOS=${platform%-*} GOARCH=${platform#*-} go build -trimpath \
-    -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.date=$build_date" \
+    -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.buildCommit=$commit -X main.date=$build_date" \
     -o "$out/$platform/multica" ./cmd/multica
   cp "$repo/LICENSE" "$repo/NOTICE" "$out/$platform/"
   cp "$ca_file" "$out/$platform/s90-ca.crt"

@@ -18,6 +18,7 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     assert.equal(spawnSync('tar', ['-czf', archive, '-C', fixture, 'multica', 'LICENSE', 'NOTICE', 's90-ca.crt']).status, 0);
     const hash = createHash('sha256').update(readFileSync(archive)).digest('hex');
     writeFileSync(join(fakebin, 'uname'), '#!/bin/sh\ncase "$1" in -s) echo Linux;; -m) echo x86_64;; esac\n', {mode: 0o755});
+    writeFileSync(join(fakebin, 'git'), '#!/bin/sh\necho "git version ${FIXTURE_GIT_VERSION:-2.40.0}"\n', {mode: 0o755});
     writeFileSync(join(fakebin, 'curl'), '#!/bin/sh\nfor arg do target="$arg"; done\ncp "$FIXTURE_ARCHIVE" "$target"\n', {mode: 0o755});
     const template = readFileSync(new URL('./install.sh.in', import.meta.url), 'utf8');
     const installer = join(root, 'install.sh');
@@ -80,6 +81,14 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     mkdirSync(join(home, '.multica'), {recursive: true});
     writeFileSync(join(home, '.multica/config.json'), '{"token":"keep"}');
     const share = join(installRoot, 'share/multica-zh-tw');
+    const blockedUpgrade = spawnSync('bash', [installer, '--upgrade'], {
+      env: {...env, FIXTURE_GIT_VERSION: '2.39.9'}, encoding: 'utf8',
+    });
+    assert.equal(blockedUpgrade.status, 2);
+    assert.match(blockedUpgrade.stderr, /Git 2.40 or later/);
+    assert.equal(readFileSync(wrapper, 'utf8'), previous);
+    assert.equal(readFileSync(join(home, '.multica/config.json'), 'utf8'), '{"token":"keep"}');
+    assert.ok(!existsSync(join(share, '.upgrade.lock')), 'Git check precedes upgrade lock');
     const upgradeTo = (version) => {
       const next = join(root, `install-${version}.sh`);
       writeFileSync(next, render(hash, version));
@@ -159,6 +168,37 @@ test('installer verifies artifacts, uses default configuration and preserves exi
     const preserve = spawnSync('bash', [installer], {env: {...env, MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'existing-config')}});
     assert.equal(preserve.status, 2);
     assert.equal(readFileSync(config, 'utf8'), '{"workspaces_root":"/keep"}');
+  } finally { rmSync(root, {recursive: true, force: true}); }
+});
+
+test('installer rejects old, missing and unrecognized Git before downloads or writes', () => {
+  const root = mkdtempSync(join(tmpdir(), 'multica-installer-git-'));
+  try {
+    const bin = join(root, 'bin'); mkdirSync(bin);
+    const home = join(root, 'home'); mkdirSync(home);
+    const destination = join(root, 'install');
+    const downloaded = join(root, 'downloaded');
+    writeFileSync(join(bin, 'git'), '#!/bin/sh\n[ "$FIXTURE_GIT_VERSION" != missing ] || exit 127\nprintf "%s\\n" "$FIXTURE_GIT_VERSION"\n', {mode: 0o755});
+    writeFileSync(join(bin, 'curl'), '#!/bin/sh\ntouch "$FIXTURE_DOWNLOAD_LOG"\nexit 99\n', {mode: 0o755});
+    const installer = new URL('./install.sh.in', import.meta.url).pathname;
+    const env = {...process.env, HOME: home, MULTICA_PROFILE: '', PATH: `${bin}:${process.env.PATH}`,
+      MULTICA_ZH_TW_INSTALL_ROOT: destination, FIXTURE_DOWNLOAD_LOG: downloaded,
+      MULTICA_INSTALL_CA_FILE: ''};
+    for (const version of ['git version 2.39.9', 'git version 2.9.5', 'git version 1.99.0', 'missing', 'unknown']) {
+      const result = spawnSync('bash', [installer], {env: {...env, FIXTURE_GIT_VERSION: version}, encoding: 'utf8'});
+      assert.equal(result.status, 2, result.stderr);
+      assert.match(result.stderr, /Git 2.40 or later/);
+      assert.match(result.stderr, /package manager/);
+      assert.ok(!existsSync(destination));
+      assert.ok(!existsSync(downloaded));
+    }
+    for (const version of ['git version 2.40.0', 'git version 2.50.1 (Apple Git-200)', 'git version 3.0.0']) {
+      const result = spawnSync('bash', [installer], {env: {...env, FIXTURE_GIT_VERSION: version}, encoding: 'utf8'});
+      assert.equal(result.status, 99, result.stderr);
+      assert.ok(existsSync(downloaded), 'supported Git proceeds to download');
+      rmSync(downloaded);
+      assert.ok(!existsSync(destination));
+    }
   } finally { rmSync(root, {recursive: true, force: true}); }
 });
 

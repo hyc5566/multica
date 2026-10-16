@@ -19,6 +19,8 @@
 
 ## Mac App
 
+App 與獨立 CLI 的 daemon 恢復工作樹需要 Git 2.40 以上。安裝或升級前，在執行 daemon 的帳號與 PATH 執行 `git --version`；版本不足時透過作業系統套件管理員更新或洽管理員。macOS 已有 Homebrew 時可用 `brew install git`，並確認其 bin 目錄優先於 `/usr/bin`。CLI 安裝器會在下載或更動現有安裝前檢查，不會自動更新全機 Git 或修改 PATH。App 使用者也須自行確認此條件。
+
 1. 從 GitHub Release 下載 `multica-desktop-<version>-mac-arm64.zip`，核對 SHA-256，解壓縮後安裝 App。
 2. 預設連到 `https://10.1.24.90:45671`，繁體中文介面保留英文 Agent 用語，可切換英文。
 3. App 隨包提供公開 CA：Node 主程序、Chromium 及內嵌 Go CLI 都處理 LAN 信任，保留公用 CA，不修改系統信任、不關閉 TLS 驗證。Chromium 的憑證例外僅限固定 s90 入口，另外以 Node TLS 完整驗證鏈／主機名／效期並比對同一 leaf。
