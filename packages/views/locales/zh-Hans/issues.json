@@ -51,7 +51,7 @@
     "preview_issue_deleted": "來源任務已刪除，無法再基於其評論建立子任務。",
     "refresh": "重新整理",
     "preview_summary_other": "來自 {{identifier}} 的上下文 · 任務描述 + {{count}} 條評論",
-    "thread_history": "已捕獲的評論執行緒歷史",
+    "thread_history": "已捕獲的評論串歷史",
     "source_comment": "來源評論",
     "comment_change_added": "捕獲後新增",
     "comment_change_changed": "捕獲後修改",
@@ -99,7 +99,7 @@
     "error_agent_unsupported": "此 Agent 執行環境需要更新後才能使用已捕獲上下文。請切換到手動模式或更新執行環境。",
     "error_server_unsupported": "伺服器端需要更新後才能建立帶已捕獲上下文的子任務。",
     "error_too_large": "要捕獲的來源上下文超過了伺服器端限制。",
-    "error_comment_limit": "來源評論執行緒歷史至少包含 {{count}} 條評論，上限為 256 條。",
+    "error_comment_limit": "來源評論串歷史至少包含 {{count}} 條評論，上限為 256 條。",
     "error_text_limit": "來源文本為 {{size}} 位元組，上限為 1 MiB。",
     "error_attachment_count_limit": "來源包含 {{count}} 個附件，上限為 100 個。",
     "error_attachment_size_limit": "來源附件合計 {{size}} 位元組，上限為 500 MiB。"

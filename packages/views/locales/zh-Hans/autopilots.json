@@ -211,7 +211,7 @@
     },
     "signature": {
       "not_required": "無需簽名",
-      "valid": "簽名通過",
+      "valid": "簽章有效",
       "invalid": "簽名無效",
       "missing": "缺少簽名"
     },
@@ -511,7 +511,7 @@
       "ended": "已結束",
       "paused": "已暫停"
     },
-    "target_agent": "喚醒對象",
+    "target_agent": "喚醒目標",
     "empty_filtered": "沒有符合的喚醒",
     "clear_filters": "清除篩選",
     "batch_success": "已關閉 {{count}} 條喚醒",
@@ -531,7 +531,7 @@
     "no_target": "沒有 Agent 負責人",
     "banner_other": "{{count}} 條喚醒已自動暫停：{{issue}}「{{condition}}」——{{reason}}",
     "banner_view": "查看",
-    "create": "新建喚醒",
+    "create": "新增喚醒",
     "create_pick_issue": "選擇要新增喚醒的任務",
     "create_pick_issue_description": "喚醒屬於該任務，並隨任務結束而停止。"
   }

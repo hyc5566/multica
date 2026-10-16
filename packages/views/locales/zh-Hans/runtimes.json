@@ -97,7 +97,7 @@
     },
     "offline": {
       "label": "離線",
-      "description": "5 分鐘以上沒有心跳。請重啟守護程序或排除主機。"
+      "description": "5 分鐘以上沒有心跳。請重新啟動守護程序或檢查主機。"
     },
     "long_offline": {
       "label": "長期離線",
@@ -194,7 +194,7 @@
     "platform_macos_linux": "macOS / Linux",
     "platform_windows": "Windows",
     "step2_label": "啟動守護程序",
-    "step2_hint": "會開啟瀏覽器登入，然後在後臺保持守護程序執行。",
+    "step2_hint": "會開啟瀏覽器登入，然後在背景保持守護程序執行。",
     "live_listening": "等待你的電腦上線",
     "troubleshooting": "那臺電腦打不開瀏覽器？",
     "trouble_intro": "改用 token 登入替代第 2 步，適用於任何有終端的環境。",

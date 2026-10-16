@@ -311,7 +311,7 @@
     "integrations": "整合",
     "runtime_config": "路由",
     "discard_dialog_title": "放棄未儲存的修改？",
-    "discard_dialog_description": "目前 tab 有未儲存的修改，離開會丟棄這些修改。",
+    "discard_dialog_description": "目前的分頁有未儲存的修改，離開會丟棄這些修改。",
     "discard_keep": "繼續編輯",
     "discard_confirm": "放棄修改"
   },
@@ -375,7 +375,7 @@
       "send_failed": "無法傳送訊息。",
       "stop_failed": "無法停止目前生成任務。",
       "switch_runtime_failed": "切換執行環境失敗，對話仍在原來的執行環境上執行。",
-      "switch_runtime_pending": "停止目前回覆後即可切換執行環境。",
+      "switch_runtime_pending": "停止目前的回覆後即可切換執行環境。",
       "switch_runtime_success": "已切換執行環境。設定草稿保留，後續對話將在新執行環境上重新開始一段模型會話。",
       "chat_title": "Agent 建立器",
       "runtime_online": "執行環境線上",
@@ -391,7 +391,7 @@
     },
     "live_draft": "Agent 設定",
     "live_draft_hint": "對話生成的建議會更新到這裡，你也可以隨時直接調整。",
-    "duplicate_env_notice": "指令、skill 和命令列參數會被複制。環境變數、MCP 伺服器和本機執行環境設定不會複製。",
+    "duplicate_env_notice": "指令、skill 和命令列參數會被複製。環境變數、MCP 伺服器和本機執行環境設定不會複製。",
     "duplicate_runtime_reset_notice": "原執行環境目前不可用，副本已改用其他執行環境。模型、思考等級和速度只在所選執行環境上有效，因此已被清空。",
     "create_and_open": "建立並開啟",
     "create_and_add": "建立並加入小隊",
@@ -476,7 +476,7 @@
   },
   "conversation_starters": {
     "label": "對話開場建議",
-    "hint": "最多三條示例，出現在別人與該 Agent 開始新對話時。選擇後只會填入輸入框，不會立即傳送。",
+    "hint": "最多三條範例，出現在別人與該 Agent 開始新對話時。選擇後只會填入輸入框，不會立即傳送。",
     "add": "新增建議",
     "item_label": "建議 {{number}} 的標題",
     "prompt_label": "建議 {{number}} 的提示詞",
@@ -498,14 +498,14 @@
     "instructions": {
       "intro": "設定每次執行都會使用的 System Prompt，支援 Markdown。",
       "system_prompt_label": "System Prompt",
-      "placeholder": "定義這個 Agent 的角色、專長和工作風格。\n\n# 示例\n你是一名專注 React 和 TypeScript 的前端工程師。\n\n## 工作風格\n- 寫小而聚焦的 PR——每個邏輯變更一個 commit\n- 優先組合而不是繼承\n- 新元件總是配單元測試\n\n## 約束\n- 未經明確批准不要修改 shared/ 下的 type\n- 遵循 features/ 中現有的元件模式",
+      "placeholder": "定義這個 Agent 的角色、專長和工作風格。\n\n# 範例\n你是一名專注 React 和 TypeScript 的前端工程師。\n\n## 工作風格\n- 寫小而聚焦的 PR——每個邏輯變更一個 commit\n- 優先組合而不是繼承\n- 新元件總是配單元測試\n\n## 約束\n- 未經明確批准不要修改 shared/ 下的 type\n- 遵循 features/ 中現有的元件模式",
       "system_layer_label": "由 Multica 維護",
       "system_layer_hint": "隨 Multica 版本更新。你無法編輯這部分，你在下面寫的內容也永遠不會被覆蓋。",
       "system_layer_show": "檢視",
       "system_layer_hide": "收起",
       "workspace_notes_label": "工作區補充",
       "workspace_notes_intro": "在下面補充你們團隊的上下文和偏好，它們會疊加在 Multica 為這個 Agent 維護的指令之上。支援 Markdown。",
-      "workspace_notes_placeholder": "寫下這個 Agent 應該始終知道的上下文。\n\n# 示例\n我們的主儲存庫是 github.com/acme/platform。\n即使聊天用中文，任務也一律用英文寫。\n週五不部署。"
+      "workspace_notes_placeholder": "寫下這個 Agent 應該始終知道的上下文。\n\n# 範例\n我們的主儲存庫是 github.com/acme/platform。\n即使聊天用中文，任務也一律用英文寫。\n週五不部署。"
     },
     "env": {
       "intro_readonly": "在 Agent 程序啟動時注入。只有工作區所有者 / 管理員可以檢視或編輯值；每次解鎖和編輯都會寫入工作區審計日誌。",

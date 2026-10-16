@@ -228,7 +228,7 @@
       "version_missing": "該 Agent 的守護程序沒有報告 CLI 版本。透過 Agent 建立需要 multica CLI ≥ {{min}}。請升級守護程序並重連，或切換到手動建立。",
       "version_below": "該 Agent 的守護程序 CLI 是 {{current}}——透過 Agent 建立需要 ≥ {{min}}。請升級守護程序，或切換到手動建立。",
       "prompt_placeholder": "告訴 Agent 要做什麼，例如：\"讓 Bohan 修一下 Web 專案裡收件匣載入慢的問題\"",
-      "source_context_prompt_placeholder": "告訴 Agent 要基於這段上下文完成什麼，例如：\"繼續排除並修復這裡提到的問題\"",
+      "source_context_prompt_placeholder": "告訴 Agent 要基於這段上下文完成什麼，例如：\"繼續排查並修復這裡提到的問題\"",
       "more_fields_aria": "更多欄位",
       "set_project": "設定專案...",
       "set_priority": "設定優先順序...",
