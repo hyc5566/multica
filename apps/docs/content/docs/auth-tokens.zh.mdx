@@ -1,56 +1,56 @@
 ---
-title: 认证与令牌
-description: 了解浏览器登录、个人访问令牌，以及 Agent 执行时使用的临时凭据。
+title: 認證與權杖
+description: 瞭解瀏覽器登入工作階段、個人存取權杖，以及 Agent 執行時使用的暫時憑證。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-日常使用 Multica 时，你主要会接触两种凭据：浏览器登录会话和个人访问令牌。浏览器会话用于 Web 与 Desktop；个人访问令牌用于 CLI、守护进程、脚本和 API。
+日常使用 Multica 時，主要會接觸兩種憑證：瀏覽器登入工作階段和個人存取權杖。瀏覽器工作階段用於 Web 和 Desktop；個人存取權杖用於 CLI、常駐程式、指令碼和 API。
 
-## 浏览器登录会话
+## 瀏覽器登入工作階段
 
-通过邮箱验证码或 Google 登录后，Multica 会把 JWT 保存到名为 `multica_auth` 的 HttpOnly cookie 中。浏览器自动携带它，JavaScript 无法直接读取。
+使用電子郵件驗證碼或 Google 登入後，Multica 會將 JWT 儲存在名為 `multica_auth` 的 HttpOnly cookie 中。瀏覽器會自動傳送這個 cookie；JavaScript 無法直接讀取。
 
-会话默认有效 30 天，但这不是从登录起算的倒计时：持续使用的会话会在到期前自动续期，所以不需要每隔一段时间重新登录一次。续期只在剩余有效期过半之后才发生，因此闲置的会话可能在最后一次使用后不到 30 天就失效。自托管管理员可以通过 `AUTH_TOKEN_TTL` 调整有效期，见[登录与注册](/auth-setup#登录有效期)。退出登录会清除当前浏览器的认证与 CSRF cookie。
+工作階段預設有效 30 天，但不會從登入時起固定倒數：持續使用的工作階段會在到期前重新簽發，因此不必定期重新登入。只有剩餘有效期限不到一半時才會重新簽發，所以閒置的工作階段可能在最後使用後不到 30 天就失效。自架管理員可透過 `AUTH_TOKEN_TTL` 調整期限，請參閱[登入與註冊](/auth-setup#登入有效期)。登出會清除目前瀏覽器中的驗證和 CSRF cookie。
 
-浏览器 cookie 不适合复制到脚本或 CLI；从终端访问 Multica 使用个人访问令牌。
+瀏覽器 cookie 不適合複製到指令碼或 CLI；若要從終端機存取 Multica，請使用個人存取權杖。
 
-## 个人访问令牌
+## 個人存取權杖
 
-个人访问令牌（PAT）以 `mul_` 开头，代表你的账号。它可以访问你有权访问的全部工作区和 API，需要像密码一样保管。
+個人存取權杖（PAT）以 `mul_` 開頭，代表你的帳號。它能存取你有權使用的所有工作區和 API，請像密碼一樣妥善保管。
 
-在 **设置 → API Token** 中创建令牌时，需要填写名称，并选择 30 天、90 天、1 年或永不过期，默认选中 90 天。完整令牌只显示一次；关闭窗口后，Multica 只保留：
+在 **設定 → API 權杖** 中建立權杖時，需要輸入名稱，並選擇 30 天、90 天、1 年或永不過期；預設選取 90 天。完整權杖只會顯示一次；關閉對話框後，Multica 只會保留：
 
-- 令牌的哈希值；
-- 用于辨认它的开头几位；
-- 名称、创建时间、过期时间和最近使用时间。
+- 權杖的雜湊值；
+- 用於辨識權杖的前幾個字元；
+- 名稱、建立時間、到期時間和最近使用時間。
 
-完整值无法找回，丢失时吊销旧令牌并创建新的。
+完整權杖無法復原。若遺失，請撤銷舊權杖並建立新的。
 
 <Callout type="warning">
-不要把 PAT 写入仓库、任务、评论、截图或日志，也不要直接放进会被保存的 shell 命令中。
+請勿將 PAT 放進儲存庫、任務、留言、螢幕截圖或日誌，也不要直接寫在會被儲存的 shell 命令中。
 </Callout>
 
-## CLI 与 PAT
+## CLI 與 PAT
 
-运行 `multica login` 时，CLI 会通过浏览器完成登录，再创建一个有效期为 90 天的 PAT，保存到当前 profile 的配置文件：
+執行 `multica login` 時，CLI 會透過瀏覽器完成登入，再建立有效期限為 90 天的 PAT，並儲存到目前 profile 的設定檔：
 
 ```text
 ~/.multica/config.json
 ~/.multica/profiles/<name>/config.json
 ```
 
-守护进程使用同一个 PAT 连接 Multica。带过期时间的 `mul_` PAT 在剩余有效期不足 7 天时自动续期，延长到当时起 90 天后。续期失败不会改变令牌本身；令牌已经过期或被吊销时，需要重新运行 `multica login`。
+常駐程式會使用同一個 PAT 連線至 Multica。設有期限的 `mul_` PAT 在剩餘期限不到 7 天時會自動續期，並從續期當日起延長 90 天。續期失敗不會變更權杖；若權杖已到期或遭撤銷，請重新執行 `multica login`。
 
-无浏览器环境可以先在 Web 中创建 PAT，再让 CLI 安全地提示输入：
+在沒有瀏覽器的電腦上，可以先在 Web 建立 PAT，再讓 CLI 安全地提示你輸入：
 
 ```bash
 multica login --token
 ```
 
-## 在 API 请求中使用 PAT
+## 在 API 請求中使用 PAT
 
-把 PAT 放进 `Authorization` header：
+將 PAT 放入 `Authorization` 標頭：
 
 ```bash
 export MULTICA_TOKEN='mul_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
@@ -59,7 +59,7 @@ curl https://api.multica.ai/api/me \
  -H "Authorization: Bearer $MULTICA_TOKEN"
 ```
 
-调用工作区级 API 时，还需要按接口要求提供工作区：
+呼叫工作區層級的 API 時，還需要依端點要求提供工作區：
 
 ```bash
 curl https://api.multica.ai/api/issues \
@@ -67,35 +67,35 @@ curl https://api.multica.ai/api/issues \
  -H "X-Workspace-ID: $MULTICA_WORKSPACE_ID"
 ```
 
-脚本中的令牌取自 secret manager 或受保护的环境变量，不要硬编码。自托管实例把域名替换为自己的公开 API 地址。
+指令碼應從 secret manager 或受保護的環境變數讀取權杖，不要將它寫死。自架執行個體請將網域替換為自己的公開 API 位址。
 
-## 退出登录与吊销
+## 登出與撤銷
 
-`multica auth logout` 只删除当前 CLI profile 中保存的 PAT；Web 退出登录只删除当前浏览器的 cookie。它们不会吊销服务器上的个人访问令牌。
+`multica auth logout` 只會刪除目前 CLI profile 中儲存的 PAT；在 Web 登出只會刪除目前瀏覽器的 cookie。兩者都不會撤銷伺服器上的個人存取權杖。
 
-如果令牌可能泄露，到 **设置 → API Token** 中立即吊销。吊销后，这个 PAT 无法再次使用，已经保存它的其他电脑和脚本也会失去访问权限。
+如果權杖可能已外洩，請立即前往 **設定 → API 權杖** 撤銷。撤銷後，這個 PAT 將無法再使用；其他儲存了它的電腦和指令碼也會失去存取權。
 
-## Agent 执行的临时令牌
+## Agent 執行時使用的暫時權杖
 
-守护进程领取运行后，服务器会为这次执行创建一个以 `mat_` 开头的临时令牌。它绑定当前用户、工作区、Agent 和运行，最长有效 24 小时，并在运行结束时清理。
+常駐程式領取一次執行後，伺服器會建立以 `mat_` 開頭的暫時權杖。權杖會綁定目前的使用者、工作區、Agent 和這次執行，最長有效 24 小時，並在執行結束時清除。
 
-守护进程把这个临时令牌注入 AI 编程工具，而不是把用户 PAT 交给 Agent。因此，Agent 发出的请求会记录为 Agent 行为，也不能借此调用只允许用户或 owner 执行的敏感操作。
+常駐程式會將這個暫時權杖注入 AI 程式開發工具，而不會把使用者的 PAT 交給 Agent。因此，Agent 發出的請求會記錄為 Agent 的操作，而且不能用這個權杖呼叫僅限使用者或 owner 執行的敏感操作。
 
-这类令牌由服务器自动创建，用户不需要保存或管理。
+這類權杖由伺服器自動建立，使用者不必儲存或管理。
 
-## 其他机器凭据
+## 其他機器憑證
 
-服务端还识别两种内部或托管场景中的凭据：
+伺服器還會識別兩種用於內部或受管理情境的憑證：
 
-| 前缀 | 用途 | 谁管理 |
+| 前綴 | 用途 | 誰管理 |
 | --- | --- | --- |
-| `mcn_` | Multica Cloud Node 连接 | Multica Cloud Fleet |
-| `mdt_` | 工作区范围的守护进程认证协议 | 服务端内部流程 |
+| `mcn_` | Multica Cloud Node 連接 | Multica Cloud Fleet |
+| `mdt_` | 工作區範圍的常駐程式認證協議 | 服務端內部流程 |
 
-普通 Cloud、自托管和 Desktop 安装都不需要手动创建它们。用户侧的 CLI 与守护进程始终使用 `mul_` PAT；不要自行构造其他前缀的令牌。
+一般的 Cloud、自架和 Desktop 安裝都不需要手動建立這些憑證。用戶端的 CLI 與常駐程式一律使用 `mul_` PAT；請勿自行建立其他前綴的權杖。
 
-## 接下来
+## 接下來
 
-- [使用 CLI](/cli) — `login`、`auth status` 和 profile 配置。
-- [守护进程与运行时](/daemon-runtimes) — PAT 续期发生的位置。
-- [登录与注册](/auth-setup) — 会话有效期与注册限制的服务端配置。
+- [使用 CLI](/cli) — `login`、`auth status` 和 profile 設定。
+- [常駐程式與執行環境](/daemon-runtimes) — 瞭解 PAT 如何續期。
+- [登入與註冊](/auth-setup) — 工作階段有效期限與註冊限制的伺服器端設定。

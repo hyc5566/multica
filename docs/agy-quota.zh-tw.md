@@ -110,7 +110,7 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 - 最新zh-tw曾遺漏.14兩個既有判斷：只有真的共用池資料才補缺窗口；精確獨立model bucket
   優先於推測的共用池。已恢復並加入回歸；不是重新設計畫面。
 - 一排額度卡片維持目前5h、weekly、其餘；offline仍顯示保留快照並停用手動按鈕，
-  授權失敗改說明額度憑證／續期，避免宣稱整個agent未登入。
+  授權失敗改說明額度憑證／續期，避免宣稱整個 Agent 未登入。
 
 沒有新DB欄位、schema migration、provider端點或相依套件。`credential_refresh_needed`
 只供本地daemon判斷，既有Server忽略未知欄位即可接受結果。相容於既有.6 Server；

@@ -1,35 +1,35 @@
 ---
-title: 登录与注册
-description: 配置邮箱验证码、Google 登录和新用户注册范围。
+title: 登入與註冊
+description: 設定電子郵件驗證碼、Google 登入和新使用者的註冊範圍。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 
-Multica 默认使用邮箱验证码登录，也可以增加 Google OAuth。已经存在的用户始终可以再次登录；注册限制只决定是否允许创建新账号。
+Multica 預設使用電子郵件驗證碼登入，也可額外啟用 Google OAuth。既有使用者隨時都能再次登入；註冊限制只決定能否建立新帳號。
 
-## 邮箱验证码
+## 電子郵件驗證碼
 
-用户输入邮箱后，Multica 会发送一个 6 位验证码。验证码 10 分钟内有效，验证成功后浏览器获得登录 cookie。
+使用者輸入電子郵件地址後，Multica 會寄送 6 位數驗證碼。驗證碼的有效期限為 15 分鐘；驗證成功後，瀏覽器會收到登入 cookie。本繁中分支的有效期限為 15 分鐘，與英文原文提到的 10 分鐘不同。
 
-邮件可以通过 Resend 或 SMTP 发送。两者同时配置时，`SMTP_HOST` 优先。
+郵件可透過 Resend 或 SMTP 寄送。兩者都已設定時，會優先使用 `SMTP_HOST`。
 
 ### 使用 Resend
 
-1. 在 [Resend](https://resend.com/) 验证发信域名并创建 API key。
-2. 设置：
+1. 在 [Resend](https://resend.com/) 驗證寄件網域並建立 API key。
+2. 設定：
 
  ```dotenv
  RESEND_API_KEY=re_xxxxxxxxxxxxxxxx
  RESEND_FROM_EMAIL=noreply@example.com
  ```
 
-3. 重启 API 服务。
+3. 重新啟動 API 服務。
 
-`RESEND_FROM_EMAIL` 必须属于已经在 Resend 验证的域名。
+`RESEND_FROM_EMAIL` 必須使用已在 Resend 驗證的網域。
 
 ### 使用 SMTP
 
-最少需要设置主机和发件地址：
+至少需要設定主機和寄件地址：
 
 ```dotenv
 SMTP_HOST=smtp.example.com
@@ -39,53 +39,53 @@ SMTP_PASSWORD=<password>
 SMTP_FROM_EMAIL=noreply@example.com
 ```
 
-常见连接方式：
+常見連線方式：
 
-| 场景 | 配置 |
+| 場景 | 設定 |
 |---|---|
-| 内网匿名 relay | `SMTP_PORT=25`，用户名和密码留空 |
-| STARTTLS | `SMTP_PORT=587`，默认会在服务器支持时升级 TLS |
-| 隐式 TLS | `SMTP_PORT=465`，或显式设置 `SMTP_TLS=implicit` |
+| 內部匿名 relay | `SMTP_PORT=25`，帳號和密碼留空 |
+| STARTTLS | `SMTP_PORT=587`；伺服器支援時預設會升級為 TLS |
+| 隱含 TLS | `SMTP_PORT=465`，或明確設定 `SMTP_TLS=implicit` |
 
-如果没有设置 `SMTP_FROM_EMAIL`，会回退到 `RESEND_FROM_EMAIL`。私有 CA 或自签证书需要把 CA 加入容器信任库；`SMTP_TLS_INSECURE=true` 会跳过证书校验，只应在可信内网中临时使用。
+如果未設定 `SMTP_FROM_EMAIL`，會改用 `RESEND_FROM_EMAIL`。私有 CA 或自簽憑證需要將 CA 加入容器的信任存放區；`SMTP_TLS_INSECURE=true` 會略過憑證驗證，只應在可信任的內部網路中暫時使用。
 
-有些严格的 relay 还要求合法的 EHLO 名称：
+有些要求較嚴格的 relay 還需要有效的 EHLO 名稱：
 
 ```dotenv
 SMTP_EHLO_NAME=mail.example.com
 ```
 
-### 无邮件服务时的行为
+### 無郵件服務時的行為
 
-服务器仍可启动，但验证码和邀请链接只会写入日志，不会发送邮件。这适合本地开发，不适合生产环境。
+伺服器仍會啟動，但驗證碼和邀請連結只會寫入日誌，不會寄出郵件。這適合本機開發，不適合正式環境。
 
-启动日志会说明当前使用的是 `Resend API`、`SMTP relay` 还是 `DEV mode`。
+啟動日誌會說明目前使用的是 `Resend API`、`SMTP relay` 還是 `DEV mode`。
 
-## 本地固定验证码
+## 本機固定驗證碼
 
-本地自动化测试可以设置固定验证码：
+本機自動化測試可以設定固定驗證碼：
 
 ```dotenv
 APP_ENV=development
 MULTICA_DEV_VERIFICATION_CODE=888888
 ```
 
-验证码必须是 6 位数字。`APP_ENV=production` 时固定验证码会被忽略。
+驗證碼必須是 6 位數字。`APP_ENV=production` 時會忽略固定驗證碼。
 
 <Callout type="warning">
-不要在公网实例中启用固定验证码。生产环境的组合是 `APP_ENV=production` 加空的 `MULTICA_DEV_VERIFICATION_CODE`。
+請勿在可從公網連線的執行個體啟用固定驗證碼。正式環境應設定 `APP_ENV=production`，並讓 `MULTICA_DEV_VERIFICATION_CODE` 保持空白。
 </Callout>
 
-## Google 登录
+## Google 登入
 
-1. 在 [Google Cloud Console](https://console.cloud.google.com/) 创建 OAuth 2.0 client。
-2. 把 Multica 前端的回调地址加入 **Authorized redirect URIs**：
+1. 在 [Google Cloud Console](https://console.cloud.google.com/) 建立 OAuth 2.0 client。
+2. 將 Multica 前端的回呼網址加入 **Authorized redirect URIs**：
 
  ```text
  https://multica.example.com/auth/callback
  ```
 
-3. 设置：
+3. 設定：
 
  ```dotenv
  GOOGLE_CLIENT_ID=xxxxx.apps.googleusercontent.com
@@ -93,71 +93,71 @@ MULTICA_DEV_VERIFICATION_CODE=888888
  GOOGLE_REDIRECT_URI=https://multica.example.com/auth/callback
  ```
 
-4. 重启 API 服务。
+4. 重新啟動 API 服務。
 
-Google Console 与 `GOOGLE_REDIRECT_URI` 中的地址必须完全一致，包括协议、端口和结尾斜杠。配置生效后，登录页会出现 Google 登录按钮；前端镜像不需要重新构建。
+Google Console 和 `GOOGLE_REDIRECT_URI` 中的網址必須完全一致，包括通訊協定、連接埠和結尾斜線。設定生效後，登入頁會顯示 Google 登入按鈕；不需要重新建置前端映像檔。
 
-## 注册范围控制
+## 註冊範圍控制
 
-三个变量共同决定新账号能否创建：
+三個變數共同決定能否建立新帳號：
 
-| 变量 | 作用 |
+| 變數 | 作用 |
 |---|---|
-| `ALLOWED_EMAILS` | 允许的完整邮箱，多个值用逗号分隔 |
-| `ALLOWED_EMAIL_DOMAINS` | 允许的邮箱域名，多个值用逗号分隔 |
-| `ALLOW_SIGNUP` | 未配置任何白名单时，是否允许注册；默认 `true` |
+| `ALLOWED_EMAILS` | 允許註冊的完整電子郵件地址，多個值以逗號分隔 |
+| `ALLOWED_EMAIL_DOMAINS` | 允許註冊的電子郵件網域，多個值以逗號分隔 |
+| `ALLOW_SIGNUP` | 未設定任何允許清單時，是否允許註冊；預設 `true` |
 
-判断顺序如下：
+依下列順序判斷：
 
-1. 邮箱命中 `ALLOWED_EMAILS`，允许；
-2. 或域名命中 `ALLOWED_EMAIL_DOMAINS`，允许；
-3. 没有设置白名单且 `ALLOW_SIGNUP=true`，允许；
-4. 否则，如果该邮箱有待接受且未过期的工作区邀请，允许；
-5. 其他情况均拒绝。
+1. 電子郵件地址符合 `ALLOWED_EMAILS`，允許註冊；
+2. 或電子郵件網域符合 `ALLOWED_EMAIL_DOMAINS`，允許註冊；
+3. 未設定允許清單且 `ALLOW_SIGNUP=true`，允許註冊；
+4. 否則，若該地址有待接受且未過期的工作區邀請，也允許註冊；
+5. 其他情況均拒絕。
 
-常见配置：
+常見設定方式：
 
 ```dotenv
-# 允许公司域名和受邀用户
+# 允許公司網域和受邀使用者
 ALLOW_SIGNUP=false
 ALLOWED_EMAIL_DOMAINS=company.com
 
-# 再放行一位外部协作者
+# 另外允許一位外部協作者
 ALLOWED_EMAILS=partner@example.net
 ```
 
 <Callout type="info">
-两个白名单在 `ALLOW_SIGNUP=false` 时也可以作为明确的例外名单。
+即使 `ALLOW_SIGNUP=false`，兩份允許清單仍可作為明確的例外清單。
 </Callout>
 
-## 邀请与注册限制
+## 邀請與註冊限制
 
-待接受且未过期的工作区邀请允许该邮箱创建账号，即使 `ALLOW_SIGNUP=false`，或邮箱未命中 `ALLOWED_EMAILS` 和 `ALLOWED_EMAIL_DOMAINS`。此例外也适用于 `ALLOW_SIGNUP=true` 且配置了白名单的情况：白名单不会拦截持有有效邀请的用户。
+待接受且未過期的工作區邀請可讓該電子郵件地址建立帳號，即使 `ALLOW_SIGNUP=false`，或地址不符合 `ALLOWED_EMAILS`、`ALLOWED_EMAIL_DOMAINS` 也一樣。`ALLOW_SIGNUP=true` 且已設定允許清單時也適用這項例外：允許清單不會排除持有有效邀請的使用者。
 
-已有用户仍可登录。新用户如果未命中白名单且未开放注册，就需要待接受且未过期的邀请；缺失、已过期、已接受、已拒绝或已撤销的邀请不能授予注册许可。申请登录码时会检查邀请，创建账号时会再次检查，包括通过 Google 登录创建账号。
+既有使用者仍可登入。新使用者若不符合允許清單，且未開放不受限制的註冊，就需要有待接受且未過期的邀請；邀請不存在、已過期、已接受、已拒絕或已撤銷時，都不會取得註冊權限。要求登入碼時會檢查邀請，建立帳號時也會再次檢查，包括透過 Google 登入建立帳號的情況。
 
-普通受邀人无需再加入 `ALLOWED_EMAILS`，也无需重启服务器。账号创建后，仍需通过正常邀请流程接受邀请才能加入工作区。
+一般受邀者不必另外加入 `ALLOWED_EMAILS`，也不必重新啟動伺服器。建立帳號後，仍須透過一般邀請流程接受邀請，才能加入工作區。
 
-撤销邀请不会删除通过该邀请创建的账号，也不会阻止该已有账号登录。
+撤銷邀請不會刪除透過該邀請建立的帳號，也不會阻止該帳號登入。
 
-## 登录有效期
+## 登入有效期
 
-会话会滑动续期。下面这个值是**闲置**上限，不是从登录开始倒计时：会话剩余有效期低于一半时，下一个请求就会把它续到完整有效期，所以持续使用的账号不会被定时踢出。没有绝对上限。
+工作階段會採用滑動續期。下方的有效期限是**閒置時間**上限，不是從登入時開始倒數：工作階段剩餘時間少於一半時，下一個請求會將它延長至完整期限，因此持續使用的帳號不會定時登出。沒有絕對期限上限。
 
-这个上限是单边的。只有掉到一半以下才会续期，因此最后一次使用时仍有超过一半有效期的会话不会被延长 —— 能保证活下来的闲置时长是下面这个值的一半，而不是全部。
+這項限制只會在單一方向生效。只有剩餘期限低於一半時才會續期，因此若最後一次使用時還剩超過一半期限，工作階段就不會延長。可確保工作階段維持有效的閒置時間是下方期限的一半，而非全部期限。
 
-可以用 `AUTH_TOKEN_TTL` 调整，支持 Go duration 或正整数秒数：
+可透過 `AUTH_TOKEN_TTL` 調整，接受 Go duration 或正整數秒數：
 
 ```dotenv
 AUTH_TOKEN_TTL=720h
 ```
 
-最小值是 `60s`，更小的取值会被上调到 `60s` 并在启动时打出警告。低于这个值时，服务端算出的续期检查间隔会低于客户端对它设置的下限，客户端的检查频率就会低于会话能存活的时长。
+最小值為 `60s`；更小的值會提高至 `60s`，並在啟動時記錄警告。低於此值時，伺服器計算出的續期檢查間隔會小於用戶端設定的下限，導致用戶端檢查續期的頻率低於工作階段的存活時間。
 
-修改后需要重启 API 服务。这个值对之后签发或续期的会话生效 —— 因为会话会滑动续期，已有会话会在下次续期时用上新的有效期。
+修改後請重新啟動 API 服務。新值會套用到之後簽發或續期的工作階段；既有工作階段會在下次續期時採用新的有效期限。
 
-## 接下来
+## 接下來
 
-- [环境变量](/environment-variables) — 完整变量参考。
-- [认证与令牌](/auth-tokens) — 登录会话与令牌类型。
-- [成员与权限](/members-roles) — 邀请与角色。
+- [環境變數](/environment-variables) — 完整設定參考。
+- [認證與權杖](/auth-tokens) — 登入工作階段與權杖類型。
+- [成員與權限](/members-roles) — 邀請與角色。
