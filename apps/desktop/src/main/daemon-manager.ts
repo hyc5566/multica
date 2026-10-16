@@ -199,7 +199,6 @@ interface HealthPayload {
   resource_wait_task_count?: number;
   /** zh-tw: the daemon reloads into the bundled CLI itself when idle. */
   zh_tw_self_reload?: boolean;
-  profile?: string;
   launched_by?: string;
   agents?: string[];
   workspaces?: unknown[];
@@ -231,6 +230,20 @@ async function fetchProfileHealth(
   return probeProfileHealth(active.name, (port) =>
     fetchHealthAtPort(port, timeoutMs),
   );
+}
+
+// zh-tw: trust refresh posts back to the daemon, so it needs the port the
+// accepted health response came from (daemon.port record or legacy port).
+async function fetchProfileHealthWithPort(
+  active: ActiveProfile,
+): Promise<{ health: HealthPayload; port: number } | null> {
+  let port = 0;
+  const health = await probeProfileHealth(active.name, async (candidate) => {
+    const data = await fetchHealthAtPort(candidate);
+    port = candidate;
+    return data;
+  });
+  return health ? { health, port } : null;
 }
 
 /**
@@ -872,7 +885,7 @@ async function rotateDesktopToken(jwt: string, userId: string, id: string): Prom
     const status = await fetchHealth();
     if (status.externallyManaged || !["running", "stopped", "auth_expired"].includes(status.state))
       throw new Error("Daemon is busy or externally managed. Try again when it is idle.");
-    const health = await fetchHealthAtPort(active.port);
+    const health = await fetchProfileHealth(active);
     if (!health && existsSync(profilePidPath(active.name)))
       throw new Error("Cannot confirm daemon task state. No token was changed.");
     if (health && (health.status !== "running" || !health.pid || health.active_task_count !== 0))
@@ -885,7 +898,7 @@ async function rotateDesktopToken(jwt: string, userId: string, id: string): Prom
     if (!result.success) throw new Error("New token saved, but daemon restart failed. The old token has not been revoked; retry from daemon settings.");
     let ready = false;
     for (let attempt = 0; attempt < 30; attempt++) {
-      const current = await fetchHealthAtPort(active.port);
+      const current = await fetchProfileHealth(active);
       if (current?.status === "running" && current.pid && current.server_url && urlsMatch(current.server_url, targetApiBaseUrl!) && (!health?.pid || current.pid !== health.pid)) { ready = true; break; }
       await new Promise(resolve => setTimeout(resolve, 1000));
     }
@@ -1036,7 +1049,8 @@ async function refreshDaemonTrustWhenIdle(): Promise<void> {
   if (!generation) return;
   const active = await ensureActiveProfile();
   if (!active) return;
-  const running = await fetchHealthAtPort(active.port);
+  const probed = await fetchProfileHealthWithPort(active);
+  const running = probed?.health ?? null;
   if (generation !== pendingTrustRefresh) return;
   if (!running) {
     if (await daemonPidIsConfirmedAbsent(active.name) && generation === pendingTrustRefresh) {
@@ -1062,7 +1076,7 @@ async function refreshDaemonTrustWhenIdle(): Promise<void> {
   trustRestartRequestedAt = Date.now();
   try {
     const digest = createHash("sha256").update(await readFile(ca)).digest("hex");
-    const response = await fetch(`http://127.0.0.1:${active.port}/restart/idle`, {
+    const response = await fetch(`http://127.0.0.1:${probed!.port}/restart/idle`, {
       method: "POST", signal: AbortSignal.timeout(HEALTH_PROBE_TIMEOUT_MS),
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ expected_pid: running.pid, expected_ca_path: ca, expected_ca_sha256: digest }),

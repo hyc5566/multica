@@ -456,7 +456,8 @@ func (h *Handler) InitiateProviderUsage(w http.ResponseWriter, r *http.Request) 
 	now := time.Now().UTC()
 	req, admitted, err := h.EnqueueProviderUsageTarget(r.Context(), target, now, now)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request: "+err.Error())
+		slog.Warn("enqueue provider usage request failed", append(logger.RequestAttrs(r), "error", err)...)
+		writeError(w, http.StatusInternalServerError, "failed to enqueue provider usage request")
 		return
 	}
 	if !admitted {
@@ -595,7 +596,8 @@ func (h *Handler) GetProviderUsageRequest(w http.ResponseWriter, r *http.Request
 	requestID := chi.URLParam(r, "requestId")
 	req, err := h.ModelListStore.Get(r.Context(), requestID)
 	if err != nil {
-		writeError(w, http.StatusInternalServerError, "failed to load request: "+err.Error())
+		slog.Warn("load provider usage request failed", append(logger.RequestAttrs(r), "error", err)...)
+		writeError(w, http.StatusInternalServerError, "failed to load request")
 		return
 	}
 	if req == nil || req.RuntimeID != uuidToString(rt.ID) {
