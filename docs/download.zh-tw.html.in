@@ -67,6 +67,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
   <ol>
     <li><strong>帳號</strong>：先到 <a href="/login">登入頁</a> 用公司信箱註冊或登入，建立或加入工作區。</li>
     <li><strong>網路</strong>：電腦要能連到內網 <code>https://10.1.24.90:45671</code>；CLI 安裝指令另外需要連到 GitHub。</li>
+    <li><strong>Git 2.40 以上</strong>：App 和 CLI 的 daemon 恢復工作樹需要新版 Git。安裝或升級前，請在執行 daemon 的帳號與 PATH 執行 <code>git --version</code>。版本不足時，請透過作業系統套件管理員更新或洽管理員；macOS 已有 Homebrew 時可執行 <code>brew install git</code>，並確認其 bin 目錄在 daemon 的 PATH 中優先於 <code>/usr/bin</code>。安裝器不會替你更新 Git。</li>
     <li><strong>Agent 工具</strong>：在同一個作業系統帳號下先安裝要用的 Agent CLI（Claude Code、Codex、Antigravity 等），daemon 會從 PATH 自動偵測。</li>
   </ol>
 </section>

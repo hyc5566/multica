@@ -27,6 +27,17 @@ case "$(uname -s)-$(uname -m)" in
   *) echo 'Unsupported platform; use a matching release binary.' >&2; exit 2 ;;
 esac
 
+# Resume restores worktree state with Git's merge-tree support. Check before
+# downloads, locks, or writes so a failed upgrade preserves the current launcher.
+git_version=$(git --version 2>/dev/null) || git_version='unavailable'
+if [[ ! $git_version =~ ^git\ version\ ([0-9]+)\.([0-9]+)(\.|$) ]] ||
+  (( 10#${BASH_REMATCH[1]} < 2 || (10#${BASH_REMATCH[1]} == 2 && 10#${BASH_REMATCH[2]} < 40) )); then
+  printf 'Git 2.40 or later is required for daemon worktree resume (found: %s). No installation was changed.\n' "$git_version" >&2
+  echo 'Install a current Git using your OS package manager or ask your administrator. Then check git --version in the account and PATH that run the daemon, and retry this installer.' >&2
+  echo 'macOS: if Homebrew is already available, brew install git; ensure its bin directory precedes /usr/bin in the daemon PATH. This installer does not change Git or PATH.' >&2
+  exit 2
+fi
+
 if [[ ${1:-} == --service ]]; then
   [[ $(uname -s) == Linux ]] || { echo '--service requires Linux systemd user services.' >&2; exit 2; }
   command -v systemctl >/dev/null

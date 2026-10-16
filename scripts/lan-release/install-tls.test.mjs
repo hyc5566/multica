@@ -44,9 +44,11 @@ test('real HTTPS keeps issuer/hostname verification and uses combined trust befo
     });
     await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
     const home = join(root, 'home'); mkdirSync(home);
+    const bin = join(root, 'bin'); mkdirSync(bin);
+    writeFileSync(join(bin, 'git'), '#!/bin/sh\necho "git version 2.40.0"\n', {mode: 0o755});
     // Neither inherited CA nor curlrc can disable verification or hide public roots.
     writeFileSync(join(home, '.curlrc'), 'insecure\n');
-    const env = {...process.env, HOME: home, MULTICA_PROFILE: '',
+    const env = {...process.env, HOME: home, MULTICA_PROFILE: '', PATH: `${bin}:${process.env.PATH}`,
       SSL_CERT_FILE: join(root, 'unrelated.crt'), CURL_CA_BUNDLE: join(root, 'unrelated.crt'),
       MULTICA_INSTALL_CA_FILE: '', MULTICA_ZH_TW_INSTALL_ROOT: join(root, 'install'),
       NO_PROXY: 'localhost,127.0.0.1', no_proxy: 'localhost,127.0.0.1'};

@@ -40,6 +40,10 @@
 
 ### 發布順序
 
+開始建置前，將 App、CLI 與 Server 的完整來源 commit 記入相關任務；腳本修正也須經 PR 審查，不在發布時追蹤最新 HEAD。原生 App 與 CLI 編譯器須符合 `server/go.mod` 與 `.github/RELEASING.md` 的安全版本下限。
+
+先核對新客戶端對現行 Server 的 API 需求。若需要新 Server 端點，版本化資產可以先準備，GitHub Latest、`/downloads/latest/`、下載頁與根目錄 `latest.json` 必須等 Server 更新並驗證後才切換，避免現有自動更新提早安裝。`/api/config` 的 `daemon_install_url` 來自 Server 的 `MULTICA_DAEMON_INSTALL_URL`；修正該設定應併入已核准的 Server 切換，不為下載頁發布提前重啟服務。
+
 1. `scripts/lan-release/build.sh VERSION OUT https://10.1.24.90:45671/downloads/VERSION CA` 建置 CLI 與安裝器；App 在 m5 以 `scripts/build-desktop-zh-tw-macos.sh` 用**同一個 commit** 建置，ZIP 放進 `OUT`。
 2. `scripts/lan-release/manifest.sh OUT https://10.1.24.90:45671/downloads/VERSION <GitHub 版本說明 URL> OUT/multica-desktop-VERSION-mac-arm64.zip` 產生 `latest.json`；`scripts/lan-release/render-download-page.sh OUT OUT/download.html` 產生下載頁。重新產生 `SHA256SUMS` 把兩者納入。
 3. 把 `OUT` 複製到 Caddy 持久卷 `/config/releases/VERSION/`，用公開 CA 對 `https://10.1.24.90:45671/downloads/VERSION/` 下所有檔案 GET 並比對 SHA-256。
