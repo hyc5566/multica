@@ -1,6 +1,6 @@
 # 繁體中文版 Server 平順切換維運程序
 
-本文件是繁體中文版 Server 新舊版本交接的主要操作規範。後續 agent 或維護者進行 Server 更新前，先閱讀本文件，逐項核對現場，再執行切換。操作工具為 [server-handoff.py](../scripts/deploy/server-handoff.py)，可重現演練為 [test-server-handoff.py](../scripts/deploy/test-server-handoff.py)。
+本文件是繁體中文版 Server 新舊版本交接的主要操作規範。後續 Agent 或維護者進行 Server 更新前，先閱讀本文件，逐項核對現場，再執行切換。操作工具為 [server-handoff.py](../scripts/deploy/server-handoff.py)，可重現演練為 [test-server-handoff.py](../scripts/deploy/test-server-handoff.py)。
 
 「平順切換」是先讓新版就緒，再切換入口，保留舊版處理既有連線並提供回復能力。它不會把既有 WebSocket 搬到另一個程序，也不代表任意版本、資料庫變更或故障情況都能零中斷。
 
@@ -145,7 +145,7 @@ docker exec CADDY_CONTAINER caddy reload --config /etc/caddy/Caddyfile
 
 ## 8. 留痕、完成判定與日後重建
 
-紀錄至少包括：時間與時區、hostname／帳號／agent、核准依據、舊新完整 commit 與映像 ID、工具版本、實際入口／容器名稱、測試及觀測窗口、備份位置、回復／退役結果、未驗證限制。秘密一律不入紀錄。
+紀錄至少包括：時間與時區、hostname／帳號／Agent、核准依據、舊新完整 commit 與映像 ID、工具版本、實際入口／容器名稱、測試及觀測窗口、備份位置、回復／退役結果、未驗證限制。秘密一律不入紀錄。
 
 只有本次要求及適用驗證完成、必要文件保存成功後，才記為完成；候選完成、待初始化、待核准或回復成功但原升級失敗，應各自標示。s90 過程放入 `$HOME/docs/work-notes/`，完成後才歸檔至 `$HOME/docs/records/`；主操作正文維持在本 repository，機台筆記只連結及補充現況。
 
@@ -165,7 +165,7 @@ docker exec CADDY_CONTAINER caddy reload --config /etc/caddy/Caddyfile
 本次版本交接演練可指定新舊兩個不可變 image ID：
 
 ```sh
-python scripts/deploy/test-server-handoff.py sha256:OLD_IMAGE sha256:NEW_IMAGE
+"$HOME/miniconda3/envs/hungyu/bin/python" scripts/deploy/test-server-handoff.py sha256:OLD_IMAGE sha256:NEW_IMAGE
 ```
 
 省略第二個參數時使用同版演練；正式升級應傳入實際新舊版本。

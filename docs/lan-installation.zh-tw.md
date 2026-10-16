@@ -1,6 +1,6 @@
 # Multica 繁中版：安裝、驗收與發行
 
-主要維護位置為本文件；操作結果另記於 s90 的維運文件。來源為 `hyc5566/multica` 的 `zh-tw`，所有正式成品必須對應同一個已驗收 commit。合併程式、建立成品、發布 Release、更新正在運行的 Server 是不同步驟。
+主要維護位置為本文件；操作結果另記於 s90 的維運文件。來源為 `hyc5566/multica` 的 `zh-tw`，所有正式成品必須對應同一個已驗收 commit。合併程式、建立成品、發布 Release、更新正在執行的 Server 是不同步驟。
 
 ## 使用模型
 
@@ -63,7 +63,7 @@ bash install.sh --login
 "$HOME/.local/bin/multica" daemon stop
 ```
 
-需要 systemd 使用者服務時改用 `bash install.sh --service`，它包含登入、建立／啟用 `multica.service` 與連線檢查。必須有可用的 systemd user manager；登出後持續運行所需 linger 由機器管理員依政策開通。服務管理：
+需要 systemd 使用者服務時改用 `bash install.sh --service`，它包含登入、建立／啟用 `multica.service` 與連線檢查。必須有可用的 systemd user manager；登出後持續執行所需 linger 由機器管理員依政策開通。服務管理：
 
 ```bash
 systemctl --user status multica.service

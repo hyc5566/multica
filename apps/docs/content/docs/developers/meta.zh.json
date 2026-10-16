@@ -1,4 +1,8 @@
 {
-  "title": "参与开发",
-  "pages": ["contributing", "architecture", "conventions"]
+  "title": "參與開發",
+  "pages": [
+    "contributing",
+    "architecture",
+    "conventions"
+  ]
 }
