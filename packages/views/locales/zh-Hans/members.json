@@ -7,7 +7,7 @@
   "card": {
     "unavailable": "成員資訊不可用",
     "agents_section": "Agent（{{count}}）",
-    "detail_link": "詳情 →",
+    "detail_link": "詳細資訊 →",
     "more_agents_other": "另有 {{count}} 個 Agent"
   },
   "detail": {

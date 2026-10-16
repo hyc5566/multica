@@ -28,10 +28,10 @@
       "description": "建立第一個 skill、從 URL 或本地資料夾匯入，或從已連線的執行環境複製——之後工作區裡每個 Agent 都能使用。"
     },
     "no_matches": {
-      "title": "無匹配",
-      "with_query": "沒有 skill 匹配 \"{{query}}\"{{filterSuffix}}。",
-      "with_query_filter_suffix": "（在當前篩選下）",
-      "filter_only": "當前篩選下沒有匹配的 skill。",
+      "title": "無符合",
+      "with_query": "沒有 skill 符合 \"{{query}}\"{{filterSuffix}}。",
+      "with_query_filter_suffix": "（在目前篩選下）",
+      "filter_only": "目前篩選下沒有符合的 skill。",
       "try_different": " 換個關鍵詞試試。"
     },
     "intro_banner": {
@@ -44,7 +44,7 @@
       "fallback": "拉取 skill 列表時出錯。",
       "retry": "重試"
     },
-    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯許可權可能顯示不完整。"
+    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯權限可能顯示不完整。"
   },
   "table": {
     "name": "名稱",
@@ -70,18 +70,18 @@
     "refresh": "從來源更新",
     "my_agents": "我的 Agent",
     "other_agents": "其他 Agent",
-    "no_agents": "暫無可用 Agent",
+    "no_agents": "目前沒有可用 Agent",
     "search_placeholder": "搜尋 Agent…",
-    "no_agents_match": "沒有匹配的 Agent。",
+    "no_agents_match": "沒有符合的 Agent。",
     "has_partial": "已有 {{owned}}/{{total}}",
     "added_toast": "已新增到 {{name}}",
     "add_failed_toast": "新增 skill 失敗",
     "delete": "刪除",
     "selected": "已選 {{count}} 項",
     "clear_selection": "清除選擇",
-    "delete_no_permission": "選中項包含僅建立者或管理員可刪除的 skill",
+    "delete_no_permission": "選取項包含僅建立者或管理員可刪除的 skill",
     "delete_dialog_title_other": "刪除 {{count}} 個 skill？",
-    "delete_dialog_desc_other": "將永久刪除選中的 {{count}} 個 skill，並從所有 Agent 上移除。",
+    "delete_dialog_desc_other": "將永久刪除選取的 {{count}} 個 skill，並從所有 Agent 上移除。",
     "deleted_toast_other": "已刪除 {{count}} 個 skill",
     "delete_failed_toast": "刪除 skill 失敗",
     "update": "更新",
@@ -99,29 +99,29 @@
     "added_multi_toast_other": "已新增到 {{count}} 個 Agent"
   },
   "toolbar": {
-    "result_count_title": "當前結果 / 全部 skill",
+    "result_count_title": "目前結果 / 全部 skill",
     "filter_label": "篩選",
     "filter_active_count_other": "{{count}} 項篩選",
     "clear_filters": "清除篩選",
     "section_usage": "使用狀態",
-    "section_labels": "标签",
-    "filter_search_placeholder": "筛选...",
-    "no_labels": "还没有标签",
-    "no_results": "无结果",
+    "section_labels": "標籤",
+    "filter_search_placeholder": "篩選...",
+    "no_labels": "還沒有標籤",
+    "no_results": "無結果",
     "display": "顯示",
     "sort_by": "排序",
     "direction_asc": "升序",
     "direction_desc": "降序",
     "section_columns": "顯示列",
-    "manage_labels": "管理标签...",
-    "manage_labels_title": "Skill 标签"
+    "manage_labels": "管理標籤...",
+    "manage_labels_title": "Skill 標籤"
   },
   "detail": {
     "all_skills": "全部 skill",
     "read_only": "只讀",
     "delete_aria": "刪除 skill",
     "delete_tooltip": "刪除 skill",
-    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯許可權可能要等下次重新整理才完整。",
+    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯權限可能要等下次重新整理才完整。",
     "delete_file": "刪除檔案",
     "name_placeholder": "skill-name",
     "description_placeholder": "用一句話描述 Agent 什麼時候應該使用這個 skill...",
@@ -147,7 +147,7 @@
     },
     "not_found": {
       "title": "未找到該 skill",
-      "fallback": "這個 skill 可能已被刪除，或你沒有訪問許可權。",
+      "fallback": "這個 skill 可能已被刪除，或你沒有存取權限。",
       "back": "返回 Skills"
     },
     "toast_saved": "已儲存 skill",
@@ -173,7 +173,7 @@
     },
     "delete_dialog": {
       "title": "刪除這個 skill？",
-      "description_with_agents_other": "將永久刪除\"{{name}}\"，並從當前正在使用它的 {{count}} 個 Agent 上移除。",
+      "description_with_agents_other": "將永久刪除\"{{name}}\"，並從目前正在使用它的 {{count}} 個 Agent 上移除。",
       "description_no_agents": "將永久刪除\"{{name}}\"，並從所有 Agent 上移除。",
       "warning": "此操作不可撤銷。",
       "cancel": "取消",
@@ -217,14 +217,14 @@
       "permissions_owner": "你可以編輯和刪除該技能。改動將在 Agent 下次執行環境生效。",
       "permissions_locked_creator": "只有建立者（{{name}}）或工作區管理員可以編輯該技能。",
       "permissions_locked": "只有建立者或工作區管理員可以編輯該技能。",
-      "properties_help": "关于 skill 属性",
-      "character_count": "{{count}} 个字符"
+      "properties_help": "關於 skill 屬性",
+      "character_count": "{{count}} 個字元"
     },
     "files": {
       "list_aria": "技能檔案",
       "main": "主檔案",
       "supporting_other": "附屬檔案 {{count}}",
-      "supporting_empty": "暫無附屬檔案。",
+      "supporting_empty": "目前沒有附屬檔案。",
       "add_file": "新建檔案",
       "mode_aria": "檔案檢視",
       "mode_preview": "預覽",
@@ -256,7 +256,7 @@
       },
       "runtime": {
         "title": "從執行環境複製",
-        "desc": "把本地執行時裡已裝好的 skill 提升到工作區。"
+        "desc": "把本地執行環境裡已裝好的 skill 提升到工作區。"
       }
     },
     "manual": {
@@ -306,7 +306,7 @@
   "runtime_import": {
     "runtime_label": "執行環境",
     "runtime_placeholder": "選擇一個本地執行環境",
-    "no_local_runtimes_title": "暫無可用的本地執行環境",
+    "no_local_runtimes_title": "目前沒有可用的本地執行環境",
     "no_local_runtimes_hint": "連線一個本地執行環境，才能瀏覽並匯入其本地 skill。",
     "choose_runtime": "請選擇一個執行環境繼續",
     "must_be_online": "執行環境必須線上才能瀏覽本地 skill。",
@@ -314,7 +314,7 @@
     "not_supported": "這個 provider 暫不支援本地 skill 列表。",
     "no_skills_title": "未找到本地 skill",
     "search_placeholder": "搜尋本地 skill",
-    "no_search_results_hint": "沒有本地 skill 匹配 \"{{query}}\"。",
+    "no_search_results_hint": "沒有本地 skill 符合 \"{{query}}\"。",
     "ignored_files_hint": "匯入時會忽略軟鏈、不可讀檔案、超大檔案以及超大目錄。",
     "ready": "準備匯入",
     "into_workspace": "到工作區。",
@@ -343,8 +343,8 @@
     "conflict_single_title": "工作區裡已存在同名 skill",
     "conflict_bulk_title": "{{count}} 個 skill 需要處理衝突",
     "conflict_hint": "選擇覆蓋現有工作區 skill、改名匯入，或跳過。",
-    "conflict_locked_creator": "該 skill 由 {{creator}} 建立，只能由建立者通過本地匯入覆蓋；如需修改請到 Skill 詳情頁編輯。",
-    "conflict_locked": "該 skill 只能由建立者通過本地匯入覆蓋；如需修改請到 Skill 詳情頁編輯。",
+    "conflict_locked_creator": "該 skill 由 {{creator}} 建立，只能由建立者透過本地匯入覆蓋；如需修改請到 Skill 詳細頁面編輯。",
+    "conflict_locked": "該 skill 只能由建立者透過本地匯入覆蓋；如需修改請到 Skill 詳細頁面編輯。",
     "conflict_overwrite": "覆蓋",
     "conflict_rename": "重新命名",
     "conflict_skip": "跳過",
@@ -367,7 +367,7 @@
     }
   },
   "file_viewer": {
-    "no_content": "*暫無內容*",
+    "no_content": "*目前沒有內容*",
     "markdown_placeholder": "輸入 Markdown 內容...",
     "raw_placeholder": "檔案內容...",
     "raw_aria": "{{path}} 的純文本內容"

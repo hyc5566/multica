@@ -10,10 +10,10 @@
     "issues": "任務",
     "cancelled": "已取消",
     "recent": "最近",
-    "workspaces": "工作区"
+    "workspaces": "工作區"
   },
   "commands": {
-    "current_theme_aria": "當前主題",
+    "current_theme_aria": "目前主題",
     "new_issue": "新建任務",
     "new_project": "新建專案",
     "copy_issue_link": "複製任務連結",

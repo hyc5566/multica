@@ -1,10 +1,10 @@
 {
   "bubble_menu": {
-    "bold": "加粗",
+    "bold": "粗體",
     "italic": "斜體",
     "strikethrough": "刪除線",
     "code": "程式碼",
-    "highlight": "高亮",
+    "highlight": "醒目提示",
     "link": "連結",
     "list": "列表",
     "task_list": "待辦列表",
@@ -28,21 +28,21 @@
       "task_list": "待辦列表"
     },
     "sub_issue": {
-      "tooltip": "用選中內容建立子任務",
+      "tooltip": "用選取內容建立子任務",
       "created": "已建立 {{identifier}}",
       "create_failed": "建立子任務失敗"
     }
   },
   "image": {
-    "view": "檢視圖片",
+    "view": "檢檢視片",
     "download": "下載",
     "copy_link": "複製連結",
     "delete": "刪除",
     "link_copied": "已複製連結",
     "copy_link_failed": "複製連結失敗",
-    "copy_image": "复制图片",
-    "image_copied": "已复制图片",
-    "copy_image_failed": "无法复制图片",
+    "copy_image": "複製圖片",
+    "image_copied": "已複製圖片",
+    "copy_image_failed": "無法複製圖片",
     "canvas_label": "圖片畫布,拖動可平移,滾動可縮放,雙擊可切換實際大小。",
     "unavailable": "這張圖片已失效,已跳過。"
   },
@@ -53,7 +53,7 @@
     "zoom_actual": "實際大小"
   },
   "attachment": {
-    "download_failed": "下載連結獲取失敗，請稍後重試。",
+    "download_failed": "下載連結取得失敗，請稍後重試。",
     "preview": "預覽",
     "preview_loading": "載入預覽中…",
     "preview_failed": "預覽載入失敗",
@@ -103,14 +103,14 @@
     "squad_badge": "小隊",
     "searching": "搜尋中...",
     "no_results": "無結果",
-    "group_current": "當前頁面",
+    "group_current": "目前頁面",
     "group_recent": "最近瀏覽",
     "group_search": "搜尋結果",
     "group_cancelled": "已取消"
   },
   "slash_command": {
-    "no_skills_configured": "暫無配置的技能",
-    "no_results": "沒有匹配的技能",
+    "no_skills_configured": "目前沒有設定的技能",
+    "no_results": "沒有符合的技能",
     "commands": {
       "note": "新增備註——不觸發任何 Agent"
     }
@@ -123,17 +123,17 @@
     "fullscreen": "放大"
   },
   "dynamic_block": {
-    "preview": "预览",
-    "source": "源码",
-    "view": "视图",
-    "copy_source": "复制源码",
-    "show_all": "展开全部",
+    "preview": "預覽",
+    "source": "原始碼",
+    "view": "檢視",
+    "copy_source": "複製原始碼",
+    "show_all": "展開全部",
     "rendering": "正在渲染...",
-    "error_html": "预览中的脚本出错",
-    "error_mermaid": "无法绘制这张图",
+    "error_html": "預覽中的指令碼出錯",
+    "error_mermaid": "無法繪製這張圖",
     "error_at_line": "{{message}}（第 {{line}} 行）",
-    "view_source": "查看源码",
-    "copy_error": "复制错误"
+    "view_source": "查看原始碼",
+    "copy_error": "複製錯誤"
   },
   "file_card": {
     "uploading": "正在上傳 {{filename}}"

@@ -10,16 +10,16 @@
     "live": "即時",
     "live_tooltip": "即時更新 · 離線檢測 75 秒以內",
     "filter_all": "全部",
-    "filter_all_description": "當前檢視下的所有執行環境",
+    "filter_all_description": "目前檢視下的所有執行環境",
     "empty": {
       "title": "還沒有執行環境",
       "hint": "桌面端會自動掃描這臺電腦。想把另一臺電腦加進來——伺服器、遠端開發機，或任何能開終端的電腦——在這裡新增。"
     },
     "no_matches": {
-      "title": "無匹配",
-      "with_query": "沒有執行環境匹配 \"{{query}}\"{{filterSuffix}}。",
-      "with_query_filter_suffix": "（在當前篩選下）",
-      "no_query": "當前篩選下沒有匹配的執行環境。",
+      "title": "無符合",
+      "with_query": "沒有執行環境符合 \"{{query}}\"{{filterSuffix}}。",
+      "with_query_filter_suffix": "（在目前篩選下）",
+      "no_query": "目前篩選下沒有符合的執行環境。",
       "try_widening": "試試放寬篩選或清除條件。"
     },
     "bootstrapping": {
@@ -29,7 +29,7 @@
   },
   "mika_setup": {
     "title": "執行環境已準備好，和 Mika 開始。",
-    "description": "Mika 會把你的目標轉化為任務、協調合適的 Agent，並在工作流需要時幫你新增可複用的 specialist。",
+    "description": "Mika 會把你的目標轉化為任務、協調合適的 Agent，並在工作流需要時幫你新增可重複使用的 specialist。",
     "action": "和 Mika 開始",
     "failed": "無法啟動 Mika",
     "dialog_title": "讓 Mika 在哪臺電腦上執行？",
@@ -47,17 +47,17 @@
     "section_cloud": "雲端",
     "this_machine": "本機",
     "local_badge": "本地 · 這臺機器",
-    "pending_custom_runtimes": "待註冊自定義執行環境",
+    "pending_custom_runtimes": "待註冊自訂執行環境",
     "runtime_count_other": "{{count}} 個執行環境",
     "busy_count_other": "{{count}} 個忙碌",
     "no_matches_title": "沒有機器",
-    "no_matches_hint": "沒有機器匹配當前搜尋或篩選。",
+    "no_matches_hint": "沒有機器符合目前搜尋或篩選。",
     "select_machine": "選擇一臺機器檢視它的執行環境。",
-    "select_runtime": "內建執行環境會自動出現。選擇一項檢視設定，或新增自定義命令。",
+    "select_runtime": "內建執行環境會自動出現。選擇一項檢視設定，或新增自訂命令。",
     "no_runtimes_title": "還沒有註冊執行環境",
     "no_runtimes_hint": "啟動或重新連線這臺機器的守護程序。檢測到已安裝的 CLI 後，執行環境會自動出現在這裡。",
     "not_found_title": "未找到機器",
-    "not_found_hint": "它可能已離線、被移除，或你已無權訪問。",
+    "not_found_hint": "它可能已離線、被移除，或你已無權存取。",
     "metrics": {
       "runtimes": "執行環境",
       "runtimes_hint_other": "{{count}} 個線上",
@@ -75,7 +75,7 @@
     "rename": "重新命名機器",
     "rename_dialog": {
       "title": "重新命名機器",
-      "description": "給這臺機器起一個你能認出來的名字。會應用到這臺機器上的所有執行時，並在給 Agent 選擇執行時時顯示。",
+      "description": "給這臺機器起一個你能認出來的名字。會應用到這臺機器上的所有執行環境，並在給 Agent 選擇執行環境時顯示。",
       "placeholder": "例如：我的 MacBook",
       "hint": "留空則使用裝置的預設名稱。",
       "cancel": "取消",
@@ -97,11 +97,11 @@
     },
     "offline": {
       "label": "離線",
-      "description": "5 分鐘以上沒有心跳。請重啟守護程序或排查主機。"
+      "description": "5 分鐘以上沒有心跳。請重啟守護程序或排除主機。"
     },
     "long_offline": {
       "label": "長期離線",
-      "description": "6 天以上沒有心跳。如果這臺主機不會恢復，請將關聯 Agent 改綁到其他執行時，或刪除此執行時。"
+      "description": "6 天以上沒有心跳。如果這臺主機不會恢復，請將關聯 Agent 改綁到其他執行環境，或刪除此執行環境。"
     }
   },
   "detail": {
@@ -113,7 +113,7 @@
     "fact_owner": "所有者",
     "fact_device": "裝置",
     "fact_runtime": "執行環境",
-    "technical_details": "技術詳情",
+    "technical_details": "技術詳細資訊",
     "fact_daemon_cli": "守護程序 CLI",
     "fact_daemon_id": "守護程序 ID",
     "serving_title": "服務中",
@@ -138,7 +138,7 @@
     "visibility_toast_failed": "更新可見性失敗",
     "delete_dialog": {
       "self_heal_notice": "該執行環境由正在執行的本地守護程序託管。刪除會成功，但守護程序會在數秒內重新註冊一個新的執行環境——若想徹底移除，請先停止守護程序。",
-      "profile_backed_notice": "該執行環境來自自定義執行環境配置。刪除它只會移除當前執行環境例項；只要配置仍存在，執行中的守護程序就可以再次註冊它。若要徹底移除，請在“自定義執行環境”中刪除對應配置。",
+      "profile_backed_notice": "該執行環境來自自訂執行環境設定。刪除它只會移除目前執行環境執行個體；只要設定仍存在，執行中的守護程序就可以再次註冊它。若要徹底移除，請在“自訂執行環境”中刪除對應設定。",
       "light": {
         "title": "刪除執行環境？",
         "description": "確定要刪除\"{{name}}\"嗎？此操作無法撤銷。",
@@ -148,11 +148,11 @@
       },
       "cascade": {
         "title_other": "解綁 {{count}} 個 Agent 並刪除該執行環境？",
-        "description": "刪除\"{{name}}\"。下列 Agent 會保留——其指令、聊天記錄和執行歷史都不會丟失——但會與該執行時解綁，在重新繫結前無法接受新工作。排隊中或進行中的執行會被取消，然後刪除執行時。",
-        "warning": "排隊中和進行中的執行會被取消；這些 Agent 重新繫結執行時之前，無法接受新工作。",
-        "notice_runtime_has_active_agents": "自開啟此彈窗後，又有新的活動 Agent 加入。請確認新方案後繼續。",
-        "notice_runtime_delete_plan_changed": "在彈窗開啟期間，活動 Agent 集合發生了變化。請確認新方案後繼續。",
-        "checkbox_other": "我已瞭解：這 {{count}} 個 Agent 會與該執行時解綁，在重新繫結前無法接受新工作；其排隊中或進行中的執行會被取消。",
+        "description": "刪除\"{{name}}\"。下列 Agent 會保留——其指令、聊天記錄和執行歷史都不會丟失——但會與該執行環境解綁，在重新繫結前無法接受新工作。排隊中或進行中的執行會被取消，然後刪除執行環境。",
+        "warning": "排隊中和進行中的執行會被取消；這些 Agent 重新繫結執行環境之前，無法接受新工作。",
+        "notice_runtime_has_active_agents": "自開啟此對話框後，又有新的活動 Agent 加入。請確認新方案後繼續。",
+        "notice_runtime_delete_plan_changed": "在對話框開啟期間，活動 Agent 集合發生了變化。請確認新方案後繼續。",
+        "checkbox_other": "我已瞭解：這 {{count}} 個 Agent 會與該執行環境解綁，在重新繫結前無法接受新工作；其排隊中或進行中的執行會被取消。",
         "cancel": "取消",
         "confirm_other": "解綁 {{count}} 個 Agent 並刪除執行環境",
         "submitting": "正在解綁並刪除...",
@@ -182,7 +182,7 @@
   },
   "detail_page": {
     "not_found_title": "未找到執行環境",
-    "not_found_hint": "它可能已被刪除，或你沒有訪問許可權。"
+    "not_found_hint": "它可能已被刪除，或你沒有存取權限。"
   },
   "running_other": "{{count}} 個執行中",
   "queued_other": "{{count}} 個排隊中",
@@ -190,7 +190,7 @@
     "title": "新增電腦",
     "description": "在要新增的電腦上執行這兩條命令。守護程序一上線，這裡就會自動識別。",
     "step1_label": "安裝 Multica CLI",
-    "platform_group": "选择你的系统",
+    "platform_group": "選擇你的系統",
     "platform_macos_linux": "macOS / Linux",
     "platform_windows": "Windows",
     "step2_label": "啟動守護程序",
@@ -232,7 +232,7 @@
     "toast_delete_failed": "刪除雲節點失敗",
     "fields": {
       "name": "名稱",
-      "instance_type": "例項規格",
+      "instance_type": "執行個體規格",
       "region": "Region",
       "disk_size": "磁碟大小 GiB",
       "image_id": "AMI ID",
@@ -245,7 +245,7 @@
       "key_name": "dev-key"
     },
     "validation": {
-      "instance_type_required": "例項規格不能為空",
+      "instance_type_required": "執行個體規格不能為空",
       "disk_size_invalid": "磁碟大小必須是正整數"
     }
   },
@@ -256,7 +256,7 @@
     "managed_by_desktop_title": "CLI 二進位制由 Multica 桌面端管理——升級桌面端即可升級 CLI。",
     "read_only": "只讀",
     "read_only_title": "只有執行環境所有者和工作區管理員可以更新 CLI。",
-    "local_build": "本地構建",
+    "local_build": "本地建置",
     "local_build_title": "該執行環境報告的不是釋出版本，Multica 無法判斷是否有可升級的版本。請在這臺機器上自行更新。",
     "latest": "最新",
     "available": "可用",
@@ -269,7 +269,7 @@
       "running": "更新中...",
       "completed": "更新完成。守護程序正在重啟...",
       "failed": "更新失敗",
-      "timeout": "超時"
+      "timeout": "逾時"
     }
   },
   "charts": {
@@ -293,13 +293,13 @@
     "cost_delta_flat": "持平",
     "cli_managed_badge": "桌面端",
     "row_actions_aria": "行操作",
-    "edit_action": "編輯自定義執行環境",
+    "edit_action": "編輯自訂執行環境",
     "delete_action": "刪除",
     "delete_profile_action": "從工作區刪除",
     "delete_permission_hint": "只有執行環境所有者和工作區管理員可以刪除這個執行環境",
     "delete_admin_hint": "只有執行環境所有者和工作區管理員可以刪除執行環境。",
     "badge_builtin": "內建",
-    "badge_custom": "自定義",
+    "badge_custom": "自訂",
     "badge_registering": "註冊中",
     "badge_disabled": "已停用",
     "pending_health": "正在向守護程序註冊",
@@ -310,27 +310,27 @@
   },
   "profiles": {
     "cta": "新增執行環境",
-    "add_custom": "新增自定義執行環境",
+    "add_custom": "新增自訂執行環境",
     "this_machine": "這臺機器",
-    "unassigned_title": "尚未連線到機器的自定義執行環境",
-    "unassigned_description": "這些工作區執行環境目前沒有連線到任何機器。你可以連線裝有對應命令的機器，或通過行操作編輯、刪除配置。",
-    "dialog_title": "自定義執行環境",
-    "dialog_description": "自定義執行環境定義屬於整個工作區，會同步到所有已連線的機器。只有機器上能找到對應命令時，才會註冊該執行環境。",
-    "create_dialog_description": "從 {{machine}} 配置一個自定義命令。定義會同步到整個工作區，但只會在能找到該命令的機器上註冊。",
-    "learn_more": "檢視配置指南",
+    "unassigned_title": "尚未連線到機器的自訂執行環境",
+    "unassigned_description": "這些工作區執行環境目前沒有連線到任何機器。你可以連線裝有對應命令的機器，或透過行操作編輯、刪除設定。",
+    "dialog_title": "自訂執行環境",
+    "dialog_description": "自訂執行環境定義屬於整個工作區，會同步到所有已連線的機器。只有機器上能找到對應命令時，才會註冊該執行環境。",
+    "create_dialog_description": "從 {{machine}} 設定一個自訂命令。定義會同步到整個工作區，但只會在能找到該命令的機器上註冊。",
+    "learn_more": "檢視設定指南",
     "close": "關閉",
-    "add_new": "新建自定義執行環境",
+    "add_new": "新建自訂執行環境",
     "list_title": "執行環境後端",
-    "custom_section_title": "自定義執行環境（{{count}}）",
-    "custom_section_aria": "自定義執行環境",
+    "custom_section_title": "自訂執行環境（{{count}}）",
+    "custom_section_aria": "自訂執行環境",
     "builtin_section_title": "支援的基礎協議（{{count}}）",
     "builtin_section_hint": "內建協議族為只讀參考。",
     "builtin_section_aria": "支援的內建協議族",
     "builtin_reference": "參考",
-    "empty_title": "建立第一個自定義執行環境",
+    "empty_title": "建立第一個自訂執行環境",
     "empty_description": "選擇一個基礎協議族，然後指定 Multica 要執行的命令。",
     "badge_builtin": "內建",
-    "badge_custom": "自定義",
+    "badge_custom": "自訂",
     "badge_disabled": "已停用",
     "builtin_detail": {
       "title": "內建協議族",
@@ -345,23 +345,23 @@
       "edit": "編輯",
       "delete": "刪除",
       "default_title": "選擇一個執行環境",
-      "default_description": "從左側列表中選擇一項檢視詳情。"
+      "default_description": "從左側列表中選擇一項檢視詳細資訊。"
     },
     "form": {
-      "create_title": "新建自定義執行環境",
-      "edit_title": "編輯自定義執行環境",
+      "create_title": "新建自訂執行環境",
+      "edit_title": "編輯自訂執行環境",
       "step_family_label": "選擇基礎協議型別",
       "step_family_hint": "此執行環境使用的底層 CLI 協議。",
-      "step_details_label": "配置執行環境",
+      "step_details_label": "設定執行環境",
       "step_progress": "第 {{current}} / {{total}} 步",
       "family_label": "基礎協議型別",
       "family_locked_hint": "建立後無法更改基礎協議型別。",
       "display_name_label": "顯示名稱",
-      "display_name_placeholder": "例如：我的自定義 Claude...",
+      "display_name_placeholder": "例如：我的自訂 Claude...",
       "command_name_label": "命令",
       "command_name_placeholder": "例如：agent --model composer-2.5...",
       "description_label": "描述",
-      "description_placeholder": "描述此執行環境的用途（可選）...",
+      "description_placeholder": "描述此執行環境的用途（選填）...",
       "error_display_name_required": "顯示名稱為必填項。",
       "error_command_required": "命令為必填項。",
       "error_command_unclosed_quote": "儲存前請先閉合引號。",
@@ -369,7 +369,7 @@
       "error_command_shell_syntax": "不支援 shell 管道、重定向和控制運算子。需要這些能力時請使用 wrapper 指令碼。",
       "error_command_shell_expansion": "不支援 shell 變數或命令展開。請使用絕對路徑或 wrapper 指令碼。",
       "command_preview_executable": "執行檔：",
-      "command_preview_args": "引數：",
+      "command_preview_args": "參數：",
       "back": "返回",
       "cancel": "取消",
       "next": "下一步",
@@ -377,18 +377,18 @@
       "creating": "正在建立...",
       "save": "儲存更改",
       "saving": "正在儲存...",
-      "toast_created": "自定義執行環境已建立",
-      "toast_updated": "自定義執行環境已更新",
+      "toast_created": "自訂執行環境已建立",
+      "toast_updated": "自訂執行環境已更新",
       "error_duplicate_name": "已存在使用此顯示名稱的執行環境。",
       "error_generic": "儲存執行環境失敗。"
     },
     "delete_dialog": {
-      "title": "從工作區刪除自定義執行環境？",
+      "title": "從工作區刪除自訂執行環境？",
       "description": "\"{{name}}\" 將從此工作區及所有已註冊的機器中移除。此操作無法撤銷。",
       "confirm": "從工作區刪除",
       "cancel": "取消",
       "deleting": "正在刪除...",
-      "toast_deleted": "已從工作區刪除自定義執行環境",
+      "toast_deleted": "已從工作區刪除自訂執行環境",
       "error_bound": "仍有 Agent 在使用此執行環境，無法刪除。",
       "error_generic": "刪除執行環境失敗。"
     }
@@ -416,22 +416,22 @@
     "legend_cache_write": "快取寫入",
     "empty_no_usage": "此期間無使用記錄。",
     "empty_pricing_missing": "記錄到 token，但缺少這些模型的價格：",
-    "empty_pricing_hint": "可以設定自定義價格，把它們也納入費用統計。",
+    "empty_pricing_hint": "可以設定自訂價格，把它們也納入費用統計。",
     "empty_zero_cost": "記錄到 token，但費用計算結果為 $0。",
     "unmapped_notice_other": "有 {{count}} 個模型沒有維護價格，相關 token 未計入費用統計。",
     "custom_pricing": {
-      "open_button": "設定自定義價格",
-      "edit_button": "編輯自定義價格",
-      "active_notice": "當前時間範圍內有模型按你設定的自定義價格計費。",
-      "title": "自定義模型價格",
+      "open_button": "設定自訂價格",
+      "edit_button": "編輯自訂價格",
+      "active_notice": "目前時間範圍內有模型按你設定的自訂價格計費。",
+      "title": "自訂模型價格",
       "description": "為我們未維護官方價格的模型填入每百萬 token 的費率。僅儲存在本機。",
       "empty": "目前沒有需要設定價格的模型。",
       "field_input": "輸入",
       "field_output": "輸出",
       "field_cache_read": "快取讀取",
       "field_cache_write": "快取寫入",
-      "unit_hint": "所有費率單位為美元 / 百萬 token。清空所有欄位即可移除該自定義價格。",
-      "remove_aria": "移除自定義價格",
+      "unit_hint": "所有費率單位為美元 / 百萬 token。清空所有欄位即可移除該自訂價格。",
+      "remove_aria": "移除自訂價格",
       "cancel": "取消",
       "save": "儲存"
     },

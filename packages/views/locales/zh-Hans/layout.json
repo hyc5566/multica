@@ -33,7 +33,7 @@
     "docs": "文件",
     "changelog": "更新日誌",
     "discord": "Discord",
-    "feedback": "反饋",
+    "feedback": "意見回饋",
     "server_version": "伺服器版本 {{version}}"
   },
   "workspace_loader": {

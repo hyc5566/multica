@@ -34,7 +34,7 @@
     "metric_tokens": "Token",
     "metric_time": "耗時",
     "metric_tasks": "執行數",
-    "no_data": "所選時間範圍內暫無消耗。",
+    "no_data": "所選時間範圍內目前沒有消耗。",
     "metric_label": "指標"
   },
   "weekly": {
@@ -55,7 +55,7 @@
     "class": {
       "auth": "認證",
       "rate_limit": "限流",
-      "timeout": "超時",
+      "timeout": "逾時",
       "provider": "模型服務",
       "runtime": "執行環境",
       "agent": "Agent",
@@ -99,10 +99,10 @@
     "usage_totals_pending": "用量彙總仍在處理中",
     "show_all": "展開全部",
     "show_less": "只看前 {{count}} 個",
-    "no_data": "所選時間範圍內暫無 Agent 活動。"
+    "no_data": "所選時間範圍內目前沒有 Agent 活動。"
   },
   "empty": {
-    "title": "暫無消耗資料",
+    "title": "目前沒有消耗資料",
     "body": "當 Agent 在這裡開始執行後，它們的 token 消耗和耗時將出現在此處。"
   },
   "duration": {
