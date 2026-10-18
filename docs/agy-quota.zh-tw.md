@@ -22,7 +22,14 @@ m5 `chy1010-linker-m5.local` 上 agy-hud plugin 0.3.3，Git HEAD
 POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行模型、未寫入 m5，
 未保存原始回應或憑證。此來源是 agy 使用的 Google 後端，並非保證相容的公開 API。
 
-`https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary`
+`https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary`
+
+以上端點已於 HYCLV-363 修正為正式環境。2026-10-19 由 s90 透過既有 SSH、
+以 Python 直接探測 m2：同一憑證查舊 `daily-cloudcode-pa.googleapis.com` 只有
+第三方池，查正式 `cloudcode-pa.googleapis.com` 則取得完整四窗；在 daily 請求
+補上 `loadCodeAssist` 取得的 project 仍無 Gemini 窗口。原 9/13 的 daily 來源
+僅為歷史證據，不再作為預設環境。不要以 partial 就判定帳號不支援 Gemini，
+也不必改回逐模型配額或推算 5hr／weekly。
 
 | 回應 group | bucketId | window | UI 語意 |
 | --- | --- | --- | --- |
