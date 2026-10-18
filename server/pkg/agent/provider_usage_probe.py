@@ -23,7 +23,7 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional
 
 CLAUDE_USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
 ANTIGRAVITY_USAGE_URL = (
-    "https://daily-cloudcode-pa.googleapis.com/"
+    "https://cloudcode-pa.googleapis.com/"
     "v1internal:retrieveUserQuotaSummary"
 )
 CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"

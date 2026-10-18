@@ -112,6 +112,10 @@ Replay the direct `retrieveUserQuotaSummary` probe, the Antigravity UI pool help
 translations and the task checkpoint pool selection together. Preserve explicit
 five-hour/weekly windows, unknown values and provider-confirmed shared bucket
 IDs. Do not replay agy-hud's reset-time inference or missing-value defaults.
+Keep the production `cloudcode-pa.googleapis.com` quota-summary endpoint
+(HYCLV-363); the earlier `daily-` backend can return only third-party pools.
+Verify all four explicit windows against the published Python probe on a real
+runtime, since HTTP 200 and fixture tests alone do not establish quota coverage.
 See [source evidence, tests and rebuilding](agy-quota.zh-tw.md).
 
 ### Task quota checkpoint layer

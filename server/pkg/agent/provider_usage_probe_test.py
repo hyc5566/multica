@@ -497,6 +497,9 @@ class ProviderFetchTests(unittest.TestCase):
                     run.assert_not_called()
 
     def test_antigravity_uses_direct_quota_summary_endpoint(self) -> None:
+        # The daily backend omits Gemini windows for real subscriber accounts.
+        self.assertEqual(probe.ANTIGRAVITY_USAGE_URL,
+                         "https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary")
         limiter = mock.Mock()
         with (
             mock.patch.object(probe, "antigravity_token", return_value="test-token"),
