@@ -168,5 +168,6 @@
       "role_testing": "테스트",
       "role_product": "프로덕트"
     }
-  }
+  },
+  "toolbar": {}
 }
