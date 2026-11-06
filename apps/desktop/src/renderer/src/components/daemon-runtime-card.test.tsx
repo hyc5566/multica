@@ -38,6 +38,7 @@ vi.mock("@multica/views/i18n", () => ({
 vi.mock("./daemon-panel", () => ({ DaemonPanel: () => null }));
 vi.mock("../platform/daemon-reauth", () => ({
   reauthenticateDaemon: vi.fn(),
+  startDaemonWithSession: vi.fn(),
 }));
 vi.mock("sonner", () => ({
   toast: { error: vi.fn(), success: vi.fn() },

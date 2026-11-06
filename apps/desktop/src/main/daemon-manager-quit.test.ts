@@ -124,6 +124,19 @@ describe("desktop quit uses the CLI lifecycle", () => {
     manager.resumeDaemonAfterAbortedUpdateInstall();
   });
 
+  it("preserves the daemon through a Taiwan app-bundle replacement", async () => {
+    await setup();
+    const manager = await import("./daemon-manager");
+    manager.preserveDaemonOnNextQuit();
+    const event = { defaultPrevented: false, preventDefault: vi.fn() };
+    context.beforeQuit!(event);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(context.dialog).not.toHaveBeenCalled();
+    expect(context.exec).not.toHaveBeenCalled();
+    expect(context.quit).not.toHaveBeenCalled();
+  });
+
   it("shows English confirmation and waits for the profile-scoped CLI result", async () => {
     await setup(); requestQuit();
     await vi.waitFor(() => expect(context.finishStop).toBeTypeOf("function"));
@@ -243,6 +256,15 @@ describe("desktop quit uses the CLI lifecycle", () => {
 
   it("does not wait for CLI installation when no daemon has started", async () => {
     await setupInstallingCLI();
+    requestQuit();
+    await vi.waitFor(() => expect(context.quit).toHaveBeenCalledOnce());
+    expect(context.dialog).not.toHaveBeenCalled();
+    expect(context.exec).not.toHaveBeenCalled();
+  });
+
+  it("accepts the same target from another window while CLI installation is pending", async () => {
+    await setupInstallingCLI();
+    await context.handlers.get("daemon:set-target-api-url")!({}, "https://example.test");
     requestQuit();
     await vi.waitFor(() => expect(context.quit).toHaveBeenCalledOnce());
     expect(context.dialog).not.toHaveBeenCalled();

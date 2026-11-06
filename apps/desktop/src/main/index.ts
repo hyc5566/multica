@@ -19,7 +19,13 @@ import {
   prepareDaemonForUpdateInstall,
   resumeDaemonAfterAbortedUpdateInstall,
   setupDaemonManager,
+  requestDaemonTrustRefresh,
+  getTargetApiBaseUrl,
+  preserveDaemonOnNextQuit,
 } from "./daemon-manager";
+import { installLanTrust } from "./lan-trust";
+import { DESKTOP_PROTOCOL as PROTOCOL, handleDesktopDeepLink } from "./desktop-deep-link";
+import { setupZhTWAppUpdate } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
 import { setupThemeFolder } from "./theme-folder";
 import { setupVoiceInput } from "./voice";
@@ -159,7 +165,10 @@ if (process.platform !== "win32") {
 // Before anything can log: release builds write to stdout/stderr too.
 ignoreBrokenStdio();
 
-const PROTOCOL = "multica";
+// The Taiwan-localized package is intentionally isolated from the official
+// Desktop app: it has its own single-instance lock and userData directory,
+// while sharing the official Web login protocol and keeping its own updates.
+const PACKAGED_APP_NAME = "Multica 繁中版";
 const devLog = is.dev ? createBestEffortDevLog() : undefined;
 
 // Where the main process parks a freeze/crash breadcrumb until the next
@@ -320,39 +329,7 @@ function applyUnreadBadge(): void {
 }
 
 function handleDeepLink(url: string): void {
-  try {
-    const parsed = new URL(url);
-    if (parsed.protocol !== `${PROTOCOL}:`) return;
-
-    // multica://auth/callback?token=<jwt>
-    if (parsed.hostname === "auth" && parsed.pathname === "/callback") {
-      const token = parsed.searchParams.get("token");
-      if (token) dispatchToMainRenderer("auth:token", token);
-      return;
-    }
-
-    // multica://invite/<invitationId>
-    // Dispatched from the web invite page when the user chooses "Open in
-    // desktop app". The renderer opens the invite overlay — no tab, no
-    // route persistence, so deep-linking the same invite twice stays safe.
-    if (parsed.hostname === "invite") {
-      const id = parsed.pathname.replace(/^\//, "");
-      if (id) dispatchToMainRenderer("invite:open", decodeURIComponent(id));
-      return;
-    }
-
-    // multica://open/issue?url=… and multica://open/chat?url=…
-    if (
-      parsed.hostname === "open" &&
-      (parsed.pathname === "/issue" || parsed.pathname === "/chat")
-    ) {
-      // Keep the source instance in the payload. The authenticated renderer
-      // validates it against runtime config before opening a workspace tab.
-      dispatchToMainRenderer("issue:open", url);
-    }
-  } catch {
-    // Ignore malformed URLs
-  }
+  handleDesktopDeepLink(url, dispatchToMainRenderer);
 }
 
 // --- Window creation -----------------------------------------------------
@@ -727,13 +704,11 @@ if (is.dev) {
   app.setName(DEV_APP_NAME);
   app.setPath("userData", join(app.getPath("appData"), DEV_APP_NAME));
 } else {
-  // Pin the production app name in code. Electron's Linux WM_CLASS is set
-  // from app.getName() when the first BrowserWindow is realized; the
-  // packaged ASAR's package.json `productName` already steers app.getName()
-  // to "Multica", but anchoring it here makes WM_CLASS ↔ StartupWMClass
-  // (declared in electron-builder.yml) survive a regression in
-  // productName / the build pipeline. Must run before requestSingleInstanceLock().
-  app.setName("Multica");
+  // Keep this local package independent from the official Multica app. This
+  // must run before requestSingleInstanceLock(), whose location comes from
+  // userData.
+  app.setName(PACKAGED_APP_NAME);
+  app.setPath("userData", join(app.getPath("appData"), PACKAGED_APP_NAME));
 }
 
 // --- Protocol registration -----------------------------------------------
@@ -790,6 +765,7 @@ if (!gotTheLock) {
   if (devAuthToken) dispatchToMainRenderer("auth:token", devAuthToken);
 
   app.whenReady().then(async () => {
+    if (app.isPackaged && app.getName() === "Multica 繁中版") await installLanTrust(app, requestDaemonTrustRefresh);
     const viteEnv = import.meta.env as ImportMetaEnv & {
       readonly VITE_API_URL?: string;
       readonly VITE_WS_URL?: string;
@@ -1093,25 +1069,32 @@ if (!gotTheLock) {
       createMainWindow(saved);
     }
 
-    // Register first so the update quit gate can block daemon autoStop.
-    setupAutoUpdater(() => mainWindows.all(), {
-      // Windows only (the updater ignores it elsewhere): stop the bundled
-      // daemon before the installer runs so multica.exe is replaced. #8823
-      daemonGate: {
-        prepare: prepareDaemonForUpdateInstall,
-        resumeAfterAbortedInstall: resumeDaemonAfterAbortedUpdateInstall,
-        confirmInstallWhileBusy: createElectronBusyInstallPrompt((options) => {
-          const parent = mainWindows.mostRecent();
-          return parent && !parent.isDestroyed()
-            ? dialog.showMessageBox(parent, options)
-            : dialog.showMessageBox(options);
-        }, getEffectiveLocale),
-      },
-    });
-    setupDaemonManager(
-      () => mainWindows.mostRecent(),
-      () => mainWindows.all(),
-    );
+    const taiwanPackage = app.isPackaged && app.getName() === PACKAGED_APP_NAME;
+    if (!taiwanPackage) {
+      // Register first so the update quit gate can block daemon autoStop.
+      setupAutoUpdater(() => mainWindows.all(), {
+        // Windows only (the updater ignores it elsewhere): stop the bundled
+        // daemon before the installer runs so multica.exe is replaced. #8823
+        daemonGate: {
+          prepare: prepareDaemonForUpdateInstall,
+          resumeAfterAbortedInstall: resumeDaemonAfterAbortedUpdateInstall,
+          confirmInstallWhileBusy: createElectronBusyInstallPrompt((options) => {
+            const parent = mainWindows.mostRecent();
+            return parent && !parent.isDestroyed()
+              ? dialog.showMessageBox(parent, options)
+              : dialog.showMessageBox(options);
+          }, getEffectiveLocale),
+        },
+      });
+    }
+    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all());
+    if (taiwanPackage) {
+      setupZhTWAppUpdate({
+        getMainWindow: () => mainWindows.mostRecent(),
+        getApiBaseUrl: getTargetApiBaseUrl,
+        preserveDaemonOnQuit: preserveDaemonOnNextQuit,
+      });
+    }
     setupLocalDirectory(() => mainWindows.mostRecent());
     setupThemeFolder();
     setupVoiceInput();
@@ -1123,7 +1106,6 @@ if (!gotTheLock) {
       if (event.defaultPrevented) return;
       freezeWindowSession();
     });
-    // macOS quitAndInstall closes every window before before-quit fires.
     if (process.platform === "darwin") {
       nativeAutoUpdater.on("before-quit-for-update", freezeWindowSession);
     }

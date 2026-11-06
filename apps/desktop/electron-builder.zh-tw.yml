@@ -1,0 +1,43 @@
+appId: ai.multica.desktop.zh-tw.local
+productName: Multica 繁中版
+directories:
+  buildResources: build
+  output: dist-zh-tw
+files:
+  - "!**/.vscode/*"
+  - "!src/*"
+  - "!electron*.{yml,config.*}"
+  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
+  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}"
+  - "!{.env*,eslint.config.*,vitest.config.*}"
+  - "!{scripts,test}/**"
+  - "!dist*/**"
+extraResources:
+  - from: resources/s90-ca.crt
+    to: s90-ca.crt
+  - from: ../../LICENSE
+    to: LICENSE
+  - from: ../../NOTICE
+    to: NOTICE
+protocols:
+  - name: Multica 繁中版
+    schemes:
+      - multica
+asarUnpack:
+  - resources/**
+mac:
+  minimumSystemVersion: "13.0.0"
+  # Match the upstream package path explicitly so the Taiwan build always
+  # uses the corrected multi-resolution macOS asset.
+  icon: build/icon.icns
+  entitlementsInherit: build/entitlements.mac.plist
+  notarize: false
+  extendInfo:
+    LSEnvironment:
+      # The self-hosted s90 deployment uses a private CA installed in the
+      # macOS System Keychain. Electron main-process fetches need this opt-in
+      # so Desktop can mint its daemon PAT without duplicating the CA bundle.
+      NODE_USE_SYSTEM_CA: "1"
+  target:
+    - dir
+npmRebuild: false

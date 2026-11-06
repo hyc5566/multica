@@ -10,6 +10,7 @@ vi.mock("electron", () => ({
 
 import { loadRuntimeConfig } from "./runtime-config-loader";
 
+
 describe("loadRuntimeConfig", () => {
   it("uses dev env and ignores desktop.json during electron-vite dev", async () => {
     const dir = await mkdtemp(join(tmpdir(), "multica-desktop-config-"));
@@ -40,7 +41,7 @@ describe("loadRuntimeConfig", () => {
     });
   });
 
-  it("uses cloud defaults when packaged config is absent", async () => {
+  it("uses s90 defaults when packaged config is absent", async () => {
     const dir = await mkdtemp(join(tmpdir(), "multica-desktop-config-"));
     await expect(
       loadRuntimeConfig({
@@ -52,9 +53,9 @@ describe("loadRuntimeConfig", () => {
       ok: true,
       config: {
         schemaVersion: 1,
-        apiUrl: "https://api.multica.ai",
-        wsUrl: "wss://api.multica.ai/ws",
-        appUrl: "https://multica.ai",
+        apiUrl: "https://10.1.24.90:45671",
+        wsUrl: "wss://10.1.24.90:45671/ws",
+        appUrl: "https://10.1.24.90:45671",
       },
     });
   });

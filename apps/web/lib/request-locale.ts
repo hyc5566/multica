@@ -16,7 +16,6 @@ export const getRequestLocale = cache(
     const cookieStore = await cookies();
     return resolveLocaleFromSignals({
       cookieLocale: cookieStore.get(LOCALE_COOKIE)?.value,
-      acceptLanguage: headerList.get("accept-language"),
     });
   },
 );
