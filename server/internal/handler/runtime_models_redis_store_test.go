@@ -158,6 +158,16 @@ func TestRedisModelListStore_PopPendingAcrossInstances(t *testing.T) {
 		t.Fatal("run_started_at not set after pop")
 	}
 
+	// A result reported to node B remains readable by a frontend polling node A.
+	usage := &ProviderUsageSnapshot{Provider: "codex", Status: "available", Source: "test", ObservedAt: time.Now().UTC()}
+	if err := nodeB.Complete(ctx, req.ID, nil, nil, true, usage); err != nil {
+		t.Fatalf("node B complete: %v", err)
+	}
+	completed, err := nodeA.Get(ctx, req.ID)
+	if err != nil || completed == nil || completed.Status != ModelListCompleted || completed.ProviderUsage == nil || completed.ProviderUsage.Provider != "codex" {
+		t.Fatalf("node A did not see node B provider usage result: result=%+v error=%v", completed, err)
+	}
+
 	// A third pop must see nothing (claim was atomic).
 	again, err := nodeB.PopPending(ctx, "runtime-cross")
 	if err != nil {

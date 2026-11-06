@@ -19,21 +19,11 @@ import (
 var setupCmd = &cobra.Command{
 	Use:   "setup",
 	Short: "Configure the CLI, authenticate, and start the daemon",
-	Long: `Configures the CLI to connect to Multica Cloud (multica.ai), then
-authenticates via browser and starts the agent daemon.
-
-If a configuration already exists, you will be prompted before overwriting.
-
-Use 'multica setup self-host' to connect to a self-hosted server instead.
-
-If you run this command over SSH on a remote machine, keep the localhost
-callback and follow the SSH tunnel hint printed during browser login. If your
-browser can reach this CLI directly on a private network address, pass
---callback-host <host-or-ip>.
-
-Use --profile to create an isolated configuration for a separate environment:
-  multica setup self-host --profile staging --server-url https://api-staging.co`,
-	RunE: runSetupCloud,
+	Long: `Configure the Taiwan edition for the s90 server (https://10.1.24.90:45671).
+Existing profile URLs are preserved unless overridden by flags or environment.
+Use --profile to select the configuration, --server-url and --app-url to override.
+Use 'multica setup cloud' only to explicitly select the official Cloud service.`,
+	RunE: runSetupSelfHost,
 }
 
 var setupCloudCmd = &cobra.Command{
@@ -46,7 +36,7 @@ callback and follow the SSH tunnel hint printed during browser login. If your
 browser can reach this CLI directly on a private network address, pass
 --callback-host <host-or-ip>.
 
-This is equivalent to running 'multica setup' without a subcommand.`,
+The Taiwan edition's plain 'multica setup' uses the s90 server instead.`,
 	RunE: runSetupCloud,
 }
 
@@ -71,6 +61,10 @@ Examples:
 
 func init() {
 	setupCmd.Flags().String(callbackHostFlag, "", callbackHostFlagHelp)
+	setupCmd.Flags().String("server-url", "", "Server URL (env: MULTICA_SERVER_URL)")
+	setupCmd.Flags().String("app-url", "", "App URL (env: MULTICA_APP_URL)")
+	setupCmd.Flags().Int("port", 8080, "Explicit local backend port")
+	setupCmd.Flags().Int("frontend-port", 3000, "Explicit local frontend port")
 	setupCloudCmd.Flags().String(callbackHostFlag, "", callbackHostFlagHelp)
 
 	setupSelfHostCmd.Flags().String("server-url", "", "Backend server URL (e.g. https://api.internal.co) (env: MULTICA_SERVER_URL)")
@@ -117,7 +111,7 @@ func confirmOverwrite(profile, newServerURL, newAppURL string) (bool, error) {
 		fmt.Fprintf(os.Stderr, "  workspace:  %s\n", cfg.WorkspaceID)
 	}
 	fmt.Fprintln(os.Stderr, "")
-	fmt.Fprint(os.Stderr, "This will reset your configuration. Continue? [y/N] ")
+	fmt.Fprint(os.Stderr, "Apply these server settings? Local settings will be retained. Continue? [y/N] ")
 
 	reader := bufio.NewReader(os.Stdin)
 	answer, _ := reader.ReadString('\n')
@@ -144,10 +138,14 @@ func runSetupCloud(cmd *cobra.Command, args []string) error {
 	}
 	profile := resolveProfile(cmd)
 
-	cfg := cli.CLIConfig{
-		ServerURL: defaultCloudServerURL,
-		AppURL:    defaultCloudAppURL,
+	cfg, err := cli.LoadCLIConfigForProfile(profile)
+	if err != nil {
+		return err
 	}
+	if normalizeAPIBaseURL(cfg.ServerURL) != defaultCloudServerURL {
+		cfg.Token, cfg.WorkspaceID = "", ""
+	}
+	cfg.ServerURL, cfg.AppURL = defaultCloudServerURL, defaultCloudAppURL
 
 	ok, err := confirmOverwrite(profile, cfg.ServerURL, cfg.AppURL)
 	if err != nil {
@@ -168,7 +166,7 @@ func runSetupCloud(cmd *cobra.Command, args []string) error {
 
 	// Authenticate.
 	fmt.Fprintln(os.Stderr, "")
-	if err := runLogin(cmd, args); err != nil {
+	if err := authenticateAfterSetup(cmd, args); err != nil {
 		return err
 	}
 
@@ -249,7 +247,7 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 
 	// Authenticate.
 	fmt.Fprintln(os.Stderr, "")
-	if err := runLogin(cmd, args); err != nil {
+	if err := authenticateAfterSetup(cmd, args); err != nil {
 		return err
 	}
 
@@ -259,6 +257,41 @@ func runSetupSelfHost(cmd *cobra.Command, args []string) error {
 	fmt.Fprintln(os.Stderr, "\n✓ Setup complete! Your machine is now connected to Multica.")
 
 	return nil
+}
+
+// authenticateAfterSetup reuses a saved credential only after the server accepts it.
+// Transport and server failures must not cause needless token replacement.
+func authenticateAfterSetup(cmd *cobra.Command, args []string) error {
+	cfg, err := cli.LoadCLIConfigForProfile(resolveProfile(cmd))
+	if err != nil {
+		return err
+	}
+	reuse, err := validateSetupToken(cfg)
+	if err != nil {
+		return err
+	}
+	if reuse {
+		fmt.Fprintln(os.Stderr, "Existing authentication verified; keeping your token.")
+		return nil
+	}
+	return runLogin(cmd, args)
+}
+
+func validateSetupToken(cfg cli.CLIConfig) (bool, error) {
+	if cfg.Token == "" {
+		return false, nil
+	}
+	ctx, cancel := cli.APIContext(context.Background())
+	defer cancel()
+	var me map[string]any
+	err := cli.NewAPIClient(cfg.ServerURL, "", cfg.Token).GetJSON(ctx, "/api/me", &me)
+	if err == nil {
+		return true, nil
+	}
+	if isInvalidAuthentication(err) {
+		return false, nil
+	}
+	return false, fmt.Errorf("could not verify existing authentication; token retained: %w", err)
 }
 
 // runDaemonAfterSetup makes the freshly authenticated profile effective in
@@ -330,21 +363,21 @@ func daemonActiveTaskCount(health map[string]any) int64 {
 	}
 }
 
-// persistSelfHostConfigIfReachable probes serverURL and, only when it answers,
-// overwrites the profile config with the given self-host URLs. When the server
-// is unreachable it leaves any existing config — and its auth token — untouched
-// and returns false, so a failed `setup self-host` never logs the user out or
-// clobbers a working config (the original ordering saved first, then probed,
-// then bailed — wiping the token on every failed probe). The prober is injected
-// so tests can exercise both branches without real network I/O.
+// persistSelfHostConfigIfReachable preserves local settings, and retains credentials
+// only when the server identity is unchanged. Failed probes leave config untouched.
 func persistSelfHostConfigIfReachable(serverURL, appURL, profile string, probe func(string) bool) (bool, error) {
 	if !probe(serverURL) {
 		return false, nil
 	}
-	cfg := cli.CLIConfig{
-		ServerURL: serverURL,
-		AppURL:    appURL,
+	cfg, err := cli.LoadCLIConfigForProfile(profile)
+	if err != nil {
+		return false, err
 	}
+	if normalizeAPIBaseURL(cfg.ServerURL) != normalizeAPIBaseURL(serverURL) {
+		cfg.Token = ""
+		cfg.WorkspaceID = ""
+	}
+	cfg.ServerURL, cfg.AppURL = serverURL, appURL
 	if err := cli.SaveCLIConfigForProfile(cfg, profile); err != nil {
 		return false, err
 	}
@@ -379,6 +412,9 @@ func resolveSelfHostServerURL(cmd *cobra.Command, existing cli.CLIConfig) (serve
 		// probe and stored server_url expect, like resolveServerURL does.
 		return normalizeAPIBaseURL(existing.ServerURL), true
 	}
+	if cmd.Name() == "setup" && !cmd.Flags().Changed("port") {
+		return defaultTaiwanServerURL, false
+	}
 	port, _ := cmd.Flags().GetInt("port")
 	return fmt.Sprintf("http://localhost:%d", port), false
 }
@@ -399,6 +435,12 @@ func resolveSelfHostAppURL(cmd *cobra.Command, existing cli.CLIConfig) string {
 	}
 	if !cmd.Flags().Changed("frontend-port") && existing.AppURL != "" {
 		return existing.AppURL
+	}
+	if cmd.Name() == "setup" && !cmd.Flags().Changed("frontend-port") {
+		serverURL, _ := resolveSelfHostServerURL(cmd, existing)
+		if serverURL == defaultTaiwanServerURL {
+			return defaultTaiwanAppURL
+		}
 	}
 	return ""
 }

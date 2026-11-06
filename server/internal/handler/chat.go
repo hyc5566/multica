@@ -332,6 +332,7 @@ func (h *Handler) GetChatSession(w http.ResponseWriter, r *http.Request) {
 	}
 
 	resp := chatSessionToResponse(session)
+	h.hydrateChatSessionQuotaCheckpoints(r.Context(), session.ID, &resp)
 	// hydrateChatSessionChannelMetadata mutates the slice element, so retain a
 	// concrete slice here rather than passing a temporary value to writeJSON.
 	responses := []ChatSessionResponse{resp}
@@ -1212,6 +1213,7 @@ func (h *Handler) ListChatMessages(w http.ResponseWriter, r *http.Request) {
 	for i, m := range messages {
 		resp[i] = chatMessageToResponse(m, groupedAtt[uuidToString(m.ID)])
 	}
+	h.hydrateChatMessageUsage(r.Context(), session.AgentID, resp)
 	writeJSON(w, http.StatusOK, resp)
 }
 
@@ -1277,6 +1279,7 @@ func (h *Handler) ListChatMessagesPage(w http.ResponseWriter, r *http.Request) {
 	for i, m := range messages {
 		resp[i] = chatMessageToResponse(m, groupedAtt[uuidToString(m.ID)])
 	}
+	h.hydrateChatMessageUsage(r.Context(), session.AgentID, resp)
 	writeJSON(w, http.StatusOK, ChatMessagesPageResponse{
 		Messages:   resp,
 		Limit:      limit,
@@ -1935,6 +1938,15 @@ type ChatSessionResponse struct {
 	IsCurrentChannelRoute *bool                             `json:"is_current_channel_route,omitempty"`
 	CreatedAt             string                            `json:"created_at"`
 	UpdatedAt             string                            `json:"updated_at"`
+	// QuotaCheckpoints is populated only by the single-session endpoint. List
+	// rows stay small; the detail response is the session-level export source.
+	QuotaCheckpoints []TaskQuotaCheckpointData `json:"quota_checkpoints,omitempty"`
+	TaskUsage        []ChatTaskUsageResponse   `json:"task_usage,omitempty"`
+}
+
+type ChatTaskUsageResponse struct {
+	TaskID string          `json:"task_id"`
+	Usage  []TaskUsageData `json:"usage,omitempty"`
 }
 
 type ChatSessionChannelSourceResponse struct {
@@ -2026,6 +2038,101 @@ type ChatMessageResponse struct {
 	// agent can `multica attachment download <id>` rather than guessing
 	// from a markdown URL that may expire.
 	Attachments []AttachmentResponse `json:"attachments,omitempty"`
+	// QuotaCheckpoints are account-level observations for this message's run.
+	// Their absence never blocks or hides the persisted Chat reply.
+	QuotaCheckpoints []TaskQuotaCheckpointData `json:"quota_checkpoints,omitempty"`
+	Usage            []TaskUsageData           `json:"usage,omitempty"`
+}
+
+func (h *Handler) hydrateChatMessageUsage(ctx context.Context, agentID pgtype.UUID, messages []ChatMessageResponse) {
+	taskIDs := make([]pgtype.UUID, 0, len(messages))
+	seen := make(map[string]struct{}, len(messages))
+	for _, message := range messages {
+		if message.TaskID == nil {
+			continue
+		}
+		if _, ok := seen[*message.TaskID]; ok {
+			continue
+		}
+		seen[*message.TaskID] = struct{}{}
+		taskIDs = append(taskIDs, parseUUID(*message.TaskID))
+	}
+	tasks := make([]AgentTaskResponse, len(taskIDs))
+	for i, id := range taskIDs {
+		tasks[i].ID = uuidToString(id)
+	}
+	if err := h.hydrateAgentTaskUsage(ctx, agentID, taskIDs, tasks); err != nil {
+		slog.Warn("hydrate chat token usage failed", "error", err)
+	}
+	usageByTask := make(map[string][]TaskUsageData, len(tasks))
+	for _, task := range tasks {
+		usageByTask[task.ID] = task.Usage
+	}
+	for i := range messages {
+		if messages[i].TaskID != nil && messages[i].Role == "assistant" {
+			messages[i].Usage = usageByTask[*messages[i].TaskID]
+		}
+	}
+	byTask, err := h.loadTaskQuotaCheckpoints(ctx, taskIDs)
+	if err != nil {
+		slog.Warn("hydrate chat message quota checkpoints failed", "error", err)
+		return
+	}
+	for i := range messages {
+		if messages[i].TaskID != nil {
+			messages[i].QuotaCheckpoints = byTask[*messages[i].TaskID]
+		}
+	}
+}
+
+func (h *Handler) hydrateChatSessionQuotaCheckpoints(ctx context.Context, sessionID pgtype.UUID, session *ChatSessionResponse) {
+	if h.DB == nil {
+		return
+	}
+	rows, err := h.DB.Query(ctx, `
+		SELECT id FROM agent_task_queue
+		 WHERE chat_session_id = $1
+		   AND regenerate_quick_actions_for IS NULL
+		 ORDER BY created_at, id
+	`, sessionID)
+	if err != nil {
+		slog.Warn("hydrate chat session quota checkpoints failed", "session_id", uuidToString(sessionID), "error", err)
+		return
+	}
+	var taskIDs []pgtype.UUID
+	for rows.Next() {
+		var taskID pgtype.UUID
+		if err := rows.Scan(&taskID); err != nil {
+			rows.Close()
+			slog.Warn("hydrate chat session quota checkpoints failed", "session_id", uuidToString(sessionID), "error", err)
+			return
+		}
+		taskIDs = append(taskIDs, taskID)
+	}
+	if err := rows.Err(); err != nil {
+		rows.Close()
+		slog.Warn("hydrate chat session quota checkpoints failed", "session_id", uuidToString(sessionID), "error", err)
+		return
+	}
+	rows.Close()
+	tasks := make([]AgentTaskResponse, len(taskIDs))
+	for i, id := range taskIDs {
+		tasks[i].ID = uuidToString(id)
+	}
+	if err := h.hydrateAgentTaskUsage(ctx, parseUUID(session.AgentID), taskIDs, tasks); err != nil {
+		slog.Warn("hydrate chat session token usage failed", "error", err)
+	}
+	for _, task := range tasks {
+		session.TaskUsage = append(session.TaskUsage, ChatTaskUsageResponse{TaskID: task.ID, Usage: task.Usage})
+	}
+	byTask, err := h.loadTaskQuotaCheckpoints(ctx, taskIDs)
+	if err != nil {
+		slog.Warn("hydrate chat session quota checkpoints failed", "session_id", uuidToString(sessionID), "error", err)
+		return
+	}
+	for _, taskID := range taskIDs {
+		session.QuotaCheckpoints = append(session.QuotaCheckpoints, byTask[uuidToString(taskID)]...)
+	}
 }
 
 func chatSessionToResponse(s db.ChatSession) ChatSessionResponse {
