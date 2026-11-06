@@ -153,5 +153,6 @@
       "role_testing": "テスト",
       "role_product": "プロダクト"
     }
-  }
+  },
+  "toolbar": {}
 }
