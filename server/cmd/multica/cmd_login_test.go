@@ -19,12 +19,12 @@ func newLoginTestCmd() *cobra.Command {
 	return cmd
 }
 
-func TestResolveLoginTokenServerURLDefaultsToCloud(t *testing.T) {
+func TestResolveLoginTokenServerURLDefaultsToTaiwan(t *testing.T) {
 	redirectTestHome(t, t.TempDir())
 	t.Setenv("MULTICA_SERVER_URL", "")
 
-	if got := resolveLoginTokenServerURL(newLoginTestCmd()); got != defaultCloudServerURL {
-		t.Fatalf("resolveLoginTokenServerURL() = %q, want %q", got, defaultCloudServerURL)
+	if got := resolveLoginTokenServerURL(newLoginTestCmd()); got != defaultTaiwanServerURL {
+		t.Fatalf("resolveLoginTokenServerURL() = %q, want %q", got, defaultTaiwanServerURL)
 	}
 }
 
@@ -100,7 +100,7 @@ func TestRunLoginTokenAutoWatchesDiscoveredWorkspaces(t *testing.T) {
 	if err != nil {
 		t.Fatalf("runLogin: %v", err)
 	}
-	if !strings.Contains(errOut, "Found 2 workspace(s):") || !strings.Contains(errOut, "daemon start") {
+	if !strings.Contains(errOut, "Found 2 workspace(s):") || !strings.Contains(errOut, "→ 執行 'multica daemon start' 以啟動本機 Agent 執行環境。") {
 		t.Fatalf("stderr = %q, want workspace discovery and daemon hint", errOut)
 	}
 

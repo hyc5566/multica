@@ -639,8 +639,11 @@ func TestSetupKeepsProfileOnlyForTheSameBackend(t *testing.T) {
 			if tc.keep && (got.DeviceName != old.DeviceName || got.PollInterval != old.PollInterval) {
 				t.Fatal("same backend lost profile settings")
 			}
-			if got.Token != "" || got.WorkspaceID != "" {
-				t.Fatal("setup retained login credentials")
+			if tc.keep && (got.Token != old.Token || got.WorkspaceID != old.WorkspaceID) {
+				t.Fatal("same backend lost login credentials")
+			}
+			if !tc.keep && (got.Token != "" || got.WorkspaceID != "") {
+				t.Fatal("different backend inherited login credentials")
 			}
 			if !tc.keep && got.DeviceName != "" {
 				t.Fatal("different backend inherited profile")

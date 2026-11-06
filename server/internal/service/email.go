@@ -342,7 +342,7 @@ func (s *EmailService) SendVerificationCode(to, code string) error {
 		`<div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
 			<h2>Your verification code</h2>
 			<p style="font-size: 32px; font-weight: bold; letter-spacing: 8px; margin: 24px 0;">%s</p>
-			<p>This code expires in 10 minutes.</p>
+			<p>This code expires in 15 minutes.</p>
 			<p style="color: #666; font-size: 14px;">If you didn't request this code, you can safely ignore this email.</p>
 		</div>`, code)
 

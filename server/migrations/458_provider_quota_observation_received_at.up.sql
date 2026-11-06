@@ -1,0 +1,1 @@
+CREATE INDEX CONCURRENTLY provider_quota_observation_received_at_idx ON provider_quota_observation (received_at);

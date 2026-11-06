@@ -204,6 +204,7 @@ type WorkspacesChangedPayload struct{}
 // newer server stays safe on an older daemon.
 const (
 	PendingWorkKindModelList        = "model_list"
+	PendingWorkKindProviderUsage    = "provider_usage"
 	PendingWorkKindLocalSkills      = "local_skills"
 	PendingWorkKindLocalSkillImport = "local_skill_import"
 	// PendingWorkKindEnvironmentCommand asks a daemon that supports it to claim
@@ -569,7 +570,8 @@ type DaemonHeartbeatPendingUpdate struct {
 // DaemonHeartbeatPendingModelList describes a request for the daemon to
 // enumerate the runtime's supported models.
 type DaemonHeartbeatPendingModelList struct {
-	ID string `json:"id"`
+	ID      string `json:"id"`
+	Purpose string `json:"purpose,omitempty"`
 }
 
 // DaemonHeartbeatPendingLocalSkills describes a request for the runtime's
