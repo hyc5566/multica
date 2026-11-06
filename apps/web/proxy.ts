@@ -70,10 +70,10 @@ function routeLandingLocale(
   }
   if (!isLandingPath(pathname)) return null;
 
-  // A remembered language choice goes to that language's URL. Without one the
-  // root URL stays English — the same page crawlers index — and the page
-  // offers the browser's language rather than switching to it.
+  // The Taiwan edition defaults to Traditional Chinese. Explicit saved
+  // preferences still use the upstream language-specific landing URLs.
   const cookie = req.cookies.get(LOCALE_COOKIE)?.value ?? null;
+  if (!isSupportedLocale(cookie)) return nextWithLocale(req, "zh-Hans");
   const chosen = isSupportedLocale(cookie) ? landingPathLocale(cookie) : "en";
   if (chosen !== "en") {
     const url = req.nextUrl.clone();
