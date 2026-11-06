@@ -1,25 +1,25 @@
 ---
-title: 支持的 AI 编程工具
-description: Multica 支持的 31 款 AI 编程工具，包括 Claude Code、Codex、Cursor 和 Copilot，以及检测、模型、MCP、会话、插话和 Skill 的差异。
+title: 支援的 AI 程式設計工具
+description: Multica 支援的 31 款 AI 程式設計工具，包括 Claude Code、Codex、Cursor 和 Copilot，以及檢測、模型、MCP、會話、插話和 Skill 的差異。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { ProviderPickerDemo } from "@/components/demos/provider-picker-demo";
 
-Multica 支持 31 款 AI 编程工具。它不替代你在用的工具：运行时调用电脑上已经安装并登录的工具，再把执行进度和结果写回任务。已经在用其中一款的，通常直接沿用就行。还没定的话，看四件事：
+Multica 支援 31 款 AI 程式設計工具。它不替代你在用的工具：執行時呼叫電腦上已經安裝並登入的工具，再把執行進度和結果寫回任務。已經在用其中一款的，通常直接沿用就行。還沒定的話，看四件事：
 
-- 电脑上是否已经安装；
-- 账号可以使用哪些模型；
-- 是否需要由 Multica 配置 MCP；
-- 团队要复用哪些 skill。
+- 電腦上是否已安裝；
+- 帳號能使用哪些模型；
+- 是否需要由 Multica 設定 MCP；
+- 團隊想共用哪些 skill。
 
-安装方法见 [安装 AI 编程工具](/install-agent-runtime)。
+安裝步驟請見[安裝 AI 程式開發工具](/install-agent-runtime)。
 
-## 支持的工具
+## 支援的工具
 
 <ProviderPickerDemo />
 
-| 工具 | 检测命令 | 会话恢复 | Multica 管理 MCP | 在 Multica 选模型 | Skill 注入位置 |
+| 工具 | 檢測命令 | 會話恢復 | Multica 管理 MCP | 在 Multica 選模型 | Skill 注入位置 |
 |---|---|---:|---:|---:|---|
 | Antigravity | `agy` | ✓ | — | ✓ | `.agents/skills/` |
 | Claude Code | `claude` | ✓ | ✓ | ✓ | `.claude/skills/` |
@@ -31,7 +31,7 @@ Multica 支持 31 款 AI 编程工具。它不替代你在用的工具：运行�
 | DeepSeek Harness | `dsh` | ✓ | ✓ | ✓ | `.dsh/skills/` |
 | DevEco Code | `deveco` | ✓ | — | ✓ | `.deveco/skills/` |
 | Grok | `grok` | ✓ | ✓ | ✓ | `.grok/skills/` |
-| Hermes | `hermes` | ✓ | ✓ | ✓ | 单次执行的 `HERMES_HOME/skills/` |
+| Hermes | `hermes` | ✓ | ✓ | ✓ | 單次執行的 `HERMES_HOME/skills/` |
 | Kimi CLI | `kimi` | ✓ | ✓ | ✓ | `.kimi/skills/` |
 | Kiro CLI | `kiro-cli` | ✓ | ✓ | ✓ | `.kiro/skills/` |
 | MiniMax Code | `mcode` | — | ✓ | — | `.minimax/skills/` |
@@ -44,7 +44,7 @@ Multica 支持 31 款 AI 编程工具。它不替代你在用的工具：运行�
 | Qoder CLI | `qodercli` | ✓ | ✓ | ✓ | `.qoder/skills/` |
 | Qoder CN CLI | `qoderclicn` | ✓ | ✓ | ✓ | `.qoder/skills/` |
 | Qwen Code | `qwen` | ✓ | ✓ | ✓ | `.qwen/skills/` |
-| QwenPaw | `qwenpaw` | ✓ | ✓ | — | 单次执行的工作区 `skills/` |
+| QwenPaw | `qwenpaw` | ✓ | ✓ | — | 單次執行的工作區 `skills/` |
 | Amp | `amp` | ✓ | — | 模式 | `.agents/skills/` |
 | Factory Droid | `droid` | ✓ | — | ✓ | `.factory/skills/` |
 | Reasonix | `reasonix` | ✓ | ✓ | ✓ | `.reasonix/skills/` |
@@ -54,40 +54,40 @@ Multica 支持 31 款 AI 编程工具。它不替代你在用的工具：运行�
 | ZCode | `zcode` / ZCode Desktop | ✓ | ✓ | ✓ | `.zcode/skills/` |
 
 <Callout type="info">
-不支持 Gemini CLI。它已从内置工具中移除，把 Gemini 列为 Multica 可运行工具的页面信息已经过时。
+不支援 Gemini CLI。它已從內建工具中移除，把 Gemini 列為 Multica 可執行工具的頁面資訊已經過時。
 </Callout>
 
-对于 Claude Code，如果守护进程环境中的 `CLAUDE_CONFIG_DIR` 是绝对路径，Multica 会从该目录列出和导入用户及插件技能。扫描器无法读取仅在启动包装脚本中设置的路径。
+對於 Claude Code，如果daemon環境中的 `CLAUDE_CONFIG_DIR` 是絕對路徑，Multica 會從該目錄列出和匯入使用者及外掛技能。掃描器無法讀取僅在啟動包裝指令碼中設定的路徑。
 
-Amp 的模型字段用于选择 Amp **模式**（如 `high`），而不是底层模型 ID。留空则使用 Amp 的默认模式。
+Amp 的模型欄位用於選擇 Amp **模式**（如 `high`），而不是底層模型 ID。留空則使用 Amp 的預設模式。
 
-Amp 还需要在守护进程或智能体环境中设置 `AMP_API_KEY`，仅有交互式登录记录不够。
+Amp 還需要在 daemon 或 Agent 環境中設定 `AMP_API_KEY`，僅有互動式登入記錄並不足夠。
 
-"Multica 管理 MCP"指可以在智能体配置中填写 MCP server，由 Multica 在执行前传给对应工具。这一列只说明 Multica 能否代为配置，不说明工具自身有没有别的 MCP 配置方式。
+「Multica 管理 MCP」指可以在 Agent 設定中填寫 MCP server，由 Multica 在執行前傳給對應工具。這一欄只說明 Multica 能否代為設定，不表示工具本身沒有其他 MCP 設定方式。
 
-"在 Multica 选模型"为 — 的工具，模型要在工具自己的配置里选，见[模型来源](#模型来源)。
+"在 Multica 選模型"為 — 的工具，模型要在工具自己的設定裡選，見[模型來源](#模型來源)。
 
 ## 接入工具
 
-表中每款工具的接入方式都一样：电脑上的 Multica 守护进程在 `PATH` 中查找各工具的命令，每找到一款就注册一个运行时。运行在这台电脑上执行，使用工具自己的登录和订阅；Multica 不附带这些工具，也不代理它们的模型调用。
+表中每款工具的接入方式都一樣：電腦上的 Multica daemon在 `PATH` 中查詢各工具的命令，每找到一款就註冊一個執行時。執行在這臺電腦上執行，使用工具自己的登入和訂閱；Multica 不附帶這些工具，也不代理它們的模型呼叫。
 
-1. 按工具自己的文档安装并登录。
-2. 在同一台电脑上打开 [Multica 桌面端](/desktop-app)，它会自动接入这台电脑；或者安装 CLI 并启动守护进程：
+1. 按工具自己的文件安裝並登入。
+2. 在同一臺電腦上開啟 [Multica 桌面端](/desktop-app)，它會自動接入這臺電腦；或者安裝 CLI 並啟動daemon：
 
    ```bash
    curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
    multica setup
    ```
 
-   Windows 上第一行换成 `irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex`。自托管实例使用[自托管快速上手](/self-host-quickstart)里的命令。
-3. 在 **运行时** 页面这台电脑下确认工具已经出现，也可以运行 `multica runtime list`。之后再装新工具，运行 `multica daemon restart` 或重新打开桌面端。
-4. 在这个运行时上[创建智能体](/agents-create)，再给它分配任务。
+   Windows 上第一行換成 `irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex`。自行架設例項使用[自行架設快速上手](/self-host-quickstart)裡的命令。
+3. 在 **執行時** 頁面這臺電腦下確認工具已經出現，也可以執行 `multica runtime list`。之後再裝新工具，執行 `multica daemon restart` 或重新開啟桌面端。
+4. 在這個執行時上[建立Agent](/agents-create)，再給它分配任務。
 
-工具装在守护进程 `PATH` 找不到的位置时，用 `MULTICA_<PREFIX>_PATH` 指向它，见[环境变量](/environment-variables#守护进程配置)。一台电脑可以挂多款工具，一个工作区也可以接入多台电脑，所以团队可以在同一个看板上让一台机器跑 Claude Code，另一台跑 Codex 或 Kimi。
+工具裝在daemon `PATH` 找不到的位置時，用 `MULTICA_<PREFIX>_PATH` 指向它，見[環境變數](/environment-variables#daemon配置)。一臺電腦可以掛多款工具，一個工作區也可以接入多臺電腦，所以團隊可以在同一個看板上讓一臺機器跑 Claude Code，另一臺跑 Codex 或 Kimi。
 
-## 插话支持
+## 插話支援
 
-你可以[给仍在工作的运行插话](/mentioning-agents#给正在运行的智能体插话)，不必等下一轮。这需要 AI 编程工具支持，且版本不低于下表：
+你可以[給仍在工作的執行插話](/mentioning-agents#給正在執行的Agent插話)，不必等下一輪。這需要 AI 程式設計工具支援，且版本不低於下表：
 
 | 工具 | 最低版本 |
 |---|---|
@@ -100,74 +100,74 @@ Amp 还需要在守护进程或智能体环境中设置 `AMP_API_KEY`，仅有�
 | Kiro CLI | 2.33.0 |
 | Pi | 1.4.0 |
 
-其他工具或更低版本不会出现"插话到当前运行"：回复会在当前运行结束后作为新一轮处理，或者你停止当前运行、从头开始。
+其他工具或更低版本不會出現"插話到當前執行"：回覆會在當前執行結束後作為新一輪處理，或者你停止當前執行、從頭開始。
 
-## 模型来源
+## 模型來源
 
-Devin 通过本机 ACP 运行，支持 stdio MCP；只有 CLI 声明支持时才会传入 HTTP/SSE 配置。全局 skill 依次从 `$XDG_CONFIG_HOME/devin/skills`（默认 `~/.config/devin/skills`，Windows 为 `%APPDATA%\devin\skills`）、旧版 `cognition/skills`、`~/.codeium/<channel>/skills`（依次为 `windsurf`、`windsurf-next`、`windsurf-insiders`）和 `~/.agents/skills` 导入。同名 skill 在列表和导入时都以前面的目录为准。
+Devin 透過本機 ACP 執行，支援 stdio MCP；只有 CLI 宣告支援時才會傳入 HTTP/SSE 設定。全域性 skill 依次從 `$XDG_CONFIG_HOME/devin/skills`（預設 `~/.config/devin/skills`，Windows 為 `%APPDATA%\devin\skills`）、舊版 `cognition/skills`、`~/.codeium/<channel>/skills`（依次為 `windsurf`、`windsurf-next`、`windsurf-insiders`）和 `~/.agents/skills` 匯入。同名 skill 在列表和匯入時都以前面的目錄為準。
 
-Devin 模型列表可能包含当前账号无权使用的模型。可以选择完整模型 ID、无歧义的会话模型名称或目录中的系列 slug/别名（如 `opus`），也可以留空使用 CLI 默认模型。Multica 会在发送任务前确认实际模型，拒绝回退到其他系列；有歧义的名称、任意截断名称或不可用的变体需要改选完整 ID，不会猜测匹配。用量按实际返回的模型归属；Adaptive 按返回的 Adaptive 路由 ID 记录，不推测底层模型。
+Devin 模型列表可能包含目前帳號無權使用的模型。可以選擇完整模型 ID、無歧義的會話模型名稱或目錄中的系列 slug/別名（如 `opus`），也可以留空使用 CLI 預設模型。Multica 會在傳送任務前確認實際模型，拒絕回退到其他系列；有歧義的名稱、任意截斷名稱或不可用的變體需要改選完整 ID，不會猜測匹配。用量按實際返回的模型歸屬；Adaptive 按返回的 Adaptive 路由 ID 記錄，不推測底層模型。
 
-Devin 优先读取 `WINDSURF_API_KEY`，否则使用 `devin auth login` 保存的凭据；未知的 ACP 认证方式不会阻断已保存的登录。Multica 保留 Devin 配置的会话模式，不自动提升权限。如果默认为 `plan`，请先在 Devin 中切换到可编辑模式，再派发需要修改文件的任务。
+Devin 優先讀取 `WINDSURF_API_KEY`，否則使用 `devin auth login` 儲存的憑據；未知的 ACP 認證方式不會阻斷已儲存的登入。Multica 保留 Devin 設定的會話模式，不自動提升許可權。如果預設為 `plan`，請先在 Devin 中切換到可編輯模式，再派發需要修改檔案的任務。
 
-创建智能体时，模型列表来自对应的运行时。有的工具给出固定的模型名称，有的按本机配置、登录账号和订阅权益返回可用模型。
+建立Agent時，模型列表來自對應的runtime。有的工具給出固定的模型名稱，有的按本機設定、登入帳號和訂閱權益返回可用模型。
 
-不选择模型时，Multica 使用该工具的默认设置。列表为空时，先确认运行时在线并且工具已经登录，再刷新模型列表。
+未選擇模型時，Multica 會使用該工具的預設模型。清單為空時，請先確認執行環境線上且工具已登入，再重新整理模型清單。
 
-使用 Kiro CLI 时，创建和设置智能体页面中的**思考**选项来自所选模型支持的 effort 档位，选择会应用到新建和恢复的会话。不选择时沿用 Kiro 自身的 effort 设置。模型或 CLI 版本未返回 effort 选项时，不显示该选择器。
+使用 Kiro CLI 時，建立和設定Agent頁面中的**思考**選項來自所選模型支援的 effort 檔位，選擇會應用到新建和恢復的會話。不選擇時沿用 Kiro 自身的 effort 設定。模型或 CLI 版本未返回 effort 選項時，不顯示該選擇器。
 
-QwenPaw、MiniMax Code 和 ZeroClaw 例外：它们不接受在 Multica 侧选择的模型，选择框不可用，显示为"由运行时管理"，模型要在工具自身的配置里选。它们的模型列表为空是正常的，不表示运行时离线。
+QwenPaw、MiniMax Code 和 ZeroClaw 例外：它們不接受在 Multica 側選擇的模型，選擇框不可用，顯示為"由runtime管理"，模型要在工具自身的設定裡選。它們的模型列表為空是正常的，不表示runtime離線。
 
-Antigravity 会把 `agy models` 中的推理变体显示为独立模型。在模型选择器中选用完整的变体名称，包括后缀。Multica 不为 Antigravity 提供单独的**思考**设置。如果在自定义参数中传入 `--effort`，Antigravity 会检查它能否与所选模型同时使用。
+Antigravity 會把 `agy models` 中的推理變體顯示為獨立模型。在模型選擇器中選用完整的變體名稱，包括後綴。Multica 不為 Antigravity 提供單獨的**思考**設置。如果在自定義參數中傳入 `--effort`，Antigravity 會檢查它能否與所選模型同時使用。
 
-DeepSeek Harness 的模型目录由运行时自身提供（`dsh --profile multica --list-models`）。它的模型 id 采用 `provider/model` 形式（例如 `deepseek-official/deepseek-chat`），请从列表中选择完整 id。
+DeepSeek Harness 的模型目錄由執行環境自身提供（`dsh --profile multica --list-models`）。它的模型 id 採用 `provider/model` 形式（例如 `deepseek-official/deepseek-chat`），請從列表中選擇完整 id。
 
 <Callout type="info">
-各工具的模型名称不通用。更换 AI 编程工具后，原来的模型值在新工具中无效，需要重新选择。
+各工具的模型名稱不通用。更換 AI 開發工具後，原來的模型值在新工具中無效，需要重新選擇。
 </Callout>
 
-## 会话恢复
+## 工作階段恢復
 
-表格中标 ✓ 的工具支持在后续执行中继续已有会话，前提是原会话还在，并且运行由能访问它的运行时执行。MiniMax Code 0.1.2 尚未通过 ACP 声明会话加载能力，因此后续执行会新建 MCode 会话。
+表格中標 ✓ 的工具支援在後續執行中繼續已有會話，前提是原會話還在，並且執行由能訪問它的runtime執行。MiniMax Code 0.1.2 尚未透過 ACP 宣告會話載入能力，因此後續執行會新建 MCode 會話。
 
-Multica 保存工具返回的会话标识。下次在同一任务中继续工作时，运行时先尝试恢复这段会话，恢复不了就新建会话接着执行。Pi 保存的是本地会话文件路径，所以更依赖原来的电脑和文件。
+Multica 儲存工具返回的會話標識。下次在同一任務中繼續工作時，runtime先嚐試恢復這段會話，恢復不了就新建會話接著執行。Pi 儲存的是本地會話檔案路徑，所以更依賴原來的電腦和檔案。
 
-有关重试和会话恢复的规则，见 [运行](/tasks#手动重试)。
+重試和工作階段恢復規則請見[執行](/tasks#手動重試)。
 
-## MCP 配置
+## MCP 設定
 
-Amp、Factory Droid、Antigravity、GitHub Copilot CLI、DevEco Code、Muse Code 和 ZeroClaw 暂不读取智能体中的 MCP 配置，创建智能体时不显示这一项。
+Amp、Factory Droid、Antigravity、GitHub Copilot CLI、DevEco Code、Muse Code 和 ZeroClaw 暫不讀取 Agent 中的 MCP 設定，建立 Agent 時不顯示這一項。
 
-向 Pi 下发受管 MCP 配置需要 Pi 0.99.0 或更高版本。旧版 Pi 仍可运行未配置 MCP 的智能体。
+Pi 需使用 0.99.0 或更新版本，才能接收受管理的 MCP 設定。舊版 Pi 仍可執行未設定 MCP 的 Agent。
 
 <Callout type="warning">
-MCP server 的命令、参数和环境变量会随智能体配置保存在服务器端。不要把不需要共享的本地凭据直接写入配置。
+MCP server 的命令、引數和環境變數會隨 Agent 設定儲存在伺服器端。請勿將不需共用的本機憑證直接寫入設定。
 </Callout>
 
-运行时所在电脑上已经配置的 MCP server，会在那台电脑上和智能体的配置合并，见[本机 MCP 配置](/daemon-runtimes#local-mcp)。
+runtime所在電腦上已經設定的 MCP server，會在那臺電腦上和Agent的設定合併，見[本機 MCP 設定](/daemon-runtimes#local-mcp)。
 
 ## Skill 注入方式
 
-执行开始前，Multica 把智能体绑定的 skill 写入上表对应的位置，工具用自己的原生机制发现它们。
+執行開始前，Multica 把Agent繫結的 skill 寫入上表對應的位置，工具用自己的原生機制發現它們。
 
-仓库里原有的 skill 不会被覆盖。名称冲突时，Multica 给注入的副本换一个目录名；执行结束后，只清理自己创建的文件。
+儲存庫裡原有的 skill 不會被覆蓋。名稱衝突時，Multica 給注入的副本換一個目錄名；執行結束後，只清理自己建立的檔案。
 
-Codex、Hermes 和 OpenClaw 的处理稍有不同：
+Codex、Hermes 和 OpenClaw 的處理稍有不同：
 
-- Codex 使用单次执行的 `CODEX_HOME`，不会把 skill 写进系统级 Codex 目录。
-- Hermes 使用单次执行的 `HERMES_HOME`。已有的本地配置仍然可以被读取，但绑定的 skill 与会话数据按运行隔离。这套隔离只在智能体绑定了 skill 时启用，没有绑定 skill 的运行使用本机原有的 Hermes 主目录。
-- OpenClaw 使用当前执行工作目录下的 `skills/`，并由单次执行配置把该目录设为工作区。
+- Codex 使用單次執行專屬的 `CODEX_HOME`，不會將 skill 寫入系統層級的 Codex 目錄。
+- Hermes 使用單次執行專屬的 `HERMES_HOME`。工具仍可讀取既有本機設定，但繫結的 skill 和工作階段資料會依執行隔離。只有 Agent 繫結 skill 時才會啟用隔離；未繫結 skill 的執行會使用電腦原有的 Hermes 主目錄。
+- OpenClaw 使用目前執行工作目錄下的 `skills/`，並由單次執行的設定將該目錄設為工作區。
 
-如何创建和绑定 skill，见 [Skills](/skills)。
+如何建立並繫結 skill，請參閱 [skill](/skills)。
 
-## 接下来
+## 接下來
 
-- [创建和配置智能体](/agents-create) — 模型与思考强度设置。
-- [安装 AI 编程工具](/install-agent-runtime) — 安装与检测步骤。
-- [守护进程与运行时](/daemon-runtimes) — 运行时注册与并发。
+- [建立和設定Agent](/agents-create) — 模型與思考強度設定。
+- [安裝 AI 開發工具](/install-agent-runtime) — 安裝與檢測步驟。
+- [daemon與runtime](/daemon-runtimes) — runtime註冊與併發。
 
 ## ZCode
 
-ZCode 使用原生 NDJSON `app-server` 协议，支持会话创建、续接、取消、模型发现、思考强度和 MCP。任务通过 yolo 模式执行，无需等待交互式工具审批。每个模型的思考档位来自运行时目录，创建智能体时会保留对应默认值。
+ZCode 使用原生 NDJSON `app-server` 協議，支援會話建立、續接、取消、模型發現、思考強度和 MCP。任務透過 yolo 模式執行，無需等待互動式工具審批。每個模型的思考檔位來自runtime目錄，建立Agent時會保留對應預設值。
 
-macOS 可自动发现 ZCode Desktop 内置的 CLI；需要本机已安装 Node.js。Linux 也可自动发现 ZCode Desktop，在后台运行内置 CLI，不打开桌面窗口，无需额外安装 Node.js 或手动配置环境变量。运行时读取桌面端已启用的 API-key/Coding Plan 连接，为当前进程生成独占临时配置，退出后删除，原配置不变。Start Plan 登录身份令牌不作为 API key 导入，目前不支持这条账号鉴权路径。若模型列表为空，请先在桌面端配置一个可用的 API 连接。
+macOS 可自動發現 ZCode Desktop 內建的 CLI；需要本機已安裝 Node.js。Linux 也可自動發現 ZCode Desktop，在後臺執行內建 CLI，不開啟桌面視窗，無需額外安裝 Node.js 或手動設定環境變數。執行時讀取桌面端已啟用的 API-key/Coding Plan 連線，為目前程序生成獨佔臨時設定，退出後刪除，原設定不變。Start Plan 登入身份令牌不作為 API key 匯入，目前不支援這條帳號鑑權路徑。若模型列表為空，請先在桌面端設定一個可用的 API 連線。

@@ -1,126 +1,126 @@
 ---
-title: 聊天集成
-description: 把 Multica 智能体接入飞书、Lark、Slack、钉钉、企业微信、Telegram 或微信，在团队已有的聊天工具中使用。
+title: 聊天整合
+description: 把 Multica Agent接入飛書、Lark、Slack、釘釘、企業微信、Telegram 或微信，在團隊已有的聊天工具中使用。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { ChannelChatDemo } from "@/components/demos/channel-chat-demo";
 
-接入聊天工具后，团队不用打开 Multica，就能在私聊里向智能体提问、在群聊中 @ 它，或者直接在聊天窗口创建任务。
+接入聊天工具後，團隊不用開啟 Multica，就能在私聊裡向Agent提問、在群聊中 @ 它，或者直接在聊天視窗建立任務。
 
-目前支持飞书/Lark、Slack、钉钉、企业微信、Telegram 和微信。微信只接收扫码连接账号的私聊消息。它们使用相同的会话、身份和执行机制，但安装方式不同。
+目前支援飛書/Lark、Slack、釘釘、企業微信、Telegram 和微信。微信只接收掃碼連接賬號的私聊訊息。它們使用相同的會話、身份和執行機制，但安裝方式不同。
 
-## 选择平台
+## 選擇平台
 
-| | 飞书 / Lark | Slack | 钉钉 | 企业微信 | Telegram | 微信 |
+| | 飛書 / Lark | Slack | 釘釘 | 企業微信 | Telegram | 微信 |
 |---|---|---|---|---|---|---|
-| 安装方式 | 在 Multica 中生成二维码，用飞书扫码授权 | 在 Slack 创建 app，再把两个 token 填入 Multica | 创建企业内部应用和 Stream 模式机器人，再把 AppKey 与 AppSecret 填入 Multica | 在企业微信管理后台创建智能机器人并开启长连接，再把 Bot ID 与 Secret 填入 Multica | 用 @BotFather 创建 Bot，再把 token 填入 Multica | 用自己的微信账号扫描二维码 |
-| 私聊智能体 | 支持 | 支持 | 支持 | 支持 | 支持 | 仅限扫码连接的账号 |
-| 群聊或频道 | @ Bot 后触发 | @ Bot 后触发 | @ Bot 后触发 | @ Bot 后触发 | @ Bot 或回复 Bot 后触发 | 不支持 |
-| 创建任务 | `/issue` 消息命令，按输入直接创建 | `/issue` slash 命令，智能体整理描述后创建 | `/issue` 消息命令，按输入直接创建 | `/issue` 消息命令，按输入直接创建 | `/issue` 消息命令，按输入直接创建 | `/issue` 消息命令，按输入直接创建 |
+| 安裝方式 | 在 Multica 中生成二維碼，用飛書掃碼授權 | 在 Slack 建立 app，再把兩個 token 填入 Multica | 建立企業內部應用和 Stream 模式機器人，再把 AppKey 與 AppSecret 填入 Multica | 在企業微信管理後台建立智能機器人並開啓長連接，再把 Bot ID 與 Secret 填入 Multica | 用 @BotFather 建立 Bot，再把 token 填入 Multica | 用自己的微信賬號掃描二維碼 |
+| 私聊Agent | 支援 | 支援 | 支援 | 支援 | 支援 | 僅限掃碼連接的賬號 |
+| 群聊或頻道 | @ Bot 後觸發 | @ Bot 後觸發 | @ Bot 後觸發 | @ Bot 後觸發 | @ Bot 或回復 Bot 後觸發 | 不支援 |
+| 建立任務 | `/issue` 訊息命令，按輸入直接建立 | `/issue` slash 命令，Agent整理描述後建立 | `/issue` 訊息命令，按輸入直接建立 | `/issue` 訊息命令，按輸入直接建立 | `/issue` 訊息命令，按輸入直接建立 | `/issue` 訊息命令，按輸入直接建立 |
 | 查看命令 | `/help` | `@Multica /help` | `/help` | `/help` | `/help` | `/help` |
-| 新建 Chat | `/new [消息]` | 私聊：`/new [消息]`；频道/thread：`@Multica /new [消息]` | `/new [消息]` | `/new [消息]` | `/new [消息]` | `/new [消息]` |
-| 清空当前 Chat 上下文 | `/clear [消息]` | 私聊：`/clear [消息]`；频道/thread：`@Multica /clear [消息]` | `/clear [消息]` | `/clear [消息]` | `/clear [消息]` | `/clear [消息]` |
-| 连接方式 | 平台长连接 | Socket Mode | Stream 模式 | 平台长连接 | `getUpdates` 长轮询 | iLink 长轮询 |
+| 新建 Chat | `/new [訊息]` | 私聊：`/new [訊息]`；頻道/thread：`@Multica /new [訊息]` | `/new [訊息]` | `/new [訊息]` | `/new [訊息]` | `/new [訊息]` |
+| 清空當前 Chat 上下文 | `/clear [訊息]` | 私聊：`/clear [訊息]`；頻道/thread：`@Multica /clear [訊息]` | `/clear [訊息]` | `/clear [訊息]` | `/clear [訊息]` | `/clear [訊息]` |
+| 連接方式 | 平台長連接 | Socket Mode | Stream 模式 | 平台長連接 | `getUpdates` 長輪詢 | iLink 長輪詢 |
 
-新连接目前只开放中国大陆版飞书；已有的国际版 Lark 连接仍可继续使用和管理。
+目前只開放連接中國大陸版飛書；既有的國際版 Lark 連線仍可繼續使用和管理。
 
-每个 Bot 绑定一个 Multica 智能体。需要在同一个聊天平台中使用多个智能体时，要分别连接多个 Bot。
+每個 Bot 都會綁定一個 Multica Agent。若要在同一聊天平台使用多個 Agent，請分別連接不同的 Bot。
 
-钉钉、企业微信、Telegram 和微信[由社区维护](/community-maintained)：随每个版本发布，但没有官方支持 SLA。遇到问题请提交 [GitHub 任务](https://github.com/multica-ai/multica/issues)。
+釘釘、企業微信、Telegram 和微信[由社群維護](/community-maintained)：隨每個版本釋出，但沒有官方支援 SLA。遇到問題請提交 [GitHub 任務](https://github.com/multica-ai/multica/issues)。
 
-企业微信目前只处理文字消息。语音、图片和文件消息会收到一句说明，不会转交给智能体。
+企業微信目前只處理文字訊息。語音、圖片和檔案訊息會收到簡短說明，不會轉交給 Agent。
 
-Telegram 会把图片、文件、视频和音频作为附件转交给智能体，并把智能体生成的文件发回聊天；这两个方向都需要服务端配置对象存储，未配置时媒体消息仍像以前一样收到不支持提示。贴纸等非文件消息会收到同样的提示，不会转交给智能体。
+若伺服器已設定物件儲存，Telegram 會將照片、檔案、影片和音訊作為附件交給 Agent，也會把 Agent 產生的檔案傳回聊天。未設定物件儲存時，媒體訊息會收到原有的簡短不支援提示。貼圖等非檔案訊息也會收到該提示，不會轉交給 Agent。
 
-详细步骤：
+詳細步驟：
 
-- [飞书 / Lark Bot 接入](/lark-bot-integration)
+- [飛書 / Lark Bot 接入](/lark-bot-integration)
 - [Slack Bot 接入](/slack-bot-integration)
-- [钉钉 Bot 接入](/dingtalk-bot-integration)
+- [釘釘 Bot 接入](/dingtalk-bot-integration)
 - [Telegram Bot 接入](/telegram-bot-integration)
 - [微信 Bot 接入](/weixin-bot-integration)
 
-## 消息的执行流程
+## 訊息處理流程
 
-1. Multica 根据 Bot 找到对应的工作区和智能体。
-2. 在群聊或频道中，只有明确 @ Bot 的消息会继续处理；私聊不需要 @。
-3. Multica 校验发送者的账号绑定和工作区成员身份。
-4. 消息进入一段[智能体对话](/chat)，并创建一次运行。
-5. 智能体的回复回到原来的私聊或讨论串。
+1. Multica 依 Bot 找到對應的工作區和 Agent。
+2. 在群組或頻道中，只有明確 @提及 Bot 的訊息會繼續處理；私訊不需要 @提及。
+3. Multica 會確認傳送者的帳號綁定和工作區成員身分。
+4. 訊息會進入一段 [Agent 聊天](/chat)，並建立一次執行。
+5. Agent 的回覆會送回原本的私訊或討論串。
 
-没有 @ Bot 的频道消息不会触发智能体，也不会单独成为对话的一轮。飞书和 Telegram 会在有人向 Bot 发出指令时，把群里最近的几条消息作为只读上下文附在这一轮前面，细节见各平台页面。
+沒有 @ Bot 的頻道訊息不會觸發Agent，也不會單獨成為對話的一輪。飛書和 Telegram 會在有人向 Bot 發出指令時，把群裡最近的幾條訊息作為只讀上下文附在這一輪前面，細節見各平臺頁面。
 
-`/issue` 是命令，不算对话的一轮：Multica 按消息创建任务，负责人是这个 Bot 绑定的智能体，结果回到原来的聊天，命令本身不会出现在 Multica Chat 中。Slack 原生 slash 命令另走一条异步创建任务的流程。
+`/issue` 是命令，不算對話的一輪：Multica 按訊息建立任務，負責人是這個 Bot 繫結的Agent，結果回到原來的聊天，命令本身不會出現在 Multica Chat 中。Slack 原生 slash 命令另走一條非同步建立任務的流程。
 
 <ChannelChatDemo />
 
-## 控制对话上下文
+## 控制聊天脈絡
 
-在私聊中发送 `/help`（Slack 使用 `@Multica /help`），或在群聊、频道中 @ Bot 并发送 `/help`，即可查看可用命令：`/help`、`/new [消息]`、`/clear [消息]` 和 `/issue <标题>`（后续行作为描述）。企业微信和微信（仅私聊）同样支持。Multica 会直接回复，不创建 Chat 或运行，也不改变当前 Chat。在 Slack 中，`@Multica /help` 列出消息命令。原生 `/issue <描述>` 走独立流程，由智能体根据描述创建任务。
+在私聊中發送 `/help`（Slack 使用 `@Multica /help`），或在群聊、頻道中 @ Bot 併發送 `/help`，即可查看可用命令：`/help`、`/new [訊息]`、`/clear [訊息]` 和 `/issue <標題>`（後續行作為描述）。企業微信和微信（僅私聊）同樣支援。Multica 會直接回復，不建立 Chat 或運行，也不改變當前 Chat。在 Slack 中，`@Multica /help` 列出訊息命令。原生 `/issue <描述>` 走獨立流程，由Agent根據描述建立任務。
 
-`/new` 会创建一个新的 Multica Chat，并把这条外部会话的后续消息路由到新 Chat。`/new <消息>` 会同时把消息作为第一轮。旧 Chat 仍保存在 Multica 中，可以继续使用。
+`/new` 會建立一個新的 Multica Chat，並把這條外部會話的後續訊息路由到新 Chat。`/new <訊息>` 會同時把訊息作為第一輪。舊 Chat 仍保存在 Multica 中，可以繼續使用。
 
-`/clear` 不会新建 Chat，只会在当前 Multica Chat 中开启一段新的智能体可见上下文。完整 Chat 历史仍保存在 Multica 中，但智能体无法读取边界之前的消息。`/clear <消息>` 会把消息作为新上下文的第一轮；裸 `/clear` 会把边界应用到下一条真实消息。
+`/clear` 不會建立新的 Chat，只會在目前的 Multica Chat 中開啟新的 Agent 可見脈絡。完整聊天紀錄仍保存在 Multica 中，但 Agent 無法讀取界線之前的訊息。`/clear <訊息>` 會以該訊息作為新脈絡的第一則內容；單獨使用 `/clear` 時，新界線會套用到下一則一般訊息。
 
-在 Slack 私聊中，`/new` 和 `/clear` 都是原生 slash 命令。原生 slash command payload 无法标识频道里的目标 thread，因此需要在目标 thread 中发送 `@Multica /new [消息]` 或 `@Multica /clear [消息]`。
+在 Slack 私訊中，`/new` 和 `/clear` 都是原生斜線命令。原生斜線命令的 payload 無法識別頻道中的目標討論串，因此請在目標討論串中傳送 `@Multica /new [訊息]` 或 `@Multica /clear [訊息]`。
 
-## 会话隔离
+## 工作階段隔離
 
-- 飞书/Lark 按聊天区分会话；同一个聊天中的后续消息会继续原会话。
-- Slack 私聊按频道区分；频道中的每个 thread 分别保存一段会话。
-- 钉钉按 conversation 区分会话；每个单聊或群聊分别延续自己的会话。
-- 企业微信按聊天区分会话；每个单聊或群聊分别延续自己的会话。
-- Telegram 按聊天区分会话；forum 的每个 topic 分别隔离。
-- 微信按已连接的 Bot 和扫码账号保存会话。
+- 飛書/Lark 按聊天區分會話；同一個聊天中的後續訊息會繼續原會話。
+- Slack 私聊按頻道區分；頻道中的每個 thread 分別保存一段會話。
+- 釘釘按 conversation 區分會話；每個單聊或群聊分別延續自己的會話。
+- 企業微信按聊天區分會話；每個單聊或群聊分別延續自己的會話。
+- Telegram 按聊天區分會話；forum 的每個 topic 分別隔離。
+- 微信按已連接的 Bot 和掃碼賬號保存會話。
 
-在频道中继续追问时仍需再次 @ Bot。除了上面提到的近期上下文，智能体不会自动读取整个频道的历史。
+在頻道中繼續追問時仍需再次 @ Bot。除了上面提到的近期上下文，Agent不會自動讀取整個頻道的歷史。
 
-## 账号绑定
+## 帳號綁定
 
-微信在扫码时将微信账号绑定到发起连接的 Multica 用户，消息按该用户的工作区权限执行。请用自己的账号扫码，不要分享二维码；其他账号和群聊消息不会被接收。
+微信在掃碼時將微信賬號綁定到發起連接的 Multica 使用者，訊息按該使用者的工作區權限執行。請用自己的賬號掃碼，不要分享二維碼；其他賬號和群聊訊息不會被接收。
 
-对于飞书/Lark、Slack、钉钉、企业微信和 Telegram，成员第一次向 Bot 发消息时，会收到一个账号绑定链接。登录 Multica 后，平台账号与当前工作区成员关联。
+對于飛書/Lark、Slack、釘釘、企業微信和 Telegram，成員第一次向 Bot 發訊息時，會收到一個賬號綁定連結。登錄 Multica 後，平台賬號與當前工作區成員關聯。
 
-绑定完成后，Multica 才会运行智能体。每条消息都会重新检查账号绑定和工作区成员身份；离开工作区后，不能继续通过 Bot 使用它。
+完成綁定後，Multica 才會執行 Agent。每則訊息都會重新確認帳號綁定和工作區成員身分；離開工作區後，就不能再透過 Bot 使用該工作區。
 
 <Callout type="info">
-账号绑定只用于确认发送者身份。聊天平台中的其他成员不会因此自动加入 Multica 工作区。
+帳號綁定只用來確認傳送者身分，不會讓聊天平台上的其他成員自動加入 Multica 工作區。
 </Callout>
 
-## 管理连接
+## 管理連接
 
-工作区 owner 和 admin 可以连接或断开 Bot；飞书/Lark、钉钉和微信的连接和断开还对智能体所有者开放。普通成员可以查看已经连接的集成并使用自己有权调用的智能体。
+工作區 owner 和 admin 可以連接或斷開 Bot；飛書/Lark、釘釘和微信的連接和斷開還對Agent所有者開放。普通成員可以查看已經連接的整合並使用自己有權調用的Agent。
 
-断开后，Bot 不再接收新消息。已有的 Multica 对话和执行记录仍然保留。
+中斷連線後，Bot 不會再接收新訊息。既有的 Multica Chat 和執行紀錄仍會保留。
 
-## 自托管
+## 自行託管
 
-自托管部署需要先为对应平台配置一个 32 字节加密密钥，Multica 才会开放连接入口：
+自行託管的部署必須先為各平台設定 32 位元組的加密金鑰，Multica 才會開放連線入口：
 
 ```dotenv
-MULTICA_LARK_SECRET_KEY=<base64 编码的 32 字节密钥>
-MULTICA_SLACK_SECRET_KEY=<base64 编码的 32 字节密钥>
-MULTICA_DINGTALK_SECRET_KEY=<base64 编码的 32 字节密钥>
-MULTICA_WECOM_SECRET_KEY=<base64 编码的 32 字节密钥>
-MULTICA_TELEGRAM_SECRET_KEY=<base64 编码的 32 字节密钥>
-MULTICA_WEIXIN_SECRET_KEY=<base64 编码的 32 字节密钥>
+MULTICA_LARK_SECRET_KEY=<base64 編碼的 32 字節密鑰>
+MULTICA_SLACK_SECRET_KEY=<base64 編碼的 32 字節密鑰>
+MULTICA_DINGTALK_SECRET_KEY=<base64 編碼的 32 字節密鑰>
+MULTICA_WECOM_SECRET_KEY=<base64 編碼的 32 字節密鑰>
+MULTICA_TELEGRAM_SECRET_KEY=<base64 編碼的 32 字節密鑰>
+MULTICA_WEIXIN_SECRET_KEY=<base64 編碼的 32 字節密鑰>
 ```
 
-这些密钥用于加密保存 Bot 凭据。生成、保存和轮换方法见[环境变量](/environment-variables)。Multica Cloud 已完成这项配置。
+這些金鑰用來加密儲存 Bot 憑證。產生、儲存和輪替方式請參閱[環境變數](/environment-variables)。Multica Cloud 已完成設定。
 
-企业微信的回复只能经由某个进程持有的 WebSocket 发出。回复产生在其他副本上时，结果取决于实时中继（realtime relay）的模式：
+企業微信的回覆只能經由某個程序持有的 WebSocket 發出。回覆產生在其他副本上時，結果取決於即時中繼（realtime relay）的模式：
 
-- **分片或双写中继模式**（配置了 `REDIS_URL`，有 Redis 时的默认）：回复会转发给持有连接的副本并送达，可以多副本部署。
-- **legacy 中继模式，或没有 Redis**：回复会被丢弃。这种配置下请把启用企业微信的后端保持单副本。
+- **分片或雙寫中繼模式**（配置了 `REDIS_URL`，有 Redis 時的預設）：回覆會轉發給持有連線的副本並送達，可以多副本部署。
+- **legacy 中繼模式，或沒有 Redis**：回覆會被丟棄。這種配置下請把啟用企業微信的後端保持單副本。
 
-任何模式下都有一个残留窗口：回复产生时没有任何副本持有活连接（全部在重连中），这条回复不会送达。转发它的副本事后会确认有没有副本认领过这次投递，没有就给 `multica_wecom_outbound_dropped_total{reason="no_live_connection"}` 加一，所以丢失的频率可以从这个指标看出来。不能接受这种丢失时，单副本仍是最保守的部署方式。
+任何模式下都有一個殘留視窗：回覆產生時沒有任何副本持有活連線（全部在重連中），這條回覆不會送達。轉發它的副本事後會確認有沒有副本認領過這次投遞，沒有就給 `multica_wecom_outbound_dropped_total{reason="no_live_connection"}` 加一，所以丟失的頻率可以從這個指標看出來。不能接受這種丟失時，單副本仍是最保守的部署方式。
 
-## 接下来
+## 接下來
 
-- [飞书 / Lark Bot 接入](/lark-bot-integration)
+- [飛書 / Lark Bot 接入](/lark-bot-integration)
 - [Slack Bot 接入](/slack-bot-integration)
-- [钉钉 Bot 接入](/dingtalk-bot-integration)
+- [釘釘 Bot 接入](/dingtalk-bot-integration)
 - [Telegram Bot 接入](/telegram-bot-integration)
 - [微信 Bot 接入](/weixin-bot-integration)
-- [与智能体对话](/chat)
+- [與Agent對話](/chat)
