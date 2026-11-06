@@ -1161,7 +1161,9 @@ describe("SearchCommand", () => {
       renderSearchInChinese();
       await user.type(input(), "localized");
 
-      await waitFor(() => expect(screen.getByText("进行中")).toBeInTheDocument(), { timeout: 2000 });
+      await waitFor(() => expect(screen.getByText("進行中")).toBeInTheDocument(), {
+        timeout: 2000,
+      });
       expect(screen.queryByText("In Progress")).toBeNull();
     });
 

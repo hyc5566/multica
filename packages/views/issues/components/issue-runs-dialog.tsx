@@ -46,6 +46,7 @@ import { RunCumulativeChart } from "./issue-runs-cumulative-chart";
 import { canRetryRun, RetryRunButton } from "./retry-run-button";
 import { RunTriggerLabel } from "./run-trigger-label";
 import { useFormatSpend, useStatusLabel, useTriggerText } from "./task-run-labels";
+import { ChatTaskQuota } from "../../chat/components/chat-quota";
 
 // The issue's runs laid out in time — the surface the execution log's header
 // and cost bars open.
@@ -209,6 +210,18 @@ function IssueRunsDialogContent({
             {/* `min-h-0`: the dialog is a flex column; without it this flex
                 item sizes to its content and the list never scrolls. */}
             <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-5">
+              {tasks.some((task) => (task.quota_checkpoints?.length ?? 0) > 0) && (
+                <section className="mb-4 space-y-2" aria-label={t(($) => $.runs_timeline.title)}>
+                  {tasks.filter((task) => (task.quota_checkpoints?.length ?? 0) > 0).map((task) => (
+                    <div key={task.id} className="rounded-md border px-3 py-2">
+                      <p className="mb-1 truncate text-caption font-medium">
+                        {task.trigger_summary || task.id}
+                      </p>
+                      <ChatTaskQuota checkpoints={task.quota_checkpoints} />
+                    </div>
+                  ))}
+                </section>
+              )}
               <RunDayList timeline={timeline} issueId={issueId} showIssue={includeChildren} />
               <div className="mt-4 space-y-1 text-micro text-muted-foreground">
                 {unmapped.length > 0 && (

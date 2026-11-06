@@ -2,6 +2,7 @@
 import { describe, expect, it } from "vitest";
 import {
   daemonCommands,
+  operatorInstallCommand,
   normalizeCommandURL,
   type DaemonSetupConfig,
 } from "./commands";
@@ -17,6 +18,30 @@ describe("normalizeCommandURL", () => {
 });
 
 describe("daemonCommands", () => {
+  it("uses the isolated operator CLI and quotes self-host URL arguments", () => {
+    const result = daemonCommands({
+      status: "ready", target: "self_host",
+      serverUrl: "https://api.example.com/$(touch injected)",
+      appUrl: "https://app.example.com/a'b",
+      installUrl: "https://downloads.example.com/install.sh",
+    });
+    expect(result.status).toBe("ready");
+    if (result.status !== "ready") throw new Error("expected self-host commands");
+    expect(result.cli).toBe('"$HOME/.local/bin/multica"');
+    expect(result.setupCmd).toContain("--server-url 'https://api.example.com/$(touch injected)'");
+    expect(result.setupCmd).toContain("--app-url 'https://app.example.com/a'\\''b'");
+    expect(result.tokenCmd).not.toContain("<YOUR_TOKEN>");
+  });
+
+  it("rejects shell syntax and non-HTTPS operator installer URLs", () => {
+    expect(operatorInstallCommand("https://downloads.example.com/install.sh")).toBe(
+      "curl -fsSL -- 'https://downloads.example.com/install.sh' | bash",
+    );
+    for (const url of ["http://downloads.example.com/install.sh", "https://example.com/a'; touch injected; '", "https://user:secret@example.com/install.sh"]) {
+      expect(operatorInstallCommand(url)).toBeUndefined();
+    }
+  });
+
   it("only returns Cloud commands for a confirmed Cloud deployment", () => {
     const result = daemonCommands({ status: "ready", target: "cloud" });
     expect(result.status).toBe("ready");

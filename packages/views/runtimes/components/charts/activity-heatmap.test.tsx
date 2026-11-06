@@ -71,10 +71,11 @@ describe("ActivityHeatmap localization", () => {
       { locale: "zh-Hans" },
     );
 
-    expect(statValue("最活跃日期")).toContain("8月12日");
-    expect(statValue("最活跃星期")).toContain("周三");
-    expect(statValue("最不活跃星期")).toContain("周二");
-    expect(screen.getByText(/天总计$/)).toBeTruthy();
+    expect(statValue("最活躍日期")).toContain("8月12日");
+    // Date parts come from Intl under the retained zh-Hans compatibility key.
+    expect(statValue("最活躍星期")).toContain("周三");
+    expect(statValue("最不活躍星期")).toContain("周二");
+    expect(screen.getByText(/天總計$/)).toBeTruthy();
     expect(screen.queryByText("Busiest day")).toBeNull();
 
     // Row labels: Monday-first, only alternating rows are labelled.
@@ -88,6 +89,6 @@ describe("ActivityHeatmap localization", () => {
     const titles = Array.from(container.querySelectorAll("title"), (title) =>
       title.textContent?.trim(),
     );
-    expect(titles.some((title) => title?.endsWith(": 无活动"))).toBe(true);
+    expect(titles.some((title) => title?.endsWith(": 無活動"))).toBe(true);
   });
 });

@@ -4,6 +4,7 @@ import { I18nProvider } from "@multica/core/i18n/react";
 import type { Agent, ChatSession } from "@multica/core/types";
 import enChat from "../../locales/en/chat.json";
 import enCommon from "../../locales/en/common.json";
+import enIssues from "../../locales/en/issues.json";
 
 const updateMutate = vi.hoisted(() => vi.fn());
 const pushMock = vi.hoisted(() => vi.fn());
@@ -36,7 +37,7 @@ vi.mock("../../navigation", () => ({
 
 import { ChatSessionHeader } from "./chat-session-header";
 
-const TEST_RESOURCES = { en: { chat: enChat, common: enCommon } };
+const TEST_RESOURCES = { en: { chat: enChat, common: enCommon, issues: enIssues } };
 const RENAME_LABEL = enChat.header.rename;
 const OUTSIDE_LABEL = "Outside control";
 
@@ -56,6 +57,36 @@ const session: ChatSession = {
 };
 
 describe("ChatSessionHeader breadcrumb", () => {
+  it("opens task usage from the breadcrumb actions beside its navigation control", () => {
+    render(
+      <I18nProvider locale="en" resources={TEST_RESOURCES}>
+        <ChatSessionHeader
+          session={session}
+          agent={null}
+          leading={<button type="button">Back to chats</button>}
+          taskUsage={[{
+            task_id: "run-1",
+            usage: [{
+              provider: "codex",
+              model: "gpt-test",
+              input_tokens: 100,
+              output_tokens: 20,
+              cache_read_tokens: 0,
+              cache_write_tokens: 0,
+            }],
+          }]}
+        />
+      </I18nProvider>,
+    );
+
+    const header = within(screen.getByRole("banner"));
+    expect(header.getByRole("button", { name: "Back to chats" })).toBeVisible();
+    fireEvent.click(header.getByRole("button", { name: enChat.header.quota_summary }));
+    const dialog = within(screen.getByRole("dialog", { name: enChat.header.quota_summary }));
+    expect(dialog.getByText("120 tokens")).toBeVisible();
+    expect(dialog.getByText(/codex \/ gpt-test/)).toBeVisible();
+  });
+
   it("leads with the agent as a link to its page, then the chat title", () => {
     const agent = { id: "agent-1", name: "Lambda" } as Agent;
     render(

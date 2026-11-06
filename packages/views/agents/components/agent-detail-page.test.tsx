@@ -195,9 +195,24 @@ vi.mock("@multica/core/workspace/queries", () => ({
   },
 }));
 vi.mock("@multica/core/runtimes", () => ({
+  useRefreshRuntimeProviderUsage: () => ({
+    isPending: false,
+    isError: false,
+    variables: undefined,
+    mutate: vi.fn(),
+  }),
   runtimeListOptions: (wsId: string) => ({
     queryKey: ["runtimes", wsId],
     queryFn: () => Promise.resolve(runtimesRef.current),
+  }),
+  runtimeProviderUsageOptions: (runtimeId: string | null) => ({
+    queryKey: ["runtime-provider-usage", runtimeId],
+    queryFn: () => Promise.resolve(null),
+    enabled: false,
+  }),
+  runtimeUsageByAgentOptions: (runtimeId: string) => ({
+    queryKey: ["runtime-usage-by-agent", runtimeId],
+    queryFn: () => Promise.resolve([]),
   }),
 }));
 vi.mock("@multica/core/auth", () => {
@@ -324,6 +339,13 @@ beforeEach(() => {
 });
 
 describe("AgentDetailPage direct-detail fallback", () => {
+  it("keeps provider usage visible on the new object page", async () => {
+    renderPage();
+
+    expect(await screen.findByRole("region", { name: "Usage & limits" })).toBeVisible();
+    expect(screen.getByRole("button", { name: "Settings" })).toBeInTheDocument();
+  });
+
   it("does not fetch detail when the workspace list already has the agent", async () => {
     renderPage();
 

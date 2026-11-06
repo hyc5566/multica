@@ -1,5 +1,7 @@
 "use client";
 
+import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
+
 import { memo, useCallback, useMemo, useState, type ReactNode } from "react";
 import { Virtuoso } from "react-virtuoso";
 import { Ban, EyeOff, FolderMinus, MoreHorizontal, Plus, UserMinus } from "@multica/ui/icons";
@@ -21,7 +23,7 @@ import {
 import { TruncatedTooltip } from "@multica/ui/components/common/truncated-tooltip";
 import { useWorkspaceId } from "@multica/core/hooks";
 import { useIssueStatuses } from "@multica/core/issue-statuses/hooks";
-import { useViewStoreApi } from "@multica/core/issues/stores/view-store-context";
+import { useViewStore, useViewStoreApi } from "@multica/core/issues/stores/view-store-context";
 import { useViewBaseline } from "../surface/view-baseline-context";
 import { StatusHeading } from "./status-heading";
 import { DraggableBoardCard } from "./board-card";
@@ -41,9 +43,6 @@ import type { IssueCreateDefaults } from "../surface/types";
 // ORDER BY uses PostgreSQL's en_US.utf8 collation (glibc), which
 // cannot be faithfully replicated in JavaScript (ICU/V8). Showing an
 // inaccurate indicator is worse than showing none.
-
-export const BOARD_COL_WIDTH = 280;
-export const BOARD_CARD_WIDTH = BOARD_COL_WIDTH - 16 - 8; // col(280) - col p-2(16) - droppable p-1(8)
 
 // Board cards are ~90-140px tall, so ~10 fill a column viewport — unlike the
 // generic VIRTUOSO_SEED_COUNT (30, sized for 36px list rows). The seed mounts
@@ -122,6 +121,7 @@ export const BoardColumn = memo(function BoardColumn({
   onCreateIssue?: (defaults: IssueCreateDefaults) => void;
   sortLabel?: string | null;
 }) {
+  const columnWidth = useViewStore((s) => BOARD_COLUMN_WIDTHS[s.boardLayout ?? "default"]);
   const status = group.status;
   const wsId = useWorkspaceId();
   const { entryOf } = useIssueStatuses(wsId);
@@ -203,7 +203,7 @@ export const BoardColumn = memo(function BoardColumn({
   return (
     <div
       data-mc="board-column"
-      style={{ width: BOARD_COL_WIDTH }}
+      style={{ width: columnWidth }}
       className={`group/column relative flex shrink-0 flex-col rounded-board-column bg-board-column p-2 ${
         hint ? "ring-2 ring-brand/30" : ""
       }`}

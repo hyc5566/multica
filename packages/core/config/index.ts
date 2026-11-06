@@ -15,6 +15,7 @@ interface ConfigState {
   daemonAppUrl: string;
   daemonConfigStatus: DaemonConfigStatus;
   daemonSetupTarget: DaemonSetupTarget;
+  daemonInstallUrl: string;
   // Self-host gate (#3433): when true, every "Create workspace" affordance
   // must be hidden. Defaults to false so unknown / older servers behave like
   // the managed-cloud case.
@@ -63,6 +64,7 @@ interface ConfigState {
     daemonServerUrl?: string;
     daemonAppUrl?: string;
     daemonSetupTarget?: DaemonSetupTarget;
+    daemonInstallUrl?: string;
   }) => void;
   setDaemonConfigStatus: (status: DaemonConfigStatus) => void;
   setFeatureFlags: (flags?: Record<string, boolean>) => void;
@@ -84,6 +86,7 @@ export const configStore = createStore<ConfigState>((set) => ({
   daemonAppUrl: "",
   daemonConfigStatus: "loading",
   daemonSetupTarget: "unknown",
+  daemonInstallUrl: "",
   workspaceCreationDisabled: false,
   vcsIntegrationAvailable: false,
   featureFlags: {},
@@ -105,10 +108,12 @@ export const configStore = createStore<ConfigState>((set) => ({
     daemonServerUrl = "",
     daemonAppUrl = "",
     daemonSetupTarget = "unknown",
+    daemonInstallUrl = "",
   }) => set({
     daemonServerUrl,
     daemonAppUrl,
     daemonSetupTarget,
+    daemonInstallUrl,
     daemonConfigStatus: "ready",
   }),
   setDaemonConfigStatus: (daemonConfigStatus) => set({ daemonConfigStatus }),
