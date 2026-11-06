@@ -326,12 +326,12 @@ describe("proxy marketing-site language URLs", () => {
     expect(localeOf(res)).toBe(locale);
   });
 
-  it("keeps English URLs English for visitors who have not picked a language", () => {
+  it("serves Traditional Chinese at unprefixed URLs before a language is picked", () => {
     const res = proxy(withAcceptLanguage("/download", "zh-CN,zh;q=0.9"));
 
     expect(res.headers.get("location")).toBeNull();
     expect(res.headers.get("x-middleware-rewrite")).toBeNull();
-    expect(localeOf(res)).toBe("en");
+    expect(localeOf(res)).toBe("zh-Hans");
   });
 
   it("keeps locales without a translated site on the English URL", () => {
