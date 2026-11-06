@@ -145,9 +145,9 @@ describe("CallbackPage", () => {
 
     renderCallback("zh-Hans");
 
-    expect(await screen.findByText("登录失败")).toBeInTheDocument();
-    expect(screen.getByText("缺少授权码")).toBeInTheDocument();
-    expect(screen.getByText("返回登录")).toBeInTheDocument();
+    expect(await screen.findByText("登入失敗")).toBeInTheDocument();
+    expect(screen.getByText("缺少授權碼")).toBeInTheDocument();
+    expect(screen.getByText("返回登入")).toBeInTheDocument();
   });
 
   it("shows access denied before checking for a missing authorization code", async () => {
@@ -156,8 +156,8 @@ describe("CallbackPage", () => {
 
     renderCallback("zh-Hans");
 
-    expect(await screen.findByText("访问被拒绝")).toBeInTheDocument();
-    expect(screen.queryByText("缺少授权码")).not.toBeInTheDocument();
+    expect(await screen.findByText("存取遭拒")).toBeInTheDocument();
+    expect(screen.queryByText("缺少授權碼")).not.toBeInTheDocument();
     expect(mockLoginWithGoogle).not.toHaveBeenCalled();
   });
 
@@ -168,7 +168,7 @@ describe("CallbackPage", () => {
 
     renderCallback("zh-Hans");
 
-    expect(await screen.findByText("无法完成登录，请重试。")).toBeInTheDocument();
+    expect(await screen.findByText("無法完成登入，請重試。")).toBeInTheDocument();
     expect(
       screen.queryByText("upstream authentication failed"),
     ).not.toBeInTheDocument();
@@ -184,7 +184,7 @@ describe("CallbackPage", () => {
     renderCallback("zh-Hans");
 
     expect(
-      await screen.findByText("此自托管实例已禁止用户注册。"),
+      await screen.findByText("此自行託管的執行個體已停用使用者註冊。"),
     ).toBeInTheDocument();
     expect(screen.queryByText("English fallback")).not.toBeInTheDocument();
   });
@@ -208,7 +208,7 @@ describe("CallbackPage", () => {
 
     const view = renderCallback("zh-Hans");
     expect(
-      await screen.findByText("Google 未提供本次登录所需的邮箱地址。"),
+      await screen.findByText("Google 未提供本次登入所需的電子郵件地址。"),
     ).toBeInTheDocument();
 
     view.rerender(
@@ -234,7 +234,7 @@ describe("CallbackPage", () => {
 
     renderCallback("zh-Hans");
 
-    expect(await screen.findByText("无法完成登录，请重试。")).toBeInTheDocument();
+    expect(await screen.findByText("無法完成登入，請重試。")).toBeInTheDocument();
     expect(screen.queryByText("internal provider detail")).not.toBeInTheDocument();
   });
 
@@ -250,7 +250,9 @@ describe("CallbackPage", () => {
 
     renderCallback("zh-Hans");
 
-    expect(await screen.findByText("此自托管实例已禁止用户注册。")).toBeInTheDocument();
+    expect(
+      await screen.findByText("此自行託管的執行個體已停用使用者註冊。"),
+    ).toBeInTheDocument();
     expect(mockedApi.googleLogin).toHaveBeenCalledTimes(1);
     expect(mockLoginWithGoogle).not.toHaveBeenCalled();
     expect(mockPush).not.toHaveBeenCalled();

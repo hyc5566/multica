@@ -160,10 +160,10 @@ const labelsByLocale: Record<string, ContextMenuLabels> = {
     addToDictionary: "Add to Dictionary",
   },
   "zh-Hans": {
-    openLink: "在浏览器中打开链接",
-    copyLinkAddress: "复制链接地址",
-    copyImage: "复制图片",
-    addToDictionary: "添加到词典",
+    openLink: "在瀏覽器中開啟連結",
+    copyLinkAddress: "複製連結網址",
+    copyImage: "複製圖片",
+    addToDictionary: "加入字典",
   },
   "zh-Hant": {
     openLink: "在瀏覽器中開啟連結",

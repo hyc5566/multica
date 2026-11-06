@@ -25,7 +25,7 @@ import {
 import { toast } from "sonner";
 import { useT } from "@multica/views/i18n";
 import { DaemonPanel } from "./daemon-panel";
-import { reauthenticateDaemon } from "../platform/daemon-reauth";
+import { reauthenticateDaemon, startDaemonWithSession } from "../platform/daemon-reauth";
 import type { DaemonStatus } from "../../../shared/daemon-types";
 import { daemonStateLabel } from "./daemon-i18n";
 
@@ -76,12 +76,10 @@ export function DaemonRuntimeActions() {
 
   const handleStart = useCallback(async () => {
     setActionLoading(true);
-    const result = await window.daemonAPI.start();
-    if (!result.success) {
+    try {
+      await startDaemonWithSession(t);
+    } finally {
       setActionLoading(false);
-      toast.error(t(($) => $.desktop.daemon.start_failed), {
-        description: result.error,
-      });
     }
   }, [t]);
 

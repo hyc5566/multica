@@ -1,5 +1,8 @@
+import { z } from "zod";
+import { parseWithFallback } from "@multica/core/api/schema";
 import { app, ipcMain, BrowserWindow, shell, dialog, type MessageBoxOptions } from "electron";
 import { execFile } from "child_process";
+import { createHash } from "crypto";
 import {
   readFile,
   writeFile,
@@ -59,6 +62,15 @@ import {
   type AuthProbeResult,
 } from "./daemon-auth-probe";
 
+import {
+  desktopTokenMachine,
+  desktopTokenRecord,
+  ownedDesktopTokenId,
+  selectDesktopToken,
+  type DesktopTokenOwner,
+  type MintedDesktopToken,
+} from "./desktop-token";
+
 const POLL_INTERVAL_MS = 5_000;
 const PREFS_PATH = join(homedir(), ".multica", "desktop_prefs.json");
 const LOG_TAIL_RETRY_MS = 2_000;
@@ -80,7 +92,7 @@ const HEALTH_PROBE_TIMEOUT_MS = 2_000;
 // misses this second independent window is no longer treated as merely busy.
 const RECOVERY_HEALTH_PROBE_TIMEOUT_MS = 10_000;
 
-const DEFAULT_PREFS: DaemonPrefs = { autoStart: true, autoStop: false };
+const DEFAULT_PREFS: DaemonPrefs = { autoStart: false, autoStop: false };
 
 // Always a resolved Desktop-owned profile. "Not resolved yet" is represented by
 // `null` at every call site, never by an empty name — see daemon-profile.ts.
@@ -102,6 +114,10 @@ let cachedCliBinaryVersion: string | null | undefined = undefined;
 // busy executing tasks. The poll loop retries the check on each tick and
 // fires the restart once active_task_count drops to 0.
 let pendingVersionRestart = false;
+let pendingTrustRefresh = 0;
+let trustRefreshGeneration = 0;
+let trustRestartPID: number | null = null;
+let trustRestartRequestedAt = 0;
 let targetApiBaseUrl: string | null = null;
 let activeProfile: ActiveProfile | null = null;
 // Recovery is intentionally process-local: it keeps a daemon alive while the
@@ -196,6 +212,11 @@ interface HealthPayload {
   server_url?: string;
   cli_version?: string;
   active_task_count?: number;
+  running_task_count?: number;
+  resource_wait_task_count?: number;
+  /** zh-tw: the daemon reloads into the bundled CLI itself when idle. */
+  zh_tw_self_reload?: boolean;
+  launched_by?: string;
   agents?: string[];
   workspaces?: unknown[];
 }
@@ -228,6 +249,20 @@ async function fetchProfileHealth(
   );
 }
 
+// zh-tw: trust refresh posts back to the daemon, so it needs the port the
+// accepted health response came from (daemon.port record or legacy port).
+async function fetchProfileHealthWithPort(
+  active: ActiveProfile,
+): Promise<{ health: HealthPayload; port: number } | null> {
+  let port = 0;
+  const health = await probeProfileHealth(active.name, async (candidate) => {
+    const data = await fetchHealthAtPort(candidate);
+    port = candidate;
+    return data;
+  });
+  return health ? { health, port } : null;
+}
+
 /**
  * Validates the daemon profile's token against the backend to find out whether
  * a stuck start is an auth problem. Hits the same endpoint `multica auth status`
@@ -244,17 +279,18 @@ async function probeTokenValidity(profile: string): Promise<AuthProbeResult> {
   const cfg = await readProfileConfig(profile);
   const token = typeof cfg.token === "string" ? cfg.token : "";
   if (!token) return classifyAuthProbe({ noToken: true });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 4_000);
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4_000);
     const res = await fetch(`${targetApiBaseUrl.replace(/\/+$/, "")}/api/me`, {
       headers: { Authorization: `Bearer ${token}` },
       signal: controller.signal,
     });
-    clearTimeout(timeout);
     return classifyAuthProbe({ status: res.status });
   } catch {
     return classifyAuthProbe({ networkError: true });
+  } finally {
+    clearTimeout(timeout);
   }
 }
 
@@ -679,98 +715,107 @@ async function ensureRunningDaemonVersionMatches(): Promise<
 }
 
 /**
- * Exchange the user's JWT for a long-lived PAT via POST /api/tokens. The
+ * Exchange the user's session credential for a local PAT via POST /api/tokens. The
  * daemon needs a PAT (or `mul_` / `mdt_` token) because JWTs expire in 30
  * days and signatures are tied to a specific backend instance.
  */
-async function mintPat(jwt: string): Promise<string> {
+const mintedDesktopTokenSchema = z.object({
+  id: z.string().min(1),
+  token: z.string().regex(/^mul_.+/),
+});
+
+async function mintPat(jwt: string): Promise<MintedDesktopToken> {
   if (!targetApiBaseUrl) {
     throw new Error("mint PAT: target API URL not set");
   }
   const url = `${targetApiBaseUrl.replace(/\/+$/, "")}/api/tokens`;
   const res = await fetch(url, {
     method: "POST",
+    signal: AbortSignal.timeout(10_000),
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${jwt}`,
     },
     // Omit expires_in_days → server treats as null → non-expiring PAT.
-    body: JSON.stringify({ name: "Multica Desktop" }),
+    body: JSON.stringify({ name: `Multica Desktop (${hostname()})` }),
   });
   if (!res.ok) {
-    const body = await res.text().catch(() => "");
     // Attach the status so callers can tell a genuine auth rejection (401 — the
     // session token is dead) apart from a transient failure (5xx, etc.) without
     // string-matching the message.
     throw Object.assign(
-      new Error(`mint PAT failed: ${res.status} ${res.statusText} ${body}`),
+      new Error(`mint PAT failed: HTTP ${res.status}`),
       { status: res.status },
     );
   }
-  const data = (await res.json()) as { token?: unknown };
-  if (typeof data.token !== "string" || !data.token.startsWith("mul_")) {
-    throw new Error("mint PAT: response missing token");
-  }
-  return data.token;
+  // parseWithFallback logs rejected inputs; never pass a secret-bearing
+  // malformed response to that logger.
+  const parsed = mintedDesktopTokenSchema.safeParse(await res.json());
+  const data = parseWithFallback<MintedDesktopToken | null>(
+    parsed.success ? parsed.data : null, mintedDesktopTokenSchema, null,
+    { endpoint: "POST /api/tokens (Desktop)" },
+  );
+  if (!data) throw new Error("mint PAT: response missing token identity");
+  return data;
 }
 
-/**
- * Ensure the active profile's config.json has a usable token for the daemon.
- *
- * - Input from the renderer is the user's JWT (from localStorage) plus the
- *   current user's id, so we can detect session changes.
- * - If the profile already has a cached PAT (`mul_...`) AND the sidecar user
- *   id matches the caller, reuse it — minting fresh on every launch would
- *   accumulate garbage in the user's tokens page.
- * - On user mismatch (or first run) call POST /api/tokens with the JWT to
- *   mint a fresh PAT, overwriting any stale cached PAT. This is the critical
- *   path: without it, a previous user's PAT would be used by a new session.
- * - If the caller happens to pass a PAT directly, write it through.
- * - Reports a user mismatch to the caller; the IPC boundary owns the gated
- *   restart so internal callers such as reauthenticate never re-enter it.
- */
+async function tokenOwner(userId: string): Promise<DesktopTokenOwner> {
+  if (!targetApiBaseUrl) throw new Error("Desktop API URL is unresolved");
+  return {
+    machine: await desktopTokenMachine(),
+    userId,
+    serverUrl: targetApiBaseUrl.replace(/\/+$/, ""),
+  };
+}
+
+async function readTokenRecord(profile: string): Promise<unknown> {
+  try {
+    return JSON.parse(await readFile(join(profileDir(profile), ".desktop-token.json"), "utf8"));
+  } catch (error) {
+    if (error instanceof SyntaxError || (error as NodeJS.ErrnoException).code === "ENOENT") return null;
+    throw error;
+  }
+}
+
+async function saveDesktopToken(
+  active: ActiveProfile,
+  minted: MintedDesktopToken,
+  owner: DesktopTokenOwner,
+): Promise<void> {
+  const config = await readProfileConfig(active.name);
+  config.token = minted.token;
+  config.server_url = owner.serverUrl;
+  await writeProfileConfig(active.name, config);
+  await writeProfileUserId(active.name, owner.userId);
+  // A partial write leaves no matching provenance, so the next login mints
+  // again without ever claiming or revoking the previous credential.
+  await writeFile(join(profileDir(active.name), ".desktop-token.json"),
+    JSON.stringify(desktopTokenRecord(minted, owner)), { mode: 0o600 });
+}
+
+/** Reuse only a verified local mint; legacy and pasted PATs authorize a new mint. */
 async function syncToken(
   tokenFromRenderer: string,
   userId: string,
+  forceMint = false,
 ): Promise<{ active: ActiveProfile; userChanged: boolean }> {
   const active = await ensureActiveProfile();
-  if (!active) {
-    // Writing here would land the token and server_url in the user's default
-    // CLI config. The renderer awaits setTargetApiUrl before calling this, so
-    // reaching this branch is a real error rather than a normal startup race.
-    throw new Error("daemon profile is not resolved yet; token sync skipped");
-  }
+  if (!active) throw new Error("daemon profile is not resolved yet; token sync skipped");
   const config = await readProfileConfig(active.name);
   const previousUserId = await readProfileUserId(active.name);
-  const userChanged = Boolean(previousUserId) && previousUserId !== userId;
-  const sameUserWithCachedPat =
-    !userChanged &&
-    previousUserId === userId &&
-    typeof config.token === "string" &&
-    config.token.startsWith("mul_");
-
-  let finalToken: string;
-  if (tokenFromRenderer.startsWith("mul_")) {
-    finalToken = tokenFromRenderer;
-  } else if (sameUserWithCachedPat) {
-    finalToken = config.token as string;
-  } else {
-    try {
-      finalToken = await mintPat(tokenFromRenderer);
-      console.log(
-        `[daemon] minted PAT for profile "${active.name}" (user_changed=${userChanged})`,
-      );
-    } catch (err) {
-      console.error("[daemon] failed to mint PAT:", err);
-      throw err;
-    }
-  }
-
-  config.token = finalToken;
-  if (targetApiBaseUrl) config.server_url = targetApiBaseUrl;
-  await writeProfileConfig(active.name, config);
-  await writeProfileUserId(active.name, userId);
-
+  const owner = await tokenOwner(userId);
+  const minted = await selectDesktopToken(
+    config.token,
+    forceMint ? null : await readTokenRecord(active.name),
+    owner,
+    () => probeTokenValidity(active.name),
+    () => mintPat(tokenFromRenderer),
+  );
+  await saveDesktopToken(active, minted, owner);
+  // A running daemon must reload replacements after migration or revocation
+  // as well as account switches; the IPC caller already gates that restart.
+  const userChanged = (Boolean(previousUserId) && previousUserId !== userId) ||
+    config.token !== minted.token;
   return { active, userChanged };
 }
 
@@ -785,13 +830,11 @@ async function restartDaemonAfterUserSwitch(
     // already loaded the old token at startup, so it must be restarted to
     // pick up the rotated credentials.
     console.log(
-      "[daemon] user switched — restarting daemon with new credentials",
+      "[daemon] credentials changed — restarting daemon with new credentials",
     );
     // Credential rotation is a one-shot login intent, not poll-driven
     // maintenance: wait for bootstrap/recovery instead of dropping it.
-    const restarted = await lifecycleOperations.runForeground(() =>
-      restartDaemon(),
-    );
+    const restarted = await restartDaemon();
     if (!restarted.success) {
       console.warn(
         `[daemon] restart-on-user-switch failed: ${restarted.error ?? "unknown error"}`,
@@ -844,8 +887,8 @@ function errorMessage(err: unknown): string {
 }
 
 /**
- * Recover the local daemon from the "auth_expired" state. Drops the stale
- * cached PAT, mints a fresh one from the current session token, and restarts
+ * Recover the local daemon from the "auth_expired" state. Replaces the stale
+ * cached PAT after minting from the current session token, and restarts
  * the daemon so it loads the new credential.
  *
  * Failures are classified rather than collapsed: a 401 from the mint means the
@@ -854,14 +897,58 @@ function errorMessage(err: unknown): string {
  * restart hiccup — is `transient`, leaving the user signed in so they can retry.
  * This mirrors the conservative classification the startup probe already uses.
  */
+// Only an exact locally recorded mint can be selected for rotation.
+async function getDesktopTokenId(_jwt: string, userId: string): Promise<string | null> {
+  const active = await ensureActiveProfile();
+  if (!active || await readProfileUserId(active.name) !== userId) return null;
+  const cfg = await readProfileConfig(active.name);
+  return ownedDesktopTokenId(await readTokenRecord(active.name), cfg.token, await tokenOwner(userId));
+}
+
+async function rotateDesktopToken(jwt: string, userId: string, id: string): Promise<{ ok: boolean; message?: string }> {
+  let saved = false;
+  try {
+    if (await getDesktopTokenId(jwt, userId) !== id) throw new Error("The selected token is no longer this App's Desktop token. Refresh and try again.");
+    const active = await ensureActiveProfile();
+    if (!active) throw new Error("Desktop profile unavailable.");
+    const status = await fetchHealth();
+    if (status.externallyManaged || !["running", "stopped", "auth_expired"].includes(status.state))
+      throw new Error("Daemon is busy or externally managed. Try again when it is idle.");
+    const health = await fetchProfileHealth(active);
+    if (!health && existsSync(profilePidPath(active.name)))
+      throw new Error("Cannot confirm daemon task state. No token was changed.");
+    if (health && (health.status !== "running" || !health.pid || health.active_task_count !== 0))
+      throw new Error("Wait for running tasks to finish before replacing the Desktop token.");
+    const replacement = await mintPat(jwt);
+    await saveDesktopToken(active, replacement, await tokenOwner(userId));
+    saved = true;
+    setDesiredDaemonRunning(true, true);
+    const result = await restartDaemon();
+    if (!result.success) throw new Error("New token saved, but daemon restart failed. The old token has not been revoked; retry from daemon settings.");
+    let ready = false;
+    for (let attempt = 0; attempt < 30; attempt++) {
+      const current = await fetchProfileHealth(active);
+      if (current?.status === "running" && current.pid && current.server_url && urlsMatch(current.server_url, targetApiBaseUrl!) && (!health?.pid || current.pid !== health.pid)) { ready = true; break; }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    if (!ready) throw new Error("New token saved, but reconnect is not confirmed. The old token has not been revoked; check daemon settings.");
+    const revoked = await fetch(`${targetApiBaseUrl!.replace(/\/+$/, "")}/api/tokens/${encodeURIComponent(id)}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${jwt}` }, signal: AbortSignal.timeout(10_000),
+    });
+    if (!revoked.ok && revoked.status !== 404) throw new Error("Daemon reconnected with the new token, but revoking the old token failed. Delete the old token from the token list.");
+    return { ok: true };
+  } catch (error) {
+    return { ok: false, message: `${saved ? "" : "Old token retained. "}${errorMessage(error)}` };
+  }
+}
+
 async function reauthenticate(
   token: string,
   userId: string,
 ): Promise<ReauthResult> {
   try {
-    await clearToken();
-    // syncToken mints a fresh PAT because clearToken just removed any cache.
-    await syncToken(token, userId);
+    // Keep the previous credential recoverable until the mint succeeds.
+    await syncToken(token, userId, true);
   } catch (err) {
     if (isAuthStatusError(err)) return { ok: false, reason: "session_invalid" };
     return { ok: false, reason: "transient", message: errorMessage(err) };
@@ -970,11 +1057,67 @@ async function probeLocalRuntimes(): Promise<LocalRuntimeProbe> {
 // applied by fix-path in main/index.ts — as a top-level const it would
 // snapshot process.env at import time, before that block runs.
 function desktopSpawnEnv(): NodeJS.ProcessEnv {
-  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop" };
+  // zh-tw: the daemon follows the bundled CLI itself when the App replaces its
+  // bundle, restarting only when idle under its claim barrier.
+  return { ...process.env, MULTICA_LAUNCHED_BY: "desktop", MULTICA_ZH_TW_DESKTOP_SELF_RELOAD: "1" };
 }
 
 function scheduleStatusRefresh(): void {
   setTimeout(() => void pollOnce(), 0);
+}
+
+// Safe before setup: pending trust is retained until the Desktop profile exists.
+export function requestDaemonTrustRefresh(): void {
+  pendingTrustRefresh = ++trustRefreshGeneration;
+  trustRestartPID = null;
+  scheduleStatusRefresh();
+}
+
+async function refreshDaemonTrustWhenIdle(): Promise<void> {
+  const generation = pendingTrustRefresh;
+  if (!generation) return;
+  const active = await ensureActiveProfile();
+  if (!active) return;
+  const probed = await fetchProfileHealthWithPort(active);
+  const running = probed?.health ?? null;
+  if (generation !== pendingTrustRefresh) return;
+  if (!running) {
+    if (await daemonPidIsConfirmedAbsent(active.name) && generation === pendingTrustRefresh) {
+      pendingTrustRefresh = 0;
+      trustRestartPID = null;
+    }
+    return;
+  }
+  if (running.status !== "running" || running.os !== normalizeHostOS(process.platform) ||
+      running.profile !== active.name || running.launched_by !== "desktop" ||
+      !urlsMatch(running.server_url ?? "", targetApiBaseUrl ?? "") ||
+      !Number.isSafeInteger(running.pid) || !running.pid || running.pid < 1) return;
+  if (trustRestartPID !== null && running.pid !== trustRestartPID) {
+    // A different PID may also be an unrelated restart; confirm loaded digest.
+    trustRestartPID = null;
+  }
+  if (trustRestartPID !== null && Date.now() - trustRestartRequestedAt < 30_000) return;
+  if (running.active_task_count !== 0 ||
+      running.running_task_count !== 0 || running.resource_wait_task_count !== 0) return;
+  const ca = process.env.MULTICA_CA_CERT_FILE;
+  if (!ca) return;
+  trustRestartPID = running.pid;
+  trustRestartRequestedAt = Date.now();
+  try {
+    const digest = createHash("sha256").update(await readFile(ca)).digest("hex");
+    const response = await fetch(`http://127.0.0.1:${probed!.port}/restart/idle`, {
+      method: "POST", signal: AbortSignal.timeout(HEALTH_PROBE_TIMEOUT_MS),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ expected_pid: running.pid, expected_ca_path: ca, expected_ca_sha256: digest }),
+    });
+    if (response.status === 200 && generation === pendingTrustRefresh) pendingTrustRefresh = 0;
+    if (response.status !== 202 && generation === pendingTrustRefresh) trustRestartPID = null;
+    // Busy, mismatched paths, and older daemons stay pending; never fall back
+    // to the CLI stop command, which can force-kill an active daemon.
+  } catch {
+    // Shutdown can close the response connection. Check for a new PID before
+    // retrying so a successful handoff is not mistaken for a failed request.
+  }
 }
 
 async function startDaemon(
@@ -1261,7 +1404,11 @@ async function pollOnce(): Promise<void> {
     }
     // Retry a deferred version-mismatch restart once the daemon drains. Route
     // it through the same singleflight guard as user and recovery operations.
-    if (pendingVersionRestart && status.state === "running") {
+    if (pendingTrustRefresh) {
+      void lifecycleOperations
+        .runBackground(() => refreshDaemonTrustWhenIdle())
+        .catch((err) => console.warn("[daemon] deferred trust refresh failed:", err));
+    } else if (pendingVersionRestart && status.state === "running") {
       void lifecycleOperations
         .runBackground(() => ensureRunningDaemonVersionMatches())
         .catch((err) => {
@@ -1443,6 +1590,23 @@ export function resumeDaemonAfterAbortedUpdateInstall(): void {
  * `windowGetter` is the main window that hosts dialogs and progress;
  * `statusWindowsGetter` lists every main window that shows daemon status.
  */
+/** The server the App is connected to, once the renderer has reported it. */
+export function getTargetApiBaseUrl(): string | null {
+  return targetApiBaseUrl;
+}
+
+let preserveDaemonOnQuit = false;
+
+/**
+ * Keep the daemon running through the next quit. Used when the App quits only
+ * to replace its own bundle: stopping the daemon would cancel running agent
+ * tasks after the 30-second shutdown drain. The relaunched App restarts the
+ * daemon into its bundled CLI once the daemon is idle (version-mismatch path).
+ */
+export function preserveDaemonOnNextQuit(): void {
+  preserveDaemonOnQuit = true;
+}
+
 export function setupDaemonManager(
   windowGetter: () => BrowserWindow | null,
   statusWindowsGetter: () => readonly BrowserWindow[] = () => {
@@ -1453,15 +1617,24 @@ export function setupDaemonManager(
   getMainWindow = windowGetter;
   getStatusWindows = statusWindowsGetter;
 
-  ipcMain.handle("daemon:set-target-api-url", async (_e, url: string) => {
+  ipcMain.handle("daemon:set-target-api-url", (_e, url: string) => {
     const normalized = url || null;
-    if (targetApiBaseUrl !== normalized) {
-      console.log(`[daemon] target API URL set to ${normalized ?? "(none)"}`);
-      setDesiredDaemonRunning(false);
-      targetApiBaseUrl = normalized;
-      invalidateActiveProfile();
-      await pollOnce();
-    }
+    if (targetApiBaseUrl === normalized) return;
+    const setTarget = async () => {
+      if (targetApiBaseUrl !== normalized) {
+        console.log(`[daemon] target API URL set to ${normalized ?? "(none)"}`);
+        setDesiredDaemonRunning(false);
+        targetApiBaseUrl = normalized;
+        invalidateActiveProfile();
+        await pollOnce();
+      }
+    };
+    // Initial discovery must not wait for a CLI download: quit still needs the
+    // profile's process evidence while installation is pending. Once a target
+    // exists, serialize switches with token writes and daemon lifecycle work.
+    return targetApiBaseUrl === null
+      ? setTarget()
+      : lifecycleOperations.runForeground(setTarget);
   });
   ipcMain.handle("daemon:start", () => {
     if (desiredRunningBeforeUpdateStop !== null) return UPDATE_IN_PROGRESS;
@@ -1492,16 +1665,20 @@ export function setupDaemonManager(
   ipcMain.handle("daemon:get-host-name", () => hostname());
   ipcMain.handle(
     "daemon:sync-token",
-    async (_event, token: string, userId: string) => {
+    (_event, token: string, userId: string) => lifecycleOperations.runForeground(async () => {
       const result = await syncToken(token, userId);
       if (result.userChanged) {
         await restartDaemonAfterUserSwitch(result.active);
       }
-    },
+    }),
   );
+  ipcMain.handle("daemon:desktop-token-id", (_event, jwt: string, userId: string) =>
+    lifecycleOperations.runForeground(() => getDesktopTokenId(jwt, userId)));
+  ipcMain.handle("daemon:rotate-desktop-token", (_event, jwt: string, userId: string, id: string) =>
+    lifecycleOperations.runForeground(() => rotateDesktopToken(jwt, userId, id)));
   ipcMain.handle("daemon:clear-token", () => {
     setDesiredDaemonRunning(false, true);
-    return clearToken();
+    return lifecycleOperations.runForeground(() => clearToken());
   });
   ipcMain.handle(
     "daemon:reauthenticate",
@@ -1685,6 +1862,7 @@ export function setupDaemonManager(
       stopLogTail();
       return;
     }
+    if (preserveDaemonOnQuit) return;
     handleQuit(event);
   });
 }
