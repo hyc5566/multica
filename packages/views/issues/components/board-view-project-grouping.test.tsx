@@ -8,7 +8,7 @@
  * as the "no assignee" column.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ViewStoreProvider } from "@multica/core/issues/stores/view-store-context";
 import { getIssueSurfaceViewStore } from "@multica/core/issues/stores/surface-view-store";
@@ -22,6 +22,7 @@ import {
   ScrollRestorationProvider,
   type ScrollRestorationAdapter,
 } from "../../platform";
+import { IssueDisplayControls } from "./issues-header";
 
 // jsdom has no layout, so dnd-kit never reports a hovered column by itself.
 const drag = vi.hoisted(() => ({ isOver: false }));
@@ -215,11 +216,13 @@ describe("Board grouped by project", () => {
   function render({
     descriptors = [NO_PROJECT_DESCRIPTOR, ...PROJECT_DESCRIPTORS],
     issues = ISSUES,
+    withDisplayControls = false,
     scrollAdapter = { get: () => undefined },
     sortBy,
   }: {
     descriptors?: IssueGroupBranches["descriptors"];
     issues?: Issue[];
+    withDisplayControls?: boolean;
     scrollAdapter?: ScrollRestorationAdapter;
     sortBy?: SortField;
   } = {}) {
@@ -238,6 +241,7 @@ describe("Board grouped by project", () => {
         <ViewStoreProvider store={store}>
           <ScrollRestorationProvider adapter={scrollAdapter}>
           <IssueContextMenuProvider>
+          {withDisplayControls && <IssueDisplayControls scopedIssues={issues} />}
           <BoardView
             issues={issues}
             visibleStatuses={["todo"]}
@@ -253,6 +257,21 @@ describe("Board grouped by project", () => {
       </QueryClientProvider>,
     );
   }
+
+  it("switches every column between compact and default from Display", async () => {
+    render({ withDisplayControls: true });
+    const columns = () => ["Acme Corp", "No project"].map((title) =>
+      screen.getByText(title).closest<HTMLElement>("div[style*='width']")!,
+    );
+    expect(columns().map((column) => column.style.width)).toEqual(["220px", "220px"]);
+    fireEvent.click(screen.getByRole("button", { name: "Display" }));
+    const compact = await screen.findByRole("button", { name: "Compact" });
+    fireEvent.click(compact);
+    expect(compact.getAttribute("aria-pressed")).toBe("true");
+    expect(columns().map((column) => column.style.width)).toEqual(["220px", "220px"]);
+    fireEvent.click(screen.getByRole("button", { name: "Default" }));
+    expect(columns().map((column) => column.style.width)).toEqual(["280px", "280px"]);
+  });
 
   it("titles each column with its project, never with its id", () => {
     render();

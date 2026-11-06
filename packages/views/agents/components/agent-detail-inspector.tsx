@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type {
   Agent,
   AgentConversationStarter,
@@ -19,16 +19,16 @@ import { isImeComposing } from "@multica/core/utils";
 import { Input } from "@multica/ui/components/ui/input";
 import { Textarea } from "@multica/ui/components/ui/textarea";
 import { cn } from "@multica/ui/lib/utils";
+import { Button } from "@multica/ui/components/ui/button";
+import { Loader2 } from "@multica/ui/icons";
 import { AvatarUploadControl } from "../../common/avatar-upload-control";
 import {
   SettingsCard,
   SettingsRow,
   SettingsSaveState,
   SettingsSection,
-  type SettingsSaveStatus,
 } from "../../settings/components/settings-layout";
 import { useAutoSave } from "../../settings/components/use-auto-save";
-import { useEditedValue } from "../../settings/components/use-edited-value";
 import { useT } from "../../i18n";
 import { CharCounter } from "./char-counter";
 import { ConversationStartersEditor } from "./conversation-starters-editor";
@@ -68,15 +68,6 @@ function startersEqual(
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function combinedSaveStatus(
-  ...statuses: SettingsSaveStatus[]
-): SettingsSaveStatus {
-  for (const status of ["error", "saving", "saved"] as const) {
-    if (statuses.includes(status)) return status;
-  }
-  return "idle";
-}
-
 /**
  * Full-width General settings form. Every editable value is presented as an
  * explicit field; compact inspector chips are used only through their
@@ -99,55 +90,75 @@ export function AgentDetailInspector({
     [agent.id, onUpdate],
   );
 
-  const nameField = useEditedValue(agent.name, agent.id);
-  const descriptionField = useEditedValue(agent.description ?? "", agent.id);
-  const name = nameField.value;
-  const description = descriptionField.value;
-  const [starters, setStarters] = useState<AgentConversationStarter[]>(
-    agent.conversation_starters ?? [],
-  );
+  const [name, setName] = useState(agent.name);
+  const [description, setDescription] = useState(agent.description ?? "");
+  const [savingProfile, setSavingProfile] = useState(false);
+  const savedProfileRef = useRef({
+    agentId: agent.id,
+    name: agent.name,
+    description: agent.description ?? "",
+  });
+  const profileDraftRef = useRef({
+    name: agent.name,
+    description: agent.description ?? "",
+  });
+  profileDraftRef.current = { name, description };
 
   useEffect(() => {
-    setStarters(agent.conversation_starters ?? []);
-    // Reset only when moving to another agent. Cache updates from this form
-    // must not erase a newer local draft while an autosave is in flight.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [agent.id]);
+    const incoming = {
+      agentId: agent.id,
+      name: agent.name,
+      description: agent.description ?? "",
+    };
+    const saved = savedProfileRef.current;
+    const switchingAgents = saved.agentId !== agent.id;
+    const localDirty =
+      profileDraftRef.current.name !== saved.name ||
+      profileDraftRef.current.description !== saved.description;
+    const serverChanged =
+      incoming.name !== saved.name || incoming.description !== saved.description;
+    if (switchingAgents || (!savingProfile && !localDirty && serverChanged)) {
+      savedProfileRef.current = incoming;
+      setName(incoming.name);
+      setDescription(incoming.description);
+    }
+  }, [agent.description, agent.id, agent.name, savingProfile]);
 
   const profileDraft = useMemo(
     () => ({ name: name.trim(), description }),
     [description, name],
   );
-  const savedProfile = useMemo(
-    () => ({
-      name: agent.name,
-      description: agent.description ?? "",
-    }),
-    [agent.description, agent.name],
-  );
-  const saveProfile = useCallback(
-    async (next: ProfileDraft) => {
-      // Send only what was edited here, so the rest keeps changes made elsewhere.
+  const savedProfile = savedProfileRef.current;
+  const profileDirty = !profileDraftsEqual(profileDraft, savedProfile);
+  const saveProfile = async () => {
+    const next = profileDraft;
+    setSavingProfile(true);
+    try {
       const changes: Partial<ProfileDraft> = {};
-      if (nameField.edited) changes.name = next.name;
-      if (descriptionField.edited) changes.description = next.description;
-      if (Object.keys(changes).length === 0) return;
+      if (next.name !== savedProfile.name) changes.name = next.name;
+      if (next.description !== savedProfile.description) changes.description = next.description;
       await update(changes);
-      nameField.markSaved(next.name);
-      descriptionField.markSaved(next.description);
-    },
-    [descriptionField, nameField, update],
+      savedProfileRef.current = { agentId: agent.id, ...next };
+      setName(next.name);
+    } catch {
+      // The parent owns the error toast; keep the draft available for retry.
+    } finally {
+      setSavingProfile(false);
+    }
+  };
+  const discardProfile = () => {
+    setName(savedProfileRef.current.name);
+    setDescription(savedProfileRef.current.description);
+  };
+
+  const [starters, setStarters] = useState<AgentConversationStarter[]>(
+    agent.conversation_starters ?? [],
   );
-  const profileAutoSave = useAutoSave({
-    value: profileDraft,
-    savedValue: savedProfile,
-    onSave: saveProfile,
-    enabled:
-      canEdit &&
-      profileDraft.name.length > 0 &&
-      isAgentDescriptionWithinLimit(profileDraft.description),
-    isEqual: profileDraftsEqual,
-  });
+  useEffect(() => {
+    setStarters(agent.conversation_starters ?? []);
+    // Cache updates must not erase a newer draft while its autosave is in flight.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [agent.id]);
 
   const {
     qoderRuntime,
@@ -189,17 +200,6 @@ export function AgentDetailInspector({
         <div className="min-w-0 space-y-8">
           <SettingsSection
             title={t(($) => $.inspector.section_profile)}
-            action={
-              <SettingsSaveState
-                status={combinedSaveStatus(
-                  profileAutoSave.status,
-                  startersAutoSave.status,
-                )}
-                savingLabel={ts(($) => $.auto_save.saving)}
-                savedLabel={ts(($) => $.auto_save.saved)}
-                errorLabel={ts(($) => $.auto_save.failed)}
-              />
-            }
           >
             <SettingsCard>
               <SettingsRow
@@ -230,9 +230,8 @@ export function AgentDetailInspector({
                     autoComplete="off"
                     aria-label={t(($) => $.inspector.name_label)}
                     value={name}
-                    onChange={(event) => nameField.edit(event.target.value)}
-                    onBlur={profileAutoSave.flush}
-                    disabled={!canEdit}
+                    onChange={(event) => setName(event.target.value)}
+                    disabled={!canEdit || savingProfile}
                     aria-invalid={nameInvalid || undefined}
                   />
                   {nameInvalid ? (
@@ -254,13 +253,12 @@ export function AgentDetailInspector({
                     autoComplete="off"
                     aria-label={t(($) => $.inspector.description_label)}
                     value={description}
-                    onChange={(event) => descriptionField.edit(event.target.value)}
-                    onBlur={profileAutoSave.flush}
-                    disabled={!canEdit}
+                    onChange={(event) => setDescription(event.target.value)}
+                    disabled={!canEdit || savingProfile}
                     rows={5}
                     // No maxLength: it counts UTF-16 units and would disagree
                     // with the counter on emoji. Past the limit the counter
-                    // turns red and autosave holds off.
+                    // turns red and saving is disabled.
                     className="resize-y"
                     placeholder={t(($) => $.inspector.description_placeholder)}
                   />
@@ -285,15 +283,52 @@ export function AgentDetailInspector({
                     size="text"
                     align="start"
                   >
-                    <ConversationStartersEditor
-                      value={starters}
-                      onChange={setStarters}
-                      disabled={!canEdit}
-                    />
+                    <div className="space-y-2">
+                      <ConversationStartersEditor
+                        value={starters}
+                        onChange={setStarters}
+                        disabled={!canEdit}
+                      />
+                      <SettingsSaveState
+                        status={startersAutoSave.status}
+                        savingLabel={ts(($) => $.auto_save.saving)}
+                        savedLabel={ts(($) => $.auto_save.saved)}
+                        errorLabel={ts(($) => $.auto_save.failed)}
+                      />
+                    </div>
                   </SettingsRow>
                 </div>
               ) : null}
             </SettingsCard>
+            {profileDirty && canEdit && (
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={discardProfile}
+                  disabled={savingProfile}
+                >
+                  {t(($) => $.inspector.discard_changes)}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={saveProfile}
+                  aria-busy={savingProfile}
+                  disabled={
+                    savingProfile ||
+                    profileDraft.name.length === 0 ||
+                    !isAgentDescriptionWithinLimit(profileDraft.description)
+                  }
+                >
+                  {savingProfile && (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                  )}
+                  {t(($) => $.inspector.save_changes)}
+                </Button>
+              </div>
+            )}
           </SettingsSection>
 
           <SettingsSection

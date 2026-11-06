@@ -2,6 +2,7 @@
 
 import { useIssueStatuses } from "@multica/core/issue-statuses/hooks";
 import { cn } from "@multica/ui/lib/utils";
+import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
 
 import { useState, useCallback, useMemo, useEffect, useRef, memo } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -29,7 +30,7 @@ import { propertyListOptions, useSetIssueProperty, useUnsetIssueProperty } from 
 import { useWorkspaceId } from "@multica/core/hooks";
 import type { IssueGrouping, StaticSortField } from "@multica/core/issues/stores/view-store";
 import { useActorName } from "@multica/core/workspace/hooks";
-import { BoardColumn, BOARD_CARD_WIDTH, type BoardColumnGroup } from "./board-column";
+import { BoardColumn, type BoardColumnGroup } from "./board-column";
 import { BoardWorkflowContext, type BoardWorkflowContextValue } from "./board-workflow-context";
 import {
   issueStatusWorkflow,
@@ -284,6 +285,7 @@ function BoardViewImpl({
   groupBranches?: IssueGroupBranches;
 }) {
   const { t } = useT("issues");
+  const columnWidth = useViewStore((s) => BOARD_COLUMN_WIDTHS[s.boardLayout ?? "default"]);
   const storeGrouping = useViewStore((s) => s.grouping);
   const sortBy = useViewStore((s) => s.sortBy);
   const boardWsId = useWorkspaceId();
@@ -941,7 +943,7 @@ function BoardViewImpl({
 
       <DragOverlay dropAnimation={dropAnimation}>
         {activeIssue ? (
-          <div style={{ width: BOARD_CARD_WIDTH }} className={ISSUE_DRAG_OVERLAY_CLASS}>
+          <div style={{ width: columnWidth - 24 }} className={ISSUE_DRAG_OVERLAY_CLASS}>
             <BoardCardContent
               issue={activeIssue}
               childProgress={childProgressMap.get(activeIssue.id)}

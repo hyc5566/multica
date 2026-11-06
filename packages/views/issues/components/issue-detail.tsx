@@ -1447,10 +1447,7 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
   // built-ins keep their fixed glyph and semantic token.
   const { categoryOf: resolveStatusCategory, colorOf: resolveStatusColor, iconOf: resolveStatusIcon } =
     useIssueStatuses(wsId);
-  // Description autosave is deliberately NOT gated (no explicit submit; the
-  // editor already strips `blob:` before serializing and binds ids on the
-  // later save). It still needs the failure toast, or a failed upload just
-  // erases its own placeholder and the file disappears unexplained.
+  // Report failed uploads when binding attachments on explicit save.
   const {
     uploadWithToast,
     storageRefusal: descStorageRefusal,
@@ -2799,14 +2796,14 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
   }, [findReveal, items, scrollContainerEl]);
 
   const descEditorRef = useRef<ContentEditorRef>(null);
-  const descriptionEditingRef = useRef(false);
-  const descriptionSaveInFlightRef = useRef(false);
-  const descriptionSaveIssueIdRef = useRef(id);
-  const pendingDescriptionSaveRef = useRef<{
-    markdown: string;
-    baseMarkdown: string;
-    attachmentIds: string[];
-  } | null>(null);
+  const descriptionIssueIdRef = useRef(id);
+  const descriptionBaseRef = useRef(issue?.description ?? "");
+  const descriptionDraftRef = useRef(issue?.description ?? "");
+  const descriptionDirtyRef = useRef(false);
+  const descriptionSavingRef = useRef(false);
+  const [descriptionDirty, setDescriptionDirty] = useState(false);
+  const [descriptionSaving, setDescriptionSaving] = useState(false);
+  const [descriptionUploading, setDescriptionUploading] = useState(false);
   // Keep the description editor mounted from the start. Unlike the empty
   // composer shells, a long rendered description cannot swap between
   // react-markdown and ProseMirror without small per-block height differences
@@ -2822,10 +2819,30 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
   useEffect(() => {
     setTitleConflictDraft(null);
     titleBaseRef.current = undefined;
-    descriptionSaveInFlightRef.current = false;
-    descriptionSaveIssueIdRef.current = id;
-    pendingDescriptionSaveRef.current = null;
   }, [id]);
+  useEffect(() => {
+    const incoming = issue?.description ?? "";
+    if (descriptionIssueIdRef.current !== id) {
+      descriptionIssueIdRef.current = id;
+      descriptionBaseRef.current = incoming;
+      descriptionDraftRef.current = incoming;
+      descriptionDirtyRef.current = false;
+      descriptionSavingRef.current = false;
+      setDescriptionDirty(false);
+      setDescriptionSaving(false);
+      setDescriptionUploading(false);
+      return;
+    }
+    if (
+      !descriptionDirtyRef.current &&
+      !descriptionSavingRef.current &&
+      incoming !== descriptionBaseRef.current
+    ) {
+      descriptionBaseRef.current = incoming;
+      descriptionDraftRef.current = incoming;
+      descEditorRef.current?.adoptContent(incoming);
+    }
+  }, [id, issue?.description]);
   const titleLazy = useLazyEditor({ editorRef: titleEditorRef, resetKey: id });
   const { isDragOver: descDragOver, dropZoneProps: descDropZoneProps } = useFileDropZone({
     onDrop: (files) => files.forEach((file) => descEditorRef.current?.uploadFile(file)),
@@ -2979,15 +2996,15 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
   // With live editing on, the description is a shared document that the
   // collaboration service saves. The solo editor still shows first, so the
   // page never waits on that answer and works as before when live editing is
-  // off; the live editor takes over once it is ready, though not while
-  // someone is in the solo one. Unmounting the solo editor flushes its
-  // pending save, which the server merges into the live document.
+  // off. The live editor waits for a solo draft to be saved or discarded
+  // before taking over, even when the user moves focus elsewhere.
   const descCollab = useDocCollab(id, issue?.description ?? "", "issue", !guest);
   const descLive = descCollab.mode === "live" ? descCollab : null;
   const [descLiveReadyFor, setDescLiveReadyFor] = useState<number | null>(null);
   const [descSoloHeld, setDescSoloHeld] = useState(false);
   useEffect(() => setDescSoloHeld(false), [id]);
-  const showLiveDesc = !!descLive?.ready && descLiveReadyFor === descLive.generation && !descSoloHeld;
+  const showLiveDesc = !!descLive?.ready && descLiveReadyFor === descLive.generation &&
+    !descSoloHeld && !descriptionDirty && !descriptionSaving && !descriptionUploading;
   const descContentRef = useRef<HTMLDivElement>(null);
   const descPresence = useMemo(
     () => descLive?.collaborators.filter((c) => !(c.kind === "member" && c.id === user?.id)) ?? [],
@@ -3000,21 +3017,14 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
     caret?.scrollIntoView({ block: "center", behavior: "smooth" });
   }, []);
   const descCarried = descCollab.mode === "solo" ? (descCollab.carried ?? null) : null;
-  const queueDescriptionSaveRef = useRef<
-    ((draft: { markdown: string; baseMarkdown: string; attachmentIds: string[] }) => void) | null
-  >(null);
   useEffect(() => {
-    // Typed into a live session that never connected: save it as a solo edit.
+    // Carry unpersisted live edits into the solo editor when the connection fails.
     if (descCarried === null) return;
-    queueDescriptionSaveRef.current?.({
-      markdown: descCarried,
-      baseMarkdown: issue?.description ?? "",
-      attachmentIds: descPendingAttachmentsRef.current
-        .filter((a) => contentReferencesAttachment(descCarried, a))
-        .map((a) => a.id),
-    });
-    // Once per carried draft; the issue is read as it is then.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    descEditorRef.current?.adoptContent(descCarried);
+    descriptionDraftRef.current = descCarried;
+    const dirty = descCarried !== descriptionBaseRef.current;
+    descriptionDirtyRef.current = dirty;
+    setDescriptionDirty(dirty);
   }, [descCarried]);
 
   // Shared issue actions (mutations, pin, copy-link, modal dispatch, etc.).
@@ -3220,53 +3230,65 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
       ? getActorName("member", issue.requester_id)
       : undefined;
 
-  const persistDescriptionSave = (
-    draft: { markdown: string; baseMarkdown: string; attachmentIds: string[] },
-  ) => {
-    descriptionSaveInFlightRef.current = true;
+  const saveDescription = () => {
+    const markdown =
+      descEditorRef.current?.flushPendingUpdate() ??
+      descEditorRef.current?.getMarkdown() ??
+      descriptionDraftRef.current;
+    descriptionDraftRef.current = markdown;
+    const baseMarkdown = descriptionBaseRef.current;
+    const attachmentIds = descPendingAttachmentsRef.current
+      .filter((attachment) => contentReferencesAttachment(markdown, attachment))
+      .map((attachment) => attachment.id);
+    descriptionSavingRef.current = true;
+    setDescriptionSaving(true);
     handleUpdateField(
       {
-        description: draft.markdown,
-        description_base: draft.baseMarkdown,
+        description: markdown,
+        description_base: baseMarkdown,
         attachment_ids:
-          draft.attachmentIds.length > 0 ? draft.attachmentIds : undefined,
+          attachmentIds.length > 0 ? attachmentIds : undefined,
       },
       {
         onSuccess: (serverIssue) => {
-          if (descriptionSaveIssueIdRef.current !== id) return;
-          descriptionSaveInFlightRef.current = false;
-          const pending = pendingDescriptionSaveRef.current;
-          pendingDescriptionSaveRef.current = null;
-          if (pending) {
-            // Usually the accepted document is exactly what we submitted. If
-            // the server appended late channel media, keep the submitted body
-            // as the next editor baseline: the server can recognize that the
-            // only delta is media the editor never saw and preserve it again.
-            const nextBase = serverIssue.description === draft.markdown
-              ? serverIssue.description
-              : draft.markdown;
-            persistDescriptionSave({ ...pending, baseMarkdown: nextBase });
+          if (descriptionIssueIdRef.current !== id) return;
+          descriptionSavingRef.current = false;
+          setDescriptionSaving(false);
+          const current = descEditorRef.current?.getMarkdown() ?? descriptionDraftRef.current;
+          const nextBase = serverIssue.description === markdown
+            ? serverIssue.description
+            : markdown;
+          descriptionBaseRef.current = nextBase;
+          descriptionDraftRef.current = current;
+          const stillDirty = current !== nextBase;
+          descriptionDirtyRef.current = stillDirty;
+          setDescriptionDirty(stillDirty);
+          if (!stillDirty && serverIssue.description !== markdown) {
+            const accepted = serverIssue.description ?? markdown;
+            descriptionBaseRef.current = accepted;
+            descriptionDraftRef.current = accepted;
+            descEditorRef.current?.adoptContent(accepted);
           }
         },
         onError: () => {
-          if (descriptionSaveIssueIdRef.current !== id) return;
-          descriptionSaveInFlightRef.current = false;
-          pendingDescriptionSaveRef.current = null;
+          if (descriptionIssueIdRef.current !== id) return;
+          descriptionSavingRef.current = false;
+          setDescriptionSaving(false);
         },
       },
     );
   };
 
-  const queueDescriptionSave = (
-    draft: { markdown: string; baseMarkdown: string; attachmentIds: string[] },
-  ) => {
-    if (descriptionSaveInFlightRef.current) {
-      pendingDescriptionSaveRef.current = draft;
-      return;
-    }
-    persistDescriptionSave(draft);
+  const discardDescription = () => {
+    descEditorRef.current?.flushPendingUpdate();
+    const persisted = descriptionBaseRef.current;
+    descriptionDraftRef.current = persisted;
+    descriptionDirtyRef.current = false;
+    setDescriptionDirty(false);
+    descPendingAttachmentsRef.current = [];
+    setDescPendingAttachments([]);
+    descEditorRef.current?.adoptContent(persisted);
   };
-  queueDescriptionSaveRef.current = queueDescriptionSave;
 
   const canAddProperty = OPTIONAL_PROP_KEYS.some(
     (key) => !visibleOptionalProps.has(key) && (key !== "stage" || issue.parent_issue_id != null),
@@ -4131,16 +4153,10 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
             ref={descriptionAnnotations.cardRef}
             className="relative mt-5 rounded-lg"
             onFocusCapture={() => {
-              if (!descriptionEditingRef.current) {
-                descriptionEditingRef.current = true;
-              }
               if (!showLiveDesc) setDescSoloHeld(true);
             }}
             onBlurCapture={(event) => {
-              if (!event.currentTarget.contains(event.relatedTarget)) {
-                descriptionEditingRef.current = false;
-                setDescSoloHeld(false);
-              }
+              if (!event.currentTarget.contains(event.relatedTarget)) setDescSoloHeld(false);
             }}
           >
             {descriptionAnnotations.popup}
@@ -4168,41 +4184,17 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
               <ContentEditor
                 ref={descEditorRef}
                 key={id}
-                value={issue.description ?? ""}
+                defaultValue={issue.description ?? ""}
                 placeholder={t(($) => $.detail.desc_placeholder)}
-                onUpdate={(md, baseMarkdown) => {
-                  // Bind any pending uploads still referenced in the markdown
-                  // so they appear in `issueAttachments` after refresh and the
-                  // editor's text/code preview keeps working past reload.
-                  //
-                  // Match with `contentReferencesAttachment`, NOT `md.includes(a.url)`:
-                  // the editor persists the durable `markdownLink`
-                  // (`/api/attachments/<id>/download` / `markdown_url`) into the
-                  // body, never the raw storage `a.url`. A bare `md.includes(a.url)`
-                  // therefore never matches, so the upload is never linked via
-                  // `attachment_ids`. After reload it's absent from
-                  // `issueAttachments`, the renderer can't resolve it to a
-                  // freshly-signed `download_url`, and the persisted auth-gated
-                  // download endpoint fails to load as a native <img> on clients
-                  // whose origin isn't the API host (Desktop/Electron, mobile
-                  // webview) — while still working on web via the cookie/proxy.
-                  // This mirrors the comment/reply/chat composers, which already
-                  // bind via `contentReferencesAttachment` (MUL-3130 / MUL-3192).
-                  const ids = descPendingAttachmentsRef.current
-                    .filter((a) => contentReferencesAttachment(md, a))
-                    .map((a) => a.id);
-                  queueDescriptionSave({
-                    markdown: md,
-                    baseMarkdown,
-                    attachmentIds: ids,
-                  });
+                onUpdate={(markdown) => {
+                  descriptionDraftRef.current = markdown;
+                  const dirty = markdown !== descriptionBaseRef.current;
+                  descriptionDirtyRef.current = dirty;
+                  setDescriptionDirty(dirty);
                 }}
                 onUploadFile={handleDescriptionUpload}
-                debounceMs={1500}
-                // Closing the issue modal must save what the user last saw —
-                // without the flush, a paste followed by a quick close loses
-                // the image markdown and its attachment_ids bind (MUL-3254).
-                flushPendingOnUnmount
+                onUploadingChange={setDescriptionUploading}
+                debounceMs={0}
                 currentIssueId={id}
                 selectionAction={descriptionSelectionAction}
                 attachments={descEditorAttachments}
@@ -4217,6 +4209,31 @@ export function IssueDetail({ issueId, onDelete, inbox, defaultSidebarOpen = tru
                 onDismiss={dismissDescStorageRefusal}
                 className="mt-2"
               />
+            )}
+
+            {descriptionDirty && (
+              <div className="mt-3 flex items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={discardDescription}
+                  disabled={descriptionSaving}
+                >
+                  {t(($) => $.detail.discard_changes)}
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={saveDescription}
+                  disabled={descriptionSaving || descriptionUploading}
+                >
+                  {descriptionSaving && (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" aria-hidden="true" />
+                  )}
+                  {t(($) => $.detail.save_changes)}
+                </Button>
+              </div>
             )}
 
             <div className="flex items-center gap-1 mt-3">

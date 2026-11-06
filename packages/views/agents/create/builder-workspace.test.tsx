@@ -324,7 +324,7 @@ describe("builder draft recovery wiring", () => {
 
   it.each([
     ["en", "This reply could not fill the form."],
-    ["zh-Hans", "本次回复未能填入表单。"],
+    ["zh-Hans", "這次的回覆無法填入表單。"],
     ["ja", "この返信からフォームを入力できませんでした。"],
     ["ko", "이 응답으로 양식을 채울 수 없습니다."],
     ["fr", "Cette réponse n’a pas permis de remplir le formulaire."],

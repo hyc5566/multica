@@ -125,6 +125,8 @@ import type {
   DashboardFailureBySquad,
   RuntimeUpdate,
   RuntimeModelListRequest,
+  RuntimeProviderUsage,
+  RuntimeProviderUsageRequest,
   RuntimeLocalSkillListRequest,
   CreateRuntimeLocalSkillImportRequest,
   RuntimeLocalSkillImportRequest,
@@ -604,6 +606,9 @@ import {
   EMPTY_LIST_GITHUB_REPOSITORIES_RESPONSE,
   RuntimeModelListRequestSchema,
   MALFORMED_RUNTIME_MODEL_LIST_REQUEST,
+  RuntimeProviderUsageRequestSchema,
+  RuntimeProviderUsageSchema,
+  MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
   SkillSchema,
   EMPTY_SKILL,
   SkillSummaryListSchema,
@@ -3367,6 +3372,60 @@ export class ApiClient {
         runtime_id: runtimeId,
       },
       { endpoint: "GET /api/runtimes/{id}/models/{requestId}" },
+    );
+  }
+
+  async initiateProviderUsage(
+    runtimeId: string,
+  ): Promise<RuntimeProviderUsageRequest> {
+    const raw = await this.fetch<unknown>(
+      `/api/runtimes/${runtimeId}/provider-usage`,
+      { method: "POST" },
+    );
+    return parseWithFallback<RuntimeProviderUsageRequest>(
+      raw,
+      RuntimeProviderUsageRequestSchema,
+      { ...MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST, runtime_id: runtimeId },
+      { endpoint: "POST /api/runtimes/{id}/provider-usage" },
+    );
+  }
+
+  async getProviderUsageSnapshot(
+    runtimeId: string,
+  ): Promise<RuntimeProviderUsage> {
+    const raw = await this.fetch<unknown>(
+      `/api/runtimes/${runtimeId}/provider-usage`,
+    );
+    return parseWithFallback<RuntimeProviderUsage>(
+      raw,
+      RuntimeProviderUsageSchema,
+      {
+        provider: "",
+        status: "error",
+        source: "unavailable",
+        observed_at: "",
+        message: "invalid provider usage snapshot",
+      },
+      { endpoint: "GET /api/runtimes/{id}/provider-usage" },
+    );
+  }
+
+  async getProviderUsageResult(
+    runtimeId: string,
+    requestId: string,
+  ): Promise<RuntimeProviderUsageRequest> {
+    const raw = await this.fetch<unknown>(
+      `/api/runtimes/${runtimeId}/provider-usage/${requestId}`,
+    );
+    return parseWithFallback<RuntimeProviderUsageRequest>(
+      raw,
+      RuntimeProviderUsageRequestSchema,
+      {
+        ...MALFORMED_RUNTIME_PROVIDER_USAGE_REQUEST,
+        id: requestId,
+        runtime_id: runtimeId,
+      },
+      { endpoint: "GET /api/runtimes/{id}/provider-usage/{requestId}" },
     );
   }
 

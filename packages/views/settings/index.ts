@@ -10,3 +10,5 @@ export {
 export type {
   SettingsSaveStatus,
 } from "./components/settings-layout";
+
+export type { DesktopTokenControl } from "./components/tokens-tab";

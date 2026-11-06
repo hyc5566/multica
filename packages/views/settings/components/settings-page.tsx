@@ -40,7 +40,7 @@ import { useRestoredScrollRef } from "../../platform/scroll-restoration";
 import { AccountTab } from "./account-tab";
 import { PreferencesTab } from "./preferences-tab";
 import { AppearanceTab } from "./appearance-tab";
-import { TokensTab } from "./tokens-tab";
+import { TokensTab, type DesktopTokenControl } from "./tokens-tab";
 import { WorkspaceTab } from "./workspace-tab";
 import { MembersTab } from "./members-tab";
 import { CodeTab } from "./code-tab";
@@ -80,6 +80,7 @@ export interface ExtraSettingsTab {
 
 interface SettingsPageProps {
   /** Device settings supplied by the desktop platform. */
+  desktopTokenControl?: DesktopTokenControl;
   extraDeviceTabs?: ExtraSettingsTab[];
 }
 
@@ -124,7 +125,7 @@ const SETTINGS_HEADER_RAIL = cn(
 const FLASH_MS = 1600;
 const ANCHOR_WAIT_MS = 1500;
 
-export function SettingsPage({ extraDeviceTabs = [] }: SettingsPageProps = {}) {
+export function SettingsPage({ extraDeviceTabs = [], desktopTokenControl }: SettingsPageProps = {}) {
   const { t } = useT("settings");
   const workspace = useCurrentWorkspace();
   const workspaceName = workspace?.name ?? t(($) => $.page.workspace_fallback);
@@ -185,7 +186,7 @@ export function SettingsPage({ extraDeviceTabs = [] }: SettingsPageProps = {}) {
             ...(voiceInputAvailable
               ? [entry("voice-input", t(($) => $.page.tabs.voice_input), Mic, <VoiceInputTab />)]
               : []),
-            entry("tokens", t(($) => $.page.tabs.tokens), KeyRound, <TokensTab />),
+            entry("tokens", t(($) => $.page.tabs.tokens), KeyRound, <TokensTab desktopTokenControl={desktopTokenControl} />),
           ],
         },
       ],

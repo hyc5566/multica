@@ -46,7 +46,7 @@ describe("FeatureIntro", () => {
 
   it("links to the docs in the reader's language", () => {
     renderIntro("zh-Hans");
-    expect(screen.getByRole("link", { name: "阅读文档" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "閱讀文件" })).toHaveAttribute(
       "href",
       "https://multica.ai/docs/zh/squads",
     );
