@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, fireEvent, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { Agent } from "@multica/core/types";
 import { renderWithI18n } from "../../test/i18n";
 import { AgentDetailInspector } from "./agent-detail-inspector";
@@ -70,5 +71,92 @@ describe("AgentDetailInspector labels", () => {
 
     expect(screen.queryByTestId("label-picker")).toBeNull();
     expect(screen.queryByText("Labels")).toBeNull();
+  });
+
+  it("waits for an explicit profile decision and can discard the draft", async () => {
+    const onUpdate = vi.fn(async () => {});
+    const user = userEvent.setup();
+    renderWithI18n(
+      <AgentDetailInspector
+        agent={agent}
+        runtime={null}
+        runtimes={[]}
+        members={[]}
+        currentUserId="user-1"
+        canEdit
+        onUpdate={onUpdate}
+      />,
+    );
+
+    const description = screen.getByLabelText("Description");
+    await user.clear(description);
+    await user.type(description, "Temporary profile");
+    await user.tab();
+    expect(onUpdate).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Discard changes" })).toBeVisible();
+
+    await user.click(screen.getByRole("button", { name: "Discard changes" }));
+    expect(description).toHaveValue("Test agent");
+    expect(onUpdate).not.toHaveBeenCalled();
+
+    await user.clear(description);
+    await user.type(description, "Saved profile");
+    await user.click(screen.getByRole("button", { name: "Save changes" }));
+    expect(onUpdate).toHaveBeenCalledWith(agent.id, {
+      name: agent.name,
+      description: "Saved profile",
+    });
+  });
+
+  it("keeps an explicit profile draft across a server cache update", () => {
+    const onUpdate = vi.fn(async () => {});
+    const props = {
+      runtime: null,
+      runtimes: [],
+      members: [],
+      currentUserId: "user-1",
+      canEdit: true,
+      onUpdate,
+    };
+    const { rerender } = renderWithI18n(
+      <AgentDetailInspector {...props} agent={agent} />,
+    );
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "Unsaved profile" },
+    });
+    rerender(
+      <AgentDetailInspector
+        {...props}
+        agent={{ ...agent, description: "Changed on another client" }}
+      />,
+    );
+    expect(screen.getByLabelText("Description")).toHaveValue("Unsaved profile");
+    expect(onUpdate).not.toHaveBeenCalled();
+  });
+
+  it("retains a rejected profile save for an explicit retry", async () => {
+    const onUpdate = vi.fn(async () => { throw new Error("Save failed"); });
+    renderWithI18n(
+      <AgentDetailInspector
+        agent={agent}
+        runtime={null}
+        runtimes={[]}
+        members={[]}
+        currentUserId="user-1"
+        canEdit
+        onUpdate={onUpdate}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "Keep this draft" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Save changes" })).toBeEnabled(),
+    );
+    expect(screen.getByLabelText("Description")).toHaveValue("Keep this draft");
+    expect(onUpdate).toHaveBeenCalledTimes(1);
+    fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
+    expect(screen.getByLabelText("Description")).toHaveValue("Test agent");
   });
 });

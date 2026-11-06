@@ -34,7 +34,9 @@ import {
   UI_MOTION_DURATION,
 } from "@multica/ui/lib/motion";
 import { cn } from "@multica/ui/lib/utils";
-import { CliInstallCommand } from "../../common/cli-install-command";
+import { CLI_INSTALL_COMMANDS, CliInstallCommand } from "../../common/cli-install-command";
+import { operatorInstallCommand } from "@multica/core/runtimes";
+import { useConfigStore } from "@multica/core/config";
 import { DaemonSetupNotice } from "../../common/daemon-setup-notice";
 import { useNavigation } from "../../navigation";
 import { useT } from "../../i18n";
@@ -274,6 +276,8 @@ function CommandStep({
 function InstructionsStep({ onClose }: { onClose: () => void }) {
   const { t } = useT("runtimes");
   const commands = useDaemonSetupCommands();
+  const installUrl = useConfigStore((s) => s.daemonInstallUrl);
+  const installCmd = operatorInstallCommand(installUrl);
   return (
     <>
       <DialogHeader className="px-6 pt-6 pb-2">
@@ -300,7 +304,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
             >
               {(cmd) => (
                 <CommandRow
-                  cmd={cmd}
+                  cmd={cmd === CLI_INSTALL_COMMANDS.macosLinux ? installCmd ?? cmd : cmd}
                   copyAria={t(($) => $.connect.copy_aria)}
                 />
               )}
@@ -328,7 +332,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
           {commands.status === "ready" && (
             <>
               <LiveListening />
-              <TroubleshootingDetails tokenCmd={commands.tokenCmd} />
+              <TroubleshootingDetails tokenCmd={commands.tokenCmd} cli={commands.cli} />
             </>
           )}
         </div>
@@ -343,7 +347,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
   );
 }
 
-function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
+function TroubleshootingDetails({ tokenCmd, cli }: { tokenCmd: string; cli: string }) {
   const { t } = useT("runtimes");
   return (
     <details className="group rounded-lg border border-dashed">
@@ -379,7 +383,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
                 CODE_LIGATURE_CLASS,
               )}
             >
-              {"multica daemon status"}
+              {`${cli} daemon status`}
             </code>
           </li>
           <li className="flex items-center gap-1.5">
@@ -391,7 +395,7 @@ function TroubleshootingDetails({ tokenCmd }: { tokenCmd: string }) {
                 CODE_LIGATURE_CLASS,
               )}
             >
-              {"multica daemon logs -f"}
+              {`${cli} daemon logs -f`}
             </code>
           </li>
         </ul>

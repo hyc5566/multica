@@ -35,6 +35,7 @@ import { useNavigation } from "../../navigation";
 import { useT } from "../../i18n";
 import { TooltipHint } from "@multica/ui/components/common/tooltip-hint";
 import { ChatWakeupHeaderButton, useChatWakeups } from "./chat-wakeups";
+import { ChatSessionQuotaButton } from "./chat-quota";
 
 /**
  * Per-session header for the conversation pane, read as a breadcrumb: the
@@ -46,6 +47,8 @@ export function ChatSessionHeader({
   agent,
   onArchive,
   leading,
+  quotaCheckpoints,
+  taskUsage,
 }: {
   session: ChatSession;
   agent: Agent | null;
@@ -58,6 +61,8 @@ export function ChatSessionHeader({
    * back to the list at compact widths. Nothing renders there without one.
    */
   leading?: ReactNode;
+  quotaCheckpoints?: ChatSession["quota_checkpoints"];
+  taskUsage?: ChatSession["task_usage"];
 }) {
   const { t } = useT("chat");
   const { t: tCommon } = useT("common");
@@ -232,6 +237,11 @@ export function ChatSessionHeader({
         leaf={leaf}
         actions={
           <div className="flex items-center gap-0.5">
+            <ChatSessionQuotaButton
+              title={title}
+              checkpoints={quotaCheckpoints}
+              taskUsage={taskUsage}
+            />
           <ChatWakeupHeaderButton sessionId={session.id} wakeups={wakeups} />
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -257,18 +267,31 @@ export function ChatSessionHeader({
                   <Settings2 className="h-4 w-4" />
                   {t(($) => $.header.agent_settings)}
                 </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              {isArchived ? (
-                <>
-                  <DropdownMenuItem onClick={doUnarchive}>
-                    <ArchiveRestore className="h-4 w-4" />
-                    {t(($) => $.header.unarchive)}
+                {agent && (
+                  <DropdownMenuItem
+                    onClick={() => push(`${wsPaths.agentDetail(agent.id)}?view=general`)}
+                  >
+                    <Settings2 className="h-4 w-4" />
+                    {t(($) => $.header.agent_settings)}
                   </DropdownMenuItem>
-                  {/* Hard delete is offered only once a chat is archived. */}
-                  <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
-                    <Trash2 className="h-4 w-4" />
-                    {t(($) => $.header.delete)}
+                )}
+                <DropdownMenuSeparator />
+                {isArchived ? (
+                  <>
+                    <DropdownMenuItem onClick={doUnarchive}>
+                      <ArchiveRestore className="h-4 w-4" />
+                      {t(($) => $.header.unarchive)}
+                    </DropdownMenuItem>
+                    {/* Hard delete is offered only once a chat is archived. */}
+                    <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+                      <Trash2 className="h-4 w-4" />
+                      {t(($) => $.header.delete)}
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <DropdownMenuItem onClick={doArchive}>
+                    <Archive className="h-4 w-4" />
+                    {t(($) => $.header.archive)}
                   </DropdownMenuItem>
                 </>
               ) : (
