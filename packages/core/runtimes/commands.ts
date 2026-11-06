@@ -1,11 +1,13 @@
 export const CLOUD_SERVER_URL = "https://api.multica.ai";
 export const CLOUD_APP_URL = "https://multica.ai";
 
-export function normalizeCommandURL(url: string | undefined): string {
+export type CommandShell = "posix" | "powershell";
+
+export function normalizeCommandURL(url: string | undefined, shell: CommandShell = "posix"): string {
   const value = url?.trim().replace(/\/+$/, "") ?? "";
   return /^[a-zA-Z0-9:/._~-]*$/.test(value)
     ? value
-    : `'${value.replaceAll("'", "'\\''")}'`;
+    : `'${value.replaceAll("'", shell === "powershell" ? "''" : "'\\''")}'`;
 }
 
 export function operatorInstallCommand(raw = ""): string | undefined {
@@ -24,13 +26,15 @@ export function operatorInstallCommand(raw = ""): string | undefined {
 
 export type DaemonSetupTarget = "cloud" | "self_host" | "unknown";
 export type DaemonConfigStatus = "loading" | "ready" | "error";
+export type DaemonCLI = "multica" | '"$HOME/.local/bin/multica"';
 
 export interface DaemonSetupConfig {
   status: DaemonConfigStatus;
   target: DaemonSetupTarget;
   serverUrl?: string;
   appUrl?: string;
-  installUrl?: string;
+  cli?: DaemonCLI;
+  shell?: CommandShell;
 }
 
 export type DaemonCommands =
@@ -39,12 +43,12 @@ export type DaemonCommands =
 
 export function daemonCommands(config: DaemonSetupConfig): DaemonCommands {
   if (config.status !== "ready") return { status: config.status };
-  const cli = operatorInstallCommand(config.installUrl) ? '"$HOME/.local/bin/multica"' : "multica";
+  const cli = config.cli ?? "multica";
   const login = cli === "multica" ? "login --token <YOUR_TOKEN>" : "login --token";
 
   if (config.target === "self_host") {
-    const normalizedServerUrl = normalizeCommandURL(config.serverUrl);
-    const normalizedAppUrl = normalizeCommandURL(config.appUrl);
+    const normalizedServerUrl = normalizeCommandURL(config.serverUrl, config.shell);
+    const normalizedAppUrl = normalizeCommandURL(config.appUrl, config.shell);
     if (!normalizedServerUrl || !normalizedAppUrl) return { status: "incomplete" };
     return {
       status: "ready",

@@ -15,6 +15,15 @@ describe("normalizeCommandURL", () => {
     expect(normalizeCommandURL("")).toBe("");
     expect(normalizeCommandURL(undefined)).toBe("");
   });
+
+  it("quotes PowerShell URL arguments with doubled literal quotes", () => {
+    expect(normalizeCommandURL("https://app.example.com/a'b", "powershell")).toBe(
+      "'https://app.example.com/a''b'",
+    );
+    expect(normalizeCommandURL("https://api.example.com/$(Get-Item .)", "powershell")).toBe(
+      "'https://api.example.com/$(Get-Item .)'",
+    );
+  });
 });
 
 describe("daemonCommands", () => {
@@ -23,7 +32,7 @@ describe("daemonCommands", () => {
       status: "ready", target: "self_host",
       serverUrl: "https://api.example.com/$(touch injected)",
       appUrl: "https://app.example.com/a'b",
-      installUrl: "https://downloads.example.com/install.sh",
+      cli: '"$HOME/.local/bin/multica"',
     });
     expect(result.status).toBe("ready");
     if (result.status !== "ready") throw new Error("expected self-host commands");

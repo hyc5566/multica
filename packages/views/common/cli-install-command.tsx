@@ -52,14 +52,18 @@ export function CliInstallCommand({
   labels,
   classNames,
   children,
+  onPlatformChange,
 }: {
   labels: CliInstallCommandLabels;
   /** Palette overrides for surfaces that do not use the product tokens. */
   classNames?: { list?: string; trigger?: string };
   children: (command: string) => ReactNode;
+  onPlatformChange?: (platform: CliInstallPlatform) => void;
 }) {
   return (
-    <Tabs defaultValue={PLATFORMS[0]}>
+    <Tabs defaultValue={PLATFORMS[0]} onValueChange={(value) => {
+      if (value === "macosLinux" || value === "windows") onPlatformChange?.(value);
+    }}>
       <TabsList
         aria-label={labels.group}
         activateOnFocus
