@@ -37,7 +37,7 @@ import {
 } from "@multica/core/issues/surface/scope";
 import type { Issue } from "@multica/core/types";
 import { BoardView } from "../components/board-view";
-import { BOARD_COL_WIDTH } from "../components/board-column";
+import { BOARD_COLUMN_WIDTHS } from "@multica/core/issues/stores/view-store";
 import { BatchActionToolbar } from "../components/batch-action-toolbar";
 import { GanttView } from "../components/gantt-view";
 import { ListView } from "../components/list-view";
@@ -534,7 +534,7 @@ function IssueSurfaceSkeleton({ mode }: { mode: string }) {
       {[3, 2, 2, 1, 1].map((cards, c) => (
         <div
           key={c}
-          style={{ width: BOARD_COL_WIDTH }}
+          style={{ width: BOARD_COLUMN_WIDTHS.default }}
           className="flex shrink-0 flex-col rounded-xl bg-muted/40 p-2"
         >
           <div className="mb-2 flex h-6 items-center gap-2 px-1.5">

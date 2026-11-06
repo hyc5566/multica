@@ -31,6 +31,7 @@ import {
   ChatPendingTaskSchema,
   ChatSessionListSchema,
   ChatSessionSchema,
+  ChatMessageSchema,
   PrioritizeQueuedChatTaskResponseSchema,
   CreateFeedbackResponseSchema,
   DuplicateIssueErrorBodySchema,
@@ -113,6 +114,23 @@ describe("IssueUnreadPageSchema", () => {
     );
   });
 });
+
+const chatQuotaCheckpoint = {
+  task_id: "task-1",
+  phase: "before",
+  boundary_at: "2026-09-08T01:00:01Z",
+  provider: "codex",
+  capture_state: "fresh",
+  overlapping_task_count: 0,
+  observation_id: "observation-1",
+  snapshot: {
+    provider: "codex",
+    status: "available",
+    source: "official",
+    observed_at: "2026-09-08T01:00:00Z",
+    windows: [{ id: "five-hour", label: "5 hour", used_percent: 12, unit: "percent" }],
+  },
+};
 
 const baseIssue = {
   id: "11111111-1111-1111-1111-111111111111",
@@ -805,6 +823,47 @@ describe("AgentTaskListSchema", () => {
     expect(parsed[0]?.relative_durable_work_dir).toBeUndefined();
     expect(parsed[0]?.branch_name).toBeUndefined();
   });
+
+  it("preserves normalized task quota checkpoints", () => {
+    const parsed = AgentTaskListSchema.parse([{
+      ...task,
+      quota_checkpoints: [{
+        phase: "before",
+        boundary_at: "2026-09-07T01:00:01Z",
+        provider: "codex",
+        capture_state: "fresh",
+        observation_age_ms: 1000,
+        overlapping_task_count: 1,
+        observation_id: "observation-1",
+        snapshot: {
+          provider: "codex",
+          status: "available",
+          source: "official",
+          observed_at: "2026-09-07T01:00:00Z",
+          windows: [{
+            id: "codex-primary",
+            label: "5 hour limit",
+            used_percent: 12,
+            unit: "percent",
+            scope: "provider",
+            model_match: "shared",
+          }],
+        },
+      }],
+    }]);
+
+    expect(parsed[0]?.quota_checkpoints?.[0]).toMatchObject({
+      phase: "before",
+      observation_id: "observation-1",
+      snapshot: { windows: [{ scope: "provider", model_match: "shared" }] },
+    });
+  });
+
+  it("degrades malformed quota metadata without dropping the task row", () => {
+    const parsed = AgentTaskListSchema.parse([{ ...task, quota_checkpoints: [{ phase: "during" }] }]);
+    expect(parsed).toHaveLength(1);
+    expect(parsed[0]?.quota_checkpoints).toBeUndefined();
+  });
 });
 
 describe("ChatDraftRestoresResponseSchema", () => {
@@ -913,6 +972,60 @@ describe("ChatPendingTaskSchema", () => {
       task_id: "task-active",
       queued_tasks: [],
     });
+  });
+});
+
+describe("Chat quota checkpoint schemas", () => {
+  it("preserves per-run tokens and drops malformed usage independently", () => {
+    const message = { id: "m", chat_session_id: "s", role: "assistant", content: "Done" };
+    expect(ChatMessageSchema.parse({ ...message, usage: [{ model: "gpt-6-astra", input_tokens: 100 }] }).usage?.[0]?.input_tokens).toBe(100);
+    const parsed = ChatMessageSchema.parse({ ...message, usage: [{ input_tokens: "bad" }] });
+    expect(parsed.content).toBe("Done");
+    expect(parsed.usage).toBeUndefined();
+  });
+  it("preserves checkpoint metadata on messages and session summaries", () => {
+    const message = ChatMessageSchema.parse({
+      id: "message-1",
+      chat_session_id: "session-1",
+      role: "assistant",
+      task_id: "task-1",
+      quota_checkpoints: [chatQuotaCheckpoint],
+    });
+    const session = ChatSessionSchema.parse({
+      id: "session-1",
+      quota_checkpoints: [chatQuotaCheckpoint],
+      task_usage: [{ task_id: "task-1", usage: [{ provider: "antigravity", model: "gemini-3.8-flash-high", input_tokens: 2302, output_tokens: 657, cache_read_tokens: 8113 }] }, { task_id: "legacy-task" }],
+    });
+
+    expect(message.quota_checkpoints?.[0]).toMatchObject({
+      task_id: "task-1",
+      phase: "before",
+      snapshot: { windows: [{ used_percent: 12 }] },
+    });
+    expect(session.quota_checkpoints?.[0]?.observation_id).toBe("observation-1");
+    expect(session.task_usage?.[0]?.usage?.[0]?.input_tokens).toBe(2302);
+    expect(session.task_usage?.[1]?.usage).toBeUndefined();
+  });
+
+  it("drops malformed additive checkpoint metadata without dropping its parent", () => {
+    const message = ChatMessageSchema.parse({
+      id: "message-1",
+      chat_session_id: "session-1",
+      role: "assistant",
+      quota_checkpoints: [{ phase: "during" }],
+    });
+    const session = ChatSessionSchema.parse({
+      id: "session-1",
+      quota_checkpoints: [{ phase: "during" }],
+      task_usage: [{ task_id: 123, usage: "bad" }],
+    });
+
+    expect(session.task_usage).toBeUndefined();
+
+    expect(message.id).toBe("message-1");
+    expect(message.quota_checkpoints).toBeUndefined();
+    expect(session.id).toBe("session-1");
+    expect(session.quota_checkpoints).toBeUndefined();
   });
 });
 

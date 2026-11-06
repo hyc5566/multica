@@ -2,7 +2,7 @@
 
 import { cleanup, fireEvent, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { AgentTask } from "@multica/core/types";
+import type { AgentTask, TaskQuotaCheckpoint } from "@multica/core/types";
 import { renderWithI18n } from "../../test/i18n";
 
 const mockState = vi.hoisted(() => ({
@@ -226,7 +226,7 @@ describe("TaskCommentCoverage", () => {
       { locale: "zh-Hans" },
     );
 
-    expect(screen.getByText("包含 3 条评论")).toBeInTheDocument();
+    expect(screen.getByText("包含 3 則留言")).toBeInTheDocument();
   });
 });
 
@@ -255,7 +255,7 @@ describe("execution log failure reasons", () => {
     );
 
     // The latest past runs are listed without a toggle.
-    expect(screen.getByText(/提供商配额已用尽/)).toBeInTheDocument();
+    expect(screen.getByText(/提供商配額已用盡/)).toBeInTheDocument();
     expect(
       screen.queryByText(/Provider quota exhausted/),
     ).not.toBeInTheDocument();
@@ -275,7 +275,7 @@ describe("execution log failure reasons", () => {
     );
 
     expect(screen.queryByTitle(/provider returned 402/)).not.toBeInTheDocument();
-    expect(screen.getByTitle("提供商配额已用尽")).toBeInTheDocument();
+    expect(screen.getByTitle("提供商配額已用盡")).toBeInTheDocument();
   });
 });
 
@@ -292,10 +292,44 @@ function usageSlice(overrides: Partial<TaskUsage> = {}): TaskUsage {
   };
 }
 
+function quota(
+  phase: "before" | "after",
+  used: number,
+): TaskQuotaCheckpoint {
+  return {
+    phase,
+    boundary_at:
+      phase === "before" ? "2026-06-08T08:00:00Z" : "2026-06-08T08:04:00Z",
+    provider: "codex",
+    requested_model: "gpt-5.6-sol",
+    capture_state: "fresh",
+    observation_id: phase,
+    overlapping_task_count: 1,
+    snapshot: {
+      provider: "codex",
+      status: "available",
+      source: "official",
+      observed_at:
+        phase === "before" ? "2026-06-08T08:00:00Z" : "2026-06-08T08:04:00Z",
+      windows: [
+        {
+          id: "weekly",
+          label: "Codex weekly",
+          used_percent: used,
+          resets_at: "2026-06-14T00:00:00Z",
+          unit: "percent",
+          scope: "account",
+          model_match: "shared",
+        },
+      ],
+    },
+  };
+}
+
 describe("per-run token usage", () => {
   it.each([
     ["en", "1.25 Qoder Cloud Agents credits"],
-    ["zh-Hans", "1.25 Qoder Cloud Agents 积分"],
+    ["zh-Hans", "1.25 Qoder Cloud Agents 積分"],
   ] as const)("names the provider's credits in %s", (locale, expected) => {
     renderWithI18n(
       <IssueRunsTotal alone onOpen={() => {}} tasks={[makeTask({
@@ -419,6 +453,33 @@ describe("execution log header geometry", () => {
     renderSection([makeTask({ status: "completed", completed_at: "2026-06-08T08:04:00Z" })]);
     expect(within(headerOf()).getByText("1")).toBeVisible();
     expect(screen.queryByText("$0.00")).not.toBeInTheDocument();
+  });
+
+  it("opens usage details with provider quota checkpoints from the timeline action", () => {
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    queryClient.setQueryData(issueKeys.tasks("issue-1"), [
+      makeTask({
+        status: "completed",
+        completed_at: "2026-06-08T08:04:00Z",
+        usage: [usageSlice()],
+        quota_checkpoints: [quota("before", 15), quota("after", 17)],
+      }),
+    ]);
+    renderWithI18n(
+      <QueryClientProvider client={queryClient}>
+        <ExecutionLogSection issueId="issue-1" identifier="HYCLV-30" />
+      </QueryClientProvider>,
+      { locale: "zh-Hans" },
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "開啟時間軸", exact: true }));
+
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("執行紀錄")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /Provider 額度/ }));
+    expect(screen.getByText(/\+2\.0 pp/)).toBeInTheDocument();
   });
 });
 

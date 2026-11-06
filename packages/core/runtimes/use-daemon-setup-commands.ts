@@ -6,5 +6,6 @@ export function useDaemonSetupCommands() {
   const target = useConfigStore((s) => s.daemonSetupTarget);
   const serverUrl = useConfigStore((s) => s.daemonServerUrl);
   const appUrl = useConfigStore((s) => s.daemonAppUrl);
-  return daemonCommands({ status, target, serverUrl, appUrl });
+  const installUrl = useConfigStore((s) => s.daemonInstallUrl);
+  return daemonCommands({ status, target, serverUrl, appUrl, installUrl });
 }
