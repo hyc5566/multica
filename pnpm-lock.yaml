@@ -239,6 +239,19 @@ importers:
 
   apps/desktop:
     dependencies:
+      '@electron-toolkit/utils':
+        specifier: ^4.0.0
+        version: 4.0.0(electron@44.9.3)
+      electron-updater:
+        specifier: ^6.8.3
+        version: 6.8.3
+      fix-path:
+        specifier: ^5.0.0
+        version: 5.0.0
+      zod:
+        specifier: 'catalog:'
+        version: 4.3.6
+    devDependencies:
       '@dnd-kit/core':
         specifier: 'catalog:'
         version: 6.3.1(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -254,9 +267,6 @@ importers:
       '@electron-toolkit/preload':
         specifier: ^3.0.2
         version: 3.0.2(electron@44.9.3)
-      '@electron-toolkit/utils':
-        specifier: ^4.0.0
-        version: 4.0.0(electron@44.9.3)
       '@fontsource-variable/geist-mono':
         specifier: ^5.3.0
         version: 5.3.0
@@ -281,12 +291,6 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.96.2(react@19.2.3)
-      electron-updater:
-        specifier: ^6.8.3
-        version: 6.8.3
-      fix-path:
-        specifier: ^5.0.0
-        version: 5.0.0
       motion:
         specifier: 'catalog:'
         version: 12.38.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -311,7 +315,6 @@ importers:
       zustand:
         specifier: 'catalog:'
         version: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.3)(use-sync-external-store@1.6.0(react@19.2.3))
-    devDependencies:
       '@electron-toolkit/tsconfig':
         specifier: ^2.0.0
         version: 2.0.0(@types/node@25.5.0)

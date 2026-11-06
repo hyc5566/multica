@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Check, Copy } from "@multica/ui/icons";
-import { CliInstallCommand } from "@multica/views/common/cli-install-command";
 import { copyText } from "@multica/ui/lib/clipboard";
 import { cn } from "@multica/ui/lib/utils";
 import { useLocale } from "../../i18n";
@@ -10,22 +9,8 @@ import { Container, Eyebrow, focusRing } from "../../site/primitives";
 
 const SETUP_CMD = "multica setup";
 
-/**
- * The landing palette bypasses the product tokens, so the shared platform
- * switch takes its list and trigger colours from here.
- */
-const PLATFORM_TABS = {
-  list: "border border-white/10 bg-white/5",
-  trigger:
-    "text-site-inverse-muted hover:text-site-inverse-ink data-active:bg-white/10 data-active:text-site-inverse-ink",
-};
-
-/**
- * For servers and remote dev boxes: the CLI runs the same daemon as the
- * desktop app. The install command carries the platform switch, since
- * install.sh and install.ps1 differ.
- */
-export function CliSection() {
+/** The Taiwan installer supports macOS and Linux. */
+export function CliSection({ installerUrl }: { installerUrl?: string }) {
   const { t } = useLocale();
   const d = t.download.cli;
 
@@ -38,12 +23,12 @@ export function CliSection() {
           <p className="mt-3 max-w-[30rem] text-site-body text-site-muted text-pretty">{d.sub}</p>
         </div>
         <div className="min-w-0 rounded-site-panel bg-site-inverse p-5 text-site-inverse-ink">
-          <CliInstallCommand
-            labels={{ group: d.platformGroup, macosLinux: d.platformMacosLinux, windows: d.platformWindows }}
-            classNames={PLATFORM_TABS}
-          >
-            {(cmd) => <CommandRow label={d.installLabel} cmd={cmd} />}
-          </CliInstallCommand>
+          <p className="font-site-mono text-[0.75rem] text-site-inverse-muted">{d.platformMacosLinux}</p>
+          {installerUrl && /^https:\/\/github\.com\/hyc5566\/multica\/releases\/download\/[a-zA-Z0-9._-]+\/install\.sh$/.test(installerUrl) ? (
+            <CommandRow label={d.installLabel} cmd={`curl -fsSL '${installerUrl}' -o install.sh && bash install.sh --login`} />
+          ) : (
+            <p role="status" className="mt-4 text-site-inverse-muted">{t.download.allPlatforms.unavailable}</p>
+          )}
           <CommandRow label={d.startLabel} cmd={SETUP_CMD} />
         </div>
       </Container>

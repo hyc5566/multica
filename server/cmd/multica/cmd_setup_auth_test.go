@@ -20,7 +20,7 @@ func TestSetupPreservesSettingsAndScopesCredentials(t *testing.T) {
 			if changed {
 				target = "https://new.example"
 			}
-			if _, err := persistSelfHostConfigIfReachable(target, "https://app.example", "v6", func(string) bool { return true }); err != nil {
+			if _, err := persistSelfHostConfigIfReachable(target, "https://app.example", "v6", func(string) serverProbeResult { return serverProbeResult{healthy: true} }); err != nil {
 				t.Fatal(err)
 			}
 			got, err := cli.LoadCLIConfigForProfile("v6")
