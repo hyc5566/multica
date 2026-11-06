@@ -1,14 +1,14 @@
 ---
 title: 使用 CLI
-description: 安装并登录 Multica CLI，在终端中管理工作区、任务、智能体和运行时。
+description: 安裝並登入 Multica CLI，在終端機管理工作區、任務、Agent 和執行環境。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 
-Multica CLI 既负责连接本机运行时，也可以在终端中管理工作区、任务、智能体和自动化。这里介绍常用路径；当前版本支持的参数始终以命令自身的 `--help` 为准。
+Multica CLI 可連線至本機執行環境，也能在終端機管理工作區、任務、Agent 和自動化。本頁介紹常見操作；你安裝的版本支援哪些旗標，請一律以各命令自己的 `--help` 為準。
 
-## 安装
+## 安裝
 
 <Tabs groupId="os" persist items={["macOS / Linux", "Windows"]}>
 <Tab value="macOS / Linux">
@@ -17,7 +17,7 @@ Multica CLI 既负责连接本机运行时，也可以在终端中管理工作�
 curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash
 ```
 
-安装了 Homebrew 时也可以运行：
+如果已安裝 Homebrew，也可以執行：
 
 ```bash
 brew install multica-ai/tap/multica
@@ -35,17 +35,17 @@ irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps
 </Tab>
 </Tabs>
 
-确认安装成功：
+確認安裝成功：
 
 ```bash
 multica version
 ```
 
-## 第一次连接
+## 第一次連接
 
-按连接的服务选择：
+按連線的服務選擇：
 
-<Tabs items={["Multica Cloud", "自托管实例"]}>
+<Tabs items={["Multica Cloud", "自託管例項"]}>
 <Tab value="Multica Cloud">
 
 ```bash
@@ -53,7 +53,7 @@ multica setup
 ```
 
 </Tab>
-<Tab value="自托管实例">
+<Tab value="自託管例項">
 
 ```bash
 multica setup self-host \
@@ -64,68 +64,68 @@ multica setup self-host \
 </Tab>
 </Tabs>
 
-`setup` 会保存服务地址、打开浏览器完成登录，并启动守护进程。完成后检查：
+`setup` 會儲存服務地址、開啟瀏覽器完成登入，並啟動daemon。完成後檢查：
 
 ```bash
 multica auth status
 multica daemon status
 ```
 
-如果只需要重新登录，不想覆盖其他配置，运行 `multica login`。没有浏览器的环境可以先在 Web 设置中创建个人访问令牌，再输入：
+如果只需要重新登入，且不想覆寫其他設定，請執行 `multica login`。若環境沒有瀏覽器，請先在 Web 設定中建立個人存取權杖，再輸入：
 
 ```bash
 multica login --token
 ```
 
-命令会在终端中提示粘贴令牌，避免把完整值留在 shell history 中。
+命令會提示你在終端機貼上權杖，避免完整權杖留在 shell 歷程記錄中。
 
-## 选择工作区
+## 選擇工作區
 
-列出并切换默认工作区：
+列出工作區並切換預設工作區：
 
 ```bash
 multica workspace list
 multica workspace switch <slug>
 ```
 
-之后的命令会使用这个工作区。单次命令可以通过 `--workspace-id` 临时覆盖，也可以设置 `MULTICA_WORKSPACE_ID`。
+之後的命令都會使用這個工作區。若只想讓單一命令使用其他工作區，可用 `--workspace-id` 暫時覆寫，或設定 `MULTICA_WORKSPACE_ID`。
 
-邀请成员：
+邀請工作區成員：
 
 ```bash
 multica workspace member invite teammate@example.com
 multica workspace member invite admin@example.com --role admin
 ```
 
-## 常用任务操作
+## 常用任務操作
 
 ```bash
-# 查看和搜索
+# 檢視與搜尋
 multica issue list
 multica issue get MUL-123
-multica issue search "登录失败"
+multica issue search "login failure"
 
-# 创建和修改
-multica issue create --title "修复登录失败"
+# 建立與更新
+multica issue create --title "Fix login failure"
 multica issue status MUL-123 in_progress
 multica issue assign MUL-123 --to "Backend Agent"
 
-# 评论和执行记录
+# 留言與執行記錄
 multica issue comment list MUL-123
-multica issue comment add MUL-123 --content "请先检查回归测试"
-multica issue comment update <comment-id> --expected-revision 2 --content "请检查回归测试和发布说明"
+multica issue comment add MUL-123 --content "Check the regression tests first"
+multica issue comment update <comment-id> --expected-revision 2 --content "Check the regression tests and release notes"
 multica issue runs MUL-123
 ```
 
-长描述或评论从 stdin 读取，避免处理换行和引号：
+長篇描述或留言可從 stdin 讀取，避免處理換行和引號：
 
 ```bash
-multica issue create --title "升级说明" --description-stdin < notes.md
+multica issue create --title "Upgrade notes" --description-stdin < notes.md
 multica issue comment add MUL-123 --content-stdin < review.md
 multica issue comment update <comment-id> --expected-revision 2 --content-file revised-review.md
 ```
 
-查看某次运行的消息、停止运行或重试：
+檢視某次執行的訊息、停止執行或重試：
 
 ```bash
 multica issue run-messages <task-id> --issue MUL-123
@@ -134,20 +134,20 @@ multica issue rerun-task <run-id> --issue MUL-123
 multica issue rerun-task <run-id> --issue MUL-123 --fresh
 ```
 
-把评论插话到仍在进行中的运行，而不是排队一个后续运行（仅限支持插话的运行；你的评论能启动哪个智能体，就能向它插话）：
+把留言插話到仍在進行中的執行，而不是排隊一個後續執行（僅限支援插話的執行；你的留言能啟動哪個Agent，就能向它插話）：
 
 ```bash
 multica issue comment add MUL-123 --content-file note.md --steer <task-id>
 multica issue comment add MUL-123 --content-file note.md --steer-active
 ```
 
-同一项目、同一父任务下已有标题相同（不区分大小写，忽略多余空格）且未关闭的任务时，`issue create` 会拒绝创建并给出那个任务。确实要再建一个，加 `--allow-duplicate`；要把一个任务标为另一个的重复，用 `multica issue status MUL-124 cancelled --duplicate-of MUL-123`。
+同一專案、同一父任務下已有標題相同（不區分大小寫，忽略多餘空格）且未關閉的任務時，`issue create` 會拒絕建立並給出那個任務。確實要再建一個，加 `--allow-duplicate`；要把一個任務標為另一個的重複，用 `multica issue status MUL-124 cancelled --duplicate-of MUL-123`。
 
-一个任务要依次提交多个 PR 时，用 `issue create --title "..." --pr-auto-complete off` 或 `issue update <id> --pr-auto-complete off`，让这个任务在 PR 合并后保持原状态。用 `--pr-auto-complete on` 恢复工作区规则，从下一次 PR 事件起生效。`issue pull-requests <id>` 会显示任务开关、工作区开关、目标状态和判断结果，没有关联 PR 时也会显示。支持该字段的服务端会在创建事务内保存开关；旧服务端会补调一次 PUT，失败时 CLI 会给出已创建的任务 ID 和重试用的 update 命令，请勿重复创建。
+一個任務要依次提交多個 PR 時，用 `issue create --title "..." --pr-auto-complete off` 或 `issue update <id> --pr-auto-complete off`，讓這個任務在 PR 合併後保持原狀態。用 `--pr-auto-complete on` 恢復工作區規則，從下一次 PR 事件起生效。`issue pull-requests <id>` 會顯示任務開關、工作區開關、目標狀態和判斷結果，沒有關聯 PR 時也會顯示。支援該欄位的服務端會在建立事務內儲存開關；舊服務端會補調一次 PUT，失敗時 CLI 會給出已建立的任務 ID 和重試用的 update 命令，請勿重複建立。
 
-### 时间线
+### 時間線
 
-`issue get` 给出任务现在的状态；`issue timeline` 按时间顺序列出状态、优先级、负责人、标题、日期的改动和运行结果，并混排评论，用来回答"什么时候进入 in_review""卡在当前状态多久了"：
+`issue get` 給出任務現在的狀態；`issue timeline` 按時間順序列出狀態、優先順序、負責人、標題、日期的改動和執行結果，並混排留言，用來回答"什麼時候進入 in_review""卡在當前狀態多久了"：
 
 ```bash
 multica issue timeline MUL-123 --action status_changed
@@ -155,26 +155,26 @@ multica issue timeline MUL-123 --activity-only --output json
 multica issue timeline MUL-123 --since 2026-08-19T00:00:00Z
 ```
 
-`--activity-only` 去掉评论，保留全部活动记录；`--action` 只返回指定的动作，可重复，并隐含 `--activity-only`。服务器读取的历史有上限，被截断时 stderr 会打印警告，这时不要据此推算停留时长。
+`--activity-only` 去掉留言，保留全部活動記錄；`--action` 只返回指定的動作，可重複，並隱含 `--activity-only`。伺服器讀取的歷史有上限，被截斷時 stderr 會列印警告，這時不要據此推算停留時長。
 
-### 读长评论线程
+### 讀長留言執行緒
 
-评论多的任务，智能体逐条读取很费 token。先扫一遍线程，再展开需要的那一个：
+留言多的任務，Agent逐條讀取很費 token。先掃一遍執行緒，再展開需要的那一個：
 
 ```bash
 multica issue comment list MUL-123 --roots-only --summary --output json --compact
 multica issue comment list MUL-123 --thread <comment-id> --tail 5 --output json --compact
 ```
 
-- `--roots-only` 只返回顶层评论，每条附带回复数和最近活动时间。
-- `--summary` 把每条内容截成预览。
-- `--compact` 只作用于 JSON 输出，去掉不带信息的字段（例如重复的 `issue_id`、空数组）。
-- `--recent N` 返回最近活跃的 N 个线程，每个线程带上全部回复，回复多时输出可能很长。
-- 已解决的线程默认折叠成首条评论和结论，需要原文时加 `--full`。
+- `--roots-only` 只返回頂層留言，每條附帶回複數和最近活動時間。
+- `--summary` 把每條內容截成預覽。
+- `--compact` 只作用於 JSON 輸出，去掉不帶資訊的欄位（例如重複的 `issue_id`、空陣列）。
+- `--recent N` 返回最近活躍的 N 個執行緒，每個執行緒帶上全部回覆，回覆多時輸出可能很長。
+- 已解決的執行緒預設摺疊成首條留言和結論，需要原文時加 `--full`。
 
-列表也可以只取需要的字段：`multica issue list --output json --fields id,identifier,title,status`。筛选在 CLI 本地完成，减少的是输出和上下文，不是请求量。
+列表也可以只取需要的欄位：`multica issue list --output json --fields id,identifier,title,status`。篩選在 CLI 本地完成，減少的是輸出和上下文，不是請求量。
 
-按最近更新时间列出任务时，同时传入 RFC3339 时间戳 `--updated-since` 和 `--updated-until`。服务端返回当前 `updated_at` 大于等于 `since`、小于 `until` 的任务，即 `[since, until)`。这两个参数可与现有筛选、排序和分页参数组合使用。翻页时保持时间范围一致；分页不提供快照，并发更新可能改变结果集。
+按最近更新時間列出任務時，同時傳入 RFC3339 時間戳 `--updated-since` 和 `--updated-until`。服務端返回當前 `updated_at` 大於等於 `since`、小於 `until` 的任務，即 `[since, until)`。這兩個引數可與現有篩選、排序和分頁引數組合使用。翻頁時保持時間範圍一致；分頁不提供快照，併發更新可能改變結果集。
 
 ```bash
 multica issue list --updated-since 2026-11-05T10:00:00Z \
@@ -183,25 +183,25 @@ multica issue list --updated-since 2026-11-05T10:00:00Z \
   --output json --fields id,workspace_id,project_id,title
 ```
 
-### 唤醒
+### 喚醒
 
-唤醒让智能体在某个事件发生、某个条件成立或到点时开始一次普通运行。完整规则见[任务唤醒](/issue-wakeups)。
+喚醒讓Agent在某個事件發生、某個條件成立或到點時開始一次普通執行。完整規則見[任務喚醒](/issue-wakeups)。
 
 ```bash
 multica issue wakeup events
 multica issue wakeup create MUL-123 --agent-id <agent-id> \
   --event comment.created --filter-actor-type member --filter-actor-id <user-id> \
-  --instruction "对方回复后，按回复内容更新报价单"
+  --instruction "對方回覆後，按回復內容更新報價單"
 multica issue wakeup create MUL-123 --agent-id <agent-id> \
   --kind every --every 1h --expires-in 72h \
-  --instruction "检查供应商是否回信"
+  --instruction "檢查供應商是否回信"
 multica issue wakeup list MUL-123
 multica issue wakeup runs MUL-123 <wakeup-id>
 ```
 
-在终端里以成员身份创建时需要 `--agent-id`；智能体在自己的运行中创建时默认唤醒它自己。
+在終端裡以成員身份建立時需要 `--agent-id`；Agent在自己的執行中建立時預設喚醒它自己。
 
-## 智能体和 skill
+## Agent和 skill
 
 ```bash
 multica agent list
@@ -215,7 +215,7 @@ multica skill import --url <skill-url>
 multica agent skills add <agent-id> --skill-ids <skill-id>
 ```
 
-导入时遇到同名 skill，默认会停止且不修改现有内容。按意图选择：
+匯入時若遇到同名 skill，預設會停止操作，不修改現有內容。請依需求選擇：
 
 ```bash
 multica skill import --url <skill-url> --on-conflict overwrite
@@ -223,12 +223,12 @@ multica skill import --url <skill-url> --on-conflict rename
 multica skill import --url <skill-url> --on-conflict skip
 ```
 
-`overwrite` 只允许 skill 的创建者使用，并保留原来的 ID 与智能体绑定关系。
+`overwrite` 只允許 skill 的建立者使用，並保留原有 ID 和 Agent 綁定關係。
 
-环境变量和 MCP 配置常带有 token。命令行里直接写值会留在 shell 历史和 `ps` 输出中，用 `-file` 或 `-stdin` 形式传入：
+環境變數和 MCP 配置常帶有 token。命令列裡直接寫值會留在 shell 歷史和 `ps` 輸出中，用 `-file` 或 `-stdin` 形式傳入：
 
 ```bash
-multica agent create --name "运营助手" --runtime-id <runtime-id> \
+multica agent create --name "運營助手" --runtime-id <runtime-id> \
   --custom-env-file ./agent-env.json \
   --mcp-config-file ./mcp.json \
   --custom-args '["--max-turns", "40"]'
@@ -237,12 +237,12 @@ multica agent env set <agent-id> --custom-env-stdin < agent-env.json
 multica agent update <agent-id> --mcp-config-file ./mcp.json
 ```
 
-- `--custom-env` 系列只在 `agent create` 中可用。之后修改用 `agent env set`，它整体替换原有变量，值写成 `****` 的键保留原值。
+- `--custom-env` 系列只在 `agent create` 中可用。之後修改用 `agent env set`，它整體替換原有變數，值寫成 `****` 的鍵保留原值。
 - `agent update --mcp-config null` 清除 MCP 配置。
-- `--custom-args` 是 JSON 数组，排在启动参数的最后。选模型用 `--model`，部分工具会拒绝出现在自定义参数里的 `--model`。
-- 谁能调用智能体用 `--permission-mode`：`private` 只有所有者，`public_to` 配合 `--public-to-workspace` 或 `--public-to-member <user-id>`。`--visibility private|workspace` 是旧写法，会映射到 `--permission-mode`；两者同时给出时以 `--permission-mode` 为准。
+- `--custom-args` 是 JSON 陣列，排在啟動引數的最後。選模型用 `--model`，部分工具會拒絕出現在自定義引數裡的 `--model`。
+- 誰能呼叫Agent用 `--permission-mode`：`private` 只有所有者，`public_to` 配合 `--public-to-workspace` 或 `--public-to-member <user-id>`。`--visibility private|workspace` 是舊寫法，會對映到 `--permission-mode`；兩者同時給出時以 `--permission-mode` 為準。
 
-## 守护进程和运行时
+## daemon和runtime
 
 ```bash
 multica daemon start
@@ -261,76 +261,76 @@ multica runtime activity <runtime-id>
 multica daemon autostart enable
 multica runtime usage <runtime-id> --days 30
 multica runtime update <runtime-id> --target-version <version> --wait
-multica runtime profile create --display-name "内部 Claude 封装" \
+multica runtime profile create --display-name "內部 Claude 封裝" \
   --command-name ccms --runtime-type claude
 ```
 
-`daemon autostart` 为当前 profile 登记开机自启，平台差异见[开机自启](/daemon-runtimes#autostart)。`runtime usage` 默认统计 90 天，`--days` 最多 365。`runtime update` 让那台电脑上的守护进程把 CLI 更新到指定版本，`--wait` 会一直等到更新结束。`runtime profile create` 用 `--runtime-type` 指定兼容的工具（旧的 `--protocol-family` 仍可用）；固定参数目前只能在网页端填写。
+`daemon autostart` 為當前 profile 登記開機自啟，平臺差異見[開機自啟](/daemon-runtimes#autostart)。`runtime usage` 預設統計 90 天，`--days` 最多 365。`runtime update` 讓那臺電腦上的daemon把 CLI 更新到指定版本，`--wait` 會一直等到更新結束。`runtime profile create` 用 `--runtime-type` 指定相容的工具（舊的 `--protocol-family` 仍可用）；固定引數目前只能在網頁端填寫。
 
-删除仍绑定活跃智能体的运行时时，命令默认拒绝。`multica runtime delete <id> --cascade` 会解绑这些智能体、保留其配置与历史记录，并取消它们的活动运行。
+刪除仍繫結活躍Agent的runtime時，命令預設拒絕。`multica runtime delete <id> --cascade` 會解綁這些Agent、保留其配置與歷史記錄，並取消它們的活動執行。
 
-运行机制和自定义 profile 见[守护进程与运行时](/daemon-runtimes)。
+執行方式和自訂 profile 請參閱[常駐程式與執行環境](/daemon-runtimes)。
 
-## 项目、工作区和自动化
+## 專案、工作區和自動化
 
 ```bash
-multica project create --title "618 活动" --lead "李雷" \
+multica project create --title "618 活動" --lead "李雷" \
   --repo https://github.com/acme/campaign-site
 multica project resource add <project-id> --type github_repo \
   --url https://github.com/acme/brand-assets --default-branch-hint main
 
-multica workspace create --name "运营部" --slug ops --issue-prefix OPS
+multica workspace create --name "運營部" --slug ops --issue-prefix OPS
 multica workspace update --context-stdin < team-context.md
 
-multica autopilot create --title "每周销售周报" --agent "运营助手" \
-  --mode create_issue --issue-title-template "销售周报 {{date}}"
+multica autopilot create --title "每週銷售週報" --agent "運營助手" \
+  --mode create_issue --issue-title-template "銷售週報 {{date}}"
 multica autopilot trigger-add <autopilot-id> --cron "0 9 * * 1" --timezone Asia/Shanghai
 ```
 
-- `--lead` 接受成员或智能体的名称。`--default-branch-hint` 只告诉智能体仓库的默认分支，不会切换分支。
-- 工作区的 `--context` 会提供给工作区里的每个智能体。`--slug` 创建后不能修改；`--issue-prefix` 会转成大写，修改它会给所有现有任务重新编号，外部引用里的旧编号随之失效。
-- `--issue-title-template` 只替换 `{{date}}`（UTC，`YYYY-MM-DD`），其他 `{{...}}` 会被拒绝。定时触发器的 `--timezone` 默认 UTC。
+- `--lead` 接受成員或Agent的名稱。`--default-branch-hint` 只告訴Agent倉庫的預設分支，不會切換分支。
+- 工作區的 `--context` 會提供給工作區裡的每個Agent。`--slug` 建立後不能修改；`--issue-prefix` 會轉成大寫，修改它會給所有現有任務重新編號，外部引用裡的舊編號隨之失效。
+- `--issue-title-template` 只替換 `{{date}}`（UTC，`YYYY-MM-DD`），其他 `{{...}}` 會被拒絕。定時觸發器的 `--timezone` 預設 UTC。
 
-## 命令概览
+## 命令概覽
 
 | 命令 | 用途 |
 | --- | --- |
-| `issue` | 创建、更新、分配和搜索任务；管理评论、订阅、标签、属性、唤醒、时间线与执行记录 |
-| `project` | 管理项目、项目资源和项目使用的工作流 |
-| `workflow` | 管理工作流：状态以及每个状态交给谁处理 |
-| `label`、`property` | 管理工作区标签和自定义属性 |
-| `view` | 读取保存的视图，列出视图里的任务 |
-| `agent`、`skill`、`squad` | 管理智能体、skill 和小队 |
-| `autopilot` | 管理自动化、触发器和运行历史 |
-| `workspace` | 创建、查看、切换工作区和邀请成员 |
-| `repo` | 管理工作区仓库，并把仓库检出到本机 |
-| `daemon`、`runtime` | 启停本机守护进程，查看和管理运行时 |
-| `attachment` | 上传或下载附件 |
-| `user profile` | 查看或更新当前用户资料 |
-| `auth`、`login`、`setup` | 登录、查看认证状态和初始化连接 |
-| `config` | 查看或修改当前 CLI profile 的本地配置 |
-| `update`、`version` | 更新 CLI 或查看版本 |
+| `issue` | 建立、更新、分配和搜尋任務；管理留言、訂閱、標籤、屬性、喚醒、時間線與執行記錄 |
+| `project` | 管理專案、專案資源和專案使用的工作流 |
+| `workflow` | 管理工作流：狀態以及每個狀態交給誰處理 |
+| `label`、`property` | 管理工作區標籤和自定義屬性 |
+| `view` | 讀取儲存的檢視，列出檢視裡的任務 |
+| `agent`、`skill`、`squad` | 管理Agent、skill 和小隊 |
+| `autopilot` | 管理自動化、觸發器和執行歷史 |
+| `workspace` | 建立、檢視、切換工作區和邀請成員 |
+| `repo` | 管理工作區倉庫，並把倉庫檢出到本機 |
+| `daemon`、`runtime` | 啟停本機daemon，檢視和管理runtime |
+| `attachment` | 上傳或下載附件 |
+| `user profile` | 檢視或更新當前使用者資料 |
+| `auth`、`login`、`setup` | 登入、檢視認證狀態和初始化連線 |
+| `config` | 檢視或修改當前 CLI profile 的本地配置 |
+| `update`、`version` | 更新 CLI 或檢視版本 |
 
-`multica chat` 读取的是**智能体当前正在处理的外部聊天会话**，主要供聊天集成中的智能体使用，不能用来浏览任意工作区对话。
+`multica chat` 讀取的是**Agent當前正在處理的外部聊天會話**，主要供聊天整合中的Agent使用，不能用來瀏覽任意工作區對話。
 
-## ID 和输出格式
+## ID 和輸出格式
 
-任务使用 `MUL-123` 这样的 key 或完整 UUID，不接受 UUID 短前缀。
+任務使用 `MUL-123` 這類 key 或完整 UUID，不接受 UUID 短前綴。
 
-其他资源的 `list` 命令通常显示可复制的短 ID，并支持 `--full-id` 输出完整 UUID。短 ID 不唯一时，CLI 会要求增加字符或改用完整 UUID。运行的短 ID 还需要通过 `--issue` 指明所属任务。
+其他資源的 `list` 命令通常會顯示可複製的短 ID，並支援用 `--full-id` 輸出完整 UUID。若短 ID 不唯一，CLI 會要求提供更多字元或改用完整 UUID。執行記錄的短 ID 也需要透過 `--issue` 指明所屬任務。
 
-许多命令支持结构化输出：
+許多命令支援結構化輸出：
 
 ```bash
 multica issue list --output json
 multica agent list --output json
 ```
 
-脚本使用 JSON 输出，不解析面向终端的表格。各命令支持的输出格式和分页参数以 `multica <command> --help` 为准。
+指令碼應使用 JSON 輸出，不要解析面向終端機的表格。各命令支援的輸出格式和分頁旗標請以 `multica <command> --help` 為準。
 
-## Profile 与配置
+## Profile 與設定
 
-默认配置保存在 `~/.multica/config.json`。使用 `--profile <name>` 可以隔离另一套服务地址、令牌、默认工作区和守护进程状态：
+預設設定保存在 `~/.multica/config.json`。使用 `--profile <name>` 可以隔離另一套服務地址、令牌、預設工作區和常駐程式狀態：
 
 ```bash
 multica setup self-host --profile staging \
@@ -340,20 +340,28 @@ multica setup self-host --profile staging \
 multica issue list --profile staging
 ```
 
-命名 profile 保存在 `~/.multica/profiles/<name>/config.json`。查看当前值：
+命名 profile 保存在 `~/.multica/profiles/<name>/config.json`。查看目前值：
 
 ```bash
 multica config show
 multica config show --profile staging
 ```
 
+請勿在主機 shell、Compose 服務或啟動常駐程式的容器進入點中設定 `MULTICA_DAEMON_PORT`。主機常駐程式通常會依 `--profile` 推導健康檢查連接埠；若無法繫結該連接埠，便會改用可用的 loopback 連接埠，並自行將實際連接埠注入 Agent 任務。舊版啟動環境應徹底移除此變數：否則 0.4.22 和 0.4.23 會把該 shell 誤判為受管理的任務，並拒絕登入。較新版允許受保護的人工作業登入和 `daemon status` 在連接埠是唯一任務訊號時復原，但一般 API 命令和解析 profile 的命令仍會採取安全拒絕，直到移除此變數。
+
+CLI 在常駐程式管理的 Agent 任務中執行時，不會載入或修改這些由人員管理的 profile 檔案。Multica API 命令會使用常駐程式注入、僅限該任務的憑證進行驗證。`config show` 和 `config set` 會使用任務專用的私人狀態；`login`、`logout`、`setup`、`workspace switch`、本機執行環境 profile 路徑變更、`daemon start` / `stop` / `restart`、`daemon logs` 和 `daemon probe-runtimes` 等人員／本機命令則無法使用。在此情境下，`auth status` 不會輸出權杖內容。
+
+`daemon status` 和 `daemon disk-usage` 仍可供 Agent 檢查承載它的執行環境，且範圍僅限該執行環境：`status` 會探測常駐程式注入的健康檢查連接埠，`disk-usage` 會掃描常駐程式注入的工作區根目錄。兩者都不接受 `--profile`；`disk-usage` 也會拒絕 `--all-profiles` 和 `--workspaces-root`。由於解析狀態需要使用人員儲存的權杖，其 STATUS 欄位會留白。若要檢查此範圍以外的內容，請使用 `du` 和 `df`。
+
+這樣可保護 Multica CLI 隱含解析 profile 的行為，同時保留其他供應商工具所需的一般 `HOME` 和 XDG 變數。這並非作業系統層級的檔案系統隔離：以相同系統使用者身分執行的程序仍可開啟已知的明確路徑。若需要更強的隔離，請使用專用使用者、容器、虛擬機器或同等方案。
+
 <Callout type="warning">
-CLI 配置文件包含可代表你访问 Multica 的令牌。不要提交到仓库、上传到日志或与他人共享。
+CLI 設定檔包含可代表你存取 Multica 的權杖。請勿將其提交至儲存庫、上傳到日誌或與他人分享。
 </Callout>
 
-## 命令参考
+## 命令參考
 
-下表覆盖当前全部顶层命令，按 CLI 自身的分组排列。所有命令都接受全局 flag `--server-url`、`--workspace-id`、`--profile` 和 `--debug`。`--output` 是逐命令注册的 flag，默认格式因命令而异：`list` 类默认表格，`get`、`create` 类多默认 JSON。完整参数以 `multica <command> --help` 为准。
+下表列出目前所有頂層命令，並依 CLI 本身的分組排列。所有命令都接受全域旗標 `--server-url`、`--workspace-id`、`--profile` 和 `--debug`。`--output` 依命令個別註冊，預設格式也因命令而異：`list` 類命令預設輸出表格；`get`、`create` 類命令大多預設輸出 JSON。完整旗標請以 `multica <command> --help` 為準。
 
 ### 任务附件
 
@@ -363,99 +371,99 @@ CLI 配置文件包含可代表你访问 Multica 的令牌。不要提交到仓�
 
 ### Core
 
-| 命令 | 子命令 | 用途 | 关键 flag |
+| 命令 | 子命令 | 用途 | 關鍵 flag |
 | --- | --- | --- | --- |
-| `issue` | `list` | 列出任务 | `--status`、`--priority`、`--assignee`、`--project`、`--updated-since` / `--updated-until`（配套的 RFC3339 时间范围）、`--metadata`（可重复）、`--property`（可重复，`"名称=值"` 或 `"Score>=3"`、`"Due<2026-01-01"`、`"Notes~=text"` 这样的比较；`__none__` 匹配未设置）、`--limit`、`--offset`、`--sort`（支持 `property:<名称或 id>`）、`--full-id`、`--fields`（仅 JSON；逗号分隔，只输出这些字段）、`--resolve-properties`（仅 JSON；在保存的 id 旁附上属性、选项和成员名称） |
-| | `get <id>` | 查看单个任务 | `--resolve-properties`（仅 JSON；在保存的 id 旁附上属性、选项和成员名称） |
-| | `create` | 创建任务 | `--title`（必填）、`--description` / `--description-stdin` / `--description-file`、`--pr-auto-complete on/off`、`--status`、`--priority`、`--assignee`、`--parent`、`--stage`、`--project`、`--start-date`、`--due-date`、`--attachment`（可重复）、`--property`（可重复）、`--allow-duplicate`（已有同名未关闭任务时仍创建） |
-| | `update <id>` | 更新任务字段 | 与 `create` 同类字段，另有 `--position`、`--no-start`、`--duplicate-of` |
-| | `assign <id>` | 指派或取消指派 | `--to`（名称模糊匹配成员、智能体或小队）、`--to-id`、`--unassign`、`--no-start` |
-| | `status <id> <status>` | 修改状态 | `--no-start`、`--duplicate-of` |
-| | `reorder <id>` | 在列内移动 | |
-| | `search <query>` | 搜索任务 | `--limit`、`--include-closed` |
-| | `children <id>` | 按阶段分组列出子任务 | |
-| | `pull-requests <id>` | 列出关联的 PR | |
-| | `comment list/add/update/delete/resolve/unresolve` | 管理评论 | `add`：`--content` / `--content-stdin` / `--content-file`、`--parent`、`--attachment`；`update`：`--expected-revision`（必填）、`--content` / `--content-stdin` / `--content-file`；`list`：`--since`、`--thread`、`--tail`、`--recent`、`--roots-only`、`--summary`、`--compact`、`--full` |
-| | `timeline <id>` | 按时间列出活动记录和评论 | `--action`（可重复）、`--activity-only`、`--since`、`--tail` |
-| | `wakeup events/list/get/create/update/disable/trigger/delete/checkin/runs` | 管理任务唤醒，详见[任务唤醒](/issue-wakeups) | `create` / `update`：`--agent-id`、`--kind`（`event`、`at`、`every`、`cron`）、`--event`、`--at` / `--after`、`--every`、`--cron`、`--timezone`、`--until-*` 条件、`--expires-in` / `--expires-at`、`--instruction` / `--instruction-file`；`checkin`：`--note` |
-| | `subscriber list/add/remove <issue-id>` | 管理订阅者 | `--user`、`--user-id`（缺省为当前用户） |
-| | `label list/add/remove <issue-id>` | 管理任务上的标签 | |
-| | `metadata list/get/set/delete <issue-id>` | 管理任务级键值元数据 | |
-| | `property list/set/unset <issue-id>` | 设置自定义属性值 | `set`：`--name`、`--value`（`actor` / `multi_actor` 接受成员的名称、邮箱或 id） |
-| | `runs <issue-id>` | 查看执行历史 | `--full-id` |
-| | `run-messages <task-id>` | 查看单次执行的消息 | `--since`、`--issue` |
-| | `usage <issue-id>` | 查看聚合 token 用量 | |
-| | `rerun-task <run-id>` | 沿用原智能体和触发上下文，重跑指定运行 | `--issue`, `--fresh` |
-| | `cancel-task <task-id>` | 取消进行中或排队中的运行 | `--issue` |
-| `project` | `list/get/create/update/delete` | 管理项目 | `create`：`--title`（必填）、`--lead`、`--status`、`--icon`、`--start-date`、`--due-date`、`--repo`（可重复） |
-| | `status <id> <status>` | 修改项目状态 | |
-| | `resource list/add/update/remove` | 管理项目附加资源 | `--type`、`--url`、`--default-branch-hint`、`--ref`、`--local-path`、`--daemon-id`、`--execution-mode`（本地目录的 `in_place` / `worktree`） |
-| | `workflow get/set <project-id>` | 查看项目当前生效的工作流，或切换工作流 | `set <project-id> <workflow\|default>`：`--map old=new`（可重复），`--dry-run` 打印状态迁移计划；切换不会重新分配任务，也不会启动运行。仅管理员和项目负责人可操作 |
-| `workflow` | `list/get/create/update/delete` | 管理工作流；`get` 等命令接受 ID、ID 前缀、完整名称或 `default` | `create` / `update`：`--name`、`--description`、`--steps-file`（步骤的 JSON 数组，整体替换）；`update`：`--map old=new`（可重复）、`--dry-run`。编辑和删除仅限工作流所有者和工作区管理员；仍被项目使用的工作流不能删除 |
-| | `handoff set <workflow> <status-key>` | 设置单个步骤的处理人、说明和下一步/退回状态，未指定的字段保持不变 | `--handler`（`none`、`project_lead`、`creator`，或成员/智能体/小队的名称或 UUID）、`--instructions` / `--instructions-file`、`--next`、`--back`、`--copy-for-project` |
-| `label` | `list/get/create/update/delete` | 管理工作区标签 | `list`：`--resource-type`（`issue` 或 `skill`）、`--full-id`；`create`：`--name`、`--color`、`--resource-type`（`issue` 或 `skill`）、`--description` |
-| `property` | `list/get/create/update/archive/unarchive` | 管理工作区自定义属性 | `create`：`--name`、`--type`（`text`、`number`、`select`、`multi_select`、`date`、`checkbox`、`url`、`actor`、`multi_actor`、`multi_text`、`multi_url`）、`--option`（可重复，仅 select 类型）；`list`：`--include-archived`；类型创建后不可修改 |
-| `view` | `list/get/issues` | 读取你能打开的视图（自己的和工作区共享的）；`issues` 按视图保存的排序列出视图里的任务，视图保存的全部筛选条件都由服务端执行。在智能体运行中，看到的视图和其中「我的」条件都属于运行时的所有者 | `<view>` 接受 ID、ID 前缀或完整名称；`list`：`--scope`（`workspace`、`my`、`project`）、`--project`、`--full-id`；`issues`：`--limit`（最多 100）、`--cursor`（上一页的 `next_cursor`）、`--today`（相对到期日筛选按哪一天计算，默认今天）、`--fields`（仅 JSON）、`--full-id` |
-| `agent` | `list/get/create/update/archive/restore` | 管理智能体 | `--name`、`--runtime-id`（`create` 必填）、`--instructions`、`--conversation-starters`、`--model`、`--thinking-level`、`--custom-env` / `--custom-env-file` / `--custom-env-stdin`（仅 `create`）、`--custom-args`、`--mcp-config` / `--mcp-config-file` / `--mcp-config-stdin`、`--permission-mode`、`--visibility`（旧写法）、`--max-concurrent-tasks` |
-| | `copy <agent-id>` | 复制为新智能体，原智能体不受影响 | `--name`（默认为原名加 ` (copy)`）、`--runtime-id`（复制到其他运行时时必须同时指定 `--model`）、`--no-skills`；`custom_env`、`mcp_config`、`runtime_config` 等机密配置不会复制，需用与 `create` 相同的 flag 重新提供 |
-| | `tasks <id>` | 查看智能体的运行 | |
-| | `avatar <id>` | 上传头像 | |
-| | `env get/set <agent-id>` | 读写自定义环境变量（智能体所有者或工作区 owner/admin；每次读取都会记录） | `set`：`--custom-env` / `--custom-env-file` / `--custom-env-stdin`，整体替换，值为 `****` 的键保留原值 |
-| | `skills list/set/add <agent-id>` | 管理绑定的 skill | `--skill-ids`（`set` 全量替换，`add` 增量添加） |
-| | `mcp list/add/enable/disable/remove <agent-id>` | 给该 agent 分配工作区 MCP 服务 | server id 从 `workspace mcp list` 获取。库里的条目在这里添加之前不会生效；`disable` 只停止下发，保留分配 |
-| `autopilot` | `list/get/create/update/delete` | 管理自动化 | `create`：`--title`、`--agent`、`--mode`（均必填）、`--description`、`--issue-title-template`、`--project`、`--subscriber`（可重复） |
-| | `trigger <id>` | 手动触发一次 | |
-| | `runs <id>` | 查看运行历史 | |
-| | `trigger-add/trigger-update/trigger-delete/trigger-rotate-url` | 管理定时和 webhook 触发器 | `trigger-add`：`--kind`（`schedule` 或 `webhook`）、`--cron`、`--timezone`（默认 UTC）、`--label` |
-| `workspace` | `list/get/create/update/switch` | 管理工作区；`switch` 设置当前 profile 的默认工作区 | `create`：`--name`、`--slug`（均必填）、`--issue-prefix`、`--description`、`--context` / `--context-stdin`；`update` 可改除 slug 外的同类字段 |
-| | `mcp list/add/update/remove` | 管理工作区的 MCP 服务库 | 写操作需要 owner/admin。这里添加的服务不会分配给任何 agent——用 `multica agent mcp add` 分配给某个 agent。`list` 只列出名称与 transport；存储的条目是只写的，任何角色都读不回。`--server-config-file` / `--server-config-stdin` 避免 token 进入 shell 历史 |
-| | `member list/invite <email>` | 查看成员、发出邀请 | `invite`：`--role`（member 或 admin，默认 member） |
-| `repo` | `list/add/remove/checkout` | 管理工作区仓库并检出到本机 | `--url`（可重复）；`checkout`：`--ref` |
+| `issue` | `list` | 列出任務 | `--status`、`--priority`、`--assignee`、`--project`、`--updated-since` / `--updated-until`（配套的 RFC3339 時間範圍）、`--metadata`（可重複）、`--property`（可重複，`"名稱=值"` 或 `"Score>=3"`、`"Due<2026-01-01"`、`"Notes~=text"` 這樣的比較；`__none__` 匹配未設定）、`--limit`、`--offset`、`--sort`（支援 `property:<名稱或 id>`）、`--full-id`、`--fields`（僅 JSON；逗號分隔，只輸出這些欄位）、`--resolve-properties`（僅 JSON；在儲存的 id 旁附上屬性、選項和成員名稱） |
+| | `get <id>` | 檢視單個任務 | `--resolve-properties`（僅 JSON；在儲存的 id 旁附上屬性、選項和成員名稱） |
+| | `create` | 建立任務 | `--title`（必填）、`--description` / `--description-stdin` / `--description-file`、`--pr-auto-complete on/off`、`--status`、`--priority`、`--assignee`、`--parent`、`--stage`、`--project`、`--start-date`、`--due-date`、`--attachment`（可重複）、`--property`（可重複）、`--allow-duplicate`（已有同名未關閉任務時仍建立） |
+| | `update <id>` | 更新任務欄位 | 與 `create` 同類欄位，另有 `--position`、`--no-start`、`--duplicate-of` |
+| | `assign <id>` | 指派或取消指派 | `--to`（名稱模糊匹配成員、Agent或小隊）、`--to-id`、`--unassign`、`--no-start` |
+| | `status <id> <status>` | 修改狀態 | `--no-start`、`--duplicate-of` |
+| | `reorder <id>` | 在列內移動 | |
+| | `search <query>` | 搜尋任務 | `--limit`、`--include-closed` |
+| | `children <id>` | 按階段分組列出子任務 | |
+| | `pull-requests <id>` | 列出關聯的 PR | |
+| | `comment list/add/update/delete/resolve/unresolve` | 管理留言 | `add`：`--content` / `--content-stdin` / `--content-file`、`--parent`、`--attachment`；`update`：`--expected-revision`（必填）、`--content` / `--content-stdin` / `--content-file`；`list`：`--since`、`--thread`、`--tail`、`--recent`、`--roots-only`、`--summary`、`--compact`、`--full` |
+| | `timeline <id>` | 按時間列出活動記錄和留言 | `--action`（可重複）、`--activity-only`、`--since`、`--tail` |
+| | `wakeup events/list/get/create/update/disable/trigger/delete/checkin/runs` | 管理任務喚醒，詳見[任務喚醒](/issue-wakeups) | `create` / `update`：`--agent-id`、`--kind`（`event`、`at`、`every`、`cron`）、`--event`、`--at` / `--after`、`--every`、`--cron`、`--timezone`、`--until-*` 條件、`--expires-in` / `--expires-at`、`--instruction` / `--instruction-file`；`checkin`：`--note` |
+| | `subscriber list/add/remove <issue-id>` | 管理訂閱者 | `--user`、`--user-id`（預設為當前使用者） |
+| | `label list/add/remove <issue-id>` | 管理任務上的標籤 | |
+| | `metadata list/get/set/delete <issue-id>` | 管理任務級鍵值後設資料 | |
+| | `property list/set/unset <issue-id>` | 設定自定義屬性值 | `set`：`--name`、`--value`（`actor` / `multi_actor` 接受成員的名稱、郵箱或 id） |
+| | `runs <issue-id>` | 檢視執行歷史 | `--full-id` |
+| | `run-messages <task-id>` | 檢視單次執行的訊息 | `--since`、`--issue` |
+| | `usage <issue-id>` | 檢視聚合 token 用量 | |
+| | `rerun-task <run-id>` | 沿用原Agent和觸發上下文，重跑指定執行 | `--issue`, `--fresh` |
+| | `cancel-task <task-id>` | 取消進行中或排隊中的執行 | `--issue` |
+| `project` | `list/get/create/update/delete` | 管理專案 | `create`：`--title`（必填）、`--lead`、`--status`、`--icon`、`--start-date`、`--due-date`、`--repo`（可重複） |
+| | `status <id> <status>` | 修改專案狀態 | |
+| | `resource list/add/update/remove` | 管理專案附加資源 | `--type`、`--url`、`--default-branch-hint`、`--ref`、`--local-path`、`--daemon-id`、`--execution-mode`（本地目錄的 `in_place` / `worktree`） |
+| | `workflow get/set <project-id>` | 檢視專案當前生效的工作流，或切換工作流 | `set <project-id> <workflow\|default>`：`--map old=new`（可重複），`--dry-run` 列印狀態遷移計劃；切換不會重新分配任務，也不會啟動執行。僅管理員和專案負責人可操作 |
+| `workflow` | `list/get/create/update/delete` | 管理工作流；`get` 等命令接受 ID、ID 字首、完整名稱或 `default` | `create` / `update`：`--name`、`--description`、`--steps-file`（步驟的 JSON 陣列，整體替換）；`update`：`--map old=new`（可重複）、`--dry-run`。編輯和刪除僅限工作流所有者和工作區管理員；仍被專案使用的工作流不能刪除 |
+| | `handoff set <workflow> <status-key>` | 設定單個步驟的處理人、說明和下一步/退回狀態，未指定的欄位保持不變 | `--handler`（`none`、`project_lead`、`creator`，或成員/Agent/小隊的名稱或 UUID）、`--instructions` / `--instructions-file`、`--next`、`--back`、`--copy-for-project` |
+| `label` | `list/get/create/update/delete` | 管理工作區標籤 | `list`：`--resource-type`（`issue` 或 `skill`）、`--full-id`；`create`：`--name`、`--color`、`--resource-type`（`issue` 或 `skill`）、`--description` |
+| `property` | `list/get/create/update/archive/unarchive` | 管理工作區自定義屬性 | `create`：`--name`、`--type`（`text`、`number`、`select`、`multi_select`、`date`、`checkbox`、`url`、`actor`、`multi_actor`、`multi_text`、`multi_url`）、`--option`（可重複，僅 select 型別）；`list`：`--include-archived`；型別建立後不可修改 |
+| `view` | `list/get/issues` | 讀取你能開啟的檢視（自己的和工作區共享的）；`issues` 按檢視儲存的排序列出檢視裡的任務，檢視儲存的全部篩選條件都由服務端執行。在Agent執行中，看到的檢視和其中「我的」條件都屬於runtime的所有者 | `<view>` 接受 ID、ID 字首或完整名稱；`list`：`--scope`（`workspace`、`my`、`project`）、`--project`、`--full-id`；`issues`：`--limit`（最多 100）、`--cursor`（上一頁的 `next_cursor`）、`--today`（相對到期日篩選按哪一天計算，預設今天）、`--fields`（僅 JSON）、`--full-id` |
+| `agent` | `list/get/create/update/archive/restore` | 管理Agent | `--name`、`--runtime-id`（`create` 必填）、`--instructions`、`--conversation-starters`、`--model`、`--thinking-level`、`--custom-env` / `--custom-env-file` / `--custom-env-stdin`（僅 `create`）、`--custom-args`、`--mcp-config` / `--mcp-config-file` / `--mcp-config-stdin`、`--permission-mode`、`--visibility`（舊寫法）、`--max-concurrent-tasks` |
+| | `copy <agent-id>` | 複製為新Agent，原Agent不受影響 | `--name`（預設為原名加 ` (copy)`）、`--runtime-id`（複製到其他runtime時必須同時指定 `--model`）、`--no-skills`；`custom_env`、`mcp_config`、`runtime_config` 等機密配置不會複製，需用與 `create` 相同的 flag 重新提供 |
+| | `tasks <id>` | 檢視Agent的執行 | |
+| | `avatar <id>` | 上傳頭像 | |
+| | `env get/set <agent-id>` | 讀寫自定義環境變數（Agent所有者或工作區 owner/admin；每次讀取都會記錄） | `set`：`--custom-env` / `--custom-env-file` / `--custom-env-stdin`，整體替換，值為 `****` 的鍵保留原值 |
+| | `skills list/set/add <agent-id>` | 管理繫結的 skill | `--skill-ids`（`set` 全量替換，`add` 增量新增） |
+| | `mcp list/add/enable/disable/remove <agent-id>` | 給該 agent 分配工作區 MCP 服務 | server id 從 `workspace mcp list` 獲取。庫裡的條目在這裡新增之前不會生效；`disable` 只停止下發，保留分配 |
+| `autopilot` | `list/get/create/update/delete` | 管理自動化 | `create`：`--title`、`--agent`、`--mode`（均必填）、`--description`、`--issue-title-template`、`--project`、`--subscriber`（可重複） |
+| | `trigger <id>` | 手動觸發一次 | |
+| | `runs <id>` | 檢視執行歷史 | |
+| | `trigger-add/trigger-update/trigger-delete/trigger-rotate-url` | 管理定時和 webhook 觸發器 | `trigger-add`：`--kind`（`schedule` 或 `webhook`）、`--cron`、`--timezone`（預設 UTC）、`--label` |
+| `workspace` | `list/get/create/update/switch` | 管理工作區；`switch` 設定當前 profile 的預設工作區 | `create`：`--name`、`--slug`（均必填）、`--issue-prefix`、`--description`、`--context` / `--context-stdin`；`update` 可改除 slug 外的同類欄位 |
+| | `mcp list/add/update/remove` | 管理工作區的 MCP 服務庫 | 寫操作需要 owner/admin。這裡新增的服務不會分配給任何 agent——用 `multica agent mcp add` 分配給某個 agent。`list` 只列出名稱與 transport；儲存的條目是隻寫的，任何角色都讀不回。`--server-config-file` / `--server-config-stdin` 避免 token 進入 shell 歷史 |
+| | `member list/invite <email>` | 檢視成員、發出邀請 | `invite`：`--role`（member 或 admin，預設 member） |
+| `repo` | `list/add/remove/checkout` | 管理工作區倉庫並檢出到本機 | `--url`（可重複）；`checkout`：`--ref` |
 | `skill` | `list/get/create/update/delete` | 管理 skill | |
-| | `import` | 从 URL 或本地文件导入 skill | `--url` / `--file`、`--on-conflict`（`fail`、`overwrite`、`rename`、`skip`，默认 `fail`） |
-| | `search <query>` | 搜索 skill | |
-| | `files list/upsert/delete <skill-id>` | 管理 skill 内的文件 | |
-| | `label list/add/remove <skill-id>` | 管理 skill 上的标签 | `add` / `remove`：`<label-id>` 可使用完整 UUID 或短前缀 |
-| `squad` | `list/get/create/update/delete` | 管理小队（`delete` 为归档） | |
-| | `member list/add/set-role/remove` | 管理小队成员 | |
-| | `activity <issue-id> <outcome>` | 记录队长评价 | |
-| `chat` | `history`、`thread [id]` | 读取智能体当前正在处理的外部聊天会话 | `--limit`、`--before` |
+| | `import` | 從 URL 或本機檔案匯入 skill | `--url` / `--file`、`--on-conflict`（`fail`、`overwrite`、`rename`、`skip`，預設為 `fail`） |
+| | `search <query>` | 搜尋 skill | |
+| | `files list/upsert/delete <skill-id>` | 管理 skill 內的檔案 | |
+| | `label list/add/remove <skill-id>` | 管理 skill 上的標籤 | `add` / `remove`：`<label-id>` 可使用完整 UUID 或短前綴 |
+| `squad` | `list/get/create/update/delete` | 管理小隊（`delete` 為封存） | |
+| | `member list/add/set-role/remove` | 管理小隊成員 | |
+| | `activity <issue-id> <outcome>` | 記錄隊長的評估結果 | |
+| `chat` | `history`、`thread [id]` | 讀取 Agent 目前正在處理的外部聊天工作階段 | `--limit`、`--before` |
 
 ### Runtime
 
-| 命令 | 子命令 | 用途 | 关键 flag |
+| 命令 | 子命令 | 用途 | 關鍵 flag |
 | --- | --- | --- | --- |
-| `daemon` | `start` | 启动本机守护进程 | `--foreground`、`--device-name`、`--runtime-name`、`--workspaces-root`、`--poll-interval`、`--heartbeat-interval`、`--agent-timeout`（`0` 表示不设上限）、`--max-concurrent-tasks`、`--no-auto-update`；均有对应的 `MULTICA_*` 环境变量 |
-| | `stop` / `status` / `restart` | 停止、查看状态、重启（`restart` 与 `start` 同一套 flag） | |
-| | `logs` | 查看守护进程日志 | `--follow`、`--lines` |
-| | `disk-usage` | 查看本机磁盘占用 | `--by-workspace`、`--by-task`、`--top` |
-| | `autostart enable/disable/status` | 登记或取消当前 profile 的开机自启 | `status`：`--output` |
-| `runtime` | `list/usage/activity/update/rename/delete` | 查看和管理运行时 | `usage`：`--days`（默认 90，最多 365）；`update`：`--target-version`（必填）、`--wait`；`delete`：`--cascade`（解绑绑定的智能体、保留其数据并取消其运行） |
-| | `profile list/create/update/delete` | 管理自定义运行时 profile | `create`：`--display-name`、`--command-name`（均必填）、`--runtime-type`（或旧的 `--protocol-family`）、`--description`；`update`：`--enabled` |
-| | `profile set-path/unset-path <profile-id>` | 固定本机可执行文件路径（仅本地生效，不上传服务器） | |
+| `daemon` | `start` | 啟動本機daemon | `--foreground`、`--device-name`、`--runtime-name`、`--workspaces-root`、`--poll-interval`、`--heartbeat-interval`、`--agent-timeout`（`0` 表示不設上限）、`--max-concurrent-tasks`、`--no-auto-update`；均有對應的 `MULTICA_*` 環境變數 |
+| | `stop` / `status` / `restart` | 停止、檢視狀態、重啟（`restart` 與 `start` 同一套 flag） | |
+| | `logs` | 檢視daemon日誌 | `--follow`、`--lines` |
+| | `disk-usage` | 檢視本機磁碟佔用 | `--by-workspace`、`--by-task`、`--top` |
+| | `autostart enable/disable/status` | 登記或取消當前 profile 的開機自啟 | `status`：`--output` |
+| `runtime` | `list/usage/activity/update/rename/delete` | 檢視和管理runtime | `usage`：`--days`（預設 90，最多 365）；`update`：`--target-version`（必填）、`--wait`；`delete`：`--cascade`（解綁繫結的Agent、保留其資料並取消其執行） |
+| | `profile list/create/update/delete` | 管理自定義runtime profile | `create`：`--display-name`、`--command-name`（均必填）、`--runtime-type`（或舊的 `--protocol-family`）、`--description`；`update`：`--enabled` |
+| | `profile set-path/unset-path <profile-id>` | 固定本機可執行檔案路徑（僅本地生效，不上傳伺服器） | |
 
 ### Additional
 
-| 命令 | 子命令 | 用途 | 关键 flag |
+| 命令 | 子命令 | 用途 | 關鍵 flag |
 | --- | --- | --- | --- |
-| `auth` | `status` / `logout` | 查看认证状态；`logout` 只删除本地保存的令牌，不吊销服务端令牌 | |
-| `user` | `profile get/update` | 查看或更新当前用户资料 | |
-| `login` | — | 浏览器登录并自动配置全部工作区 | `--token`（不带值时在终端交互式输入） |
-| `setup` | `cloud`（默认）、`self-host` | 保存服务地址、完成登录并启动守护进程 | `self-host`：`--server-url`、`--app-url`、`--port`、`--frontend-port` |
-| `attachment` | `download <attachment-id>`、`upload <path>` | 下载或上传附件 | `download`：`--output-dir`；`upload`：`--task` |
-| `config` | `show`、`set <key> <value>` | 查看或修改当前 profile 的本地配置 | 优先级：命令行 flag > 环境变量 > `config.json` > 内置默认；设为空串可清除 |
+| `auth` | `status` / `logout` | 查看認證狀態；`logout` 只刪除本機儲存的權杖，不會撤銷伺服器端權杖 | |
+| `user` | `profile get/update` | 查看或更新目前使用者資料 | |
+| `login` | — | 瀏覽器登入並自動設定全部工作區 | `--token`（不帶值時在終端機互動式輸入） |
+| `setup` | `cloud`（預設）、`self-host` | 儲存服務位址、完成登入並啟動常駐程式 | `self-host`：`--server-url`、`--app-url`、`--port`、`--frontend-port` |
+| `attachment` | `download <attachment-id>`、`upload <path>` | 下載或上傳附件 | `download`：`--output-dir`；`upload`：`--task` |
+| `config` | `show`、`set <key> <value>` | 查看或修改目前 profile 的本機設定 | 優先順序：命令列 flag > 環境變數 > `config.json` > 內建預設；設為空字串可清除 |
 | `update` | — | 更新 CLI 到最新版本 | |
-| `version` | — | 查看版本信息 | `--output`（`text` 或 `json`） |
+| `version` | — | 查看版本資訊 | `--output`（`text` 或 `json`） |
 
-## 在其他编码智能体里操作 Multica
+## 從其他程式開發 Agent 操作 Multica
 
-如果你的工作大多发生在 Codex、Claude Code 或 Cursor 里，可以直接在那里操作 Multica，不必切回终端。[Multica CLI skill](https://github.com/multica-ai/multica-cli) 会教这些智能体安全地使用本页的命令：读任务和评论线程时少耗 token、通过文件写评论，以及正确处理 mention、状态变更和指派带来的副作用。
+如果你的工作大多發生在 Codex、Claude Code 或 Cursor 裡，可以直接在那裡操作 Multica，不必切回終端。[Multica CLI skill](https://github.com/multica-ai/multica-cli) 會教這些Agent安全地使用本頁的命令：讀任務和留言執行緒時少耗 token、透過檔案寫留言，以及正確處理 mention、狀態變更和指派帶來的副作用。
 
-它完全通过你已认证的 CLI 运行，本身不授予任何权限，权限仍然只来自你的登录、所选 profile 和工作区。要求 CLI 版本不低于 v0.4.26。该仓库的 README 说明了 Claude Code 插件市场、Codex skill 安装器、Cursor 以及其他任何加载 Markdown 指令的工具的安装方式。
+它完全透過你已認證的 CLI 執行，本身不授予任何許可權，許可權仍然只來自你的登入、所選 profile 和工作區。要求 CLI 版本不低於 v0.4.26。該倉庫的 README 說明了 Claude Code 外掛市場、Codex skill 安裝器、Cursor 以及其他任何載入 Markdown 指令的工具的安裝方式。
 
-## 接下来
+## 接下來
 
-- [Multica CLI skill](https://github.com/multica-ai/multica-cli) — 在 Codex、Claude Code 或 Cursor 里操作 Multica。
-- [认证与令牌](/auth-tokens) — PAT 的创建、续期和吊销。
-- [故障排查](/troubleshooting) — 命令报错和运行不开始的排查路径。
-- [创建和配置智能体](/agents-create) — `agent create` 各字段的完整语义。
+- [Multica CLI skill](https://github.com/multica-ai/multica-cli) — 從 Codex、Claude Code 或 Cursor 操作 Multica。
+- [認證與權杖](/auth-tokens) — PAT 的建立、續期和撤銷。
+- [疑難排解](/troubleshooting) — 排查命令錯誤和執行未啟動的情況。
+- [建立和設定 Agent](/agents-create) — `agent create` 各欄位的完整語意。
