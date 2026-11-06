@@ -511,6 +511,27 @@ describe("ConnectRemoteDialog", () => {
     expect(baseElement).not.toHaveTextContent("<YOUR_TOKEN>");
   });
 
+  it("switches installation and every daemon command together for Windows", async () => {
+    const user = userEvent.setup();
+    const { baseElement } = renderDialog({
+      daemonSetupTarget: "self_host",
+      daemonServerUrl: "https://api.example.com/",
+      daemonAppUrl: "https://app.example.com/a'b",
+      daemonInstallUrl: "https://downloads.example.com/install.sh",
+    });
+    expect(baseElement).toHaveTextContent('"$HOME/.local/bin/multica" setup self-host');
+    await user.click(screen.getByRole("tab", { name: "Windows" }));
+    expect(baseElement).toHaveTextContent("irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex");
+    expect(baseElement).toHaveTextContent("multica setup self-host --server-url https://api.example.com --app-url 'https://app.example.com/a''b'");
+    for (const cmd of ["config set server_url", "config set app_url", "login --token", "daemon start", "daemon status", "daemon logs -f"]) {
+      expect(baseElement).toHaveTextContent(`multica ${cmd}`);
+    }
+    expect(baseElement).not.toHaveTextContent('"$HOME/.local/bin/multica"');
+    await user.keyboard("{ArrowLeft}");
+    expect(baseElement).toHaveTextContent('"$HOME/.local/bin/multica" setup self-host');
+    expect(baseElement).toHaveTextContent("curl -fsSL -- 'https://downloads.example.com/install.sh' | bash");
+  });
+
   it("ignores an unsafe installer URL from a malformed server response", () => {
     const { baseElement } = renderDialog({
       daemonInstallUrl: "https://downloads.example.com/install.sh'; touch /tmp/injected; '",
