@@ -1,4 +1,4 @@
-import type { AgentTask } from "./agent";
+import type { AgentTask, TaskQuotaCheckpoint, TaskUsage } from "./agent";
 
 /** A user's pinned "quick agent" for the Chat list top bar. */
 export interface ChatPinnedAgent {
@@ -109,6 +109,10 @@ export interface ChatSession {
   channel_source?: ChatChannelSource;
   /** Absent for first-party Chats. */
   is_current_channel_route?: boolean;
+  /** Account-level checkpoints for every run in this session. Detail API only. */
+  quota_checkpoints?: TaskQuotaCheckpoint[];
+  /** Chronological run usage, including runs whose provider reported no usage. */
+  task_usage?: { task_id: string; usage?: TaskUsage[] }[];
   created_at: string;
   updated_at: string;
 }
@@ -172,6 +176,10 @@ export interface ChatMessage {
   message_kind?: ChatMessageKind;
   /** Up to three server-validated follow-ups generated with this reply. */
   quick_actions?: ChatQuickAction[];
+  /** Account-level provider observations captured around this message's run. */
+  quota_checkpoints?: TaskQuotaCheckpoint[];
+  /** Token usage attributed to this reply's task, grouped by provider/model. */
+  usage?: TaskUsage[];
 }
 
 export interface ChatMessagesCursor {

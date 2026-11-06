@@ -294,7 +294,7 @@ describe("AgentTranscriptDialog", () => {
 
   it.each([
     { locale: "en", label: "Agent", model: "Model" },
-    { locale: "zh-Hans", label: "智能体", model: "模型" },
+    { locale: "zh-Hans", label: "Agent", model: "模型" },
     { locale: "ja", label: "エージェント", model: "モデル" },
     { locale: "ko", label: "에이전트", model: "모델" },
     { locale: "fr", label: "Agent", model: "Modèle" },
@@ -981,7 +981,7 @@ describe("AgentTranscriptDialog — cancel reason", () => {
       },
     });
 
-    expect(screen.getByText(/本地目录出错/)).toBeInTheDocument();
+    expect(screen.getByText(/本地目錄出錯/)).toBeInTheDocument();
     expect(
       screen.queryByText(/Local directory error/),
     ).not.toBeInTheDocument();
@@ -1064,9 +1064,9 @@ describe("AgentTranscriptDialog — reason vs raw diagnostics", () => {
       },
     });
 
-    await userEvent.click(screen.getByRole("button", { name: "运行详情" }));
+    await userEvent.click(screen.getByRole("button", { name: "執行詳細資訊" }));
 
-    expect(screen.getByText("原始诊断")).toBeInTheDocument();
+    expect(screen.getByText("原始診斷")).toBeInTheDocument();
     expect(screen.queryByText("Technical details")).not.toBeInTheDocument();
     // The diagnostic itself is not translated — it is the runner's own output.
     // Keeping it readable is the point; presenting it as the reason is not.

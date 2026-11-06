@@ -92,6 +92,7 @@ import { describeCancelImpact } from "./agent-row-actions";
 import { AgentChannelLinks, AgentChannelsSection } from "./agent-channels-section";
 import { AgentSkillsSection } from "./agent-skills-section";
 import { AgentWorkDialog } from "./agent-work-dialog";
+import { AgentUsageSummary } from "./agent-usage-summary";
 import { AgentWorkSections } from "./tabs/activity-tab";
 
 const AGENT_DETAIL_LAYOUT_ID = "multica_agent_detail_layout";
@@ -684,6 +685,7 @@ export function AgentDetailPage({ agentId }: AgentDetailPageProps) {
             />
             <AgentChannelLinks agent={agent} />
             {notices.length > 0 && <div className="space-y-2">{notices}</div>}
+            <AgentUsageSummary agent={agent} runtime={runtime} />
           </div>
 
           <AgentWorkSections

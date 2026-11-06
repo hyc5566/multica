@@ -59,7 +59,7 @@ describe("cancellationActorLabel", () => {
     expect(cancellationActorLabel({
       status: "cancelled",
       cancelled_by: { type: "system" },
-    }, fixedT("zh-Hans"))).toBe("已由系统取消");
+    }, fixedT("zh-Hans"))).toBe("系統已取消");
     expect(cancellationActorLabel({
       status: "cancelled",
       cancelled_by: { type: "member", name: "Jiayuan" },
@@ -119,7 +119,7 @@ describe("cancelReasonLabel", () => {
   it("localizes a generic system cancellation in every supported locale", () => {
     const expected: Record<SupportedLocale, string> = {
       en: "Cancelled by the system",
-      "zh-Hans": "已由系统取消",
+      "zh-Hans": "系統已取消",
       "zh-Hant": "已由系統取消",
       ja: "システムによってキャンセルされました",
       ko: "시스템에서 취소함",
@@ -205,7 +205,7 @@ describe("failureReasonLabel", () => {
         "agent_error.provider_quota_limit",
         fixedT("zh-Hans"),
       ),
-    ).toBe("提供商配额已用尽");
+    ).toBe("提供商配額已用盡");
     expect(
       failureReasonLabel("agent_error.context_overflow", fixedT("ja")),
     ).toBe("コンテキストウィンドウを超過しました");

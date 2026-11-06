@@ -1878,6 +1878,7 @@ export function IssueDisplayControls({
 }) {
   const { t } = useT("issues");
   const viewMode = useViewStore((s) => s.viewMode);
+  const boardLayout = useViewStore((s) => s.boardLayout);
   const statusFilters = useViewStore((s) => s.statusFilters);
   const priorityFilters = useViewStore((s) => s.priorityFilters);
   const assigneeFilters = useViewStore((s) => s.assigneeFilters);
@@ -2150,6 +2151,30 @@ export function IssueDisplayControls({
               </div>
             )}
             <div className="space-y-3">
+              {/* Caption label left, control right; multi-control sections
+                  (Ordering, Card properties) stack the label on top. Spacing
+                  separates sections — no dividers (see UI rules). */}
+              {(viewMode === "board" || viewMode === "swimlane") && (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-caption font-medium text-muted-foreground">
+                    {t(($) => $.display.layout_section)}
+                  </span>
+                  <div role="group" aria-label={t(($) => $.display.layout_section)} className="flex gap-1">
+                    {(["compact", "default"] as const).map((layout) => (
+                      <Button
+                        key={layout}
+                        size="sm"
+                        variant={boardLayout === layout ? "secondary" : "ghost"}
+                        aria-pressed={boardLayout === layout}
+                        className={boardLayout === layout ? "font-semibold text-foreground" : "text-muted-foreground"}
+                        onClick={() => act.setBoardLayout(layout)}
+                      >
+                        {t(($) => $.display[`layout_${layout}`])}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              )}
               {viewMode === "board" && (
                 <div className="flex items-center justify-between gap-3">
                   <span className="text-caption font-medium text-muted-foreground">
