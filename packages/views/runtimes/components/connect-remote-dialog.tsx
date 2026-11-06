@@ -33,7 +33,7 @@ import {
   UI_MOTION_DURATION,
 } from "@multica/ui/lib/motion";
 import { cn } from "@multica/ui/lib/utils";
-import { CLI_INSTALL_COMMANDS, CliInstallCommand } from "../../common/cli-install-command";
+import { CLI_INSTALL_COMMANDS, CliInstallCommand, type CliInstallPlatform } from "../../common/cli-install-command";
 import { operatorInstallCommand } from "@multica/core/runtimes";
 import { useConfigStore } from "@multica/core/config";
 import { DaemonSetupNotice } from "../../common/daemon-setup-notice";
@@ -274,9 +274,13 @@ function CommandStep({
 
 function InstructionsStep({ onClose }: { onClose: () => void }) {
   const { t } = useT("runtimes");
-  const commands = useDaemonSetupCommands();
+  const [platform, setPlatform] = useState<CliInstallPlatform>("macosLinux");
   const installUrl = useConfigStore((s) => s.daemonInstallUrl);
   const installCmd = operatorInstallCommand(installUrl);
+  const commands = useDaemonSetupCommands(
+    platform === "macosLinux" && installCmd ? '"$HOME/.local/bin/multica"' : "multica",
+    platform === "windows" ? "powershell" : "posix",
+  );
   return (
     <>
       <DialogHeader className="px-6 pt-6 pb-2">
@@ -295,6 +299,7 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
               `multica setup` is platform-independent. */}
           <CommandStep n={1} label={t(($) => $.connect.step1_label)}>
             <CliInstallCommand
+              onPlatformChange={setPlatform}
               labels={{
                 group: t(($) => $.connect.platform_group),
                 macosLinux: t(($) => $.connect.platform_macos_linux),
