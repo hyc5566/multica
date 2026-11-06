@@ -1,0 +1,1 @@
+DROP INDEX CONCURRENTLY IF EXISTS runtime_provider_usage_snapshot_probe_target_key;

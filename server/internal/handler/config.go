@@ -43,6 +43,8 @@ type AppConfig struct {
 	// Explicit even when URLs are omitted, so clients never infer Cloud from
 	// missing self-host configuration. Older clients ignore this additive field.
 	DaemonSetupTarget string `json:"daemon_setup_target"`
+	// Public HTTPS installer URL for operator-published CLI builds.
+	DaemonInstallURL string `json:"daemon_install_url,omitempty"`
 
 	// VCSIntegrationAvailable mirrors the MULTICA_VCS_INTEGRATION_ENABLED
 	// deployment switch so the Settings UI can hide the whole self-hosted Git
@@ -141,6 +143,7 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	}
 	config.DaemonServerURL, config.DaemonAppURL = daemonSetupURLsFromEnv()
 	config.DaemonSetupTarget = "self_host"
+	config.DaemonInstallURL = daemonInstallURLFromEnv()
 	config.VCSIntegrationAvailable = h.cfg.VCSIntegrationEnabled
 	config.ThemeStoreEnabled = h.ThemeStore != nil
 	config.FeatureFlags = featureflags.EvaluateFrontendPublicFlags(r.Context(), h.FeatureFlags)
@@ -165,6 +168,15 @@ func (h *Handler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, config)
+}
+
+func daemonInstallURLFromEnv() string {
+	raw := strings.TrimSpace(os.Getenv("MULTICA_DAEMON_INSTALL_URL"))
+	u, err := url.Parse(raw)
+	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || strings.ContainsAny(raw, "?#\\\\'\"`$;|&<>() \t\r\n") {
+		return ""
+	}
+	return raw
 }
 
 func daemonSetupURLsFromEnv() (string, string) {

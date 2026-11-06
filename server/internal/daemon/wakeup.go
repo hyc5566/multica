@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/multica-ai/multica/server/internal/cli"
 	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
@@ -128,6 +129,7 @@ func (d *Daemon) runTaskWakeupConnection(ctx context.Context, runtimeIDs []strin
 	// proxy variables set, ProxyFromEnvironment returns nil and the connection
 	// is direct, exactly as before.
 	dialer := websocket.Dialer{
+		TLSClientConfig:  cli.DefaultTLSConfig(),
 		HandshakeTimeout: 10 * time.Second,
 		Proxy:            http.ProxyFromEnvironment,
 	}

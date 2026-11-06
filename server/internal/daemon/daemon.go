@@ -201,6 +201,11 @@ func taskMulticaEnvironment(task Task, provider, agentName, token, configRoot, w
 		env["MULTICA_QUICK_CREATE_DEFAULT_ASSIGNEE_TYPE"] = assigneeType
 		env["MULTICA_QUICK_CREATE_DEFAULT_ASSIGNEE_ID"] = assigneeID
 	}
+	// macOS Go CLIs need explicit CA trust; inherited MULTICA_* values are
+	// otherwise stripped from agent processes and Codex shell tools.
+	if ca := os.Getenv("MULTICA_CA_CERT_FILE"); ca != "" {
+		env["MULTICA_CA_CERT_FILE"] = ca
+	}
 	if runtime.GOOS != "windows" {
 		return env
 	}
@@ -440,11 +445,13 @@ type repoCacheBackend interface {
 
 // Daemon is the local agent runtime that polls for and executes tasks.
 type Daemon struct {
-	cfg        Config
-	client     *Client
-	repoCache  repoCacheBackend
-	skillCache *SkillBundleCache
-	logger     *slog.Logger
+	cfg                   Config
+	client                *Client
+	repoCache             repoCacheBackend
+	skillCache            *SkillBundleCache
+	logger                *slog.Logger
+	agentMaintenance      atomic.Pointer[AgentMaintenanceStatus]
+	agentInstallationLock string // initialized before pollers; all profiles use the same per-user lock
 
 	// gitCALastErr is the last applyGitCACerts failure, so a persistent one
 	// (e.g. on Windows) is logged once rather than on every repo refresh.
@@ -643,6 +650,15 @@ type Daemon struct {
 	pendingWorkInflight map[string]struct{}  // runtime_id -> hint-driven heartbeat in flight
 	pendingWorkLastRun  map[string]time.Time // runtime_id -> when the last hint-driven heartbeat started
 
+	// taskQuota* coalesces account-level usage probes across concurrent tasks
+	// and retains a very short last-known-good cache. The provider helper has a
+	// local request limiter too, but coalescing here avoids paying for rejected
+	// subprocesses and gives short runs an explicit same-observation checkpoint.
+	taskQuotaMu       sync.Mutex
+	taskQuotaCache    map[string]taskQuotaCachedObservation
+	taskQuotaInflight map[string]*taskQuotaProbeCall
+	taskQuotaProbeFn  func(context.Context, string, agent.Command) agent.ProviderUsage
+
 	cancelFunc context.CancelFunc // set by Run(); called by triggerRestart
 	rootCtx    context.Context    // set by Run(); used by long-running recoveries that must survive per-runtime ctx cancellation
 	// restartMu guards restartBinary. Two goroutines can reach triggerRestart —
@@ -818,6 +834,9 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 		workspaceChanges:            newWorkspaceChangeSignal(),
 		wsRPC:                       newWSRPCClient(wsRPCResponseGrace),
 		environments:                newEnvironmentService(cfg, client, environmentIgnoreCommands(cfg.Agents), logger),
+		taskQuotaCache:              make(map[string]taskQuotaCachedObservation),
+		taskQuotaInflight:           make(map[string]*taskQuotaProbeCall),
+		taskQuotaProbeFn:            agent.ProbeProviderUsage,
 	}
 	d.activeEnvRootsCond = sync.NewCond(&d.activeEnvRootsMu)
 	d.activeStoresCond = sync.NewCond(&d.activeStoresMu)
@@ -2081,9 +2100,15 @@ func (d *Daemon) run(ctx context.Context, healthLn net.Listener) error {
 	var err error
 	// Wrap context so handleUpdate can cancel the daemon for restart.
 	ctx, cancel := context.WithCancel(ctx)
+	defer cancel()
 	d.cancelFunc = cancel
 	d.setLifecycleCtx(ctx)
 	d.rootCtx = ctx
+	installationLock, err := agentInstallationLockPath()
+	if err != nil {
+		return fmt.Errorf("prepare agent installation lock: %w", err)
+	}
+	d.agentInstallationLock = installationLock
 
 	// Bind health port early to detect another running daemon.
 	if healthLn == nil {
@@ -2179,6 +2204,17 @@ func (d *Daemon) run(ctx context.Context, healthLn net.Listener) error {
 	// workspace sync loop because that one runs on a thirty-minute consistency
 	// interval — far too slow for "install a CLI, see it under Runtimes".
 	go d.agentDiscoveryLoop(ctx)
+	// Join maintenance on shutdown: never leave an installer replacing files
+	// after the daemon has exited or handed control to a replacement process.
+	maintenanceDone := make(chan struct{})
+	go func() {
+		defer close(maintenanceDone)
+		d.agentMaintenanceLoop(ctx)
+	}()
+	defer func() {
+		cancel()
+		<-maintenanceDone
+	}()
 
 	taskWakeups := make(chan taskWakeup, 256)
 	go d.taskWakeupLoop(ctx, taskWakeups)
@@ -4601,7 +4637,11 @@ func (d *Daemon) handleHeartbeatActions(ctx context.Context, runtimeID string, r
 	}
 	if resp.PendingModelList != nil {
 		if rt := d.findRuntime(runtimeID); rt != nil {
-			go d.handleModelList(ctx, *rt, resp.PendingModelList.ID)
+			if resp.PendingModelList.Purpose == "provider_usage" {
+				go d.handleProviderUsage(ctx, *rt, resp.PendingModelList.ID)
+			} else {
+				go d.handleModelList(ctx, *rt, resp.PendingModelList.ID)
+			}
 		}
 	}
 	if resp.PendingLocalSkills != nil {
@@ -4726,6 +4766,21 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 	d.handleHeartbeatActions(ctx, runtimeID, resp)
 }
 
+// handleProviderUsage runs the deterministic direct-HTTP quota probe on the
+// runtime host. It does not resolve or start an agent executable: the bundled
+// helper reads the local provider credential and returns normalized,
+// credential-free JSON.
+func (d *Daemon) handleProviderUsage(ctx context.Context, rt Runtime, requestID string) {
+	d.logger.Info("provider usage requested", "runtime_id", rt.ID, "request_id", requestID, "provider", rt.Provider)
+
+	result := d.observeProviderQuota(ctx, rt, rt.Provider)
+	d.reportModelListResult(ctx, rt, requestID, map[string]any{
+		"status":         "completed",
+		"supported":      true,
+		"provider_usage": result.reportSnapshot,
+	})
+}
+
 // handleModelList resolves the provider's supported models (via static
 // catalog or by shelling out to the agent CLI) and reports the result
 // back to the server.
@@ -4771,7 +4826,9 @@ func (d *Daemon) handleModelList(ctx context.Context, rt Runtime, requestID stri
 		return
 	}
 
-	catalog, err := listModels(ctx, rt.Provider, agent.NewCommand(execPath, fixedArgs))
+	command := agent.NewCommand(execPath, fixedArgs)
+	agent.InvalidateModelCache(rt.Provider, command)
+	catalog, err := listModels(ctx, rt.Provider, command)
 	if err != nil {
 		d.reportModelListResult(ctx, rt, requestID, map[string]any{
 			"status": "failed",
@@ -5157,6 +5214,14 @@ func (d *Daemon) tryBeginServerUpdate(ctx context.Context) serverUpdateAcquireRe
 // the restart — extracted so the server-triggered path (handleUpdate) and the
 // auto-update poller (autoUpdateLoop) share the exact same execution body.
 func (d *Daemon) runUpdate(targetVersion string) (string, error) {
+	if cli.ZhTWReleaseManifestURL() != "" {
+		d.logger.Info("updating CLI via the zh-tw release installer...", "target_version", targetVersion)
+		out, err := cli.UpdateViaZhTWInstaller(targetVersion, d.cfg.CLIVersion, cli.DefaultUpdateDownloadTimeout)
+		if err != nil {
+			return out, fmt.Errorf("zh-tw installer update failed: %w", err)
+		}
+		return out, nil
+	}
 	if cli.IsBrewInstall() {
 		d.logger.Info("updating CLI via Homebrew...")
 		out, err := cli.UpdateViaBrew()
@@ -5333,6 +5398,14 @@ func (d *Daemon) triggerRestart() bool {
 // restart would run — probing os.Executable() directly would read the old
 // Cellar path under brew and miss the upgrade entirely.
 func (d *Daemon) restartTargetBinary() (string, error) {
+	// The zh-tw launcher re-exports the installation's environment and execs
+	// the version it currently points at, so restarting through it follows
+	// an installer upgrade while the old versioned binary stays in place.
+	if launcher := os.Getenv(cli.ZhTWLauncherEnv); filepath.IsAbs(launcher) {
+		if info, err := os.Stat(launcher); err == nil && info.Mode().IsRegular() {
+			return launcher, nil
+		}
+	}
 	newBin, err := resolveSelfExecutable()
 	if err != nil {
 		return "", err
@@ -5465,10 +5538,35 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			continue
 		}
 		slots := append([]int{slot}, drainAvailableSlots(sem, d.cfg.MaxConcurrentTasks-1)...)
+		// Hold a shared installation lease from before the network claim until
+		// every task in this batch has finished. Sibling profiles/desktop cannot
+		// replace a shared CLI while it is executing, even with auto-update off.
+		var installation *os.File
+		if d.agentInstallationLock != "" {
+			installation, err = lockAgentInstallation(d.agentInstallationLock, false)
+			if err != nil || installation == nil {
+				releaseSlots(slots)
+				if err != nil {
+					d.logger.Warn("agent installation lease failed", "error", err)
+				}
+				if err := sleepWithContextOrWakeup(pollerCtx, d.cfg.PollInterval, wakeup); err != nil {
+					return
+				}
+				continue
+			}
+		}
+		var installationUsers atomic.Int32
+		installationUsers.Store(1)
+		releaseInstallation := func() {
+			if installationUsers.Add(-1) == 0 && installation != nil {
+				releaseAgentInstallation(installation)
+			}
+		}
 
 		// Auto-update barrier: refuse to claim while an update prepares to roll
 		// the process (paired with the re-check in tryAutoUpdate).
 		if !d.tryEnterClaim() {
+			releaseInstallation()
 			releaseSlots(slots)
 			if err := sleepWithContextOrWakeup(pollerCtx, d.cfg.PollInterval, wakeup); err != nil {
 				return
@@ -5479,6 +5577,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 		claimResult, err := d.claimTasksWSFirst(pollerCtx, d.cfg.DaemonID, runtimeIDs, len(slots))
 		if err != nil {
 			d.exitClaim()
+			releaseInstallation()
 			releaseSlots(slots)
 			if pollerCtx.Err() == nil {
 				d.logger.Warn("batch claim failed", "error", err)
@@ -5507,6 +5606,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			d.logger.Info("task received", "task", t.ID, "target", taskTarget)
 			taskWG.Add(1)
 			d.activeTasks.Add(1)
+			installationUsers.Add(1)
 			if cache, ok := d.repoCache.(interface{ CancelMaintenance() }); ok {
 				// A task can reuse an existing worktree and never enter the
 				// checkout path that normally preempts repository maintenance.
@@ -5516,6 +5616,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			}
 			go func(t Task, slot int) {
 				defer taskWG.Done()
+				defer releaseInstallation()
 				defer d.activeTasks.Add(-1)
 				defer func() {
 					// Release local capacity before waking the poller. The task's
@@ -5531,6 +5632,7 @@ func (d *Daemon) runBatchPoller(pollerCtx, parentCtx context.Context, sem chan i
 			dispatched++
 		}
 		d.exitClaim()
+		releaseInstallation()
 		if dispatched < len(slots) {
 			releaseSlots(slots[dispatched:])
 		}
@@ -5862,6 +5964,7 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		}
 	}()
 
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "before", taskLog)
 	result, err := d.runner.run(runCtx, task, provider, slot, taskLog)
 	if errors.Is(err, errStartClaimRejected) {
 		// The row belongs to another claim (or is terminal). A task-id-only
@@ -5869,6 +5972,8 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		taskLog.Info("discarding rejected start claim", "error", err)
 		return
 	}
+	d.captureTaskQuotaCheckpoint(ctx, task, rt, provider, "after", taskLog)
+
 	if result.FailureReason == taskfailure.ReasonProcessCleanupUnconfirmed.String() && err != nil {
 		result.Comment += "; " + err.Error()
 		err = nil // Cleanup uncertainty must outrank worktree-finalization errors.
@@ -9155,6 +9260,43 @@ func (d *Daemon) runTask(ctx context.Context, task Task, provider string, slot i
 	if err != nil {
 		return TaskResult{}, err
 	}
+	if result.Status == "failed" && taskfailure.Classify(result.Error) == taskfailure.ReasonAgentProviderAuthOrAccess {
+		_, manualCommand := providerAuthLoginArgs(provider)
+		var loginErr error
+		attempted := false
+		if !usesCustomProfileCommand {
+			attempted, loginErr = runProviderAuthLogin(ctx, provider, entry.Path, agentEnv)
+		}
+		if attempted && loginErr == nil {
+			if tools > 0 {
+				result.Error += fmt.Sprintf("\n\nAuthentication login completed. The agent had already run tools, so this task was not replayed automatically to avoid duplicate actions. Retry this task to resume it; if needed, run `%s` in a terminal under the same OS account as this daemon first.", manualCommand)
+			} else {
+				// Login output remains in the user's terminal. Retry the original
+				// provider request once, with the same task/session and options.
+				priorUsage := result.Usage
+				retried, retriedTools, retryErr := d.executeAndDrain(ctx, backend, prompt, withPriorTaskUsage(execOpts, priorUsage), taskLog, task.ID, env.CodexHome, &msgSeq)
+				if retryErr == nil {
+					retried.Usage = mergeUsage(priorUsage, retried.Usage)
+					result, tools = retried, retriedTools
+					if result.Status != "completed" && taskfailure.Classify(result.Error) == taskfailure.ReasonAgentProviderAuthOrAccess {
+						result.Error += fmt.Sprintf("\n\nProvider authentication is still unavailable. Run `%s` in a terminal under the same OS account as this daemon, then retry this task.", manualCommand)
+					}
+				} else {
+					result.Error += fmt.Sprintf("\n\nAuthentication login completed, but the task retry could not start. Run `%s` in a terminal under the same OS account as this daemon, then retry this task.", manualCommand)
+				}
+			}
+		} else {
+			reason := "interactive login was unavailable"
+			if loginErr != nil {
+				reason = loginErr.Error()
+			}
+			if manualCommand == "" || usesCustomProfileCommand {
+				manualCommand = provider + " provider's official login command"
+			}
+			result.Error += fmt.Sprintf("\n\nProvider authentication is required (%s). Run `%s` in a terminal under the same OS account as this daemon, then retry this task. No login output was captured.", reason, manualCommand)
+		}
+	}
+
 	if result.Status == "cleanup_unconfirmed" {
 		if env.LocalWorktree != nil {
 			env.LocalWorktree.AbortWithReason(errors.New(result.Error))

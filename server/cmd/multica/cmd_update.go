@@ -44,6 +44,25 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 		fmt.Fprintf(os.Stderr, "Latest version:  %s\n\n", latest.TagName)
 	}
 
+	// The zh-tw launcher follows its own release channel and installer.
+	if cli.ZhTWReleaseManifestURL() != "" {
+		if latest == nil {
+			return fmt.Errorf("could not determine latest version; check the zh-tw release channel")
+		}
+		if !cli.IsNewerVersion(latest.TagName, version) {
+			fmt.Fprintln(os.Stderr, "Already up to date.")
+			return nil
+		}
+		fmt.Fprintf(os.Stderr, "Upgrading to %s with the release installer...\n", latest.TagName)
+		output, err := cli.UpdateViaZhTWInstaller(latest.TagName, version, updateDownloadTimeout)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "%s\n", output)
+			return fmt.Errorf("update failed: %w", err)
+		}
+		fmt.Fprintf(os.Stderr, "%s\nUpdate complete. A running daemon restarts into the new version when idle.\n", output)
+		return nil
+	}
+
 	// Detect installation method and update accordingly.
 	if cli.IsBrewInstall() {
 		fmt.Fprintln(os.Stderr, "Updating via Homebrew...")
