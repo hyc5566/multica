@@ -474,7 +474,7 @@ describe("execution log header geometry", () => {
       { locale: "zh-Hans" },
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "開啟時間軸", exact: true }));
+    fireEvent.click(screen.getByRole("button", { name: "開啟時間軸" }));
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("執行紀錄")).toBeInTheDocument();
