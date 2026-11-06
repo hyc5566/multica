@@ -309,7 +309,10 @@
     "card_labels": "ラベル",
     "card_child_progress": "サブタスクの進捗",
     "show_sub_issues": "サブタスクを表示",
-    "layout_options": "{{layout}}のオプション"
+    "layout_options": "{{layout}}のオプション",
+    "layout_section": "レイアウト",
+    "layout_compact": "コンパクト",
+    "layout_default": "標準"
   },
   "view": {
     "tooltip_board": "ボード表示",
@@ -568,7 +571,9 @@
     "project_directory_path_copied_with_branch": "プロジェクトディレクトリのパスをコピーしました — 作業は {{branch}} ブランチにあります",
     "workdir_path_copy_failed": "作業ディレクトリのパスをコピーできませんでした",
     "workdir_path_unavailable": "まだローカルの作業ディレクトリがありません。ローカルエージェントがこのタスクを実行していません",
-    "pull_requests_empty_title": "関連する PR はありません。"
+    "pull_requests_empty_title": "関連する PR はありません。",
+    "discard_changes": "変更を破棄",
+    "save_changes": "変更を保存"
   },
   "timeline": {
     "loading": "読み込み中...",
@@ -890,7 +895,27 @@
     "detail_cache": "キャッシュヒット",
     "cache_hit_value": "{{percent}} · {{amount}} 節約",
     "detail_time": "時刻",
-    "detail_branch": "ブランチ"
+    "detail_branch": "ブランチ",
+    "quota_title": "プロバイダー割り当てチェックポイント",
+    "quota_attribution_note": "アカウント単位の観測値です。同時実行中の作業も変化に影響する場合があります。",
+    "quota_window": "ウィンドウ",
+    "quota_before": "実行前",
+    "quota_after": "実行後",
+    "quota_delta": "変化",
+    "quota_observed": "観測時刻",
+    "quota_reset": "リセット",
+    "quota_state": "状態",
+    "quota_state_comparable": "比較可能",
+    "quota_state_same_observation": "同じ観測値",
+    "quota_state_reset_crossed": "リセットを通過",
+    "quota_state_stale": "古いスナップショット",
+    "quota_state_unavailable": "プロバイダー利用不可",
+    "quota_state_missing": "データ不完全",
+    "quota_show_all_other": "他の {{count}} ウィンドウを表示",
+    "quota_requested_model": "指定モデル",
+    "quota_overlap_other": "同時実行 {{count}} 件",
+    "export_runs_csv": "実行 CSV",
+    "export_quota_csv": "割り当て CSV"
   },
   "terminate_dialog": {
     "title": "この実行を停止しますか？",

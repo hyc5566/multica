@@ -177,7 +177,45 @@
     "copy_link": "Copiar enlace",
     "copy_id": "Copiar ID del agente",
     "link_copied_toast": "Enlace copiado",
-    "id_copied_toast": "ID del agente copiado"
+    "id_copied_toast": "ID del agente copiado",
+    "usage": {
+      "title": "Uso y límites",
+      "source": "Fuente: {{source}}",
+      "source_official": "oficial",
+      "source_derived": "calculada",
+      "source_unavailable": "no disponible",
+      "refresh": "Actualizar uso",
+      "provider_quota": "Cuota de la cuenta del proveedor",
+      "model": "Modelo: {{model}}",
+      "model_default": "predeterminado del entorno de ejecución",
+      "current_model": "Modelo actual",
+      "updated_at": "Actualizado {{when}}",
+      "no_runtime": "Vincula un entorno de ejecución para consultar el uso del proveedor.",
+      "runtime_offline": "El entorno de ejecución está desconectado. No se puede actualizar el uso.",
+      "unavailable": "El proveedor no devolvió una instantánea de cuota legible por máquina.",
+      "auth_required": "No hay credenciales de cuota disponibles. Comprueba la autorización del proveedor o la renovación de credenciales en este entorno de ejecución.",
+      "claude_unavailable": "Todavía no hay una instantánea de cuota de Claude Code. Ejecuta una tarea de Claude con un daemon de Multica compatible y actualiza.",
+      "probe_error": "La CLI del entorno de ejecución no pudo obtener una instantánea de la cuota de la cuenta.",
+      "refresh_hint": "Actualiza ahora; las consultas se limitan a una cada 60 segundos, o más si lo exige el proveedor. Se muestra la hora de la última consulta.",
+      "refresh_countdown": "Podrás actualizar en {{seconds}} s",
+      "refresh_failed": "No se pudo actualizar. Los valores mostrados corresponden a la última consulta realizada correctamente.",
+      "stale": "Esta instantánea está desactualizada; los valores son históricos y no reflejan la cuota actual.",
+      "window_expired": "La hora de restablecimiento ya pasó; el uso actual no está disponible.",
+      "multica_7d": "Este agente en Multica · 7 días",
+      "tokens": "tokens",
+      "runs": "ejecuciones",
+      "multica_scope_hint": "Solo se incluyen las ejecuciones de Multica registradas; esto es el uso, no el límite de la cuenta del proveedor.",
+      "remaining_unknown": "restante —",
+      "used": "{{value}} % usado",
+      "remaining": "{{value}} % restante",
+      "window_5h": "Límite de 5 horas",
+      "window_weekly": "Límite semanal",
+      "antigravity_google": "Modelos de Google · cuota compartida",
+      "antigravity_third_party": "Claude / GPT · cuota compartida",
+      "window_value_unavailable": "La fuente no proporcionó un porcentaje utilizable.",
+      "resets": "Se restablece {{when}}",
+      "reset_unknown": "Hora de restablecimiento no disponible"
+    }
   },
   "inspector": {
     "section_profile": "Perfil",
@@ -209,7 +247,10 @@
     "description_placeholder": "¿Qué hace este agente?",
     "save": "Guardar",
     "cancel": "Cancelar",
-    "qoder_execution_note": "El modelo, las herramientas y las skills se configuran en el agente desde Qoder Cloud Agents."
+    "qoder_execution_note": "El modelo, las herramientas y las skills se configuran en el agente desde Qoder Cloud Agents.",
+    "section_profile_hint": "Configura cómo aparece este agente en el espacio de trabajo.",
+    "discard_changes": "Descartar cambios",
+    "save_changes": "Guardar cambios"
   },
   "overview": {
     "attention_title": "Ejecuciones que requieren atención",
@@ -535,7 +576,9 @@
       "save": "Guardar",
       "add": "Añadir",
       "unsaved_changes": "Cambios sin guardar",
-      "discard": "Descartar"
+      "discard": "Descartar",
+      "discard_changes": "Descartar cambios",
+      "save_changes": "Guardar cambios"
     },
     "instructions": {
       "intro": "Define el prompt del sistema que se usa en cada ejecución. Se admite Markdown.",

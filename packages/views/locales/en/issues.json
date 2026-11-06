@@ -315,7 +315,10 @@
     "card_labels": "Labels",
     "card_child_progress": "Sub-issue progress",
     "show_sub_issues": "Show sub-issues",
-    "layout_options": "{{layout}} options"
+    "layout_options": "{{layout}} options",
+    "layout_section": "Layout",
+    "layout_compact": "Compact",
+    "layout_default": "Default"
   },
   "view": {
     "tooltip_board": "Board view",
@@ -576,7 +579,9 @@
     "project_directory_path_copied_with_branch": "Project directory path copied — work is on {{branch}}",
     "workdir_path_copy_failed": "Failed to copy workdir path",
     "workdir_path_unavailable": "No local workdir yet — issue has not been run by a local agent",
-    "pull_requests_empty_title": "No linked pull requests."
+    "pull_requests_empty_title": "No linked pull requests.",
+    "discard_changes": "Discard changes",
+    "save_changes": "Save changes"
   },
   "timeline": {
     "loading": "Loading...",
@@ -930,7 +935,29 @@
     "detail_cache": "Cache hit",
     "cache_hit_value": "{{percent}} · saved {{amount}}",
     "detail_time": "Time",
-    "detail_branch": "Branch"
+    "detail_branch": "Branch",
+    "quota_title": "Provider quota checkpoints",
+    "quota_attribution_note": "Account-level observations; concurrent work may also affect the change.",
+    "quota_window": "Window",
+    "quota_before": "Before",
+    "quota_after": "After",
+    "quota_delta": "Change",
+    "quota_observed": "Observed",
+    "quota_reset": "Resets",
+    "quota_state": "State",
+    "quota_state_comparable": "Comparable",
+    "quota_state_same_observation": "Same observation",
+    "quota_state_reset_crossed": "Reset crossed",
+    "quota_state_stale": "Stale snapshot",
+    "quota_state_unavailable": "Provider unavailable",
+    "quota_state_missing": "Incomplete",
+    "quota_show_all_one": "Show {{count}} other window",
+    "quota_show_all_other": "Show {{count}} other windows",
+    "quota_requested_model": "Requested model",
+    "quota_overlap_one": "{{count}} concurrent run",
+    "quota_overlap_other": "{{count}} concurrent runs",
+    "export_runs_csv": "Runs CSV",
+    "export_quota_csv": "Quota CSV"
   },
   "terminate_dialog": {
     "title": "Stop this run?",

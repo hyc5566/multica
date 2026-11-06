@@ -1,23 +1,23 @@
 {
   "role": {
     "owner": "所有者",
-    "admin": "管理员",
-    "member": "成员"
+    "admin": "管理員",
+    "member": "成員"
   },
   "card": {
-    "unavailable": "成员信息不可用",
-    "agents_section": "智能体（{{count}}）",
-    "detail_link": "详情 →",
-    "more_agents_other": "另有 {{count}} 个智能体"
+    "unavailable": "成員資訊不可用",
+    "agents_section": "Agent（{{count}}）",
+    "detail_link": "詳細資訊 →",
+    "more_agents_other": "另有 {{count}} 個 Agent"
   },
   "detail": {
-    "members_breadcrumb": "成员",
+    "members_breadcrumb": "成員",
     "role": "角色",
-    "email": "邮箱",
-    "joined": "加入时间",
-    "relation": "关系",
-    "breadcrumb_fallback": "成员",
-    "not_found_title": "未找到该成员",
-    "not_found_description": "该成员可能已经离开工作区。"
+    "email": "電子郵件地址",
+    "joined": "加入時間",
+    "relation": "關係",
+    "breadcrumb_fallback": "成員",
+    "not_found_title": "未找到該成員",
+    "not_found_description": "該成員可能已經離開工作區。"
   }
 }

@@ -160,7 +160,45 @@
     "copy_link": "リンクをコピー",
     "copy_id": "エージェント ID をコピー",
     "link_copied_toast": "リンクをコピーしました",
-    "id_copied_toast": "エージェント ID をコピーしました"
+    "id_copied_toast": "エージェント ID をコピーしました",
+    "usage": {
+      "title": "使用量と上限",
+      "source": "ソース: {{source}}",
+      "source_official": "公式",
+      "source_derived": "算出値",
+      "source_unavailable": "取得不可",
+      "refresh": "使用量を更新",
+      "provider_quota": "プロバイダーアカウント上限",
+      "model": "モデル: {{model}}",
+      "model_default": "ランタイムのデフォルト",
+      "current_model": "現在のモデル",
+      "updated_at": "{{when}}に更新",
+      "no_runtime": "プロバイダー使用量を取得するにはランタイムを接続してください。",
+      "runtime_offline": "ランタイムがオフラインのため、使用量を更新できません。",
+      "unavailable": "プロバイダーから機械可読の上限データが返されませんでした。",
+      "auth_required": "このランタイムでプロバイダーCLIにサインインしてから更新してください。",
+      "claude_unavailable": "Claude Code の上限スナップショットはまだありません。互換性のある Multica デーモンで Claude タスクを一度実行してから、再読み込みしてください。",
+      "probe_error": "ランタイムCLIからアカウント上限のスナップショットを取得できませんでした。",
+      "refresh_hint": "今すぐ更新を要求します。照会は60秒に1回までです。プロバイダーによっては待ち時間が長くなります。表示時刻は最後の観測時刻です。",
+      "refresh_countdown": "{{seconds}}秒後に再更新できます",
+      "refresh_failed": "更新に失敗しました。表示値は最後に成功した観測のものです。",
+      "stale": "このスナップショットは古く、現在の上限使用量ではありません。",
+      "window_expired": "リセット時刻を過ぎています。現在の使用量は不明です。",
+      "antigravity_google": "Google モデル · 共有枠",
+      "antigravity_third_party": "Claude / GPT · 共有枠",
+      "window_value_unavailable": "提供元から有効な使用率が返されませんでした。",
+      "multica_7d": "Multicaでのこのエージェント · 7日間",
+      "tokens": "トークン",
+      "runs": "実行",
+      "multica_scope_hint": "Multicaで実行したタスクのみ。これは使用量であり、プロバイダーアカウント上限ではありません。",
+      "remaining_unknown": "残り —",
+      "used": "{{value}}% 使用済み",
+      "remaining": "残り {{value}}%",
+      "window_5h": "5時間上限",
+      "window_weekly": "週間上限",
+      "resets": "{{when}}にリセット",
+      "reset_unknown": "リセット時刻を取得できません"
+    }
   },
   "inspector": {
     "section_profile": "プロフィール",
@@ -192,7 +230,10 @@
     "edit_description_title": "説明を編集",
     "description_placeholder": "このエージェントは何をしますか？",
     "save": "保存",
-    "cancel": "キャンセル"
+    "cancel": "キャンセル",
+    "discard_changes": "変更を破棄",
+    "save_changes": "変更を保存",
+    "section_profile_hint": "ワークスペース内でのこの Agent の表示を設定します。"
   },
   "overview": {
     "attention_title": "対応が必要な実行",
@@ -378,7 +419,9 @@
       "save": "保存",
       "add": "追加",
       "unsaved_changes": "保存していない変更",
-      "discard": "破棄"
+      "discard": "破棄",
+      "discard_changes": "変更を破棄",
+      "save_changes": "変更を保存"
     },
     "instructions": {
       "intro": "すべての実行で使用する System Prompt を設定します。Markdown に対応しています。",
@@ -1039,7 +1082,6 @@
       "next": "次へ"
     }
   },
-  "actions": {},
   "intro": {
     "title": "最初の AI チームメイトを迎える",
     "description": "エージェントはチームメンバーと同じようにタスクを引き受けます。ランタイム上で Claude Code や Codex などを使って作業し、終わったらコメントで成果を渡します。",
@@ -1063,5 +1105,6 @@
       "comment": "修正しました。375px 以下では料金カードを 1 列にしています。PR を作成し、テストも通っています。",
       "step_read": "{{file}} を読む"
     }
-  }
+  },
+  "actions": {}
 }

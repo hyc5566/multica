@@ -168,7 +168,45 @@
     "copy_link": "複製連結",
     "copy_id": "複製 AI 代理 ID",
     "link_copied_toast": "連結已複製",
-    "id_copied_toast": "AI 代理 ID 已複製"
+    "id_copied_toast": "AI 代理 ID 已複製",
+    "usage": {
+      "source_unavailable": "無法取得",
+      "tokens": "tokens",
+      "window_weekly": "每週額度",
+      "model": "模型：{{model}}",
+      "multica_scope_hint": "僅統計 Multica 執行的任務；這是使用量，不是供應商帳號額度。",
+      "current_model": "目前模型",
+      "remaining": "剩餘 {{value}}%",
+      "window_5h": "5 小時額度",
+      "claude_unavailable": "目前還沒有 Claude Code 額度快照。請使用相容的 Multica 守護程序執行一次 Claude task，再回來重新整理。",
+      "reset_unknown": "無法取得重置時間",
+      "runs": "執行次數",
+      "multica_7d": "此 Agent 在 Multica · 近 7 天",
+      "probe_error": "執行環境的 CLI 無法提供帳號額度快照。",
+      "remaining_unknown": "剩餘 —",
+      "provider_quota": "供應商帳號額度",
+      "source": "來源：{{source}}",
+      "window_expired": "重置時間已過，尚無目前用量。",
+      "updated_at": "更新於 {{when}}",
+      "no_runtime": "請先綁定執行環境，才能讀取供應商用量。",
+      "source_derived": "可靠推導",
+      "runtime_offline": "執行環境目前離線，無法重新整理用量。",
+      "title": "用量與額度",
+      "used": "已用 {{value}}%",
+      "unavailable": "供應商未回傳可供程式讀取的額度資料。",
+      "refresh": "重新整理用量",
+      "refresh_failed": "更新失敗；若仍顯示數值，皆為上次成功觀測的資料。",
+      "resets": "{{when}} 重置",
+      "refresh_hint": "立即要求更新；每 60 秒最多查詢一次，供應商可能要求更長的等待時間。顯示時間為最後觀測時間。",
+      "model_default": "執行環境預設模型",
+      "source_official": "官方",
+      "antigravity_google": "Google 模型 · 共用額度",
+      "stale": "快照已過期；數值為歷史資料，並非目前額度。",
+      "window_value_unavailable": "來源未提供可用的百分比。",
+      "antigravity_third_party": "其他供應商（Claude／GPT）· 共用額度",
+      "refresh_countdown": "{{seconds}} 秒後可再次更新",
+      "auth_required": "目前無法取得有效的額度憑證，請檢查此執行環境的供應商授權或憑證續期狀態。"
+    }
   },
   "inspector": {
     "section_profile": "資料",
@@ -200,7 +238,10 @@
     "edit_description_title": "編輯描述",
     "description_placeholder": "這個 AI 代理做什麼？",
     "save": "儲存",
-    "cancel": "取消"
+    "cancel": "取消",
+    "section_profile_hint": "管理該 Agent 在工作區內的展示方式。",
+    "discard_changes": "放棄變更",
+    "save_changes": "保留變更"
   },
   "overview": {
     "attention_title": "需要處理的執行",
@@ -536,7 +577,9 @@
       "save": "儲存",
       "add": "新增",
       "unsaved_changes": "未儲存的修改",
-      "discard": "放棄修改"
+      "discard": "放棄修改",
+      "save_changes": "保留變更",
+      "discard_changes": "放棄變更"
     },
     "instructions": {
       "intro": "設定每次執行都會使用的 System Prompt，支援 Markdown。",

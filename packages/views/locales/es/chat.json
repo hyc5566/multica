@@ -11,7 +11,8 @@
     "running": "Multica está trabajando...",
     "unread_one": "{{count}} chat sin leer",
     "unread_other": "{{count}} chats sin leer",
-    "default": "Pregunta a Multica"
+    "default": "Pregunta a Multica",
+    "move_hint": "Arrastra para mover. Usa las teclas de flecha cuando tenga el foco; Inicio restablece la posición."
   },
   "input": {
     "placeholder_no_agent": "Crea un agente para empezar a chatear",
@@ -91,7 +92,21 @@
     "quick_actions_heading": "Preguntas de seguimiento",
     "quick_actions_aria": "Seguimientos sugeridos",
     "quick_actions_regenerate": "Regenerar sugerencias",
-    "quick_actions_regenerate_failed": "No se han podido actualizar las sugerencias. Inténtalo de nuevo."
+    "quick_actions_regenerate_failed": "No se han podido actualizar las sugerencias. Inténtalo de nuevo.",
+    "quota_title": "Cuota del proveedor",
+    "quota_attribution_note": "Instantáneas de la cuenta; los cambios pueden incluir otras ejecuciones.",
+    "quota_no_window": "No hay una ventana de cuota comparable (antes: {{before}}, después: {{after}}).",
+    "quota_overlap": "{{count}} ejecución(es) adicionales coincidieron con estas observaciones.",
+    "usage_missing": "No se registró uso de tokens para esta ejecución.",
+    "token_count": "{{value}} tokens",
+    "quota_state": {
+      "comparable": "Comparable",
+      "same_observation": "Misma observación",
+      "reset_crossed": "Se produjo un restablecimiento de cuota",
+      "stale": "Datos desactualizados",
+      "unavailable": "No disponible",
+      "missing": "Falta un punto de control"
+    }
   },
   "session_history": {
     "untitled": "Sin título",
@@ -254,6 +269,12 @@
     "archive": "Archivar chat",
     "unarchive": "Desarchivar chat",
     "delete": "Eliminar chat",
-    "agent_settings": "Ajustes del agente"
+    "agent_settings": "Ajustes del agente",
+    "quota_summary": "Resumen de cuota de la sesión",
+    "quota_summary_description": "Puntos de control de la cuota del proveedor para «{{title}}».",
+    "quota_empty": "No se registraron puntos de control de cuota del proveedor para esta sesión.",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "Ejecución"
   }
 }
