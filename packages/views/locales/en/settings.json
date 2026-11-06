@@ -16,7 +16,6 @@
       "reorder": "Reorder {{name}}"
     },
     "reorder_hint": "Drag within a category to reorder boards, lists, and menus.",
-    "built_in_dialog": {},
     "editor": {
       "create_title": "New status",
       "edit_title": "Edit status",
@@ -83,7 +82,13 @@
     "builtin_badge": "Built-in",
     "workflow_usage_one": "{{count}} workflow uses it",
     "workflow_usage_other": "{{count}} workflows use it",
-    "workflow_usage_none": "In no workflow"
+    "workflow_usage_none": "In no workflow",
+    "built_in_dialog": {
+      "title": "Built-in status cannot be changed",
+      "description": "Built-in statuses are used by Multica and cannot be edited or archived. You can still change their order within the category.",
+      "confirm": "Got it"
+    },
+    "description": "Organize issue statuses into four lifecycle categories."
   },
   "quick_actions": {
     "title": "Quick Actions",
@@ -144,7 +149,7 @@
     "language": {
       "title": "Language",
       "english": "English",
-      "chinese": "简体中文",
+      "chinese": "繁體中文（台灣版）",
       "chinese_traditional": "繁體中文",
       "korean": "한국어",
       "japanese": "日本語",
@@ -162,7 +167,8 @@
       "empty": "No matching time zone"
     },
     "sticky_comment_bar": {
-      "title": "Pin comment bar to bottom"
+      "title": "Pin comment bar to bottom",
+      "hint": "Keep the comment bar pinned to the bottom while scrolling an issue page."
     },
     "running_agent_reply": {
       "title": "When replying to a running agent",
@@ -184,7 +190,12 @@
       "quick": "Create with agent",
       "manual": "Manual create",
       "unsupported": "Not available when creating with an agent"
-    }
+    },
+    "general_title": "General",
+    "description": "Customize how you work in Multica.",
+    "issue_title": "Issue creation",
+    "device_hint": "Saved on this device.",
+    "issue_scope": "These preferences apply to this workspace on this device. They only change which fields you see when creating an issue."
   },
   "appearance": {
     "reset": "Reset to defaults",
@@ -510,7 +521,8 @@
     "floating_hint": "Show the floating chat button on every page.",
     "ask_agent_label": "Ask Multica agent",
     "ask_agent_hint": "The agent a new chat from the bottom bar starts with, in this workspace.",
-    "ask_agent_last_used": "Last used"
+    "ask_agent_last_used": "Last used",
+    "floating_title": "Floating window"
   },
   "issue": {
     "opening": {
@@ -529,7 +541,11 @@
       "project": "Project",
       "due_date": "Due date",
       "start_date": "Start date"
-    }
+    },
+    "quick_create_title": "Create with agent",
+    "quick_create_description": "Fields shown in the quick create toolbar.",
+    "manual_create_title": "Create manually",
+    "manual_create_description": "Fields shown in the manual create toolbar."
   },
   "mcp": {
     "description": "After adding a server, assign it from an agent's MCP tab.",
@@ -558,7 +574,10 @@
     "removed_toast": "Shared MCP server removed",
     "save_failed_toast": "Could not save the shared MCP server",
     "rename_failed_toast": "Could not rename the shared MCP server",
-    "remove_failed_toast": "Could not remove the shared MCP server"
+    "remove_failed_toast": "Could not remove the shared MCP server",
+    "title": "MCP",
+    "empty_description": "Add a server here, then assign it to the agents that should use it from their own MCP tab.",
+    "admin_only_note": "Only workspace owners and admins can change the shared MCP servers."
   },
   "page": {
     "title": "Settings",
@@ -586,7 +605,10 @@
       "code": "Code",
       "channels": "Messaging",
       "apps": "Connected apps",
-      "workflows": "Workflows"
+      "workflows": "Workflows",
+      "chat": "Chat",
+      "repositories": "Repositories",
+      "integrations": "Integrations"
     },
     "groups": {
       "personal": "Personal",
@@ -601,7 +623,8 @@
     "search_empty": "No matching settings",
     "search_results_one": "{{count}} result",
     "search_results_other": "{{count}} results",
-    "admin_only": "Only owners and admins can change this"
+    "admin_only": "Only owners and admins can change this",
+    "device_scope": "This device"
   },
   "plugins": {
     "title": "Plugins",
@@ -691,8 +714,12 @@
       "deleted": "Published Plugin deleted",
       "installed_version": "In use",
       "review_install": "Review and install",
-      "review_upgrade": "Review and upgrade"
-    }
+      "review_upgrade": "Review and upgrade",
+      "description": "Upload a plugin package. Multica stores and serves it, so a plugin author needs no server of their own."
+    },
+    "description": "Publish plugins into this workspace, then install a specific version and review exactly what it is allowed to reach.",
+    "read_only": "Read-only access",
+    "read_only_description": "Workspace owners and admins can install, configure, and remove Plugins."
   },
   "properties": {
     "title": "Properties",
@@ -822,7 +849,9 @@
     "save": "Update Profile",
     "saving": "Updating...",
     "toast_avatar_failed": "Failed to upload avatar",
-    "toast_profile_failed": "Failed to update profile"
+    "toast_profile_failed": "Failed to update profile",
+    "toast_avatar_updated": "Avatar updated",
+    "toast_profile_updated": "Profile updated"
   },
   "notifications": {
     "title": "Inbox Notifications",
@@ -863,7 +892,8 @@
     },
     "system": {
       "title": "System Notifications",
-      "label": "Show system notifications when Multica is in the background"
+      "label": "Show system notifications when Multica is in the background",
+      "hint": "Show a banner from your operating system for new inbox items when the app isn't focused."
     },
     "browser": {
       "label": "Browser notifications",
@@ -917,7 +947,13 @@
       "done": "Done"
     },
     "purpose": "Authenticate the CLI and API.",
-    "usage_help": "Usage"
+    "usage_help": "Usage",
+    "desktop_rotation": {
+      "title": "Regenerate Desktop API token?",
+      "description": "This App uses this token to sign in its daemon. Regenerate and reconnect? The old token is revoked only after the replacement is connected. Wait for running tasks to finish first. Cancel keeps the existing token.",
+      "confirm": "Regenerate and reconnect",
+      "success": "Desktop token replaced and daemon reconnected."
+    }
   },
   "workspace": {
     "section_general": "Workspace details",
@@ -963,7 +999,12 @@
     "prefix_new_label": "New prefix",
     "prefix_rule": "Letters and numbers only, up to 10 characters.",
     "prefix_confirm_action": "Change to {{prefix}}",
-    "prefix_external_warning": "Old keys such as {{oldExample}} in PR titles, branch names, docs, and chat are not updated, so those links stop working."
+    "prefix_external_warning": "Old keys such as {{oldExample}} in PR titles, branch names, docs, and chat are not updated, so those links stop working.",
+    "toast_logo_updated": "Workspace logo updated",
+    "prefix_confirm_title": "Change issue prefix?",
+    "prefix_confirm_description": "All issues will be renumbered from {{oldPrefix}}-N to {{newPrefix}}-N. External references — pull request titles, branch names, links in docs and chat — that use {{oldPrefix}}-N will stop resolving.",
+    "manage_hint": "Only admins and owners can update workspace settings.",
+    "toast_saved": "Workspace settings saved"
   },
   "delete_workspace_dialog": {
     "title": "Delete workspace",
@@ -1008,7 +1049,22 @@
     "feature_auto_link_description": "Links a PR to the issue whose ID, e.g. {{example}}, is in its title or branch name, or follows “Closes” in its description.",
     "status_paused": "Paused",
     "pause": "Pause GitHub features",
-    "resume": "Resume GitHub features"
+    "resume": "Resume GitHub features",
+    "page_description": "Connect a GitHub App, control how Pull Requests show up inside Multica, and decide what your agents leave behind in commit history.",
+    "section_master": "Enable GitHub features",
+    "master_description_on": "When off, every GitHub UI affordance is hidden and no new side-effects are written. Existing data is kept on the backend. Not a development team? Just turn it off here.",
+    "section_connection": "Connection",
+    "connection_title": "GitHub App",
+    "connection_description_prefix": "Link issues to pull requests automatically. A PR links when",
+    "connection_description_suffix": "is in its branch name or title, or its body says Closes MUL-123. Merging a PR with that closing keyword also moves the issue to",
+    "connection_description_done": "Done",
+    "connection_identifier_example": "MUL-123",
+    "connect_disabled_tooltip": "GitHub App is not configured on this server",
+    "read_only_hint": "Read-only view. Only workspace admins and owners can connect or disconnect GitHub.",
+    "section_features": "Features",
+    "section_repositories": "Repositories",
+    "repositories_shortcut_label": "Repository URLs live in the Repositories tab",
+    "repositories_shortcut_link": "Manage repositories →"
   },
   "vcs": {
     "section_title": "Self-hosted Git",
@@ -1051,7 +1107,9 @@
     "hosts_hint": "GitLab, Gitea, or Forgejo.",
     "connect_another": "Connect another",
     "connection_actions": "Actions for {{url}}",
-    "webhook_done": "I've saved it"
+    "webhook_done": "I've saved it",
+    "toast_connected": "Provider connected",
+    "toast_rotated": "Webhook secret regenerated"
   },
   "lark": {
     "section_title": "Lark",
@@ -1131,7 +1189,9 @@
     "inbound_pending": "Bound — awaiting message verification",
     "inbound_verified": "Message reception verified",
     "inbound_pending_hint": "Send this bot a message in Feishu/Lark to verify reception. If it does not arrive, check long connection mode, the im.message.receive_v1 subscription, and app publication/approval. Existing bindings may have no recorded verification yet.",
-    "inbound_verified_hint": "This binding received a valid message. This does not confirm ongoing connectivity, agent execution, or replies."
+    "inbound_verified_hint": "This binding received a valid message. This does not confirm ongoing connectivity, agent execution, or replies.",
+    "install_scan_hint_feishu": "Feishu → Scan → authorize the new PersonalAgent.",
+    "install_scan_hint_lark": "Lark → Scan → authorize the new PersonalAgent."
   },
   "slack": {
     "section_title": "Slack",
@@ -1238,7 +1298,8 @@
     "byo_submitting": "Connecting…",
     "byo_cancel": "Cancel",
     "byo_success_toast": "DingTalk bot connected",
-    "byo_failed_toast": "Could not connect the DingTalk bot"
+    "byo_failed_toast": "Could not connect the DingTalk bot",
+    "groups_overview_description": "Each connection shows its Agent, DingTalk bot, and recently observed groups."
   },
   "wecom": {
     "section_title": "WeCom",
@@ -1399,7 +1460,11 @@
     "url_label": "Repository URL",
     "description_label": "Description",
     "duplicate": "This repository is already added.",
-    "actions_aria": "Actions for {{url}}"
+    "actions_aria": "Actions for {{url}}",
+    "url_empty": "(empty URL)",
+    "complete_manual_entry_first": "Complete or remove the empty manual repository before importing.",
+    "delete_aria": "Delete repository",
+    "toast_saved": "Repositories saved"
   },
   "desktop": {
     "tabs": {
@@ -1428,7 +1493,8 @@
       "up_to_date": "You're on the latest version.",
       "downloading": "v{{version}} is downloading in the background — you'll be notified when it's ready to install.",
       "check_now": "Check now",
-      "checking": "Checking…"
+      "checking": "Checking…",
+      "description": "Control automatic background updates or check for a new version manually."
     },
     "daemon": {
       "title": "Daemon",
@@ -1503,7 +1569,10 @@
       "waiting_logs": "Waiting for logs…",
       "reconnect_failed": "Couldn't reconnect the daemon",
       "try_again_moment": "Please try again in a moment.",
-      "try_again": "Please try again."
+      "try_again": "Please try again.",
+      "description": "Configure how the local agent daemon behaves with the desktop app.",
+      "diagnostics_description": "Identification and connection details. Useful when filing a bug report or investigating why a runtime isn't showing up.",
+      "waiting_logs_description": "New entries will appear in real time."
     }
   },
   "members": {
@@ -1587,13 +1656,30 @@
     "invitation_meta": "Sent {{sent}} · Expires {{expires}}",
     "revoke_invitation_aria": "Revoke invitation for {{email}}",
     "seats_used": "{{used}} of {{purchased}} seats used",
-    "manage_seats": "Manage seats"
+    "manage_seats": "Manage seats",
+    "section_title": "Members ({{count}})",
+    "pending_title": "Pending invitations ({{count}})",
+    "pending_status": "Pending",
+    "revoke_invitation_tooltip": "Revoke invitation",
+    "share_links_title": "Share links",
+    "role_field": "Role:",
+    "expiry_field": "Expiry:"
   },
   "integrations": {
     "status_connected": "Connected",
     "status_not_connected": "Not connected",
     "status_loading": "Checking...",
-    "status_unknown": "Status unavailable"
+    "status_unknown": "Status unavailable",
+    "description": "Connect your tools and manage each integration in one place.",
+    "code_title": "Code & repositories",
+    "messaging_title": "Messaging channels",
+    "apps_title": "Your connected apps",
+    "apps_scope": "These app connections belong to your account. Workspace channel connections are managed above.",
+    "github_hint": "Connect GitHub and configure pull request linking.",
+    "vcs_hint": "Connect GitLab, Gitea, or Forgejo.",
+    "apps_hint": "Authorize apps for your agents through Composio.",
+    "back": "All integrations",
+    "channel_hint": "Chat with agents and create issues from {{channel}}."
   },
   "pr_merge_status": {
     "label": "After PRs merge, move the issue to",
@@ -1853,5 +1939,8 @@
       "admin_required": "A workspace admin can restore access.",
       "account_link": "This account has saved action restrictions. Restore access in Connected apps."
     }
+  },
+  "composio": {
+    "section_title": "Composio"
   }
 }
