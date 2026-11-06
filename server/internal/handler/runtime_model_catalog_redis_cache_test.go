@@ -126,3 +126,22 @@ func TestRedisModelCatalogCache_DropsUndecodableSnapshot(t *testing.T) {
 		t.Fatalf("undecodable snapshot was not dropped: exists=%d err=%v", n, err)
 	}
 }
+
+func TestRedisModelCatalogRefreshReservationShared(t *testing.T) {
+	rdb := newRedisTestClient(t)
+	ctx := context.Background()
+	first := NewRedisModelCatalogCache(rdb)
+	second := NewRedisModelCatalogCache(rdb)
+	if ok, err := first.ReserveRefresh(ctx, "runtime", time.Minute); err != nil || !ok {
+		t.Fatalf("first reservation: %v %v", ok, err)
+	}
+	if ok, err := second.ReserveRefresh(ctx, "runtime", time.Minute); err != nil || ok {
+		t.Fatalf("sibling must back off: %v %v", ok, err)
+	}
+	if err := rdb.Del(ctx, "mul:runtime_model_refresh:runtime").Err(); err != nil {
+		t.Fatal(err)
+	}
+	if ok, err := second.ReserveRefresh(ctx, "runtime", time.Minute); err != nil || !ok {
+		t.Fatalf("released reservation: %v %v", ok, err)
+	}
+}

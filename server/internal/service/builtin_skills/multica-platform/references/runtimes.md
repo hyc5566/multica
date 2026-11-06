@@ -48,6 +48,44 @@ omit response IDs retain best-effort per-event input/cache accounting. These
 fallback figures can be incomplete; use the provider's billing records for
 actual charges. This correction applies to new runs, not historical usage rows.
 
+Claude discovery defaults to the daemon user's `$HOME/.local/bin/claude`, without
+falling back to a shared PATH or login-shell installation. A missing launcher or
+symlink outside that user's home is not discovered. `MULTICA_CLAUDE_PATH` remains
+an explicit override; Claude automatic updates are restricted to installations
+and npm prefixes within that user's canonical home, and do not use Homebrew.
+
+The Taiwan-edition daemon maintains supported installed Codex/Claude CLIs in
+the background after startup and at local midnight/noon. It waits for its own
+tasks and claims to finish, serializes installers across profiles, and reports
+actual versions after probing. `MULTICA_AGENT_AUTO_UPDATE=false` disables this
+third-party CLI maintenance independently of Multica self-update. Unknown or
+unwritable installations are skipped or fail without privilege escalation;
+inspect local `/health`'s `agent_maintenance` and daemon logs. Updated daemons
+hold a shared installation lease across claiming and executing tasks; installers
+require its exclusive counterpart. Old daemons, other OS users and independently
+launched CLIs do not participate in this per-user lease.
+Server registration/heartbeats also request model discovery at most every ten
+minutes per runtime, without requiring someone to open the picker. Discovery
+fallbacks never replace the last successful Server catalog. Neither operation
+requires an agent run, and model IDs still come from each runtime's own CLI.
+
+Self-host operators can set `MULTICA_DAEMON_INSTALL_URL` to a public HTTPS
+installer URL for their pinned CLI build. The public `/api/config` exposes it
+as `daemon_install_url`; credentials, query strings, fragments and shell
+metacharacters are rejected. With this override, the connect-computer dialog
+uses `"$HOME/.local/bin/multica"` for setup, token login, daemon status and
+logs. The operator installer provides the default configuration under `~/.multica`
+without a named profile, combines public and internal CA trust, and disables
+automatic binary updates/reloads. Its default daemon uses an OS-assigned local
+port, discovered through a per-user state file, to isolate users on shared hosts. An empty
+or invalid URL retains the standard upstream installer and `multica` commands.
+Installing the wrapper alone does not connect the computer. Explicit installer
+`--login` prompts for a token and starts the daemon; Linux `--service` additionally
+installs and enables a systemd user service after login, waiting for readiness.
+Use `systemctl --user status|stop|restart multica.service` for that service.
+It starts with the user session; boot without login requires administrator-managed
+lingering. Existing configuration and installations are never overwritten.
+
 `runtime update` and `runtime delete` are writes. Starting a runtime update is
 limited to its owner or a workspace owner/admin; the original initiator may keep
 polling that specific in-flight request if their admin role changes.
@@ -174,6 +212,13 @@ Workspace repos and project resources are not the same thing:
 Do not add a project resource just because `repo checkout` failed. First
 determine whether the user asked for durable project context or just a task
 checkout.
+
+Re-running `multica setup` for the same server preserves local settings and the
+saved token. It verifies `/api/me` and skips login when the credential is valid.
+Switching servers clears the saved token and default workspace before login.
+A TLS, network, or server failure is not proof that a token expired: `auth status`
+returns a failed verification error and leaves the token unchanged; only HTTP
+401 requests re-authentication.
 
 ## Qoder Cloud Agents bridge (PoC)
 

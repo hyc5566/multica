@@ -332,7 +332,9 @@ func discoverCodexCatalog(ctx context.Context, cmd Command) Catalog {
 		}
 	}
 
-	raw, err = runCodexDebugModels(ctx, cmd, codexBundledDebugModelsArgs...)
+	bundledCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
+	raw, err = runCodexDebugModels(bundledCtx, cmd, codexBundledDebugModelsArgs...)
+	cancel()
 	if err == nil {
 		models, parseErr := parseCodexModelCatalog(raw)
 		if parseErr == nil && len(models) > 0 {
