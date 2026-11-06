@@ -5,8 +5,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@multica/ui/components/ui/sonner";
 import { cn } from "@multica/ui/lib/utils";
 import { WebProviders } from "@/components/web-providers";
-import { getRequestLocale } from "@/lib/request-locale";
 import { HTML_LANG } from "@/lib/html-lang";
+import { getRequestLocale } from "@/lib/request-locale";
 import { SITE_TITLE, TITLE_TEMPLATE } from "@/platform/document-title";
 import {
   resolveBrowserApiBaseUrl,
@@ -89,7 +89,7 @@ export const metadata: Metadata = {
     template: TITLE_TEMPLATE,
   },
   description:
-    "Source-available platform that turns coding agents into real teammates. Assign tasks, track progress, compound skills.",
+    "原始碼公開的平台，讓程式開發 AI 代理成為團隊夥伴。分配任務、追蹤進度並累積技能。",
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: ["/favicon.svg"],
@@ -113,7 +113,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Multica",
-    locale: "en_US",
+    locale: "zh_TW",
   },
   twitter: {
     card: "summary_large_image",

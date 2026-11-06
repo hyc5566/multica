@@ -52,7 +52,7 @@ import {
 // (`html[lang|="ja"]`) can take effect.
 const HTML_LANG: Record<SupportedLocale, string> = {
   en: "en",
-  "zh-Hans": "zh-CN",
+  "zh-Hans": "zh-TW",
   "zh-Hant": "zh-TW",
   ko: "ko-KR",
   ja: "ja-JP",

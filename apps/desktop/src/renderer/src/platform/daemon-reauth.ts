@@ -2,6 +2,28 @@ import { useAuthStore } from "@multica/core/auth";
 import { toast } from "sonner";
 import type { DaemonTranslator } from "../components/daemon-i18n";
 
+/** Manual starts refresh credentials using the signed-in app, not PATH tools. */
+export async function startDaemonWithSession(t: DaemonTranslator): Promise<void> {
+  const user = useAuthStore.getState().user;
+  const token = localStorage.getItem("multica_token");
+  if (!user || !token) {
+    useAuthStore.getState().logout();
+    return;
+  }
+  try {
+    const runtime = window.desktopAPI.runtimeConfig;
+    if (!runtime.ok) throw new Error("Desktop server configuration is unavailable");
+    await window.daemonAPI.setTargetApiUrl(runtime.config.apiUrl);
+    await window.daemonAPI.syncToken(token, user.id);
+    const result = await window.daemonAPI.start();
+    if (!result.success) throw new Error(result.error || "Daemon start failed");
+  } catch (error) {
+    toast.error(t(($) => $.desktop.daemon.start_failed), {
+      description: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 /**
  * Re-establish the local daemon's credentials after it failed to authenticate
  * (daemon state "auth_expired", surfaced by daemon-manager's token probe — see
