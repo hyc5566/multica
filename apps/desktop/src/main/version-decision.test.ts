@@ -52,13 +52,30 @@ describe("decideVersionAction", () => {
     ).toBe("restart");
   });
 
-  it("treats missing active_task_count as 0 (old daemon that still reports cli_version)", () => {
+  it("defers when active_task_count is missing — unknown is not idle (zh-tw)", () => {
     expect(
       decideVersionAction("v1.2.3", {
         status: "running",
         cli_version: "v1.2.2",
       }),
-    ).toBe("restart");
+    ).toBe("defer");
+  });
+
+  it("leaves a self-reloading zh-tw daemon alone; older ones get the idle restart", () => {
+    expect(
+      decideVersionAction("0.6.1-zh-tw.2", {
+        status: "running",
+        cli_version: "0.6.1-zh-tw.1",
+        active_task_count: 0,
+        zh_tw_self_reload: true,
+      }),
+    ).toBe("defer");
+    // Same version format, no capability (e.g. 0.4.43-zh-tw.7): App restarts it when idle.
+    for (const cli_version of ["0.4.43-zh-tw.7", "0.6.0-131-g2ca7196c3b"]) {
+      expect(
+        decideVersionAction("0.6.1-zh-tw.2", { status: "running", cli_version, active_task_count: 0 }),
+      ).toBe("restart");
+    }
   });
 
   it("returns defer when versions differ but daemon is busy", () => {

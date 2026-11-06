@@ -151,6 +151,9 @@ async function installFresh(): Promise<string> {
 export async function ensureManagedCli(
   options: { forceInstall?: boolean } = {},
 ): Promise<string> {
+  if (app.isPackaged && app.getName() === "Multica 繁中版") {
+    throw new Error("Bundled CLI unavailable. Reinstall the matching Multica zh-tw release; official CLI auto-install is disabled.");
+  }
   const target = managedCliPath();
   if (existsSync(target) && !options.forceInstall) return target;
   return installFresh();
