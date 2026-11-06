@@ -73,6 +73,9 @@ type GitHubRelease struct {
 // uses this to skip self-update for source builds, where downgrading to a
 // public release would clobber unreleased changes.
 func IsReleaseVersion(v string) bool {
+	if IsZhTWReleaseVersion(v) {
+		return true
+	}
 	s := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(v), "v"))
 	if s == "" {
 		return false
@@ -99,6 +102,9 @@ func IsReleaseVersion(v string) bool {
 // (a 4th component, pre-release tag, etc.). Returns false if either side
 // cannot be parsed — the caller treats that as "stay on current".
 func IsNewerVersion(latest, current string) bool {
+	if IsZhTWReleaseVersion(latest) && IsZhTWReleaseVersion(current) {
+		return IsNewerZhTWVersion(latest, current)
+	}
 	l, ok := parseReleaseVersion(latest)
 	if !ok {
 		return false
@@ -279,6 +285,13 @@ func fetchReleaseByTag(tag string) (*GitHubRelease, error) {
 
 // FetchLatestRelease fetches the latest release tag from the multica GitHub repo.
 func FetchLatestRelease() (*GitHubRelease, error) {
+	if manifestURL := ZhTWReleaseManifestURL(); manifestURL != "" {
+		manifest, err := FetchZhTWReleaseManifest(manifestURL)
+		if err != nil {
+			return nil, err
+		}
+		return &GitHubRelease{TagName: manifest.Version, HTMLURL: manifest.NotesURL}, nil
+	}
 	client := &http.Client{Timeout: 10 * time.Second}
 	req, err := http.NewRequest(http.MethodGet, releaseAPIBaseURL()+"/repos/multica-ai/multica/releases/latest", nil)
 	if err != nil {

@@ -183,6 +183,13 @@ var (
 
 const modelCacheTTL = 60 * time.Second
 
+// InvalidateModelCache forces the next discovery for this command to read the CLI.
+func InvalidateModelCache(providerType string, runtimeCmd Command) {
+	modelCacheMu.Lock()
+	delete(modelCache, discoveryCacheKey(providerType, runtimeCmd))
+	modelCacheMu.Unlock()
+}
+
 // ListModels returns the models supported by the given agent provider.
 // For providers with a known static catalog it returns the baked-in
 // list; for providers with a CLI discovery mechanism (claude, codex,
@@ -2619,8 +2626,8 @@ func discoverAntigravityModels(ctx context.Context, runtimeCmd Command) ([]Model
 	if _, err := exec.LookPath(runtimeCmd.Path); err != nil {
 		return nil, nil
 	}
-	// `agy models` is a local enumeration (no network round-trip), so a
-	// short cap is plenty; keep it generous enough to absorb cold starts.
+	// `agy models` may renew its native OAuth credential over the network.
+	// Bound cold starts and provider requests without starting a model turn.
 	runCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	cmd := runtimeCmd.exec(runCtx, "models")

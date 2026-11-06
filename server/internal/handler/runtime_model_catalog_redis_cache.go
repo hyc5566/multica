@@ -37,6 +37,10 @@ func NewRedisModelCatalogCache(rdb redis.UniversalClient) *RedisModelCatalogCach
 	return &RedisModelCatalogCache{rdb: rdb, ttl: modelCatalogServeWindow}
 }
 
+func (c *RedisModelCatalogCache) ReserveRefresh(ctx context.Context, runtimeID string, interval time.Duration) (bool, error) {
+	return c.rdb.SetNX(ctx, "mul:runtime_model_refresh:"+runtimeID, "1", interval).Result()
+}
+
 func (c *RedisModelCatalogCache) Get(ctx context.Context, runtimeID string) (*ModelCatalogSnapshot, error) {
 	if runtimeID == "" {
 		return nil, nil

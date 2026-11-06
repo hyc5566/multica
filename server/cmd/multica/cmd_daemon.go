@@ -285,6 +285,9 @@ func openBoundedErrLog(path string) (*os.File, error) {
 // Default profile uses the standard port (19514). Named profiles get a
 // deterministic offset derived from the profile name.
 func healthPortForProfile(profile string) int {
+	if dynamicDaemonPort(profile) {
+		return readDaemonEndpoint(profile).Port
+	}
 	if profile == "" {
 		return daemon.DefaultHealthPort
 	}
@@ -364,6 +367,13 @@ func describeProfile(profile string) string {
 // field is present it is enforced strictly — including the empty string, which
 // is the default profile identifying itself, not a missing answer.
 func daemonIdentityMismatch(health map[string]any, profile string, port int) error {
+	if dynamicDaemonPort(profile) {
+		endpoint := readDaemonEndpoint(profile)
+		pid, _ := health["pid"].(float64)
+		if endpoint.Port != port || endpoint.PID <= 0 || int(pid) != endpoint.PID {
+			return &daemonProfileMismatchError{Want: profile, Port: port, Unreadable: true}
+		}
+	}
 	raw, ok := health["profile"]
 	if !ok {
 		return nil
@@ -569,7 +579,9 @@ func runDaemonBackground(cmd *cobra.Command) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 	health := checkDaemonHealthOnPort(ctx, healthPort)
-	if daemonAlive(health) {
+	// A stale dynamic record may now point at an unrelated process. The
+	// lifetime lock below still prevents a second daemon for this user.
+	if daemonAlive(health) && (!dynamicDaemonPort(profile) || daemonIdentityMismatch(health, profile, healthPort) == nil) {
 		// A live daemon on our port that belongs to someone else is a
 		// collision. The foreground child can safely use a fallback port.
 		if err := daemonIdentityMismatch(health, profile, healthPort); err != nil {
@@ -1156,9 +1168,22 @@ func runDaemonForeground(cmd *cobra.Command) error {
 	if err := writeDaemonShutdownResult(profile, daemonShutdownResult{PID: os.Getpid()}); err != nil {
 		return fmt.Errorf("initialize daemon shutdown result: %w", err)
 	}
-	healthLn, actualPort, err := bindDaemonHealthPort(cfg.HealthPort, net.Listen)
-	if err != nil {
-		return err
+	var healthLn net.Listener
+	var actualPort int
+	if dynamicDaemonPort(profile) {
+		// Installer-managed daemons always take an OS-assigned port and keep
+		// publishing daemon.endpoint.json for existing Taiwan-edition clients.
+		listener, release, err := reserveDaemonEndpoint(profile)
+		if err != nil {
+			return err
+		}
+		defer release()
+		healthLn, actualPort = listener, listener.Addr().(*net.TCPAddr).Port
+	} else {
+		healthLn, actualPort, err = bindDaemonHealthPort(cfg.HealthPort, net.Listen)
+		if err != nil {
+			return err
+		}
 	}
 	defer healthLn.Close()
 	cfg.HealthPort = actualPort
@@ -1189,6 +1214,10 @@ func runDaemonForeground(cmd *cobra.Command) error {
 
 	// Check if the daemon needs to restart after a CLI update.
 	if restartBin := d.RestartBinary(); restartBin != "" {
+		if daemonSupervisedBySystemd() {
+			logger.Info("daemon updated; exiting for systemd to restart it", "path", restartBin)
+			return errSupervisorRestart
+		}
 		logger.Info("restarting daemon with updated binary", "path", restartBin)
 
 		// The successor will open daemon.log through its own rotating writer,

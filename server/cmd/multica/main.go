@@ -119,6 +119,10 @@ func main() {
 		agent.RunCursorHookRelay(os.Stdin, os.Stdout, os.Getenv)
 		return
 	}
+	if err := cli.ConfigureTLSFromEnv(); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
 	cli.CleanupStaleUpdateArtifacts()
 	if err := rootCmd.Execute(); err != nil {
 		if err != errSilent {
