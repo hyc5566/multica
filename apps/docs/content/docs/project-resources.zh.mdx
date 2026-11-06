@@ -1,6 +1,6 @@
 ---
-title: 项目资源
-description: 为项目关联 GitHub 仓库或本地目录，让后续执行获得稳定的工作上下文。
+title: 專案資源
+description: 為專案連結 GitHub 儲存庫或本機目錄，讓後續執行取得穩定的工作脈絡。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -9,194 +9,194 @@ import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 import { LocalDirModeDemo } from "@/components/demos/local-dir-mode-demo";
 
-[项目](/projects)资源告诉智能体这组工作会用到哪些代码，以及在哪里执行。资源会持续关联在项目上，不必在每条任务中重复粘贴仓库地址或本地路径。
+[專案](/projects)資源會告訴 Agent 這組工作會使用哪些程式碼，以及要在哪裡執行。資源會持續連結至專案，不必在每項任務中重複貼上儲存庫網址或本機路徑。
 
-目前支持两种资源：
+目前支援兩種資源：
 
-| 资源 | 适用场景 | 执行位置 |
+| 資源 | 適用場景 | 執行位置 |
 |---|---|---|
-| **GitHub 仓库** | 团队共享的代码库，希望由运行时管理 checkout | 运行时管理的工作目录 |
-| **本地目录** | 已经存在的 checkout、很大的仓库，或需要直接查看本地改动 | 指定电脑上的原文件夹或独立 worktree |
+| **GitHub 儲存庫** | 團隊共享的程式碼庫，希望由執行時管理 checkout | 執行時管理的工作目錄 |
+| **本地目錄** | 已經存在的 checkout、很大的儲存庫，或需要直接檢視本地改動 | 指定電腦上的原資料夾或獨立 worktree |
 
-## 资源进入执行的方式
+## 執行時如何使用資源
 
-当智能体处理项目内的任务时，Multica 会把项目名称、项目描述和资源列表加入执行上下文，并在工作目录中写入 `.multica/project/resources.json`。
+Agent 處理專案中的任務時，Multica 會將專案名稱、描述和資源清單加入執行脈絡，並在工作目錄寫入 `.multica/project/resources.json`。
 
-工作区关联的仓库列表始终包含在执行上下文中。项目关联的仓库在此基础上指明这组工作使用的代码和默认 ref。
+工作區連結的儲存庫清單一定會包含在執行脈絡中。專案連結的儲存庫則會進一步指出這組工作使用的程式碼和預設 ref。
 
-本地目录只对绑定它的守护进程有效。执行所在的守护进程有匹配的本地目录时，智能体按 `in_place` 模式在原目录工作，或按 `worktree` 模式在其独立 worktree 中工作；其他电脑仍使用项目中的 GitHub 仓库或工作区仓库。
+本地目錄只對繫結它的守護程序有效。執行所在的守護程序有匹配的本地目錄時，智慧體按 `in_place` 模式在原目錄工作，或按 `worktree` 模式在其獨立 worktree 中工作；其他電腦仍使用專案中的 GitHub 儲存庫或工作區儲存庫。
 
-## 添加 GitHub 仓库
+## 新增 GitHub 儲存庫
 
-打开项目，在 **资源 → 仓库** 中点击 **添加仓库**。搜索已关联到工作区的仓库，或粘贴 Git URL。工作区仓库在 **设置 → 代码** 中维护；连接 GitHub 后，可在同一页面通过 **从 GitHub 选择** 导入 App 已授权的仓库。
+開啟專案，在 **資源 → 儲存庫** 中點選 **新增儲存庫**。搜尋已關聯到工作區的儲存庫，或貼上 Git URL。工作區儲存庫在 **設定 → 程式碼** 中維護；連線 GitHub 後，可在同一頁面透過 **從 GitHub 選擇** 匯入 App 已授權的儲存庫。
 
-仓库不限于 GitHub：任何运行时能访问的 Git URL 都可以作为仓库资源。自部署的 Multica 还可以在 **设置 → 代码** 连接自托管的 Forgejo、Gitea 或 GitLab，见[自托管 Git 代码托管](/vcs-integration)。
+儲存庫不限定 GitHub：任何執行環境可以存取的 Git URL 都能作為儲存庫資源。自行託管的 Multica 也可以在 **設定 → 程式碼** 連結自行託管的 Forgejo、Gitea 或 GitLab，請參閱[自行託管 Git 代管服務](/vcs-integration)。
 
-创建项目时，也可以直接在 **Repos** 中选择仓库。一个项目可以关联多个 GitHub 仓库。
+建立專案時，也可以直接從 **Repos** 選取儲存庫。一個專案可以連結多個 GitHub 儲存庫。
 
-资源中的 `ref` 可以指定后续 checkout 默认使用的分支、tag 或 commit。`default_branch_hint` 只向智能体提供默认分支提示，不会强制切换分支。
+資源中的 `ref` 可以指定之後 checkout 預設使用的分支、tag 或 commit。`default_branch_hint` 只會提示 Agent 預設分支，不會強制切換分支。
 
-## 添加本地目录
+## 新增本機目錄
 
-添加本地目录的界面只在 Desktop 中提供，因为浏览器不能选择电脑上的文件夹。
+只有 Desktop 提供新增本機目錄的介面，因為瀏覽器無法選取電腦上的資料夾。
 
 <Callout type="warning">
-**这是特殊情况下的选项，不要因为方便就选它。** `local_directory` 是给那些"不得不这么开发"的人准备的，典型是一个 checkout 就几十 GB 的游戏项目，不可能每来一次运行就重新 clone 一份。
+**這是特殊情況下的選項，不要因為方便就選它。** `local_directory` 是給那些"不得不這麼開發"的人準備的，典型是一個 checkout 就幾十 GB 的遊戲專案，不可能每來一次執行就重新 clone 一份。
 
-如果你的目录只是一个能正常 clone 的普通 git 仓库，请用 `github_repo`：它默认走 worktree 模式，同一个仓库上的运行可以同时进行，数量不受限制。`local_directory` 默认同一时间只进行一次运行；如果这个目录本身是 git 仓库，可以主动开启 worktree 模式恢复并发（见[运行如何共享这个目录](#运行如何共享这个目录)）。拿不准时，先对照页首的两种资源。
+如果你的目錄只是一個能正常 clone 的普通 git 儲存庫，請用 `github_repo`：它預設走 worktree 模式，同一個儲存庫上的執行可以同時進行，數量不受限制。`local_directory` 預設同一時間只進行一次執行；如果這個目錄本身是 git 儲存庫，可以主動開啟 worktree 模式恢復併發（見[執行如何共享這個目錄](#執行如何共用這個目錄)）。拿不準時，先對照頁首的兩種資源。
 </Callout>
 
 <Steps>
 <Step>
 
-确认 Desktop 的本地守护进程在线。
+確認 Desktop 的本地daemon線上。
 
 </Step>
 <Step>
 
-已有项目打开 **资源 → 本地文件夹**，按下方步骤添加。创建项目时则使用 **本地文件夹** 标签页；所选文件夹和模式会随项目一起保存。
+已有專案開啟 **資源 → 本地資料夾**，按下方步驟新增。建立專案時則使用 **本地資料夾** 分頁；所選資料夾和模式會隨專案一起儲存。
 
 </Step>
 <Step>
 
-在你的电脑下点击 **选择文件夹...**，再选择要使用的文件夹。
+在你的電腦下點選 **選擇資料夾...**，再選擇要使用的資料夾。
 
 </Step>
 <Step>
 
-选择 **直接修改** 或 **并行运行**，区别见 [运行如何共享这个目录](#运行如何共享这个目录)，然后点击 **添加文件夹**。如果文件夹是 git 仓库，且该电脑的运行时支持隔离，Desktop 会预选 **并行运行**，否则预选 **直接修改**。之后可在 **资源** 中点击文件夹的模式标签，选择新模式后立即保存。
+選擇 **直接修改** 或 **並行執行**，區別見 [執行如何共享這個目錄](#執行如何共用這個目錄)，然後點選 **新增資料夾**。如果資料夾是 git 儲存庫，且該電腦的執行時支援隔離，Desktop 會預選 **並行執行**，否則預選 **直接修改**。之後可在 **資源** 中點選資料夾的模式標籤，選擇新模式後立即儲存。
 
 </Step>
 </Steps>
 
-预选只作用于你此刻正在关联的目录。之前关联好的目录仍然保持保存时的模式，已有配置不会在你不知情时被切换。
+預選只作用於你此刻正在關聯的目錄。之前關聯好的目錄仍然保持儲存時的模式，已有設定不會在你不知情時被切換。
 
-目录必须是绝对路径，已经存在，并且当前守护进程可以读取和写入。以下路径会被拒绝：系统根目录和盘符根（`/`、`C:\`）、用户主目录本身及各主目录的上级（如 `/Users`、`/home`、`/root`），以及 `/etc`、`/var`、`/tmp`、`/usr`、`/opt` 等系统目录。如果所选路径是符号链接，会先解析为真实路径再按同样的规则校验一次，串行锁也按真实路径生效。
+目錄必須使用絕對路徑、已存在，而且目前的常駐程式必須能讀寫。系統會拒絕以下路徑：系統根目錄和磁碟根目錄（`/`、`C:\`）、使用者家目錄及其上層目錄（例如 `/Users`、`/home`、`/root`），以及 `/etc`、`/var`、`/tmp`、`/usr`、`/opt` 等系統目錄。如果選取的路徑是符號連結，系統會先解析實際路徑，再依相同規則重新檢查；序列鎖也會依實際路徑運作。
 
-每个项目在同一台守护进程上最多关联一个本地目录。团队中的不同电脑可以分别为同一个项目关联各自的目录。
+同一個專案在同一個常駐程式上最多隻能連結一個本機目錄。團隊成員可以在不同電腦上分別為同一專案連結各自的目錄。
 
 <Callout type="warning">
-在默认的 `in_place` 模式下，本地目录不是隔离环境：智能体会直接看到并修改当前分支和未提交的文件，Multica 也不会自动切换分支、stash、commit、push 或创建 PR。worktree 模式不一样，见下面的[运行如何共享这个目录](#运行如何共享这个目录)。
+在預設的 `in_place` 模式下，本地目錄不是隔離環境：Agent會直接看到並修改目前分支和未提交的檔案，Multica 也不會自動切換分支、stash、commit、push 或建立 PR。worktree 模式不一樣，見下面的[執行如何共享這個目錄](#執行如何共用這個目錄)。
 </Callout>
 
 <span id="task-如何共享这个目录" />
 <span id="任务如何共享这个目录" />
 
-## 运行如何共享这个目录
+## 執行如何共用這個目錄
 
-本地目录有两种执行模式，按资源逐个设置。在资源面板里可以直接切换，CLI 用 `--execution-mode`。Desktop 里这两种模式显示为 **直接修改** 和 **并行运行**；API、CLI 和本页其余部分都使用标识符。
+本地目錄有兩種執行模式，按資源逐個設定。在資源面板裡可以直接切換，CLI 用 `--execution-mode`。Desktop 裡這兩種模式顯示為 **直接修改** 和 **並行執行**；API、CLI 和本頁其餘部分都使用識別符號。
 
 <LocalDirModeDemo />
 
 <Tabs items={["in_place（直接修改，默认）", "worktree（并行运行）"]}>
 <Tab value="in_place（直接修改，默认）" id="in-place">
 
-智能体直接在你的目录里工作，同一时间只进行一次运行。两次运行使用同一个真实目录时，后到的运行进入 `waiting_local_directory`，等前一次释放目录后继续。两个路径经不同符号链接指向同一目录时，同样串行。
+Agent 會直接在你的目錄中工作，同一時間只能執行一項工作。若兩次執行使用同一個實際目錄，後到的執行會進入 `waiting_local_directory`，等前一次釋放目錄後再繼續。不同路徑若透過符號連結指向同一目錄，也會依序執行。
 
-等待不会修改目录。等待中的运行可以取消，否则会一直等到目录可用。
+等待期間不會修改目錄。你可以取消等待中的執行；否則它會持續等到目錄可用。
 
-普通的非 git 目录只能用这种模式：worktree 模式只面向 git 仓库。
+普通的非 git 目錄只能用這種模式：worktree 模式只面向 git 儲存庫。
 
 </Tab>
 <Tab value="worktree（并行运行）" id="worktree">
 
-每次运行拿到你仓库的一个独立 [git worktree](https://git-scm.com/docs/git-worktree)，建在运行时自己的工作区目录里。同一目录上的运行并发执行，谁都不用排队，也都不会写你的工作副本。
+每次執行拿到你儲存庫的一個獨立 [git worktree](https://git-scm.com/docs/git-worktree)，建在runtime自己的工作區目錄裡。同一目錄上的執行併發執行，誰都不用排隊，也都不會寫你的工作副本。
 
-这个目录必须是至少有一次提交的 git 仓库；不满足时运行会明确报错，不会悄悄退回串行。
+這個目錄必須是至少有一次提交的 git 儲存庫；不滿足時執行會明確報錯，不會悄悄退回序列。
 
-那台机器上的运行时也必须实现了该模式。运行时在连接时会声明这项能力，Multica 只看这个声明，不看版本号：一个开发构建完全可能带着看起来足够新的版本号，却没有对应的实现。这个声明会被检查两次。保存资源时，只要那台机器的运行时没有声明该能力，保存就会被拒绝，并提示去升级那台机器上的 App；每次运行被真正领取时，还会按领取它的运行时再检查一次，所以资源保存之后才降级的机器，其运行会被带原因取消，不会悄悄在原目录里跑掉。选择 `worktree` 就是在要求隔离，Multica 不会拿"直接改你的工作副本"来兜底。
+那臺機器上的runtime也必須實現了該模式。runtime在連線時會宣告這項能力，Multica 只看這個宣告，不看版本號：一個開發構建完全可能帶著看起來足夠新的版本號，卻沒有對應的實現。這個宣告會被檢查兩次。儲存資源時，只要那臺機器的runtime沒有宣告該能力，儲存就會被拒絕，並提示去升級那臺機器上的 App；每次執行被真正領取時，還會按領取它的runtime再檢查一次，所以資源儲存之後才降級的機器，其執行會被帶原因取消，不會悄悄在原目錄裡跑掉。選擇 `worktree` 就是在要求隔離，Multica 不會拿"直接改你的工作副本"來兜底。
 
-智能体看到什么、你拿回什么：
+Agent 會看到什麼、你會取得什麼：
 
 <Accordions type="multiple">
-<Accordion title="智能体从你眼前的状态开始，不是从 HEAD 开始" id="starts-from-your-working-state">
+<Accordion title="Agent從你眼前的狀態開始，不是從 HEAD 開始" id="starts-from-your-working-state">
 
-你未提交的改动和未跟踪的文件会被回放进 worktree，所以它不会去 review 一份你已经不用的代码。你自己的工作副本、暂存区和 stash 列表都不会被动到。
+你未提交的改動和未跟蹤的檔案會被回放進 worktree，所以它不會去 review 一份你已經不用的程式碼。你自己的工作副本、暫存區和 stash 列表都不會被動到。
 
-如果这个状态无法忠实还原，包括未跟踪内容超出回放上限（2000 个文件 / 200 MiB），运行会直接失败，不会从一棵你认不出来的树开始。通常的解决办法是把还没被忽略的构建产物加进 gitignore 或清理掉。
-
-</Accordion>
-<Accordion title="结果是你仓库里的一个分支" id="result-is-a-branch">
-
-分支按任务而不是按每次执行来分：`agent/<agent>/<issue>`（chat 则是 `agent/<agent>/chat-<session>`）。本次运行的**详情**面板里会显示分支名（可直接复制），也可以用 `git branch` 找到它。用 `git log` / `git diff` review，然后自己决定 merge 还是 cherry-pick，Multica 不会替你合并。
-
-`<agent>` 由智能体名字得来：转成小写后只保留英文字母和数字，其余字符换成 `-`，最长 30 个字符；名字里没有英文字母和数字时写作 `agent`。所以"运营助手"处理 OPS-21 时，分支是 `agent/agent/ops-21`。`<issue>` 是小写的任务编号。
-
-中途失败的运行同样会报告它的分支：智能体的提交都在上面，没提交的部分按[不会静默丢东西](#nothing-is-silently-lost)里的方式保留。
+如果這個狀態無法忠實還原，包括未跟蹤內容超出回放上限（2000 個檔案 / 200 MiB），執行會直接失敗，不會從一棵你認不出來的樹開始。通常的解決辦法是把還沒被忽略的構建產物加進 gitignore 或清理掉。
 
 </Accordion>
-<Accordion title="后续对话接着上一轮继续" id="follow-ups-continue-the-branch">
+<Accordion title="結果是你倉庫裡的一個分支" id="result-is-a-branch">
 
-同一个任务的下一条评论会重新 check out 这个分支，智能体站在自己刚交付的成果上继续做，不会从 `HEAD` 重新开始、把上一轮的改动落在另一个分支上。只有你在上一轮之后改动的部分会被重放上去，其余部分分支里已经有了。把分支 merge 掉之后，下一轮又会从你的 `HEAD` 重新开始。
+分支按任務而不是按每次執行來分：`agent/<agent>/<issue>`（chat 則是 `agent/<agent>/chat-<session>`）。本次執行的**詳情**面板裡會顯示分支名（可直接複製），也可以用 `git branch` 找到它。用 `git log` / `git diff` review，然後自己決定 merge 還是 cherry-pick，Multica 不會替你合併。
 
-同一个任务上有两次执行重叠时，后一个会从前一个的成果分叉到 `agent/<agent>/<issue>-<task>`，因为 git 规定一个分支只能有一棵 worktree。
+`<agent>` 由Agent名字得來：轉成小寫後只保留英文字母和數字，其餘字元換成 `-`，最長 30 個字元；名字裡沒有英文字母和數字時寫作 `agent`。所以"運營助手"處理 OPS-21 時，分支是 `agent/agent/ops-21`。`<issue>` 是小寫的任務編號。
 
-</Accordion>
-<Accordion title="提交到本地 HEAD 的改动和未提交的改动分开处理" id="committed-head-changes-stay-separate">
-
-两轮之间在本地做的 pull 或提交不会重放到任务分支上，需要时把这些提交明确 merge 进去。上一轮记下了未提交的改动时，要在新的 `HEAD` 上比较这些改动，需要 Git 2.40 或更高版本。
-
-这些旧改动和新的已提交基线冲突时，运行时会记一条警告，只对受影响的路径改用当前 `HEAD`；其他草稿照常增量比较。所以把其中一份草稿完成并提交，不会阻塞之后的运行，也不会把你没动过的草稿再次拿去和智能体的成果比较。你当前的改动和智能体的成果之间若有冲突，仍然交给智能体解决。
+中途失敗的執行同樣會報告它的分支：Agent的提交都在上面，沒提交的部分按[不會靜默丟東西](#nothing-is-silently-lost)裡的方式保留。
 
 </Accordion>
-<Accordion title="你的改动和智能体的成果冲突时，由智能体来解决" id="conflicts-are-resolved-by-the-agent">
+<Accordion title="後續對話接著上一輪繼續" id="follow-ups-continue-the-branch">
 
-如果你重写了智能体也重写过的那几行，git 无法判断谁对，这一轮就会在一棵带冲突的 worktree 上启动，并被要求先把 merge 做完（在那棵 worktree 里 `git status` 会列出未合并的文件）。
+同一個任務的下一條留言會重新 check out 這個分支，Agent站在自己剛交付的成果上繼續做，不會從 `HEAD` 重新開始、把上一輪的改動落在另一個分支上。只有你在上一輪之後改動的部分會被重放上去，其餘部分分支裡已經有了。把分支 merge 掉之後，下一輪又會從你的 `HEAD` 重新開始。
 
-只要还有文件没合完，这一轮就什么都不交付：运行失败、worktree 保留，下一轮会再次把同样的改动送上来，你的修改不会被悄悄丢掉。
-
-</Accordion>
-<Accordion title="只有 Multica 自己的分支才会被续接" id="only-multica-branches-resume">
-
-是否续接由归属记录决定，跟分支名无关：记录里既写了属于哪个会话，也写了这条分支当时停在哪个 commit。你自己建的、恰好叫 `agent/<agent>/<issue>` 的分支永远不会被 check out、被追加提交，也不会被当成上一轮的成果读取；已经不包含记录中那个 commit 的分支同样如此。所以把 Multica 的分支删掉再自己建一条同名的，或者把它 force-move 到别的历史上，都是安全的，运行会改用 `agent/<agent>/<issue>-<id>`。在已交付的分支上继续提交则是正常用法，续接照常，你的提交下一轮就在那里。
-
-每条分支还会以一个属于自己的 baseline commit 开头，标记第一轮开始时的目录状态。后续正是靠这个 commit 辨认这条分支，`git diff <baseline>..<branch>` 也恰好就是智能体做的改动。
-
-如果某一轮没能记录它的分支，比如中途失败、记录写不进去，或者把 worktree reset 到了"把你的改动带进分支的那个 commit"之前，这一轮会报失败并保留 worktree，后续几轮会另起一条分支，不去续接一条无法证明归属的分支。
+同一個任務上有兩次執行重疊時，後一個會從前一個的成果分叉到 `agent/<agent>/<issue>-<task>`，因為 git 規定一個分支只能有一棵 worktree。
 
 </Accordion>
-<Accordion title="不会静默丢东西" id="nothing-is-silently-lost">
+<Accordion title="提交到本地 HEAD 的改動和未提交的改動分開處理" id="committed-head-changes-stay-separate">
 
-智能体留下的未提交改动不会随 worktree 一起删除，运行中途失败时同样如此。它们去哪里，取决于智能体这次运行有没有自己提交：
+兩輪之間在本地做的 pull 或提交不會重放到任務分支上，需要時把這些提交明確 merge 進去。上一輪記下了未提交的改動時，要在新的 `HEAD` 上比較這些改動，需要 Git 2.40 或更高版本。
 
-- **智能体没有提交过：** 所有没被 gitignore 的文件都会提交到分支上。这次提交不会运行仓库的提交钩子。
-- **智能体自己提交过：** 只交付它的提交。没提交的部分（生成的产物、临时文件、没提交的修改）存到隐藏 ref `refs/multica/leftovers/<branch>/<task>` 下，不进分支。每次运行开始时都会把这条规则告诉智能体，所以自己提交的智能体决定交付哪些内容。
-
-例外：一开始要先和你的本地改动完成 merge 的运行（见[冲突处理](#conflicts-are-resolved-by-the-agent)）会提交它留下的全部内容，因为这些未提交的改动里有你的修改。
-
-想看某次运行存下了什么，用 `git for-each-ref refs/multica/leftovers` 列出这些 ref，再用 `git show --stat <ref>` 查看。`git restore --source=<ref> -- <path>` 可以把某个文件取回到你的工作目录。
-
-极少数情况下连这次提交或保存都做不了，例如仓库开了 `commit.gpgSign` 而运行时拿不到签名密钥。这时 worktree 会被刻意保留，运行标记为失败，在你仓库里执行 `git worktree list` 就能看到存放这些改动的目录。
+這些舊改動和新的已提交基線衝突時，runtime會記一條警告，只對受影響的路徑改用目前 `HEAD`；其他草稿照常增量比較。所以把其中一份草稿完成並提交，不會阻塞之後的執行，也不會把你沒動過的草稿再次拿去和Agent的成果比較。你目前的改動和Agent的成果之間若有衝突，仍然交給Agent解決。
 
 </Accordion>
-<Accordion title="没有产生改动的运行不留下任何东西" id="no-changes-leave-nothing">
+<Accordion title="你的改動和Agent的成果衝突時，由Agent來解決" id="conflicts-are-resolved-by-the-agent">
 
-它的分支会被删除，不会作为一个空条目留在 `git branch` 里；但如果这是承载了之前几轮成果的任务分支，它一定会保留。
+如果你重寫了Agent也重寫過的那幾行，git 無法判斷誰對，這一輪就會在一棵帶衝突的 worktree 上啟動，並被要求先把 merge 做完（在那棵 worktree 裡 `git status` 會列出未合併的檔案）。
+
+只要還有檔案沒合完，這一輪就什麼都不交付：執行失敗、worktree 保留，下一輪會再次把同樣的改動送上來，你的修改不會被悄悄丟掉。
 
 </Accordion>
-<Accordion title="留在你仓库里的分支和隐藏 ref" id="what-stays-in-your-repo">
+<Accordion title="只有 Multica 自己的分支才會被續接" id="only-multica-branches-resume">
 
-worktree 位于运行时的工作区目录内，会按[正常的清理周期](/daemon-runtimes#cleanup)回收。留在你仓库里的有：分支；每条分支对应的一个隐藏 ref（在 `refs/multica/local-state/` 下），记录这条分支归谁所有、以及上次续接时你目录里的内容；以及智能体自己提交后又留下未提交改动的每次运行，各对应一个隐藏 ref（在 `refs/multica/leftovers/` 下）。
+是否續接由歸屬記錄決定，跟分支名無關：記錄裡既寫了屬於哪個會話，也寫了這條分支當時停在哪個 commit。你自己建的、恰好叫 `agent/<agent>/<issue>` 的分支永遠不會被 check out、被追加提交，也不會被當成上一輪的成果讀取；已經不包含記錄中那個 commit 的分支同樣如此。所以把 Multica 的分支刪掉再自己建一條同名的，或者把它 force-move 到別的歷史上，都是安全的，執行會改用 `agent/<agent>/<issue>-<id>`。在已交付的分支上繼續提交則是正常用法，續接照常，你的提交下一輪就在那裡。
 
-隐藏 ref 不会出现在 `git branch` 里，可以用 `git for-each-ref refs/multica` 查看。Multica 删除分支时会一并删掉它；你自己删掉的分支所对应的 ref，会在下一次该仓库上有运行开始时被清理。也可以用 `git for-each-ref --format='%(refname)' refs/multica | xargs -n1 git update-ref -d` 一次性清掉。
+每條分支還會以一個屬於自己的 baseline commit 開頭，標記第一輪開始時的目錄狀態。後續正是靠這個 commit 辨認這條分支，`git diff <baseline>..<branch>` 也恰好就是Agent做的改動。
+
+如果某一輪沒能記錄它的分支，比如中途失敗、記錄寫不進去，或者把 worktree reset 到了"把你的改動帶進分支的那個 commit"之前，這一輪會報失敗並保留 worktree，後續幾輪會另起一條分支，不去續接一條無法證明歸屬的分支。
+
+</Accordion>
+<Accordion title="不會靜默丟東西" id="nothing-is-silently-lost">
+
+Agent留下的未提交改動不會隨 worktree 一起刪除，執行中途失敗時同樣如此。它們去哪裡，取決於Agent這次執行有沒有自己提交：
+
+- **Agent沒有提交過：** 所有沒被 gitignore 的檔案都會提交到分支上。這次提交不會執行儲存庫的提交鉤子。
+- **Agent自己提交過：** 只交付它的提交。沒提交的部分（生成的產物、臨時檔案、沒提交的修改）存到隱藏 ref `refs/multica/leftovers/<branch>/<task>` 下，不進分支。每次執行開始時都會把這條規則告訴Agent，所以自己提交的Agent決定交付哪些內容。
+
+例外：一開始要先和你的本地改動完成 merge 的執行（見[衝突處理](#conflicts-are-resolved-by-the-agent)）會提交它留下的全部內容，因為這些未提交的改動裡有你的修改。
+
+想看某次執行存下了什麼，用 `git for-each-ref refs/multica/leftovers` 列出這些 ref，再用 `git show --stat <ref>` 檢視。`git restore --source=<ref> -- <path>` 可以把某個檔案取回到你的工作目錄。
+
+極少數情況下連這次提交或儲存都做不了，例如儲存庫開了 `commit.gpgSign` 而runtime拿不到簽名金鑰。這時 worktree 會被刻意保留，執行標記為失敗，在你儲存庫裡執行 `git worktree list` 就能看到存放這些改動的目錄。
+
+</Accordion>
+<Accordion title="沒有產生改動的執行不留下任何東西" id="no-changes-leave-nothing">
+
+它的分支會被刪除，不會作為一個空條目留在 `git branch` 裡；但如果這是承載了之前幾輪成果的任務分支，它一定會保留。
+
+</Accordion>
+<Accordion title="留在你倉庫裡的分支和隱藏 ref" id="what-stays-in-your-repo">
+
+worktree 位於runtime的工作區目錄內，會按[正常的清理週期](/daemon-runtimes#cleanup)回收。留在你儲存庫裡的有：分支；每條分支對應的一個隱藏 ref（在 `refs/multica/local-state/` 下），記錄這條分支歸誰所有、以及上次續接時你目錄裡的內容；以及Agent自己提交後又留下未提交改動的每次執行，各對應一個隱藏 ref（在 `refs/multica/leftovers/` 下）。
+
+隱藏 ref 不會出現在 `git branch` 裡，可以用 `git for-each-ref refs/multica` 檢視。Multica 刪除分支時會一併刪掉它；你自己刪掉的分支所對應的 ref，會在下一次該儲存庫上有執行開始時被清理。也可以用 `git for-each-ref --format='%(refname)' refs/multica | xargs -n1 git update-ref -d` 一次性清掉。
 
 </Accordion>
 </Accordions>
 
 <Callout type="warn">
-**自托管运维注意：** 该模式的隔离由服务端强制（保存资源时检查一次，运行时每次领取执行时再检查一次），所以无论何时降级运行时都会被拦住。唯一拦不住的组合是：把服务端回滚到本功能之前的版本，同时还连着没有实现该模式的运行时。旧服务端没有这道门禁，而这样的运行时会忽略 `execution_mode`、直接在原目录里执行。只要还存在 `worktree` 资源，就不要把服务端回滚到本版本之前，除非那些机器上的运行时全部升级到位。
+**自託管運維注意：** 該模式的隔離由服務端強制（儲存資源時檢查一次，runtime每次領取runtime再檢查一次），所以無論何時降級runtime都會被攔住。唯一攔不住的組合是：把服務端回滾到本功能之前的版本，同時還連著沒有實現該模式的runtime。舊服務端沒有這道門禁，而這樣的runtime會忽略 `execution_mode`、直接在原目錄裡執行。只要還存在 `worktree` 資源，就不要把服務端回滾到本版本之前，除非那些機器上的runtime全部升級到位。
 </Callout>
 
 </Tab>
 </Tabs>
 
-## 执行期间写入的内容
+## 執行期間寫入的內容
 
-除了智能体产生的代码改动，运行时还可能在目录中写入当前 AI 编程工具所需的说明文件，以及 `.multica/project/resources.json`。不希望它们进入版本控制时，加入 `.gitignore` 即可。
+除了 Agent 產生的程式碼變更，執行環境也可能在目錄中寫入目前 AI 程式開發工具需要的指引檔，以及 `.multica/project/resources.json`。若不希望這些檔案納入版本控制，請將它們加入 `.gitignore`。
 
-Multica 清理执行环境时不会删除关联的本地目录。智能体对该目录的改动，与你在终端中直接运行 AI 编程工具的改动性质相同，需要同样的审查。
+Multica 清理執行環境時不會刪除連結的本機目錄。Agent 對該目錄所做的變更，和你在終端機直接執行 AI 程式開發工具所做的變更相同，都需要仔細檢查。
 
-## 使用 CLI 管理资源
+## 使用 CLI 管理資源
 
 ```bash
 # 创建项目时关联仓库
@@ -232,10 +232,10 @@ multica project resource update <project-id> <resource-id> --execution-mode in_p
 multica project resource remove <project-id> <resource-id>
 ```
 
-资源变更会影响之后创建的运行，不会改写已经结束的执行记录。
+資源變更只會影響之後建立的執行，不會改寫已完成的執行紀錄。
 
-## 接下来
+## 接下來
 
-- [项目](/projects) — 了解项目上下文、进度和负责人。
-- [守护进程与运行时](/daemon-runtimes) — 了解运行由哪台电脑领取。
-- [运行](/tasks) — 查看 `waiting_local_directory` 等执行状态。
+- [專案](/projects) — 瞭解專案脈絡、進度和負責人。
+- [常駐程式與執行環境](/daemon-runtimes) — 瞭解哪臺電腦會領取執行。
+- [執行](/tasks) — 檢視 `waiting_local_directory` 等執行狀態。
