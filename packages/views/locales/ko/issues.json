@@ -318,7 +318,10 @@
     "card_child_progress": "하위 태스크 진행률",
     "card_pull_requests": "Pull requests",
     "show_sub_issues": "하위 태스크 표시",
-    "layout_options": "{{layout}} 옵션"
+    "layout_options": "{{layout}} 옵션",
+    "layout_section": "레이아웃",
+    "layout_compact": "좁게",
+    "layout_default": "기본"
   },
   "view": {
     "tooltip_board": "보드 보기",
@@ -592,7 +595,9 @@
     "project_directory_path_copied_with_branch": "프로젝트 디렉터리 경로를 복사했습니다 — 작업은 {{branch}} 브랜치에 있습니다",
     "workdir_path_copy_failed": "작업 디렉터리 경로를 복사하지 못했습니다",
     "workdir_path_unavailable": "아직 로컬 작업 디렉터리가 없습니다. 로컬 에이전트가 이 태스크를 실행하지 않았습니다",
-    "pull_requests_empty_title": "연결된 PR이 없습니다."
+    "pull_requests_empty_title": "연결된 PR이 없습니다.",
+    "discard_changes": "변경 취소",
+    "save_changes": "변경 저장"
   },
   "timeline": {
     "loading": "불러오는 중...",
@@ -934,7 +939,27 @@
     "detail_cache": "캐시 적중",
     "cache_hit_value": "{{percent}} · {{amount}} 절약",
     "detail_time": "시간",
-    "detail_branch": "브랜치"
+    "detail_branch": "브랜치",
+    "quota_title": "공급자 할당량 체크포인트",
+    "quota_attribution_note": "계정 수준 관측값이며 동시에 실행된 작업도 변화에 영향을 줄 수 있습니다.",
+    "quota_window": "기간",
+    "quota_before": "실행 전",
+    "quota_after": "실행 후",
+    "quota_delta": "변화",
+    "quota_observed": "관측 시간",
+    "quota_reset": "재설정",
+    "quota_state": "상태",
+    "quota_state_comparable": "비교 가능",
+    "quota_state_same_observation": "동일 관측값",
+    "quota_state_reset_crossed": "재설정 통과",
+    "quota_state_stale": "오래된 스냅샷",
+    "quota_state_unavailable": "공급자 사용 불가",
+    "quota_state_missing": "불완전한 데이터",
+    "quota_show_all_other": "다른 기간 {{count}}개 표시",
+    "quota_requested_model": "요청 모델",
+    "quota_overlap_other": "동시 실행 {{count}}개",
+    "export_runs_csv": "실행 CSV",
+    "export_quota_csv": "할당량 CSV"
   },
   "terminate_dialog": {
     "title": "이 실행을 중지할까요?",

@@ -314,7 +314,10 @@
     "columns_section": "Columnas",
     "columns_locked_by_filter": "Quita el filtro de estado para mostrar u ocultar columnas.",
     "columns_shown": "{{count}} visibles",
-    "layout_options": "Opciones de {{layout}}"
+    "layout_options": "Opciones de {{layout}}",
+    "layout_section": "Diseño",
+    "layout_compact": "Compacto",
+    "layout_default": "Predeterminado"
   },
   "view": {
     "tooltip_board": "Vista de tablero",
@@ -584,7 +587,9 @@
     "thread_nav_hide_replies": "Ocultar respuestas",
     "load_failed": "No se pudo cargar la tarea.",
     "load_retry": "Reintentar",
-    "not_found_title": "Tarea no encontrada"
+    "not_found_title": "Tarea no encontrada",
+    "discard_changes": "Descartar cambios",
+    "save_changes": "Guardar cambios"
   },
   "timeline": {
     "loading": "Cargando...",
@@ -1540,7 +1545,29 @@
     "cache_hit_value": "{{percent}} · {{amount}} ahorrados",
     "detail_time": "Hora",
     "detail_branch": "Rama",
-    "credits_count": "{{credits}} créditos de {{provider}}"
+    "credits_count": "{{credits}} créditos de {{provider}}",
+    "quota_title": "Puntos de control de cuota del proveedor",
+    "quota_attribution_note": "Observaciones de la cuenta; el trabajo simultáneo también puede afectar al cambio.",
+    "quota_window": "Ventana",
+    "quota_before": "Antes",
+    "quota_after": "Después",
+    "quota_delta": "Cambio",
+    "quota_observed": "Observado",
+    "quota_reset": "Restablecimiento",
+    "quota_state": "Estado",
+    "quota_state_comparable": "Comparable",
+    "quota_state_same_observation": "Misma observación",
+    "quota_state_reset_crossed": "Se produjo un restablecimiento",
+    "quota_state_stale": "Instantánea desactualizada",
+    "quota_state_unavailable": "Proveedor no disponible",
+    "quota_state_missing": "Incompleto",
+    "quota_show_all_one": "Mostrar {{count}} ventana adicional",
+    "quota_show_all_other": "Mostrar {{count}} ventanas adicionales",
+    "quota_requested_model": "Modelo solicitado",
+    "quota_overlap_one": "{{count}} ejecución simultánea",
+    "quota_overlap_other": "{{count}} ejecuciones simultáneas",
+    "export_runs_csv": "CSV de ejecuciones",
+    "export_quota_csv": "CSV de cuota"
   },
   "deliverables": {
     "section_title": "Entregables",

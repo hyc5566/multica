@@ -1,418 +1,418 @@
 {
   "page": {
-    "search": "搜索 skill",
+    "search": "搜尋 skill",
     "title": "Skills",
     "new_skill": "新建 skill",
     "scopes": {
       "all": {
         "label": "全部 skill",
-        "description": "工作区里所有 skill"
+        "description": "工作區裡所有 skill"
       },
       "used": {
         "label": "使用中",
-        "description": "至少分配给一个智能体的 skill"
+        "description": "至少分配給一個 Agent 的 skill"
       },
       "unused": {
         "label": "未使用",
-        "description": "未分配给任何智能体的 skill"
+        "description": "未分配給任何 Agent 的 skill"
       },
       "mine": {
         "label": "我的 skill",
-        "description": "你创建的 skill"
+        "description": "你建立的 skill"
       }
     },
     "no_matches": {
-      "title": "无匹配",
-      "with_query": "没有 skill 匹配 \"{{query}}\"{{filterSuffix}}。",
-      "with_query_filter_suffix": "（在当前筛选下）",
-      "filter_only": "当前筛选下没有匹配的 skill。",
-      "try_different": " 换个关键词试试。"
+      "title": "無符合",
+      "with_query": "沒有 skill 符合 \"{{query}}\"{{filterSuffix}}。",
+      "with_query_filter_suffix": "（在目前篩選下）",
+      "filter_only": "目前篩選下沒有符合的 skill。",
+      "try_different": " 換個關鍵詞試試。"
     },
     "list_error": {
-      "title": "无法加载 skill",
-      "fallback": "拉取 skill 列表时出错。",
-      "retry": "重试"
+      "title": "無法載入 skill",
+      "fallback": "拉取 skill 列表時出錯。",
+      "retry": "重試"
     },
-    "supporting_data_warning": "部分工作区数据加载失败。创建者归属、运行时名称、编辑权限可能显示不完整。"
+    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯權限可能顯示不完整。"
   },
   "table": {
-    "name": "名称",
-    "created_by": "添加者",
-    "used_by": "被谁使用",
-    "source": "来源",
-    "updated": "更新时间",
-    "created": "创建时间",
-    "lock_tooltip": "只读——只有创建者或管理员能编辑",
+    "name": "名稱",
+    "created_by": "新增者",
+    "used_by": "被誰使用",
+    "source": "來源",
+    "updated": "更新時間",
+    "created": "建立時間",
+    "lock_tooltip": "只讀——只有建立者或管理員能編輯",
     "unused": "— 未使用",
-    "by_creator": "由 {{name}} 创建",
-    "source_manual": "手动创建",
-    "source_runtime_named": "来自 {{name}}",
-    "source_runtime_provider": "来自 {{provider}} 运行时",
-    "source_runtime_unknown": "来自某个运行时",
-    "source_clawhub": "来自 ClawHub",
-    "source_skills_sh": "来自 Skills.sh",
-    "source_github": "来自 GitHub"
+    "by_creator": "由 {{name}} 建立",
+    "source_manual": "手動建立",
+    "source_runtime_named": "來自 {{name}}",
+    "source_runtime_provider": "來自 {{provider}} 執行環境",
+    "source_runtime_unknown": "來自某個執行環境",
+    "source_clawhub": "來自 ClawHub",
+    "source_skills_sh": "來自 Skills.sh",
+    "source_github": "來自 GitHub"
   },
   "actions": {
     "row_menu": "操作",
-    "add_to_agent": "添加到智能体",
-    "refresh": "从来源更新",
-    "my_agents": "我的智能体",
-    "other_agents": "其他智能体",
-    "no_agents": "暂无可用智能体",
-    "search_placeholder": "搜索智能体…",
-    "no_agents_match": "没有匹配的智能体。",
+    "add_to_agent": "新增到 Agent",
+    "refresh": "從來源更新",
+    "my_agents": "我的 Agent",
+    "other_agents": "其他 Agent",
+    "no_agents": "目前沒有可用 Agent",
+    "search_placeholder": "搜尋 Agent…",
+    "no_agents_match": "沒有符合的 Agent。",
     "has_partial": "已有 {{owned}}/{{total}}",
-    "added_toast": "已添加到 {{name}}",
-    "add_failed_toast": "添加 skill 失败",
-    "delete": "删除",
-    "delete_no_permission": "选中项包含仅创建者或管理员可删除的 skill",
-    "delete_dialog_title_other": "删除 {{count}} 个 skill？",
-    "delete_dialog_desc_other": "将永久删除选中的 {{count}} 个 skill，并从所有智能体上移除。",
-    "deleted_toast_other": "已删除 {{count}} 个 skill",
-    "delete_failed_toast": "删除 skill 失败",
+    "added_toast": "已新增到 {{name}}",
+    "add_failed_toast": "新增 skill 失敗",
+    "delete": "刪除",
+    "delete_no_permission": "選取項包含僅建立者或管理員可刪除的 skill",
+    "delete_dialog_title_other": "刪除 {{count}} 個 skill？",
+    "delete_dialog_desc_other": "將永久刪除選取的 {{count}} 個 skill，並從所有 Agent 上移除。",
+    "deleted_toast_other": "已刪除 {{count}} 個 skill",
+    "delete_failed_toast": "刪除 skill 失敗",
     "update": "更新",
-    "update_none": "所选内容中没有你可以更新的已导入 skill",
-    "update_dialog_title": "从来源更新 skill？",
-    "update_summary_selected_other": "将从来源更新 {{count}} 个 skill",
-    "update_summary_skipped_other": "{{count}} 个无法从来源更新，跳过",
-    "update_confirm": "更新 {{count}} 个",
+    "update_none": "所選內容中沒有你可以更新的已匯入 skill",
+    "update_dialog_title": "從來源更新 skill？",
+    "update_summary_selected_other": "將從來源更新 {{count}} 個 skill",
+    "update_summary_skipped_other": "{{count}} 個無法從來源更新，跳過",
+    "update_confirm": "更新 {{count}} 個",
     "update_updating": "更新中 {{done}}/{{total}}...",
-    "updated_toast_other": "已从来源更新 {{count}} 个 skill",
-    "update_partial_toast": "已更新 {{count}} 个，{{failed}} 个失败",
+    "updated_toast_other": "已從來源更新 {{count}} 個 skill",
+    "update_partial_toast": "已更新 {{count}} 個，{{failed}} 個失敗",
     "cancel": "取消",
-    "add_confirm": "添加（{{num}}）",
-    "adding": "添加中...",
-    "added_multi_toast_other": "已添加到 {{count}} 个智能体"
+    "add_confirm": "新增（{{num}}）",
+    "adding": "新增中...",
+    "added_multi_toast_other": "已新增到 {{count}} 個 Agent"
   },
   "toolbar": {
-    "section_usage": "使用状态",
-    "section_labels": "标签",
-    "filter_search_placeholder": "筛选...",
-    "no_labels": "还没有标签",
-    "no_results": "无结果"
+    "section_usage": "使用狀態",
+    "section_labels": "標籤",
+    "filter_search_placeholder": "篩選...",
+    "no_labels": "還沒有標籤",
+    "no_results": "無結果"
   },
   "detail": {
-    "read_only": "只读",
-    "supporting_data_warning": "部分工作区数据加载失败。创建者归属、运行时名称、编辑权限可能要等下次刷新才完整。",
-    "delete_file": "删除文件",
+    "read_only": "只讀",
+    "supporting_data_warning": "部分工作區資料載入失敗。建立者歸屬、執行環境名稱、編輯權限可能要等下次重新整理才完整。",
+    "delete_file": "刪除檔案",
     "name_placeholder": "skill-name",
-    "description_placeholder": "用一句话描述智能体什么时候应该使用这个 skill...",
+    "description_placeholder": "用一句話描述 Agent 什麼時候應該使用這個 skill...",
     "subline": {
-      "origin_runtime_named": "本地运行时 · {{name}}",
-      "origin_runtime_provider": "本地运行时 · {{provider}}",
-      "origin_runtime_unknown": "本地运行时",
-      "origin_clawhub": "导入自 · ClawHub",
-      "origin_skills_sh": "导入自 · Skills.sh",
-      "origin_github": "导入自 · GitHub",
-      "origin_workspace": "手动创建"
+      "origin_runtime_named": "本地執行環境 · {{name}}",
+      "origin_runtime_provider": "本地執行環境 · {{provider}}",
+      "origin_runtime_unknown": "本地執行環境",
+      "origin_clawhub": "匯入自 · ClawHub",
+      "origin_skills_sh": "匯入自 · Skills.sh",
+      "origin_github": "匯入自 · GitHub",
+      "origin_workspace": "手動建立"
     },
     "conflict_banner": {
-      "title": "其他人更新了这个 skill",
-      "body": "你的修改已保留。Discard 来拉取他们的版本，或 Save 覆盖。"
+      "title": "其他人更新了這個 skill",
+      "body": "你的修改已保留。Discard 來拉取他們的版本，或 Save 覆蓋。"
     },
     "save_bar": {
       "changed_summary": "已修改:{{parts}}",
-      "changed_files_other": "{{count}} 个文件",
-      "discard": "丢弃",
-      "save": "保存修改",
-      "saving": "保存中..."
+      "changed_files_other": "{{count}} 個檔案",
+      "discard": "丟棄",
+      "save": "儲存修改",
+      "saving": "儲存中..."
     },
     "not_found": {
-      "title": "未找到该 skill",
-      "fallback": "这个 skill 可能已被删除，或你没有访问权限。",
+      "title": "未找到該 skill",
+      "fallback": "這個 skill 可能已被刪除，或你沒有存取權限。",
       "back": "返回 Skills"
     },
-    "toast_saved": "已保存 skill",
-    "toast_save_failed": "保存 skill 失败",
-    "toast_saved_version": "已保存为 v{{version}}",
-    "toast_view_history": "查看历史",
-    "toast_deleted": "已删除 skill",
-    "toast_delete_failed": "删除 skill 失败",
+    "toast_saved": "已儲存 skill",
+    "toast_save_failed": "儲存 skill 失敗",
+    "toast_saved_version": "已儲存為 v{{version}}",
+    "toast_view_history": "檢視歷史",
+    "toast_deleted": "已刪除 skill",
+    "toast_delete_failed": "刪除 skill 失敗",
     "refresh": {
       "source_github": "GitHub",
       "source_skills_sh": "Skills.sh",
       "source_clawhub": "ClawHub",
-      "toast_success": "已从 {{source}} 更新 skill",
-      "toast_failed": "更新 skill 失败",
+      "toast_success": "已從 {{source}} 更新 skill",
+      "toast_failed": "更新 skill 失敗",
       "dialog": {
-        "title": "从来源更新这个 skill？",
-        "description": "将从 {{source}} 重新下载\"{{name}}\"，并用最新版本替换它的名称、描述、SKILL.md 和文件。",
-        "warning": "对这个 skill 的本地修改将被覆盖。智能体分配、标签和创建者保持不变。",
+        "title": "從來源更新這個 skill？",
+        "description": "將從 {{source}} 重新下載\"{{name}}\"，並用最新版本替換它的名稱、描述、SKILL.md 和檔案。",
+        "warning": "對這個 skill 的本地修改將被覆蓋。Agent 分配、標籤和建立者保持不變。",
         "cancel": "取消",
         "confirm": "更新",
         "refreshing": "更新中..."
       }
     },
     "delete_dialog": {
-      "title": "删除这个 skill？",
-      "description_with_agents_other": "将永久删除\"{{name}}\"，并从当前正在使用它的 {{count}} 个智能体上移除。",
-      "description_no_agents": "将永久删除\"{{name}}\"，并从所有智能体上移除。",
-      "warning": "此操作不可撤销。",
+      "title": "刪除這個 skill？",
+      "description_with_agents_other": "將永久刪除\"{{name}}\"，並從目前正在使用它的 {{count}} 個 Agent 上移除。",
+      "description_no_agents": "將永久刪除\"{{name}}\"，並從所有 Agent 上移除。",
+      "warning": "此操作不可撤銷。",
       "cancel": "取消",
-      "confirm": "永久删除",
-      "deleting": "删除中..."
+      "confirm": "永久刪除",
+      "deleting": "刪除中..."
     },
     "add_file": {
       "placeholder": "templates/review.md",
-      "add": "添加",
+      "add": "新增",
       "cancel": "取消",
       "errors": {
-        "empty": "路径不能为空。",
-        "absolute": "不允许绝对路径。",
-        "double_dot": "路径不能包含 \"..\"。",
-        "reserved": "SKILL.md 已为主文件保留。",
-        "exists": "该路径已存在文件。",
-        "is_directory": "已有同名文件夹",
-        "under_file": "该位置已被一个文件占用"
+        "empty": "路徑不能為空。",
+        "absolute": "不允許絕對路徑。",
+        "double_dot": "路徑不能包含 \"..\"。",
+        "reserved": "SKILL.md 已為主檔案保留。",
+        "exists": "該路徑已存在檔案。",
+        "is_directory": "已有同名資料夾",
+        "under_file": "該位置已被一個檔案佔用"
       }
     },
     "header": {
-      "files_other": "{{count}} 个文件"
+      "files_other": "{{count}} 個檔案"
     },
     "overview": {
-      "properties": "属性",
-      "name": "名称",
+      "properties": "屬性",
+      "name": "名稱",
       "description": "描述",
-      "description_hint": "智能体据此决定何时加载 skill。",
-      "labels": "标签",
-      "used_by_empty": "还未分配给任何智能体。打开某个智能体的 Skills 标签页进行分配。",
-      "permissions_owner": "你可以编辑和删除该技能。改动将在智能体下次运行时生效。",
-      "permissions_locked_creator": "只有创建者（{{name}}）或工作区管理员可以编辑该技能。",
-      "permissions_locked": "只有创建者或工作区管理员可以编辑该技能。",
-      "character_count": "{{count}} 个字符"
+      "description_hint": "Agent 根據這段描述判斷何時載入 skill。",
+      "labels": "標籤",
+      "used_by_empty": "還未分配給任何 Agent。開啟某個 Agent 的 Skills 標籤頁進行分配。",
+      "permissions_owner": "你可以編輯和刪除該技能。改動將在 Agent 下次執行環境生效。",
+      "permissions_locked_creator": "只有建立者（{{name}}）或工作區管理員可以編輯該技能。",
+      "permissions_locked": "只有建立者或工作區管理員可以編輯該技能。",
+      "character_count": "{{count}} 個字元"
     },
     "files": {
-      "list_aria": "技能文件",
-      "main": "主文件",
-      "supporting_other": "附属文件 {{count}}",
-      "supporting_empty": "暂无附属文件。",
-      "add_file": "新建文件",
-      "mode_aria": "文件视图",
-      "mode_preview": "预览",
-      "mode_edit": "编辑",
-      "mode_raw": "纯文本"
+      "list_aria": "技能檔案",
+      "main": "主檔案",
+      "supporting_other": "附屬檔案 {{count}}",
+      "supporting_empty": "目前沒有附屬檔案。",
+      "add_file": "新建檔案",
+      "mode_aria": "檔案檢視",
+      "mode_preview": "預覽",
+      "mode_edit": "編輯",
+      "mode_raw": "純文本"
     },
     "versions": {
       "list_aria": "skill 版本",
       "version_label": "v{{version}}",
-      "current": "当前",
+      "current": "當前",
       "unknown_author": "未知",
-      "empty": "还没有版本。这个 skill 下次被修改时，会先把当前内容记录为第一个版本。",
-      "load_failed": "版本加载失败。",
-      "restore": "恢复",
-      "toast_restored": "已恢复 v{{version}}",
-      "toast_restore_failed": "版本恢复失败",
+      "empty": "還沒有版本。這個 skill 下次被修改時，會先把當前內容記錄為第一個版本。",
+      "load_failed": "版本載入失敗。",
+      "restore": "恢復",
+      "toast_restored": "已恢復 v{{version}}",
+      "toast_restore_failed": "版本恢復失敗",
       "source": {
-        "baseline": "早期内容",
-        "create": "创建",
-        "update": "编辑",
-        "import": "导入",
-        "refresh": "从来源更新",
-        "restore": "恢复自 v{{version}}"
+        "baseline": "早期內容",
+        "create": "建立",
+        "update": "編輯",
+        "import": "匯入",
+        "refresh": "從來源更新",
+        "restore": "恢復自 v{{version}}"
       },
       "dialog": {
-        "title": "恢复到 v{{version}}？",
-        "description": "v{{version}} 的内容会成为一个新版本，智能体从下一次运行起使用它。更新的版本仍保留在历史里。",
-        "unsaved_warning": "未保存的修改会被丢弃。",
+        "title": "恢復到 v{{version}}？",
+        "description": "v{{version}} 的內容會成為新版本。Agent 從下一次執行起使用它；較新的版本仍保留在歷史記錄中。",
+        "unsaved_warning": "未儲存的修改會被丟棄。",
         "cancel": "取消",
-        "confirm": "恢复",
-        "restoring": "恢复中..."
+        "confirm": "恢復",
+        "restoring": "恢復中..."
       }
     },
     "sections": {
-      "content": "内容",
-      "files": "文件",
-      "edit": "编辑",
-      "open": "打开",
-      "add": "添加",
-      "history": "历史"
+      "content": "內容",
+      "files": "檔案",
+      "edit": "編輯",
+      "open": "開啟",
+      "add": "新增",
+      "history": "歷史"
     },
     "menu": {
-      "copy_link": "复制链接",
-      "link_copied": "已复制链接",
-      "delete": "删除 skill",
-      "version_history": "版本历史"
+      "copy_link": "複製連結",
+      "link_copied": "已複製連結",
+      "delete": "刪除 skill",
+      "version_history": "版本歷史"
     },
     "panel": {
-      "add_description": "添加描述",
+      "add_description": "新增描述",
       "version": "版本",
-      "no_versions": "暂无版本"
+      "no_versions": "暫無版本"
     }
   },
   "create": {
-    "close": "关闭",
-    "close_aria": "关闭",
+    "close": "關閉",
+    "close_aria": "關閉",
     "method": {
       "manual": {
-        "title": "手动创建",
-        "desc": "从空白 SKILL.md 开始写。"
+        "title": "手動建立",
+        "desc": "從空白 SKILL.md 開始寫。"
       },
       "local": {
-        "title": "从本地导入",
-        "desc": "选择包含 SKILL.md 的文件夹，或 .skill / .zip 压缩包。"
+        "title": "從本地匯入",
+        "desc": "在這臺電腦上選擇一個 skill 資料夾，檔案會打包後上傳。"
       },
       "url": {
-        "title": "从 URL 导入",
-        "desc": "通过 URL 拉取已发布的 skill。"
+        "title": "從 URL 匯入",
+        "desc": "透過 URL 拉取已釋出的 skill。"
       },
       "runtime": {
-        "title": "从运行时复制",
-        "desc": "把本地运行时里已装好的 skill 提升到工作区。"
+        "title": "從執行環境複製",
+        "desc": "把本地執行環境裡已裝好的 skill 提升到工作區。"
       }
     },
     "manual": {
-      "name_label": "名称",
+      "name_label": "名稱",
       "name_placeholder": "例如：review-helper",
-      "name_hint": "工作区内必须唯一。",
+      "name_hint": "工作區內必須唯一。",
       "description_label": "描述",
-      "description_placeholder": "用一句话说什么时候应该把这个 skill 分配给智能体。",
-      "name_conflict_hint": "请换一个名字再提交。",
-      "fallback_error": "创建 skill 失败",
+      "description_placeholder": "用一句話說什麼時候應該把這個 skill 分配給 Agent。",
+      "name_conflict_hint": "請換一個名字再提交。",
+      "fallback_error": "建立 skill 失敗",
       "cancel": "取消",
-      "submit": "创建 skill",
-      "submitting": "创建中...",
-      "toast_created": "已创建 skill"
+      "submit": "建立 skill",
+      "submitting": "建立中...",
+      "toast_created": "已建立 skill"
     },
     "local": {
-      "choose_folder": "选择文件夹",
-      "choose_archive": "选择 .skill / .zip",
-      "folder_label": "文件夹",
-      "archive_label": "压缩包",
-      "files_other": "{{count}} 个文件",
-      "missing_skill_md": "这个文件夹不是 skill——里面没有 SKILL.md。",
-      "too_large": "这个 skill 太大，无法导入。",
-      "empty": "文件夹是空的。",
-      "too_many_files": "这个 skill 的文件太多，无法导入。",
-      "name_conflict_hint": "导入的 skill 名称已存在——请先删除已有的再重试。",
-      "fallback_error": "导入失败",
+      "choose_folder": "選擇資料夾",
+      "choose_archive": "選擇 .skill / .zip",
+      "folder_label": "資料夾",
+      "archive_label": "壓縮檔",
+      "files_other": "{{count}} 個檔案",
+      "missing_skill_md": "這個資料夾不是 skill——裡面沒有 SKILL.md。",
+      "too_large": "這個 skill 太大，無法匯入。",
+      "empty": "資料夾是空的。",
+      "too_many_files": "這個 skill 的檔案太多，無法匯入。",
+      "name_conflict_hint": "匯入的 skill 名稱已存在——請先刪除已有的再重試。",
+      "fallback_error": "匯入失敗",
       "cancel": "取消",
-      "import": "导入",
-      "importing": "导入中...",
-      "toast_imported": "已导入 skill",
-      "select_all": "全选",
-      "import_count": "导入 {{count}} 个",
+      "import": "匯入",
+      "importing": "匯入中...",
+      "toast_imported": "已匯入 skill",
+      "select_all": "全選",
+      "import_count": "匯入 {{count}} 個",
       "done": "完成",
-      "stop": "当前项完成后停止",
-      "unreadable": "无法读取此 skill，请重新选择文件夹。",
-      "uncertain": "导入结果尚不确定，请刷新核对后再重试。列表中已有同名项的 skill 将保持锁定，请前往列表查看。",
-      "check_results": "刷新核对",
-      "retry_ready": "刷新后的列表中未找到此 skill，可以重试。",
-      "uncertain_manual": "导入结果尚不确定，且无法确认压缩包内的 skill 名称。再次导入此压缩包前，请前往 skill 列表人工核对。",
-      "check_failed": "无法核对 skill 列表，结果不确定的导入项仍保持锁定。请重新核对，或前往列表人工查看。",
-      "workspace_changed": "工作区已切换，后续导入已停止。请关闭弹窗，在目标工作区重新打开。",
-      "summary": "成功 {{success}} 个 · 失败或待核对 {{failed}} 个"
+      "stop": "目前項目完成後停止",
+      "unreadable": "無法讀取此 skill，請重新選擇資料夾。",
+      "uncertain": "匯入結果尚不確定。請重新整理 skill 列表並核對後再重試；已有同名項目的匯入會保持鎖定，請前往列表查看。",
+      "check_results": "重新整理並核對",
+      "retry_ready": "重新整理後的列表中未找到此 skill，可以重試。",
+      "uncertain_manual": "匯入結果尚不確定，且無法確認壓縮包內的 skill 名稱。再次匯入此壓縮包前，請先手動核對 skill 列表。",
+      "check_failed": "無法核對 skill 列表，結果不確定的匯入項目仍保持鎖定。請重新核對，或前往列表手動查看。",
+      "workspace_changed": "工作區已切換，後續匯入已停止。請關閉此對話框，並在目標工作區重新開啟。",
+      "summary": "成功 {{success}} 個 · 失敗或待核對 {{failed}} 個"
     },
     "url": {
       "url_label": "Skill URL",
-      "supported_sources": "支持的来源",
-      "import": "导入",
-      "importing": "导入中...",
-      "importing_clawhub": "正在从 ClawHub 导入...",
-      "importing_skills_sh": "正在从 Skills.sh 导入...",
-      "importing_github": "正在从 GitHub 导入...",
-      "name_conflict_hint": "导入的 skill 名称已存在——请先删除已有的再重试。",
-      "fallback_error": "导入失败",
+      "supported_sources": "支援的來源",
+      "import": "匯入",
+      "importing": "匯入中...",
+      "importing_clawhub": "正在從 ClawHub 匯入...",
+      "importing_skills_sh": "正在從 Skills.sh 匯入...",
+      "importing_github": "正在從 GitHub 匯入...",
+      "name_conflict_hint": "匯入的 skill 名稱已存在——請先刪除已有的再重試。",
+      "fallback_error": "匯入失敗",
       "cancel": "取消",
-      "toast_imported": "已导入 skill"
+      "toast_imported": "已匯入 skill"
     }
   },
   "runtime_import": {
-    "runtime_label": "运行时",
-    "runtime_placeholder": "选择一个本地运行时",
-    "no_local_runtimes_title": "暂无可用的本地运行时",
-    "no_local_runtimes_hint": "连接一个本地运行时，才能浏览并导入其本地 skill。",
-    "choose_runtime": "请选择一个运行时继续",
-    "must_be_online": "运行时必须在线才能浏览本地 skill。",
-    "load_failed": "加载本地 skill 失败",
-    "not_supported": "这个 provider 暂不支持本地 skill 列表。",
+    "runtime_label": "執行環境",
+    "runtime_placeholder": "選擇一個本地執行環境",
+    "no_local_runtimes_title": "目前沒有可用的本地執行環境",
+    "no_local_runtimes_hint": "連線一個本地執行環境，才能瀏覽並匯入其本地 skill。",
+    "choose_runtime": "請選擇一個執行環境繼續",
+    "must_be_online": "執行環境必須線上才能瀏覽本地 skill。",
+    "load_failed": "載入本地 skill 失敗",
+    "not_supported": "這個 provider 暫不支援本地 skill 列表。",
     "no_skills_title": "未找到本地 skill",
-    "search_placeholder": "搜索本地 skill",
-    "no_search_results_hint": "没有本地 skill 匹配 \"{{query}}\"。",
-    "ignored_files_hint": "导入时会忽略软链、不可读文件、超大文件以及超大目录。",
-    "ready": "准备导入",
-    "into_workspace": "到工作区。",
-    "select_skill": "请选择一个 skill 继续。",
-    "import_button": "导入到工作区",
-    "importing": "导入中...",
-    "skill_files_other": "{{count}} 个文件",
-    "skill_name_label": "工作区里的 skill 名称",
+    "search_placeholder": "搜尋本地 skill",
+    "no_search_results_hint": "沒有本地 skill 符合 \"{{query}}\"。",
+    "ignored_files_hint": "匯入時會忽略軟鏈、不可讀檔案、超大檔案以及超大目錄。",
+    "ready": "準備匯入",
+    "into_workspace": "到工作區。",
+    "select_skill": "請選擇一個 skill 繼續。",
+    "import_button": "匯入到工作區",
+    "importing": "匯入中...",
+    "skill_files_other": "{{count}} 個檔案",
+    "skill_name_label": "工作區裡的 skill 名稱",
     "skill_description_label": "描述",
-    "skill_description_placeholder": "可选——描述智能体什么时候应该使用这个 skill。",
-    "toast_imported": "已导入 skill",
-    "toast_import_failed": "导入 skill 失败",
-    "select_all": "全选 ({{count}})",
-    "bulk_ready": "已选择 {{count}} 个 skill",
-    "bulk_import_button": "导入 {{count}} 个 skill",
-    "bulk_progress": "正在导入 {{completed}} / {{total}}…",
+    "skill_description_placeholder": "可選——描述 Agent 什麼時候應該使用這個 skill。",
+    "toast_imported": "已匯入 skill",
+    "toast_import_failed": "匯入 skill 失敗",
+    "select_all": "全選 ({{count}})",
+    "bulk_ready": "已選擇 {{count}} 個 skill",
+    "bulk_import_button": "匯入 {{count}} 個 skill",
+    "bulk_progress": "正在匯入 {{completed}} / {{total}}…",
     "bulk_cancel_button": "取消",
-    "bulk_complete_hint": "导入完成。",
-    "bulk_cancelled_hint": "导入已取消。",
+    "bulk_complete_hint": "匯入完成。",
+    "bulk_cancelled_hint": "匯入已取消。",
     "bulk_done_button": "完成",
-    "bulk_summary_created": "已创建",
+    "bulk_summary_created": "已建立",
     "bulk_summary_updated": "已更新",
-    "bulk_summary_conflicts": "冲突",
-    "bulk_summary_skipped": "已跳过",
-    "bulk_summary_failed": "失败",
-    "conflict_single_title": "工作区里已存在同名 skill",
-    "conflict_bulk_title": "{{count}} 个 skill 需要处理冲突",
-    "conflict_hint": "选择覆盖现有工作区 skill、改名导入，或跳过。",
-    "conflict_locked_creator": "该 skill 由 {{creator}} 创建，只能由创建者通过本地导入覆盖；如需修改请到 Skill 详情页编辑。",
-    "conflict_locked": "该 skill 只能由创建者通过本地导入覆盖；如需修改请到 Skill 详情页编辑。",
-    "conflict_overwrite": "覆盖",
-    "conflict_rename": "重命名",
-    "conflict_skip": "跳过",
+    "bulk_summary_conflicts": "衝突",
+    "bulk_summary_skipped": "已跳過",
+    "bulk_summary_failed": "失敗",
+    "conflict_single_title": "工作區裡已存在同名 skill",
+    "conflict_bulk_title": "{{count}} 個 skill 需要處理衝突",
+    "conflict_hint": "選擇覆蓋現有工作區 skill、改名匯入，或跳過。",
+    "conflict_locked_creator": "該 skill 由 {{creator}} 建立，只能由建立者透過本地匯入覆蓋；如需修改請到 Skill 詳細頁面編輯。",
+    "conflict_locked": "該 skill 只能由建立者透過本地匯入覆蓋；如需修改請到 Skill 詳細頁面編輯。",
+    "conflict_overwrite": "覆蓋",
+    "conflict_rename": "重新命名",
+    "conflict_skip": "跳過",
     "conflict_cancel": "取消",
-    "conflict_overwrite_all": "全部覆盖",
-    "conflict_skip_all": "全部跳过",
-    "conflict_rename_label": "新的 skill 名称",
-    "conflict_footer": "还有 {{count}} 个冲突决策待处理。",
-    "conflict_apply_button": "应用决策",
-    "conflict_missing_resolution": "请选择如何处理这个冲突。",
-    "conflict_name_still_exists": "这个名称仍然已存在。请换一个名称或跳过。"
+    "conflict_overwrite_all": "全部覆蓋",
+    "conflict_skip_all": "全部跳過",
+    "conflict_rename_label": "新的 skill 名稱",
+    "conflict_footer": "還有 {{count}} 個衝突決策待處理。",
+    "conflict_apply_button": "應用決策",
+    "conflict_missing_resolution": "請選擇如何處理這個衝突。",
+    "conflict_name_still_exists": "這個名稱仍然已存在。請換一個名稱或跳過。"
   },
   "file_tree": {
-    "no_files": "无文件",
+    "no_files": "無檔案",
     "actions": {
       "label": "{{path}} 的操作",
-      "edit": "编辑",
-      "rename": "重命名",
-      "delete": "删除"
+      "edit": "編輯",
+      "rename": "重新命名",
+      "delete": "刪除"
     }
   },
   "file_viewer": {
-    "no_content": "*暂无内容*",
-    "markdown_placeholder": "输入 Markdown 内容...",
-    "raw_placeholder": "文件内容...",
-    "raw_aria": "{{path}} 的纯文本内容"
+    "no_content": "*目前沒有內容*",
+    "markdown_placeholder": "輸入 Markdown 內容...",
+    "raw_placeholder": "檔案內容...",
+    "raw_aria": "{{path}} 的純文本內容"
   },
   "intro": {
-    "title": "把团队的做事方法写成 skill",
-    "description": "Skill 是一份可复用的做事说明（SKILL.md）。在工作区里添加一次，分配给哪个智能体，它就会照着做。",
+    "title": "把團隊的做事方法寫成 skill",
+    "description": "Skill 是一份可複用的做事說明（SKILL.md）。在工作區裡新增一次，分配給哪個 Agent，它就會照著做。",
     "slides": {
       "methods": {
-        "title": "四种方式添加",
-        "description": "从空白的 SKILL.md 写起，或从本地文件夹、URL、运行时导入已有的 skill。"
+        "title": "四種方式新增",
+        "description": "從空白的 SKILL.md 寫起，或從本地資料夾、URL、執行環境匯入已有的 skill。"
       },
       "assign": {
-        "title": "分配给智能体",
-        "description": "一个 skill 可以给多个智能体用。改一处，所有用到它的智能体都会更新。"
+        "title": "分配給 Agent",
+        "description": "一個 skill 可以給多個 Agent 用。改一處，所有用到它的 Agent 都會更新。"
       },
       "share": {
-        "title": "在工作区内共享",
-        "description": "本地运行时里的 skill 在你复制过来之前是私有的，复制后所有智能体都能用。"
+        "title": "在工作區內共享",
+        "description": "本地執行環境裡的 skill 在你複製過來之前是私有的，複製後所有 Agent 都能用。"
       }
     },
     "art": {
-      "skill_summary": "先跑测试，再看可访问性和性能。",
-      "add_to_agent": "分配给智能体",
+      "skill_summary": "先執行測試，再檢查無障礙功能和效能。",
+      "add_to_agent": "分配給 Agent",
       "local_skills": "本地 skill",
       "private": "私有",
-      "workspace_shared": "工作区",
-      "all_agents": "所有智能体可用",
-      "role_reviewer": "审查者",
-      "role_fullstack": "全栈",
-      "copy_to_workspace": "复制到工作区"
+      "workspace_shared": "工作區",
+      "all_agents": "所有 Agent 可用",
+      "role_reviewer": "審查者",
+      "role_fullstack": "全端",
+      "copy_to_workspace": "複製到工作區"
     }
   }
 }

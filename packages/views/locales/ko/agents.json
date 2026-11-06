@@ -160,7 +160,45 @@
     "copy_link": "링크 복사",
     "copy_id": "에이전트 ID 복사",
     "link_copied_toast": "링크를 복사했습니다",
-    "id_copied_toast": "에이전트 ID를 복사했습니다"
+    "id_copied_toast": "에이전트 ID를 복사했습니다",
+    "usage": {
+      "title": "사용량 및 한도",
+      "source": "출처: {{source}}",
+      "source_official": "공식",
+      "source_derived": "계산됨",
+      "source_unavailable": "사용 불가",
+      "refresh": "사용량 새로고침",
+      "provider_quota": "제공업체 계정 한도",
+      "model": "모델: {{model}}",
+      "model_default": "런타임 기본값",
+      "current_model": "현재 모델",
+      "updated_at": "{{when}}에 업데이트됨",
+      "no_runtime": "제공업체 사용량을 읽으려면 런타임을 연결하세요.",
+      "runtime_offline": "런타임이 오프라인이라 사용량을 새로고침할 수 없습니다.",
+      "unavailable": "제공업체가 기계 판독 가능한 한도 데이터를 반환하지 않았습니다.",
+      "auth_required": "이 런타임에서 제공업체 CLI에 로그인한 다음 새로고침하세요.",
+      "claude_unavailable": "Claude Code 한도 스냅샷이 아직 없습니다. 호환되는 Multica 데몬에서 Claude 태스크를 한 번 실행한 뒤 새로고침하세요.",
+      "probe_error": "런타임 CLI에서 계정 한도 스냅샷을 가져올 수 없습니다.",
+      "refresh_hint": "즉시 업데이트를 요청합니다. 조회는 60초에 한 번으로 제한되며 제공업체에 따라 더 오래 기다려야 할 수 있습니다. 표시된 시간은 마지막 관측 시간입니다.",
+      "refresh_countdown": "{{seconds}}초 후 다시 업데이트 가능",
+      "refresh_failed": "업데이트에 실패했습니다. 표시된 값은 마지막으로 성공한 관측값입니다.",
+      "stale": "이 스냅샷은 오래된 기록이며 현재 할당량이 아닙니다.",
+      "window_expired": "초기화 시간이 지났습니다. 현재 사용량을 알 수 없습니다.",
+      "antigravity_google": "Google 모델 · 공유 한도",
+      "antigravity_third_party": "Claude / GPT · 공유 한도",
+      "window_value_unavailable": "제공자가 유효한 사용 비율을 제공하지 않았습니다.",
+      "multica_7d": "Multica의 이 에이전트 · 7일",
+      "tokens": "토큰",
+      "runs": "실행",
+      "multica_scope_hint": "Multica에서 실행한 작업만 집계합니다. 이는 사용량이며 제공업체 계정 한도가 아닙니다.",
+      "remaining_unknown": "남음 —",
+      "used": "{{value}}% 사용",
+      "remaining": "{{value}}% 남음",
+      "window_5h": "5시간 한도",
+      "window_weekly": "주간 한도",
+      "resets": "{{when}} 재설정",
+      "reset_unknown": "재설정 시간을 사용할 수 없음"
+    }
   },
   "inspector": {
     "section_profile": "프로필",
@@ -191,7 +229,10 @@
     "rename_required": "이름은 필수입니다",
     "edit_description_title": "설명 수정",
     "description_placeholder": "이 에이전트는 무엇을 하나요?",
-    "cancel": "취소"
+    "cancel": "취소",
+    "discard_changes": "변경 취소",
+    "save_changes": "변경 저장",
+    "section_profile_hint": "워크스페이스에서 이 Agent가 표시되는 방식을 설정합니다."
   },
   "overview": {
     "attention_title": "확인이 필요한 실행",
@@ -359,7 +400,9 @@
       "save": "저장",
       "add": "추가",
       "unsaved_changes": "저장하지 않은 변경사항",
-      "discard": "변경 취소"
+      "discard": "변경 취소",
+      "discard_changes": "변경 취소",
+      "save_changes": "변경 저장"
     },
     "instructions": {
       "intro": "모든 실행에 사용할 System Prompt를 설정하세요. Markdown을 지원합니다.",
@@ -1041,7 +1084,6 @@
       "next": "다음"
     }
   },
-  "actions": {},
   "intro": {
     "title": "첫 AI 팀원을 맞이하세요",
     "description": "에이전트는 팀원처럼 태스크를 맡습니다. 런타임에서 Claude Code, Codex 같은 도구로 작업하고, 끝나면 댓글로 결과를 전달합니다.",
