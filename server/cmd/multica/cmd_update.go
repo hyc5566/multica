@@ -28,6 +28,12 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 		return fmt.Errorf("download timeout must be greater than zero")
 	}
 
+	// Taiwan updates coordinate the App or the original systemd service. The
+	// generic installer cannot attest the running daemon or retain a transaction.
+	if strings.Contains(version, "-zh-tw.") || cli.ZhTWReleaseManifestURL() != "" {
+		return fmt.Errorf("繁中版請使用下載頁提供的固定版本更新腳本。先驗證 SHA-256，再執行乾跑。有 App 時，由 App 一併更新內附 CLI 與 daemon。無 App 時，由其他機器的 agent 依核准計畫更新，並沿用原 systemd service。multica update 不會替換程式或重新啟動服務")
+	}
+
 	fmt.Fprintf(os.Stderr, "Current version: %s (commit: %s, built: %s)\n", version, commit, date)
 
 	// Check the configured release source.
@@ -42,25 +48,6 @@ func runUpdate(_ *cobra.Command, _ []string) error {
 			return nil
 		}
 		fmt.Fprintf(os.Stderr, "Latest version:  %s\n\n", latest.TagName)
-	}
-
-	// The zh-tw launcher follows its own release channel and installer.
-	if cli.ZhTWReleaseManifestURL() != "" {
-		if latest == nil {
-			return fmt.Errorf("could not determine latest version; check the zh-tw release channel")
-		}
-		if !cli.IsNewerVersion(latest.TagName, version) {
-			fmt.Fprintln(os.Stderr, "Already up to date.")
-			return nil
-		}
-		fmt.Fprintf(os.Stderr, "Upgrading to %s with the release installer...\n", latest.TagName)
-		output, err := cli.UpdateViaZhTWInstaller(latest.TagName, version, updateDownloadTimeout)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "%s\n", output)
-			return fmt.Errorf("update failed: %w", err)
-		}
-		fmt.Fprintf(os.Stderr, "%s\nUpdate complete. A running daemon restarts into the new version when idle.\n", output)
-		return nil
 	}
 
 	// Detect installation method and update accordingly.

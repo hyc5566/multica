@@ -29,13 +29,14 @@ export function UpdateNotification() {
     }
   };
 
-  if (!statusError && !actionError && (!status || !["downloading", "ready", "installing", "error"].includes(status.phase) || (status.phase === "ready" && status.deferred))) return null;
+  if (!statusError && !actionError && (!status || !["downloading", "ready", "installing", "pending", "error"].includes(status.phase) || (status.phase === "ready" && status.deferred))) return null;
 
   return (
     <div role="status" className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-border bg-background p-4 shadow-lg">
       <p className="text-body font-medium">{t(($) => $.desktop.updates.title)}</p>
       {status?.phase === "downloading" && <p>{t(($) => $.desktop.updates.progress, { percent: Math.round(status.percent ?? 0) })}</p>}
       {status?.phase === "installing" && <p>{t(($) => $.desktop.updates.installing)}</p>}
+      {status?.phase === "pending" && <p>{status.message}</p>}
       {status?.phase === "ready" && <>
         <p>{t(($) => $.desktop.updates.ready, { version: status.version ?? "" })}</p>
         <p className="text-caption text-muted-foreground">{t(($) => $.desktop.updates.defer_explanation)}</p>

@@ -137,6 +137,7 @@ export function UpdatesSettingsTab() {
               {status?.phase === "downloading" && <p role="status">{t(($) => $.desktop.updates.progress, { percent: Math.round(status.percent ?? 0) })}</p>}
               {status?.phase === "ready" && <p role="status">{t(($) => $.desktop.updates.ready, { version: status.version ?? "" })}</p>}
               {status?.phase === "installing" && <p role="status">{t(($) => $.desktop.updates.installing)}</p>}
+              {status?.phase === "pending" && <p role="status">{status.message}</p>}
               {status?.phase === "unsupported" && <p>{t(($) => $.desktop.updates.unsupported)}</p>}
               {(statusError || status?.phase === "error") && <p role="alert" className="text-destructive">{status?.error || t(($) => $.desktop.updates.status_failed)}</p>}
               {state.status === "error" && status?.phase !== "error" && (

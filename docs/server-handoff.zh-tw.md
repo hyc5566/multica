@@ -151,7 +151,7 @@ docker exec CADDY_CONTAINER caddy reload --config /etc/caddy/Caddyfile
 
 重建繁中版時保留本文件、[維護總覽](zh-tw-maintenance.md)、`CLAUDE.md` 的閱讀入口及 `scripts/deploy/` 工具／演練。更新工具參數或部署架構時，同一提交更新本文件；不要另維護一份互相漂移的步驟。
 
-受管 CLI／daemon 的獨立更新另依[維護閘門與回滾程序](daemon-maintenance.zh-tw.md)。`update-daemon.sh` 現在須提供固定版、完整 commit、獨立觀測 CLI、health URL、layout 與新 evidence 目錄；缺少 gate capability 的舊版拒絕常態更新。首次導入的全 Server 停機窗口與此處的平順切流不同，必須另核影響、全部入口排他性及資料庫已領取任務狀態，不能用本文件的切流授權代替。
+受管 CLI／daemon 的獨立更新另依[維護閘門與回滾程序](daemon-maintenance.zh-tw.md)。`update-daemon.sh` 現在須提供固定版、完整 commit、獨立觀測 CLI、health URL、layout 與新 evidence 目錄；缺少 gate capability 的舊版拒絕常態更新。無 gate 舊版的首次導入使用專用流程，中央 Server 持續運作，只更新已核對的目標機。維護期間漏接或中斷由使用者重新驅動。該流程仍須核對目標、備份、原身分與回滾；本文件的 Server 切流授權不授予機台換版權限。
 
 可重跑隔離演練（需 Docker、Go，以及預先取得的 PostgreSQL／Redis／Caddy／已審查 Server 映像）：
 
