@@ -149,26 +149,7 @@ def scan_roots(roots):
 
 
 def process_inventory(owner_uid):
-    """Inspect actual executable paths of all visible processes for this owner."""
-    result = []
-    for name in os.listdir('/proc'):
-        if not name.isdecimal():
-            continue
-        proc = '/proc/' + name
-        try:
-            if os.stat(proc).st_uid != owner_uid:
-                continue
-            executable = os.readlink(proc + '/exe')
-        except FileNotFoundError:
-            continue  # Processes may terminate during the scan.
-        except OSError as error:
-            raise updater.Refusal('cannot inspect a target-owner process') from error
-        if executable.endswith(' (deleted)'):
-            raise updater.Refusal('target-owner process has deleted executable')
-        if ('multica' in executable.casefold() or executable.casefold().endswith('.appimage')
-                or 'electron' in os.path.basename(executable).casefold()):
-            result.append({'pid': int(name), 'exe': executable})
-    return sorted(result, key=lambda item: item['pid'])
+    return updater.process_inventory()
 
 
 def scan_programs(roots):
@@ -337,7 +318,7 @@ def inspect_install(owner_uid, search_roots, cli_hint):
         hint = os.stat(cli_hint)
         identities.add((hint.st_dev, hint.st_ino))
     processes = process_inventory(owner_uid)
-    app_processes = [p for p in processes if 'multica' in p['exe'].lower() and ('.app/' in p['exe'].lower() or p['exe'].lower().endswith('.appimage') or 'electron' in p['exe'].lower())]
+    app_processes = [p for p in processes if p.get('app', 'multica' in p['exe'].lower() and ('.app/' in p['exe'].lower() or p['exe'].lower().endswith('.appimage') or 'electron' in p['exe'].lower()))]
     cli_app = '.app/' in cli_hint.lower() or cli_hint.lower().endswith('.appimage')
     if apps or app_processes or cli_app:
         status = 'app'
@@ -550,7 +531,8 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
         old_ca = launcher_ca_path(original_launcher, config.get('ca_sha256'))
         new_ca = launcher_ca_path(config['staged'], config.get('ca_sha256'))
     processes = process_inventory(uid)
-    related = [item for item in processes if 'multica' in item['exe'].casefold()]
+    require(not any(item.get('app', False) for item in processes), 'desktop application running; update through the application')
+    related = [item for item in processes if item.get('uid', uid) == uid and 'multica' in item['exe'].casefold()]
     require(len(related) == 1 and related[0]['pid'] == pid and os.path.samefile(related[0]['exe'], exe), 'running Multica process inventory is ambiguous')
     if not legacy_bootstrap:
         require(u.version_as_owner(exe) == (health.get('cli_version'), health.get('cli_commit')), 'running executable identity mismatch')
