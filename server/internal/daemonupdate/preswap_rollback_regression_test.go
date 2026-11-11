@@ -194,9 +194,14 @@ func TestTrustedOriginalTreeCannotChangeBeforeSwapOrRetry(t *testing.T) {
 			if err := verifyBundleHash(j.OldBundle, j.OldBinarySHA256); err != nil {
 				t.Fatalf("original bundle moved: %v", err)
 			}
-			saved := checkSharedBundle
-			defer func() { checkSharedBundle = saved }()
+			saved, savedSignature, savedNative := checkSharedBundle, legacyVerifySignature, acceptanceNativeRequired
+			defer func() {
+				checkSharedBundle, legacyVerifySignature, acceptanceNativeRequired = saved, savedSignature, savedNative
+			}()
 			checkSharedBundle = func(string) error { return nil }
+			// Exercise the Darwin signature branch without invoking host codesign.
+			acceptanceNativeRequired = func() bool { return true }
+			legacyVerifySignature = func(context.Context, string) error { return nil }
 			if err := a.AcquireGate(context.Background(), j); err == nil || !strings.Contains(err.Error(), "tree changed") {
 				t.Fatalf("retry accepted changed tree: %v", err)
 			}
