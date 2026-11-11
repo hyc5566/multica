@@ -57,6 +57,7 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 
 - gate 已存在：先辨識所有權、是否仍有 updater 或維護在途；不要覆蓋 `owner` JSON 檔、因逾時刪除或讓兩個操作者共同持有。接手與解除須依核准程序及 updater 介面處理。
 - `blocked=true` 但 `ready=false`：檢查 in-flight、active、更新與其他維護屏障，確認 gate 是可存取的目錄及路徑正確；持續觀察至工作結束，存取錯誤、異常型別或不明所有權時停止並查明。
+- 維護中 profile state 連結或目錄被改動：停止自動處理並明報 `profile_changed=true`、`claims_may_resume=true`。舊實體 gate 留存不保證 daemon 仍停派；先重新核對身分與實際 state，再取得可證明的屏障，不能直接停止或回滾。
 - 新程序未起、ID 不同、runtime 離線、hash 不符或健康資訊缺少 capability：保留 gate，停止發布並依已核准回滾處理。若回退版具 gate，仍須驗證其 gate 和身分；若不具 gate，採上述全 Server 冷窗口。
 - 解除後確認恢復健康與派工。未完成驗證前不要刪除備份或把失敗視為成功。
 
