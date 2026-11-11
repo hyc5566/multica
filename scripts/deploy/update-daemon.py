@@ -129,6 +129,58 @@ def require_visible_proc():
     require(not options or all(option == 'hidepid=0' for option in options), 'proc mount hides other processes')
 
 
+def process_inventory():
+    """Inspect visible process identities without excluding other owners."""
+    require_visible_proc()
+    try:
+        names = os.listdir('/proc')
+    except OSError as error:
+        raise Refusal('cannot enumerate all processes') from error
+    result = []
+    for name in names:
+        if not name.isdecimal():
+            continue
+        proc = '/proc/' + name
+        try:
+            before = os.stat(proc)
+            image = os.stat(proc + '/exe')
+            executable = os.readlink(proc + '/exe')
+            require(not executable.endswith(' (deleted)'), 'process has deleted executable')
+            identity = executable.casefold()
+            if identity.endswith('.appimage'):
+                require('multica' in identity, 'cannot identify AppImage process')
+            if 'electron' in os.path.basename(identity):
+                with open(proc + '/cmdline', 'rb') as f:
+                    command = f.read()
+                identity += ' ' + os.fsdecode(command).casefold()
+                require(bool(command) and 'multica' in identity, 'cannot identify Electron process')
+            image_after = os.stat(proc + '/exe')
+            after = os.stat(proc)
+            require((image.st_dev, image.st_ino) == (image_after.st_dev, image_after.st_ino), 'process executable changed during inventory')
+            require((before.st_dev, before.st_ino, before.st_uid) == (after.st_dev, after.st_ino, after.st_uid), 'process identity changed during inventory')
+        except FileNotFoundError:
+            try:
+                with open(proc + '/stat', encoding='ascii') as f:
+                    fields = f.read().rsplit(')', 1)[1].split()
+                if fields[0] in ('Z', 'X') or int(fields[6]) & 0x00200000:
+                    continue
+            except FileNotFoundError:
+                continue
+            except (OSError, ValueError, IndexError) as error:
+                raise Refusal('cannot inspect a process without an executable') from error
+            raise Refusal('live process executable or identity is unavailable')
+        except OSError as error:
+            raise Refusal('cannot inspect every process executable or identity') from error
+        if 'multica' in identity or executable.casefold().endswith('.appimage') or 'electron' in os.path.basename(executable).casefold():
+            result.append({'pid': int(name), 'uid': before.st_uid, 'exe': executable,
+                           'device': image.st_dev, 'inode': image.st_ino, 'app': 'multica' in identity and ('.appimage' in identity or 'electron' in os.path.basename(executable).casefold() or os.path.basename(executable).casefold() in ('multica-desktop', '@multicadesktop') or '.app/' in identity)})
+    return sorted(result, key=lambda item: item['pid'])
+
+
+def require_no_running_app():
+    require(not any(item['app'] for item in process_inventory()), 'desktop application running; update through the application')
+
+
 def executable_users(executable):
     """Find every visible process mapped to this inode, regardless of UID."""
     require_visible_proc()
@@ -559,6 +611,7 @@ class Updater:
         if first and getattr(self.a, 'legacy_bootstrap', False):
             self.inspect_legacy(self.health(), expected_pid=pid, idle=True)
         if first:
+            require_no_running_app()
             path_info = os.stat(self.exe)
             require((path_info.st_dev, path_info.st_ino) == self.original_executable_identity, 'original executable path changed')
             require_exclusive_executable(self.exe, pid, self.owner_uid)
@@ -764,6 +817,7 @@ class Updater:
         require(not executable_users(self.exe), 'original executable remains in use after unit stop')
         path_info = os.stat(self.exe)
         require((path_info.st_dev, path_info.st_ino) == self.original_executable_identity, 'original executable path changed during inventory')
+        require_no_running_app()
         self.changed = True
         self.replace(self.a.staged, self.destination)
         if legacy and getattr(self.a, 'legacy_wrapper', None):
