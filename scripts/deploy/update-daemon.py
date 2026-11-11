@@ -120,6 +120,9 @@ class Updater:
     def __init__(self, args):
         self.a = args
         self.gate = None
+        self.gate_path = None
+        self.profile_dir = None
+        self.profile_inode = None
         self.gate_inode = None
         self.owner = str(uuid.uuid4())
         self.lock = None
@@ -198,10 +201,16 @@ class Updater:
             result[ws] = selected
         return result
 
+    def profile_unchanged(self):
+        require(os.path.realpath(os.path.dirname(self.gate)) == self.profile_dir, 'profile state link changed')
+        s = os.lstat(self.profile_dir)
+        require(stat.S_ISDIR(s.st_mode) and (s.st_dev, s.st_ino) == self.profile_inode and s.st_uid == os.getuid(), 'profile state directory changed')
+
     def own_gate(self):
-        s = os.lstat(self.gate)
+        self.profile_unchanged()
+        s = os.lstat(self.gate_path)
         require(stat.S_ISDIR(s.st_mode) and (s.st_dev, s.st_ino) == self.gate_inode and s.st_uid == os.getuid(), 'gate ownership changed')
-        with open(os.path.join(self.gate, 'owner'), 'r', encoding='utf-8') as f:
+        with open(os.path.join(self.gate_path, 'owner'), 'r', encoding='utf-8') as f:
             info = json.load(f)
         require(info == {'id': self.owner, 'pid': os.getpid()}, 'gate owner changed')
 
@@ -211,13 +220,13 @@ class Updater:
         # Defer signals until this fact is recorded, even if the final fsync fails.
         previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
         try:
-            os.unlink(os.path.join(self.gate, 'owner'))
-            os.rmdir(self.gate)
+            os.unlink(os.path.join(self.gate_path, 'owner'))
+            os.rmdir(self.gate_path)
             self.gate_released = True
             self.gate_inode = None
         finally:
             signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
-        fsync_dir(os.path.dirname(self.gate))
+        fsync_dir(self.profile_dir)
 
     def report_released_error(self):
         self.result.update(status=self.result['status'] + '_gate_released_error',
@@ -331,9 +340,15 @@ class Updater:
         require(isinstance(g, dict) and g.get('supported') is True and g.get('blocked') is False, 'gate unsupported or already blocked')
         self.gate = g.get('path')
         require(isinstance(self.gate, str) and os.path.basename(self.gate) == 'daemon.maintenance', 'invalid gate path')
-        parent = path_clean(os.path.dirname(self.gate), 'dir')
+        require(os.path.isabs(self.gate) and os.path.normpath(self.gate) == self.gate, 'invalid gate path')
         expected = os.path.join(os.path.expanduser('~'), '.multica', 'profiles', self.a.profile) if self.a.profile else os.path.join(os.path.expanduser('~'), '.multica')
-        require(parent == os.path.normpath(expected) and os.stat(parent).st_uid == os.getuid(), 'profile directory mismatch or not owned by user')
+        require(os.path.dirname(self.gate) == os.path.normpath(expected), 'profile directory mismatch')
+        parent = path_clean(os.path.realpath(expected), 'dir')
+        require(os.stat(parent).st_uid == os.getuid(), 'profile directory not owned by user')
+        self.profile_dir = parent
+        s = os.stat(parent)
+        self.profile_inode = (s.st_dev, s.st_ino)
+        self.gate_path = os.path.join(parent, 'daemon.maintenance')
         pid = self.inspect(h)
         require(known(h.get('cli_version')) and known(h.get('cli_commit')), 'baseline version or commit unavailable')
         require(re.fullmatch(r'[0-9a-f]{40}', h['cli_commit']) is not None, 'baseline must attest a full commit')
@@ -365,7 +380,8 @@ class Updater:
         self.evidence = self.a.evidence_dir
         with open(os.path.join(self.evidence, 'heartbeats.jsonl'), 'x', encoding='utf-8'):
             pass
-        lockpath = self.gate + '.lock'
+        self.profile_unchanged()
+        lockpath = self.gate_path + '.lock'
         lockfd = os.open(lockpath, os.O_CREAT | os.O_RDWR | os.O_NOFOLLOW, 0o600)
         self.lock = os.fdopen(lockfd, 'r+')
         require(os.fstat(lockfd).st_uid == os.getuid() and stat.S_ISREG(os.fstat(lockfd).st_mode), 'gate lock invalid')
@@ -375,15 +391,16 @@ class Updater:
             raise Refusal('another updater holds the gate lock')
         previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
         try:
-            os.mkdir(self.gate, 0o700)
+            self.profile_unchanged()
+            os.mkdir(self.gate_path, 0o700)
             self.gate_created = True
-            st = os.lstat(self.gate)
+            st = os.lstat(self.gate_path)
             self.gate_inode = (st.st_dev, st.st_ino)
-            with open(os.path.join(self.gate, 'owner'), 'x', encoding='utf-8') as f:
+            with open(os.path.join(self.gate_path, 'owner'), 'x', encoding='utf-8') as f:
                 json.dump({'id': self.owner, 'pid': os.getpid()}, f)
                 f.flush()
                 os.fsync(f.fileno())
-            fsync_dir(self.gate)
+            fsync_dir(self.gate_path)
             fsync_dir(parent)
         finally:
             signal.pthread_sigmask(signal.SIG_SETMASK, previous_mask)
