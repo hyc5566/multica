@@ -259,7 +259,7 @@ server.serve_forever()
                         return [{'pid': pid, 'uid': os.getuid()}] if os.path.samefile('/proc/%d/exe' % pid, executable) else []
                     except FileNotFoundError:
                         return []
-                with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(u.pwd, 'getpwuid', return_value=account), mock.patch.object(u.signal, 'signal'), mock.patch.object(u, 'cgroup_members', return_value=[]), mock.patch.object(u, 'executable_users', side_effect=fixture_executable_users), mock.patch.object(u.ssl, 'create_default_context'):
+                with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(u.pwd, 'getpwuid', return_value=account), mock.patch.object(u.signal, 'signal'), mock.patch.object(u, 'cgroup_members', return_value=[]), mock.patch.object(u, 'process_inventory', return_value=[]), mock.patch.object(u, 'executable_users', side_effect=fixture_executable_users), mock.patch.object(u.ssl, 'create_default_context'):
                     def operation(target, version, evidence, legacy_mode=False, legacy_target=False):
                         s = wrapper.stat()
                         legacy_baseline = {'entrypoint': {'path': str(wrapper), 'sha256': u.sha(str(wrapper)),
@@ -290,6 +290,22 @@ server.serve_forever()
                     self.assertNotEqual(shared_code, 0)
                     self.assertEqual(shared.result['status'], 'refused', shared.result)
                     self.assertEqual(int(pidfile.read_text()), original_pid)
+                    self.assertEqual(u.sha(str(current)), u.sha(str(legacy)))
+                    self.assertFalse(gate.exists())
+                    app = {'pid': 99999, 'uid': os.getuid() + 1, 'exe': '/other/Multica.AppImage', 'app': True}
+                    with mock.patch.object(u, 'process_inventory', return_value=[app]):
+                        blocked, blocked_code = operation(candidate, '2.0.0', root / 'evidence-app-before-stop', legacy_mode=True)
+                    self.assertNotEqual(blocked_code, 0)
+                    self.assertEqual(int(pidfile.read_text()), original_pid)
+                    self.assertEqual(u.sha(str(current)), u.sha(str(legacy)))
+                    with mock.patch.object(u, 'process_inventory', side_effect=u.Refusal('cannot inspect every process executable or identity')):
+                        blocked, blocked_code = operation(candidate, '2.0.0', root / 'evidence-uninspectable-before-stop', legacy_mode=True)
+                    self.assertNotEqual(blocked_code, 0)
+                    self.assertEqual(int(pidfile.read_text()), original_pid)
+                    self.assertEqual(u.sha(str(current)), u.sha(str(legacy)))
+                    with mock.patch.object(u, 'process_inventory', side_effect=[[], [app]]):
+                        blocked, blocked_code = operation(candidate, '2.0.0', root / 'evidence-app-before-swap', legacy_mode=True)
+                    self.assertNotEqual(blocked_code, 0)
                     self.assertEqual(u.sha(str(current)), u.sha(str(legacy)))
                     self.assertFalse(gate.exists())
                     good, code = operation(candidate, '2.0.0', root / 'evidence-good', legacy_mode=True)
@@ -356,6 +372,7 @@ server.serve_forever()
                          mock.patch.object(coordinator, 'scan_programs', return_value=[]), \
                          mock.patch.object(coordinator, 'process_inventory', side_effect=lambda uid: [{'pid': int(pidfile.read_text()), 'exe': str(current)}]), \
                          mock.patch.object(coordinator.updater, 'executable_users', side_effect=fixture_executable_users), \
+                         mock.patch.object(coordinator.updater, 'process_inventory', return_value=[]), \
                          mock.patch.object(coordinator.os.path, 'commonpath', side_effect=fixture_commonpath), \
                          mock.patch.object(coordinator.updater, 'Updater', FastUpdater):
                         plan, manifest = coordinator.rollback_plan(str(ledger_path), str(root / 'evidence-real-rollback'))
