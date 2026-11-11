@@ -148,6 +148,9 @@ def main():
         (conf / 'config.json').write_text(json.dumps({'server_url': f'http://127.0.0.1:{api.server_port}',
             'token': 'lab-dummy-not-a-real-credential', 'workspace_id': WS,
             'disable_auto_update': True, 'disable_auto_reload': True}))
+        if layout == 'binary':
+            shutil.move(str(home / '.multica'), str(root / 'state'))
+            (home / '.multica').symlink_to(root / 'state', target_is_directory=True)
         old = root / 'old' / 'multica'
         new = root / 'new' / 'multica'
         old.parent.mkdir()
@@ -224,7 +227,8 @@ def main():
             gate.rmdir()
             eventually(lambda: api.claims > claim_count)
             result = {'layout': layout, 'inflight_drain': 'passed', 'claims_blocked_during_three_heartbeats': 'passed',
-                'daemon_id': before['daemon_id'], 'runtimes': before['workspaces']}
+                'daemon_id': before['daemon_id'], 'runtimes': before['workspaces'],
+                'profile_state_symlink': layout == 'binary'}
             if not a.boot_only:
                 updater = Path(__file__).resolve().parent / 'update-daemon.py'
                 port = json.loads((conf / 'daemon.port').read_text())['port']
