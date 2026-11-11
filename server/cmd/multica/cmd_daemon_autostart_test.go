@@ -315,6 +315,14 @@ func stubPlatform(t *testing.T, s stubAutostartPlatform) {
 }
 
 func TestShouldManageAutostart(t *testing.T) {
+	t.Run("independent launchd pin is never rewritten", func(t *testing.T) {
+		t.Setenv("MULTICA_LAUNCHED_BY", "")
+		t.Setenv("MULTICA_DAEMON_SUPERVISOR", "launchd-pinned")
+		stubPlatform(t, stubAutostartPlatform{supported: true})
+		if shouldManageAutostart() {
+			t.Fatal("pinned LaunchAgent must remain under operator control")
+		}
+	})
 	t.Run("plain human starts are managed", func(t *testing.T) {
 		t.Setenv("MULTICA_LAUNCHED_BY", "")
 		stubPlatform(t, stubAutostartPlatform{supported: true})

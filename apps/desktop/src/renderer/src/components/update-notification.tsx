@@ -1,70 +1,56 @@
 import { useEffect, useState } from "react";
-import { RefreshCw, X } from "lucide-react";
-
-// Downloads run silently in the background (main process has
-// autoDownload=true). The renderer only renders UI once the package is fully
-// downloaded and waiting for a restart.
-type UpdateState =
-  | { status: "idle" }
-  | { status: "ready"; version: string };
-
-function changelogUrl(version: string): string {
-  return `https://multica.ai/changelog#release-${version.replace(/\./g, "-")}`;
-}
+import { Button } from "@multica/ui/components/ui/button";
+import { useT } from "@multica/views/i18n";
+import { useUpdaterStatus } from "../hooks/use-updater-status";
 
 export function UpdateNotification() {
-  const [state, setState] = useState<UpdateState>({ status: "idle" });
-  const [dismissed, setDismissed] = useState(false);
+  const { t } = useT("settings");
+  const { status, statusError, refreshStatus } = useUpdaterStatus();
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
 
+  useEffect(() => { window.updater.rendererReady(); }, []);
   useEffect(() => {
-    const cleanup = window.updater.onUpdateDownloaded((info) => {
-      setState({ status: "ready", version: info.version });
-      setDismissed(false);
-    });
-    return cleanup;
-  }, []);
+    if (status && ["checking", "downloading", "ready"].includes(status.phase)) setActionError(null);
+  }, [status]);
 
-  if (state.status === "idle") return null;
-  if (dismissed) return null;
+  const act = async (action: () => Promise<unknown>) => {
+    setActionError(null);
+    setPending(true);
+    try {
+      const result = await action();
+      if (result && typeof result === "object" && "ok" in result && result.ok === false && "error" in result) {
+        setActionError(String(result.error));
+      }
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setPending(false);
+    }
+  };
+
+  if (!statusError && !actionError && (!status || !["downloading", "ready", "installing", "error"].includes(status.phase) || (status.phase === "ready" && status.deferred))) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-border bg-background p-4 shadow-lg animate-in slide-in-from-bottom-2 fade-in duration-300">
-      <button
-        type="button"
-        onClick={() => setDismissed(true)}
-        className="absolute top-2 right-2 rounded-md p-1 text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <X className="size-3.5" />
-      </button>
-
-      <div className="flex items-start gap-3">
-        <div className="mt-0.5 rounded-md bg-success/10 p-1.5">
-          <RefreshCw className="size-4 text-success" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="text-body font-medium">Update ready</p>
-          <p className="text-caption text-muted-foreground mt-0.5">
-            v{state.version} will be applied on next launch.
-          </p>
-          <div className="mt-2 flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() =>
-                window.desktopAPI.openExternal(changelogUrl(state.version))
-              }
-              className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1.5 text-caption font-medium text-foreground hover:bg-accent transition-colors"
-            >
-              See changelog
-            </button>
-            <button
-              type="button"
-              onClick={() => window.updater.installUpdate()}
-              className="inline-flex items-center rounded-md bg-primary px-3 py-1.5 text-caption font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-            >
-              Restart now
-            </button>
-          </div>
-        </div>
+    <div role="status" className="fixed bottom-4 right-4 z-50 w-80 rounded-lg border border-border bg-background p-4 shadow-lg">
+      <p className="text-body font-medium">{t(($) => $.desktop.updates.title)}</p>
+      {status?.phase === "downloading" && <p>{t(($) => $.desktop.updates.progress, { percent: Math.round(status.percent ?? 0) })}</p>}
+      {status?.phase === "installing" && <p>{t(($) => $.desktop.updates.installing)}</p>}
+      {status?.phase === "ready" && <>
+        <p>{t(($) => $.desktop.updates.ready, { version: status.version ?? "" })}</p>
+        <p className="text-caption text-muted-foreground">{t(($) => $.desktop.updates.defer_explanation)}</p>
+      </>}
+      {(statusError || status?.phase === "error" || actionError) && <p role="alert" className="text-destructive">{actionError || status?.error || t(($) => $.desktop.updates.status_failed)}</p>}
+      <div className="mt-2 flex flex-wrap gap-2">
+        {status?.phase === "ready" && <>
+          {status.notesUrl && <Button variant="outline" size="sm" onClick={() => void window.desktopAPI.openExternal(status.notesUrl!)}>{t(($) => $.desktop.updates.release_notes)}</Button>}
+          <Button variant="outline" size="sm" disabled={pending} onClick={() => void act(() => window.updater.deferUpdate())}>{t(($) => $.desktop.updates.later)}</Button>
+          <Button size="sm" disabled={pending} onClick={() => void act(() => window.updater.installUpdate())}>{t(($) => $.desktop.updates.restart_now)}</Button>
+        </>}
+        {(status?.phase === "error" || statusError) && <Button size="sm" disabled={pending} onClick={() => void act(async () => {
+          try { return await window.updater.checkForUpdates(); }
+          finally { await refreshStatus(); }
+        })}>{t(($) => $.desktop.updates.retry)}</Button>}
       </div>
     </div>
   );

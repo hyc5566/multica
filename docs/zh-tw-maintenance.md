@@ -51,6 +51,18 @@ maintenance, installation provenance checks, idle claim barrier, and proactive
 per-runtime model catalog refresh. See [behavior, limits and rebuilding](agent-cli-maintenance.zh-tw.md).
 This layer updates third-party CLIs, not the Taiwan-edition Multica binary.
 
+Managed Multica CLI/daemon updates use the persistent profile claim gate and
+verified rollback procedure in [daemon maintenance](daemon-maintenance.zh-tw.md).
+Keep its offline updater, capability checks and isolated Linux rehearsal together.
+
+The macOS independent-daemon layer adds a persistent profile reservation marker,
+`launchd-pinned` lifecycle ownership and local `desktop_protocol=1`. Replay the
+Desktop lifecycle/credential guards together with the daemon's internal update
+and trust-restart refusals, immutable staging and gate-aware LaunchAgent manager.
+Preserve the [macOS owner procedure and acceptance checklist](macos-pinned-daemon.zh-tw.md).
+It permits different App/daemon binaries under the tested local contract; it
+does not certify arbitrary Server versions or authorize live migration.
+
 ## Provider usage feature layer
 
 Provider quota display is a Taiwan-edition feature, not part of the locale
@@ -321,6 +333,67 @@ there is no new dependency or database migration.
   requires a conventional location.
 - Never overwrite a running deployment without first recording its executable,
   process identity, version, and rollback path.
+
+### Taiwan App automatic updates (HYC-24)
+
+Keep `zh-tw-app-update.ts`, `zh-tw-update-controller.ts`, and
+`zh-tw-update-swap.ts` as a separate Taiwan feature layer. The Desktop entry
+registers this updater before `setupDaemonManager`, without importing the
+official `updater.ts` or `electron-updater`. Only packaged macOS arm64 Taiwan
+release versions (`X.Y.Z-zh-tw.N`) can update. Other builds still register
+settings IPC and return an explicit unsupported status.
+
+- The connected HTTPS server's `/downloads/latest.json` is the channel;
+  without a valid HTTPS server use the existing s90 URL. Never follow HTTP
+  redirects or substitute the official release feed. Versioned asset URLs,
+  bounded manifest/download size, SHA-256, bundle ID/version and codesign
+  verification remain mandatory. The locally ad-hoc-signed release trusts
+  the HTTPS channel and its manifest: codesign verifies bundle integrity,
+  not an independently pinned release publisher.
+- `updater-preferences.json` defaults to automatic updates enabled. Startup
+  checks run after 30 seconds, then every 24 hours. Failed checks/downloads
+  publish a visible error and retry after one minute, backing off to at most
+  15 minutes. Disabling the preference cancels timers and an automatic
+  download; manual checks still download and verify available updates. IPC
+  status snapshots plus broadcasts restore progress/errors after remounting.
+- A verified download waits for an explicit restart, an ordinary user quit,
+  or all App windows to close. Focus loss, minimization, idle time and daemon
+  task counts are not sufficient restart signals. `Later` suppresses automatic
+  installation for the rest of that App process; settings can still restart
+  explicitly. Staging is not resumed across launches: a subsequent process
+  checks and downloads again. A preference write in progress blocks automatic
+  installation, and the preference is rechecked before quitting.
+- Update quit preserves the existing daemon. A cancelled quit must not stop
+  daemon polling or leave preservation enabled for a later ordinary quit.
+  This change does not alter bundled-daemon version mismatch/reload policy;
+  managed-host rollout, including m5, remains gated by HYC-25 and separate
+  authorization.
+
+The helper waits up to 120 seconds for the old App to exit, saves one previous
+bundle in the App user-data directory's `zh-tw-update/rollback/`, and starts
+the new bundle's verified executable with a random attempt token. The new
+main process accepts readiness only from its main renderer after the React
+update notification has mounted, matching token, version and installed bundle
+path against `pending-launch.json`. This proves the renderer shell mounted;
+it does not prove server connectivity, authentication, or subsequent stability.
+
+Before this handshake, an exited child or a 60-second readiness timeout causes
+restoration. On timeout only the newly launched child receives TERM; if it
+does not exit within five seconds, leave both bundles in place and record
+`recovery-required` instead of moving a live App. Move/restore/relaunch
+failures also require manual recovery. A cancelled original quit leaves the
+old bundle unchanged and, when the helper exits, restores a retryable error
+in the live UI. `zh-tw-update/result` records the outcome and `swap.log`
+records the exchange; an unsuccessful result is surfaced on the next launch.
+Crashes after the readiness handshake are outside automatic rollback coverage.
+Keep the previous bundle available for manual recovery; do not describe this
+as recovery from every crash.
+
+Local Linux verification uses fixture executables and mocked macOS tools.
+`electron-vite build` and a same-commit Darwin arm64 CLI cross-build are
+development checks, not a signed/released macOS App. Before release, separately
+authorize and perform macOS packaging and a real two-version install/rollback
+exercise, including cancelled quit, renderer failure and daemon continuity.
 
 ### Desktop artifact retention
 

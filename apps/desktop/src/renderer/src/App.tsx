@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { CoreProvider } from "@multica/core/platform";
 import { pickLocale, type SupportedLocale } from "@multica/core/i18n";
+import { I18nProvider } from "@multica/core/i18n/react";
 import { useAuthStore } from "@multica/core/auth";
 import { useWelcomeStore } from "@multica/core/onboarding";
 import { workspaceKeys } from "@multica/core/workspace/queries";
@@ -487,7 +488,11 @@ export default function App() {
         <BlockingRuntimeConfigError message={runtimeConfigResult.error.message} />
       )}
       <Toaster />
-      {windowContext.kind === "main" && <UpdateNotification />}
+      {windowContext.kind === "main" && (
+        <I18nProvider locale={locale} resources={resources}>
+          <UpdateNotification />
+        </I18nProvider>
+      )}
     </ThemeProvider>
   );
 }
