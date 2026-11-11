@@ -44,6 +44,8 @@ func TestSharedBundleBlocksBeforeGateAndExchange(t *testing.T) {
 	if _, err := os.Stat(j.GatePath); !os.IsNotExist(err) {
 		t.Fatal("gate created despite shared App")
 	}
+	// This direct gate fixture bypasses AcquireGate's trusted tree capture.
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := acquireGate(path, j); err != nil {
 		t.Fatal(err)
 	}

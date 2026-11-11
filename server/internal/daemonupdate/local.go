@@ -190,6 +190,29 @@ func (a *localAdapter) AcquireGate(ctx context.Context, j *Journal) error {
 	if err != nil || oldHash != j.OldBinarySHA256 {
 		return errors.New("old App binary mismatch")
 	}
+	// Establish the rollback tree while the original App is still trusted,
+	// before any gate creation or shutdown can alter the transaction.
+	if acceptanceNativeRequired() {
+		if err := legacyVerifySignature(ctx, j.OldBundle); err != nil {
+			return errors.New("old App signature invalid")
+		}
+	}
+	_, oldTree, err := legacyTreeManifest(j.OldBundle)
+	if err != nil {
+		return err
+	}
+	if j.OldTreeSHA256 != "" && j.OldTreeSHA256 != oldTree {
+		return errors.New("original App tree changed")
+	}
+	if j.OldTreeSHA256 == "" {
+		if j.GateCreationIntent || j.GateIdentity != "" {
+			return errors.New("trusted original tree missing after gate intent; manual recovery required")
+		}
+		j.OldTreeSHA256 = oldTree
+		if err := SaveJournal(a.journalPath, *j); err != nil {
+			return err
+		}
+	}
 	newHash, err := hashFile(bundleCLI(j.StagedBundle))
 	if err != nil || newHash != j.NewBinarySHA256 {
 		return errors.New("candidate App binary mismatch")

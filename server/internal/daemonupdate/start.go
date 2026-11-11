@@ -257,7 +257,7 @@ func (a *localAdapter) StartAndVerify(ctx context.Context, j *Journal) error {
 		appDone = done
 		go func() { done <- command.Wait() }()
 		j.NewAppPID = command.Process.Pid
-		if j.Legacy != nil {
+		if runtime.GOOS == "darwin" || j.Legacy != nil {
 			identity, identityErr := inspectLegacy(j.NewAppPID)
 			if identityErr != nil {
 				select {
@@ -269,7 +269,10 @@ func (a *localAdapter) StartAndVerify(ctx context.Context, j *Journal) error {
 			if identity.ExecutablePath != filepath.Join(j.OldBundle, "Contents", "MacOS", j.NewAppExecutable) {
 				return errors.New("candidate App executable mismatch")
 			}
-			j.Legacy.CandidateProcesses = append(j.Legacy.CandidateProcesses, identity)
+			j.AcceptanceAppIdentity = &identity
+			if j.Legacy != nil {
+				j.Legacy.CandidateProcesses = append(j.Legacy.CandidateProcesses, identity)
+			}
 		}
 		if err := SaveJournal(a.journalPath, *j); err != nil {
 			_ = command.Process.Kill()
