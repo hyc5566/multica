@@ -120,8 +120,12 @@ class FixtureHandler(http.server.BaseHTTPRequestHandler):
             return self.reply({'workspace_id': WS, 'profiles': []})
         if self.path.endswith('/repos'):
             return self.reply({'workspace_id': WS, 'repos': [], 'repos_version': '1'})
-        if re.fullmatch(r'/api/daemon/tasks/[^/]+/status', self.path):
-            return self.reply({'status': 'running'})
+        match = re.fullmatch(r'/api/daemon/tasks/([^/]+)/status', self.path)
+        if match:
+            with server.lock:
+                completion = server.completions.get(match.group(1))
+                status = ('completed' if completion['action'] == 'complete' else 'failed') if completion else 'running'
+            return self.reply({'status': status})
         return self.reply({}, 404)
 
     def do_POST(self):
@@ -391,7 +395,7 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
     (conf / 'config.json').write_text(json.dumps({'server_url': fixture_url, 'token': 'fixture-dummy-token',
         'workspace_id': WS, 'workspaces_root': str(root / 'workspaces'),
         'disable_auto_update': True, 'disable_auto_reload': True}), encoding='utf-8')
-    current, staged, observer = assets / 'current', assets / 'candidate', assets / 'observer'
+    current, staged, observer = assets / 'multica-current', assets / 'candidate', assets / 'observer'
     for source, destination in ((old_binary, current), (new_binary, staged), (new_binary, observer)):
         shutil.copy2(source, destination)
         destination.chmod(0o755)
@@ -500,12 +504,14 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
             completed = wait_for(lambda: server()['completions'].get(first), 'first synthetic task completion', 90)
             if completed['action'] != 'complete' or completed['body'].get('output') != 'fixture task completed' or completed['body'].get('session_id') != 'fixture-session':
                 raise RuntimeError('first synthetic task failed: %s' % completed)
-            wait_for(lambda: attested_task(conf, unit, first), 'daemon receipt for first task')
+            first_receipt = wait_for(lambda: attested_task(conf, unit, first), 'daemon receipt for first task')
             control('enqueue', {'id': retry, 'redrive_of': missed})
             retried = wait_for(lambda: server()['completions'].get(retry), 'redriven synthetic task completion', 90)
             if retried['action'] != 'complete' or retried['body'].get('output') != 'fixture task completed' or retried['body'].get('session_id') != 'fixture-session':
                 raise RuntimeError('redriven synthetic task failed: %s' % retried)
-            wait_for(lambda: attested_task(conf, unit, retry), 'daemon receipt for redriven task')
+            retry_receipt = wait_for(lambda: attested_task(conf, unit, retry), 'daemon receipt for redriven task')
+            write_json(root / 'task-receipts.json', {'synthetic_task': first_receipt, 'redriven_task': retry_receipt})
+            write_json(root / 'accepted-health.json', health(conf))
             acceptance = coordinator.accept_transaction(config['ledger'])
             write_json(root / 'acceptance.json', acceptance)
             if acceptance.get('status') != 'accepted':
@@ -600,8 +606,12 @@ def fixture_self_test(url, pid):
     task = claim['tasks'][0]
     if task['id'] != 'redriven-fixture-task' or task['auth_token'] != 'mat_fixture_only':
         raise RuntimeError('fixture claim payload mismatch')
+    if request(url + '/api/daemon/tasks/redriven-fixture-task/status')['status'] != 'running':
+        raise RuntimeError('fixture pre-completion status mismatch')
     request(url + '/api/daemon/tasks/redriven-fixture-task/start', {})
     request(url + '/api/daemon/tasks/redriven-fixture-task/complete', {'output': 'fixture completion'})
+    if request(url + '/api/daemon/tasks/redriven-fixture-task/status')['status'] != 'completed':
+        raise RuntimeError('fixture post-completion status mismatch')
     result = request(url + '/control/status')
     if result['pid'] != pid or result['heartbeats'] != 1 or result['completions']['redriven-fixture-task']['action'] != 'complete':
         raise RuntimeError('fixture status mismatch')
