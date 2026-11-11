@@ -35,6 +35,8 @@ export interface DaemonStatus {
    * never disables the toggles for a normally-managed native daemon. See #3916.
    */
   externallyManaged?: boolean;
+  pinnedDaemon?: boolean;
+  incompatibleDaemon?: boolean;
 }
 
 export interface DaemonPrefs {

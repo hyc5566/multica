@@ -65,6 +65,14 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
     expect(command.closest("p")).toHaveTextContent(/multica daemon stop。$/);
   });
 
+  it("shows the pinned protocol warning in Traditional Chinese", async () => {
+    installDaemonAPI({ state: "running", externallyManaged: true, pinnedDaemon: true, incompatibleDaemon: true });
+    renderInTaiwanChinese(<DaemonSettingsTab />);
+    expect(await screen.findByRole("alert")).toHaveTextContent("獨立守護程序與此桌面應用程式不相容，請更新應用程式或守護程序。");
+    expect(screen.getByText("此守護程序由外部獨立管理。")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "啟動" })).toBeDisabled();
+  });
+
   it("offers manual start in settings while stopped", async () => {
     installDaemonAPI({ state: "stopped" });
     renderInTaiwanChinese(<DaemonSettingsTab />);

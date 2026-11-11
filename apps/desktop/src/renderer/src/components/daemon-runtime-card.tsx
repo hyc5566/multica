@@ -150,6 +150,12 @@ export function DaemonRuntimeActions() {
   return (
     <>
       <div className="flex flex-wrap items-center justify-end gap-1.5">
+        {status.incompatibleDaemon && (
+          <span role="alert" className="text-caption text-destructive">{t(($) => $.desktop.daemon.pinned_incompatible)}</span>
+        )}
+        {status.pinnedDaemon && !isRunning && (
+          <span className="text-caption text-muted-foreground">{t(($) => $.desktop.daemon.pinned_managed)}</span>
+        )}
         {isRunning && (
           <>
             <Button size="sm" variant="ghost" onClick={() => setPanelOpen(true)}>
@@ -186,7 +192,7 @@ export function DaemonRuntimeActions() {
           </>
         )}
 
-        {isStopped && (
+        {isStopped && !externallyManaged && (
           <Button size="sm" onClick={handleStart} disabled={actionLoading}>
             {actionLoading ? (
               <Activity className="size-3.5 mr-1.5 animate-pulse" />
