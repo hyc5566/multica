@@ -63,30 +63,15 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 - 新程序未起、ID 不同、runtime 離線、hash 不符或健康資訊缺少 capability：保留 gate，停止發布並依已核准回滾處理。若回退版具 gate，仍須驗證其 gate 和身分；若不具 gate，採上述全 Server 冷窗口。
 - 解除後確認恢復健康與派工。未完成驗證前不要刪除備份或把失敗視為成功。
 
-## 已採樣配置與 Desktop 選項
+## macOS Desktop：已選定獨立釘選 daemon（A 案）
 
-以下為 **2026-11-11** 唯讀採樣，並非目前狀態保證；實作前需重新核對實際程序、binary、profile、設定及服務管理者。四台當時的自動拉版與自動重載均為關閉。
+2026-11-11 已選定 A 案：固定版本 binary、獨立 launchd LaunchAgent 與原 profile；Desktop 僅連線，App／OS 重啟後仍維持經核准的 daemon 版本。候選實作尚未發布，也未在目標 Mac 遷移。
 
-| 主機 | 當時管理與路徑 | 關閉來源及待核對事項 |
-| --- | --- | --- |
-| s234（`linker-4124GS-4092x2`） | `multica-s234.service`，profile `s234`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/s234/bin/multica` | persisted `disable_auto_update=true`、`disable_auto_reload=true`，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
-| v6（`LKVS-B200-V06`） | `multica-v6.service`，profile `v6`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica` | persisted 兩個 disable 均為 true，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
-| 東京 mycc（`chy1010-ubuntu-jp-tyo-3`） | user systemd `multica.service`；預設 profile，執行檔位於 `~/.local/share/multica-zh-tw/0.8.1-zh-tw.1/` 版本目錄 | 環境的 auto-update／auto-reload 均為 false，persisted disable 欄位缺省；unit 的 ExecStart 為 `~/.local/bin/multica` script launcher，執行中的 binary 位於該版本目錄；舊版本目錄沒有 `launcher` 檔，不能直接套用 hardlink updater。 |
-| m5（`chy1010-linker-m5.local`） | Desktop bundle 內的 CLI 啟動 profile `desktop-10.1.24.90-45671`；當時 launchctl 僅見 App label，未見 daemon LaunchAgent | persisted 兩個 disable 均為 true，環境兩個自動更新值為 false；self-reload opt-in 為 1，但有效 auto-reload 為 false，故未啟用。舊文件中的 daemon LaunchAgent label 不是此採樣的現況。 |
+可直接用於使用者更新指引的 [macOS 安裝、遷移、升級、回滾與驗收程序](macos-pinned-daemon.zh-tw.md) 不含內部主機、註冊 UUID 或憑證。原機器清單不作為公開操作範本；每次操作另備受限存取的核准包，以實際盤點為準。
 
-m5 若要求排定更新在 App 或 OS 重啟後仍有效，建議選**獨立釘選 daemon**：保留獨立固定版 binary、明確的管理者、profile／daemon 身分、CA、升級與回滾；Desktop 需能連接既有 daemon，並明確處理版本相容與生命週期。相對工作量較大，必須驗證身分遷移、避免雙 daemon、App/daemon/server API 混版、安裝與回滾。
+Desktop 透過 profile 的 `daemon-management.json` 與 health 的 `lifecycle_manager=launchd-pinned` 辨識管理權；標記存在即保留，即使 daemon 停止、標記損壞或 health 無法連線也不接管。App 不下載／安裝替代 CLI、不改原憑證、不因版本差異、信任刷新、登出、結束或更新而重新啟動它。daemon 也拒絕自行跟隨 App bundle、server 換版要求和 idle trust restart。
 
-| 比較 | 獨立釘選 daemon（建議） | 受管延後重載 |
-| --- | --- | --- |
-| 管理來源 | 固定版目錄與獨立 launchd 管理，App 連接既有 daemon | 仍由 App 管理，但持久記錄核准版本及待換版本 |
-| 必改入口 | Desktop binary resolve、版本檢查、停止／重啟與信任刷新；外部 daemon 不被 App 接管 | 同時約束 daemon auto reload、Desktop 版本／信任刷新及 App／OS 重啟的 binary 選擇 |
-| 初期工作量 | 較高：安裝／遷移、外部管理者識別、釘選與回滾 | 若只延至下一次 App 啟動較低；若跨 App／OS 重啟有效，須保存舊 binary，工作量接近左案 |
-| 主要風險 | 重複 daemon、原 ID／profile／CA 遷移與混版 API 相容 | 意外啟動／信任刷新繞過排程，App bundle 換版後舊入口失效 |
-| 日後維護 | App 與 daemon 分別換版，批次邊界清楚 | 每個 Desktop 生命週期變更都要重驗延後政策 |
-
-以上是工程範圍與相對估算，未作 macOS 實機遷移，不承諾工期。需 hungyu 選定後另行實作與核准設定。
-
-另一案是**受管延後重載**：約束 Desktop 的 binary resolve（bundle 優先）、`ensureRunningDaemonVersionMatches` 版本不符重啟、daemon 自行 idle reload，以及 Desktop 信任刷新重啟等路徑，並處理 App 或系統重啟後從哪個 binary 啟動。只關單一 reload 開關不足以實現排定換版；若要求重啟後仍固定舊版，也必須保留可執行舊版，工作量可能接近獨立釘選。兩案均需考慮同一 profile／daemon ID、CA、runtime 註冊、任務排空與混版 API 相容。取捨待 hungyu 裁決，尚未核准，也未實作 m5 變更。
+一般遷移與換版仍須完整 gate、排空、原身分及心跳驗證。沒有 gate capability 的首次導入須採上方的全 Server 冷窗口，不能將 `active_task_count=0` 當作停止派工的證據。macOS 實機檢查未完成前，不得將 Linux fixture 的通過當作正式遷移成功。
 
 ## 隔離演練
 
