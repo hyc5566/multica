@@ -123,6 +123,7 @@ class Updater:
         self.gate_path = None
         self.profile_dir = None
         self.profile_inode = None
+        self.profile_changed = False
         self.gate_inode = None
         self.owner = str(uuid.uuid4())
         self.lock = None
@@ -202,9 +203,15 @@ class Updater:
         return result
 
     def profile_unchanged(self):
-        require(os.path.realpath(os.path.dirname(self.gate)) == self.profile_dir, 'profile state link changed')
-        s = os.lstat(self.profile_dir)
-        require(stat.S_ISDIR(s.st_mode) and (s.st_dev, s.st_ino) == self.profile_inode and s.st_uid == os.getuid(), 'profile state directory changed')
+        try:
+            s = os.lstat(self.profile_dir)
+            valid = (os.path.realpath(os.path.dirname(self.gate)) == self.profile_dir and
+                     stat.S_ISDIR(s.st_mode) and (s.st_dev, s.st_ino) == self.profile_inode and s.st_uid == os.getuid())
+        except OSError:
+            valid = False
+        if not valid:
+            self.profile_changed = True
+            raise Refusal('profile state path changed or unavailable; claim blocking is unverified')
 
     def own_gate(self):
         self.profile_unchanged()
@@ -478,7 +485,7 @@ def main():
                     u.result['rollback_error'] = 'rollback verified but gate release needs attention'
                 else:
                     u.result['status'] = 'blocked'
-                    u.result['rollback_error'] = (str(rollback_error) if isinstance(rollback_error, Refusal) else 'rollback filesystem operation failed') + '; gate retained'
+                    u.result['rollback_error'] = (str(rollback_error) if isinstance(rollback_error, Refusal) else 'rollback filesystem operation failed') + '; automatic recovery stopped; inspect gate and profile before proceeding'
         elif u.gate_created:
             try:
                 u.remove_gate()
@@ -488,6 +495,9 @@ def main():
                 else:
                     u.result['status'] = 'blocked'
                     u.result['cleanup_error'] = 'created gate could not be safely removed; inspect maintenance path before resuming'
+        if u.profile_changed:
+            u.result.update(status='blocked', profile_changed=True, claims_may_resume=True,
+                            recovery='Profile state changed; the old gate may not protect the daemon. Re-establish identity and a gate before any further stop or rollback.')
     if u.evidence:
         try:
             with open(os.path.join(u.evidence, 'result.json'), 'x', encoding='utf-8') as f:

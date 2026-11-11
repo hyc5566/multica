@@ -35,6 +35,7 @@ class ReleaseBoundaryTest(unittest.TestCase):
                 u.remove_gate()
             self.assertTrue(Path(u.gate_path).is_dir())
             self.assertFalse(u.gate_released)
+            self.assertTrue(u.profile_changed)
 
     def test_failed_directory_sync_reports_claims_may_resume(self):
         with tempfile.TemporaryDirectory() as root:
