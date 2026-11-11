@@ -16,13 +16,14 @@ import fixPath from "fix-path";
 import { getEffectiveDialogLocale, setAppDialogLocale } from "./dialog-locale";
 import {
   setupDaemonManager,
+  withCoordinatedDaemon,
   requestDaemonTrustRefresh,
   getTargetApiBaseUrl,
   preserveDaemonOnNextQuit,
 } from "./daemon-manager";
 import { installLanTrust } from "./lan-trust";
 import { DESKTOP_PROTOCOL as PROTOCOL, handleDesktopDeepLink } from "./desktop-deep-link";
-import { setupZhTWAppUpdate } from "./zh-tw-app-update";
+import { setupZhTWAppUpdate, watchCoordinatedStartup } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
 import { setupThemeFolder } from "./theme-folder";
 import { setupVoiceInput } from "./voice";
@@ -1066,13 +1067,16 @@ if (!gotTheLock) {
       createMainWindow(saved);
     }
 
-    // The Taiwan edition uses the s90 update channel. The controller still
-    // registers renderer IPC in dev, where native installation is unsupported.
-    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all());
+    // The Taiwan package follows the s90 channel and preserves active tasks.
+    let releaseDaemonLifecycle!: () => void;
+    const lifecycleBarrier = new Promise<void>((resolve) => { releaseDaemonLifecycle = resolve; });
+    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all(), lifecycleBarrier);
+    if (!process.argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) watchCoordinatedStartup(releaseDaemonLifecycle);
     setupZhTWAppUpdate({
       getMainWindow: () => mainWindows.mostRecent(),
       getApiBaseUrl: getTargetApiBaseUrl,
       preserveDaemonOnQuit: preserveDaemonOnNextQuit,
+      withCoordinatedDaemon,
     });
     setupLocalDirectory(() => mainWindows.mostRecent());
     setupThemeFolder();

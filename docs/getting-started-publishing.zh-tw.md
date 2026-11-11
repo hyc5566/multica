@@ -1,5 +1,9 @@
 # 繁中版下載鏡像與獨立入門指南
 
+> HYC-26 起，最新發布契約見 [配套更新維護](unified-update.zh-tw.md)。新頻道使用 `coordinated_desktop` 並把舊 `desktop` 留空，避免舊 App 執行不協調的 swap。先以 `package-unified-update.py` 產生單檔腳本及固定 manifest，再產生頻道、HTML 和操作指引。下方舊的 installer、獨立釘選及舊 App 自行重載說明屬歷史資料，不作為新部署程序。
+
+公開操作正本為生成的 `agent-update-guide.md`。它與頁面、腳本、checksum 及 latest 頻道同次發布。Caddy 精確路由來源是 `scripts/lan-release/Caddyfile.update-snippet`；套用前核對現場，validate 通過才可 reload。必須保留現有 TLS、代理路由及 bind mount inode。`.md` 回應要帶 `text/markdown; charset=utf-8`。實際發布仍須適用實機驗證及首相放行。
+
 主要內容來源是 [getting-started.zh-tw.html](getting-started.zh-tw.html)。這份 HTML 不需要 JavaScript 或外部字型，可單獨開啟。頁面目前說明 `0.4.43-zh-tw.7`；發布新版本前須更新版本、平台、安裝器、CA 與連結，再重新驗證。
 
 ## 歷史 s90 發布狀態（2026-09-30）
@@ -27,68 +31,65 @@
 
 若新路由或內容驗證失敗，保留現場證據，依核准的發布備份恢復對應的 Caddyfile 內容和持久卷檔案，先 `caddy validate` 再 reload，重新核對公開端點。Caddyfile 是單檔 bind mount，恢復時保留 inode；有其他部署後不可整份覆蓋舊備份。本文件記錄目前可重建來源，不授權服務變更。
 
-## 發行頻道與自動更新（HYCLV-265 起）
+## 現行配套頻道與發布
 
-自 `X.Y.Z-zh-tw.N` 正式版起，App 與 CLI 都讀同一份發行頻道 `https://10.1.24.90:45671/downloads/latest.json`：
+最新程式契約見 [配套更新維護](unified-update.zh-tw.md)。
+公開 HTML 是一般說明正本。生成的 `agent-update-guide.md` 是操作正本。
+原 `download-update-guide.md` 不再公開。
 
-| 對象 | 檢查時機 | 更新方式 |
-| --- | --- | --- |
-| macOS App（`src/main/zh-tw-app-update.ts`） | 開啟後 30 秒，之後每 24 小時 | 詢問使用者；同意後 App 自己下載 ZIP、核對大小／SHA-256、bundle ID、版本與 `codesign`，結束時保留 daemon 不停止（避免取消執行中的任務），替換 bundle 並重開；新版無法開啟時自動換回舊版。daemon 偵測到 App 內附的 CLI 已換版後，於閒置時在 claim barrier 下自行重啟成新版（`MULTICA_ZH_TW_DESKTOP_SELF_RELOAD`）；daemon 在 `/health` 回報 `zh_tw_self_reload: true` 時，App 不從外部停止它。是否支援以這個回報判斷，不看版本格式：0.4.43-zh-tw.7、0.6.0-131 等舊 daemon 不會回報，第一次手動換版時仍由 App 在 daemon 閒置時重啟（下載頁的升級步驟另請使用者確認 CLI 版本）。前一版留在 `~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/` |
-| CLI daemon（launcher 安裝） | daemon 啟動 2 分鐘後，之後每 24 小時 | 閒置時下載頻道指定且 SHA-256 相符的 `install.sh`，執行 `--upgrade`；launcher 原子切換到新版本目錄，daemon 經 launcher 重新啟動（由 systemd 管理時改為結束程序，交給 `Restart=on-failure` 以新版重啟）；保留前一版本目錄 |
+有 App 時，App 一併更新內附 CLI 及 daemon。
+無 App 時，由另一台實體機使用固定腳本更新。
+Linux 使用原精確 systemd user 或 system unit。
+舊版首次導入不中止中央 Server。維護交界漏接或中斷由使用者重新驅動。
+常態更新仍要求支援閘門、排空及跨重啟保持。
 
-固定安裝指令是 `curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash`，因此每個正式版都要在 GitHub 發布為 **Latest**，並附上該版 `install.sh`。只有 `X.Y.Z-zh-tw.N` 會進入頻道；`-rc.N` 與 git-describe 版本不會被自動更新。
+頻道帶 `source_id=hyc5566/multica` 及 `coordinated_update_protocol=1`。
+新版 App 使用 `coordinated_desktop`。舊 `desktop` 保持空物件。
+這會阻止舊 helper 在缺少配套協調時自行換版。
+舊 App 必須先通過明確的首次導入交易，才可使用新版頻道。
+繁中版舊 `multica update` 直接 installer 路徑及 daemon 自動 installer 已停用。
+`MULTICA_DAEMON_AUTO_UPDATE=false` 不控制 App 更新或停止領取。
 
-### 發布順序
+### 建置
 
-開始建置前，將 App、CLI 與 Server 的完整來源 commit 記入相關任務；腳本修正也須經 PR 審查，不在發布時追蹤最新 HEAD。原生 App 與 CLI 編譯器須符合 `server/go.mod` 與 `.github/RELEASING.md` 的安全版本下限。
+1. 核對單一來源 commit。通過條件：PR 已審查，來源已提交，工作樹乾淨。
+2. 核對編譯器。通過條件：符合 `.github/RELEASING.md`，與本候選鎖定工具鏈一致。
+3. 執行 `scripts/lan-release/build.sh VERSION NEW_OUTPUT HTTPS_IMMUTABLE_BASE VERIFIED_PUBLIC_CA`。
+4. 在 Apple Silicon 使用同一 commit 建置 App。通過條件：內附 CLI 的完整 commit 與版號一致。
+5. 把已驗證的 App ZIP 放入 `NEW_OUTPUT`。
+6. 以 App 內附 CLI 作為同版 Darwin arm64 獨立成品。通過條件：兩者 SHA-256 完全相同。
+7. 執行 `package-unified-update.py`。通過條件：產生固定來源的單檔腳本、各 Linux manifest、套件 metadata 及 `UPDATE-SHA256SUMS`。
+8. 執行 `manifest.sh`。通過條件：App plist、內附 CLI build metadata 與配套清單一致。
+9. 執行 `finalize-unified-release.py`。通過條件：必要資產全部存在，最終 `SHA256SUMS` 完整。
+10. 執行 `node scripts/lan-release/stage-latest.mjs NEW_OUTPUT NEW_STAGE`。通過條件：重新核對全部 checksum，生成 HTML、指引及穩定下載檔名。
 
-先核對新客戶端對現行 Server 的 API 需求。若需要新 Server 端點，版本化資產可以先準備，GitHub Latest、`/downloads/latest/`、下載頁與根目錄 `latest.json` 必須等 Server 更新並驗證後才切換，避免現有自動更新提早安裝。`/api/config` 的 `daemon_install_url` 來自 Server 的 `MULTICA_DAEMON_INSTALL_URL`；修正該設定應併入已核准的 Server 切換，不為下載頁發布提前重啟服務。
+發行工具拒絕覆寫既有成品。不要把 `.3` 或其他舊成品當成本次新候選。
+`BUILD.txt`、來源 commit、App 內附 CLI 及各平台 raw binary 都要獨立核對。
+候選建置不表示已發布，也不表示實機驗收通過。
 
-1. `scripts/lan-release/build.sh VERSION OUT https://10.1.24.90:45671/downloads/VERSION CA` 建置 CLI 與安裝器；App 在 m5 以 `scripts/build-desktop-zh-tw-macos.sh` 用**同一個 commit** 建置，ZIP 放進 `OUT`。
-2. `scripts/lan-release/manifest.sh OUT https://10.1.24.90:45671/downloads/VERSION <GitHub 版本說明 URL> OUT/multica-desktop-VERSION-mac-arm64.zip` 產生 `latest.json`；`scripts/lan-release/render-download-page.sh OUT OUT/download.html` 產生下載頁。重新產生 `SHA256SUMS` 把兩者納入。
-3. 把 `OUT` 複製到 Caddy 持久卷 `/config/releases/VERSION/`，用公開 CA 對 `https://10.1.24.90:45671/downloads/VERSION/` 下所有檔案 GET 並比對 SHA-256。
-4. 發布 GitHub Release `zh-tw-vVERSION`（Latest），資產含 `install.sh`、CLI archives、`s90-ca.crt`、App ZIP、`SHA256SUMS`。
-5. 執行 `node scripts/lan-release/stage-latest.mjs OUT NEW_STAGE`，核對來源 `SHA256SUMS`、App 大小／雜湊、installer 雜湊與 `BUILD.txt`。工具把安裝檔複製到全新目錄，將 App 改名為 `multica-desktop-latest-mac-arm64.zip`，重新產生對應檔名的 `SHA256SUMS` 與下載頁。既有輸出目錄會被拒絕；驗證失敗不發布。
-6. 最後才切換頻道：先執行 `sh scripts/lan-release/publish-latest.sh NEW_STAGE RELEASES_ROOT` 預覽，正式發布經核准後加 `--apply`。`RELEASES_ROOT` 是 Caddy 的 `/config/releases` 持久卷；工具需在能存取該目錄的環境執行，容器內沒有 Node 時先在主機 stage，再把候選目錄和 POSIX shell 工具複製進容器。工具先備份原有 `latest/`、`latest.json`、`download.html`，再複製覆蓋 `latest/` 的安裝檔，每個檔案先寫暫存檔再 `mv`；檢查碼驗證完成後才切換根目錄的頻道與頁面。任何步驟失敗立即停止，依印出的備份路徑回復；不繼續發布其他元件。
+### 發布
 
-下載頁只有頂部顯示目前版本；App、SHA256SUMS 與版本說明都使用固定的 `latest` 連結。每次更新都必須執行第 5、6 步，不能只上傳版本化檔案。`latest/SHA256SUMS` 會列出實際的 latest App 檔名。自動更新頻道的 `latest.json` 仍保留版本化 App／installer URL，使已開始的更新下載固定在同一版；請勿把頻道內的 URL 改為可被覆蓋的路徑。
+1. 交候選、差異、完整 manifest 與隔離演練證據給首相。
+2. 完成 Linux 腳本及一台 App 的整組換版與回滾實機驗證。
+3. 取得首相放行。通過條件：適用門檻全部通過，原範圍核准不重問。
+4. 核對正式路由及持久卷。通過條件：沒有其他部署衝突，回滾副本可用。
+5. 將已驗證的固定版資產放入不可變版本目錄。
+6. 執行 `sh scripts/lan-release/publish-latest.sh NEW_STAGE RELEASES_ROOT` 預覽。
+7. 檢閱後以相同參數加 `--apply`。通過條件：文件、腳本與 checksum 先就緒，頻道最後切換。
+8. 以可信 CA 驗證 HTTPS。通過條件：頁面、指引、腳本及 checksum 均為 200。
+9. 核對 `.md` 的回應。通過條件：`Content-Type` 帶 `charset=utf-8`。
+10. 核對實際下載 bytes。通過條件：腳本及配套 SHA-256 符合清單。
+11. 從至少一台已導入的 App 檢查 latest。通過條件：收到同一核准候選。
 
-發布後對 `/download`、`/downloads/latest/multica-desktop-latest-mac-arm64.zip`、`/downloads/latest/SHA256SUMS` 執行 HTTPS GET（使用可信 CA），比對頁面、實際下載檔名與 SHA-256，並確認版本化 URL 仍可下載。多檔更新期間，手動下載可能碰到短暫的檢查碼差異，應重新取得 App 與 SHA256SUMS；不可略過驗證。回復時先把備份的安裝檔逐檔以暫存檔加 `mv` 還原，再還原 `latest.json` 與 `download.html`，重新 GET 驗證。首次發布前沒有 latest 目錄時，回復舊頁與頻道即可停止提供新連結；不必刪除已驗證的副本。
+Caddy 精確路由使用 `scripts/lan-release/Caddyfile.update-snippet`。
+修改前保存差異及備份，保留原 TLS、代理路由與 bind mount inode。
+先 validate，再 reload。新路由不授予服務變更權限。
 
-### Caddy 路由（一次設定，之後換版不改 Caddyfile）
+### 失敗回復
 
-```caddy
-@zhtw_latest path /downloads/latest/*
-handle @zhtw_latest {
-	uri strip_prefix /downloads/latest
-	root * /config/releases/latest
-	header Cache-Control "no-store"
-	file_server
-}
-@zhtw_channel path /downloads/latest.json
-handle @zhtw_channel {
-	root * /config/releases
-	rewrite * /latest.json
-	header Cache-Control "no-store"
-	file_server
-}
-@zhtw_release path_regexp ^/downloads/[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+/
-handle @zhtw_release {
-	uri strip_prefix /downloads
-	root * /config/releases
-	file_server
-}
-@zhtw_download path /download /download/
-handle @zhtw_download {
-	root * /config/releases
-	rewrite * /download.html
-	header Cache-Control "no-store"
-	file_server
-}
-```
-
-新路由取代現有 `@download_435`；`/download/install.sh` 改為 `redir https://github.com/hyc5566/multica/releases/latest/download/install.sh 302`。既有 `/downloads/0.4.43-zh-tw.*` 路由保留給舊安裝。修改正式 Caddyfile 與持久卷仍依 `docs/server-handoff.zh-tw.md` 及核准方案執行。
-
-### 舊版過渡
-
-0.4.x 與 `0.6.0-131-g2ca7196c3b` 等舊版不含更新程式，需手動升級一次：App 下載新版取代；CLI 執行 `curl -fsSL …/install.sh | bash -s -- --upgrade` 後重啟 daemon。舊 launcher 關閉自動重載，升級後必須重啟 daemon 才會換版。
+任何步驟失敗立即停止後續發布。
+依本次備份逐檔恢復文件、下載資產及頻道。
+有其他部署前進時，只還原本次差異，不覆寫整份 Caddyfile。
+回復後重驗 HTTPS、checksum、既有連線及 daemon 心跳。
+頻道回退不會讓已下載的 App 自動降版。
+客戶端只能回到本次交易的更新前版，並重驗身分、心跳及派工。

@@ -1,0 +1,126 @@
+# 繁中版配套更新維護
+
+本文件記錄 HYC-26 的程式契約與重建方式。
+只適用 `hyc5566/multica`。
+公開 HTML 是一般說明正本。
+`agent-update-guide.md.in` 是公開操作指引來源。
+不再發布重複內容的 `download-update-guide.md`。
+
+## 管理權
+
+先辨識 App、執行中程序、CLI 入口及 daemon 的實際映像。
+有 App 時，由 App 更新 App、內附 CLI 及 daemon。
+無 App 時，由跨機操作端使用固定版本腳本。
+Linux 沿用已核對的原 user 或 system unit。
+不得新增游離 daemon 來完成更新。
+
+既有獨立管理標記不會自動移除。
+混合安裝及未知安裝必須停止。
+同機不同帳號或 profile 不能作為跨機更新。
+舊版缺少維護能力時，使用明確的首次導入入口。
+中央 Server 持續運作，只更新已核對的目標機。
+舊版來源可由核准盤點與實跑 hash 綁定；不虛構缺少的 commit。
+備份並可還原原 wrapper／launcher 形態。
+維護期間漏接或中斷由使用者重新驅動，不承諾自動補跑。
+工具不得替操作者停止全 Server。
+
+## 可驗證的證據
+
+daemon health 提供 `update_attestation`。
+它包含啟動映像 SHA-256、程序起始時間、成功心跳計數及有限的成功任務回傳紀錄。
+`runtime_heartbeat_acks` 分開記錄每個 runtime。
+三個 runtime 在同一輪各收到一次 ACK，不算三個週期。
+驗證端須在固定 PID 及程序起始時間下，對所有原 runtime 觀察三次新前進。
+
+成功任務紀錄只來自本程序實際領取的工作。
+它必須已成功回報 Server，且 Server 狀態確認為 completed。
+terminal outbox replay 不能冒充新版派工證據。
+沒有派工證據時，結果維持待驗收。
+
+精確維護停止使用 `/shutdown/maintenance`。
+請求綁定 PID、程序起始時間、daemon ID、profile、gate inode 與 owner token。
+daemon 在 claim 鎖內核對 gate、ready、零 active 及零 in-flight。
+任何欄位不符時拒絕停止。
+一般 `/shutdown` 不能代替此契約。
+
+## Linux 交易
+
+開發入口是 `scripts/deploy/multica_update.py`。
+它重用 `update-daemon.py` 的排空、換版及恢復機制。
+發行時把兩個模組內嵌成一個 `multica-update.sh`。
+使用者不需要另抓浮動的 Python 來源。
+
+預設入口只產生計畫。
+`--apply` 必須同時提供乾跑的 fingerprint。
+apply 在鎖內重新盤點。
+計畫不一致時，不開始換版。
+`--accept` 即時核對同一筆交易及成功派工。
+`--rollback` 只能選 ledger 的 immediate previous。
+
+private inventory 提供服務、profile、搜尋邊界與資產位置。
+這些值只是定位提示。
+工具仍要核對實際程序、映像、UID、unit、runtime 及 state inode。
+工具不能信任 `has_app=false` 之類的自證布林。
+指定範圍無法檢查時，結果為 unknown 並停止。
+
+## 兩版保留
+
+ledger 記錄本次實際交易的 current 及 previous。
+第一次建立紀錄沒有虛構 previous。
+同版重跑不輪替 previous。
+更新失敗或尚待驗收時，保留復原所需資產。
+
+全部驗收成功後，才清理更舊的受管程式檔。
+清理前重新核對 ledger 歸屬、路徑邊界及 hash。
+不要清理陌生檔案、profile、state、workspace、設定或憑證。
+清理失敗必須保留可查結果，且回傳非零 exit code。
+
+`data_compatibility=multica-profile-v1` 是本次未改 profile/config/state 序列化格式的契約。
+新版 CLI、可信 manifest 及每個交易版本都要記錄它。
+舊版首次納管需要核准的 baseline manifest 與獨立 SHA-256。
+相容 ID 不同或缺少可信前版證據時，不允許自動回滾。
+日後變更持久格式時，先設計遷移及恢復，再更新相容 ID。
+
+## 頻道相容
+
+新頻道仍使用 `/downloads/latest.json`。
+它帶 `source_id=hyc5566/multica` 與 `coordinated_update_protocol=1`。
+新版 App 資產放在 `coordinated_desktop`。
+舊的 `desktop` 保持空物件。
+
+這個分流是必要的首次導入保護。
+舊 App 的 swap helper 會先刪自己的 rollback，且不協調實跑 daemon。
+不能把新資產放回舊欄位，讓舊 helper 自行更新。
+舊 App 須先使用明確的整組首次導入流程，建立可信 baseline 與 ledger。
+新版 App 才可從配套頻道進行後續更新。
+
+繁中版 `multica update` 不再直接執行舊 installer。
+繁中 daemon 不再透過閒置 installer 自行換版。
+`MULTICA_DAEMON_AUTO_UPDATE=false` 不是 gate，也不控制 App updater。
+非繁中版的上游更新入口保持原契約。
+
+## 發行與發布
+
+1. 從核對過的單一 commit 建置全部程式。
+2. 以固定正式版號保存 Linux amd64、Linux arm64、Darwin arm64 與 App。
+3. 執行 `scripts/lan-release/package-unified-update.py`。
+4. 執行 `scripts/lan-release/manifest.sh`。
+5. 執行 `scripts/lan-release/finalize-unified-release.py`，再執行 `stage-latest.mjs`。
+6. 核對產生的 HTML、操作指引、腳本、manifest 及 SHA-256。
+7. 取得首相對候選及適用實機證據的放行。
+8. 同次發布文件、腳本、checksum 及最後的 latest 頻道。
+
+`publish-latest.sh` 預設只預覽。
+`build.sh` 先產生帶固定版號的 raw binary 與基礎建置資料。
+Mac 原生打包後，以 App 內附的已驗證 CLI 作為同版 Darwin standalone 成品。
+必須在全部資產齊備後才產生最終 SHA256SUMS。
+不要發布舊的直接換檔 installer。
+正式 `--apply` 前，必須已有不可變版本資產及回滾備份。
+公開 `.md` 的精確路由須回傳 `text/markdown; charset=utf-8`。
+發布後以可信 CA 驗證頁面、指引、腳本及 checksum 為 HTTPS 200。
+下載腳本的實際 hash 必須與版本清單相同。
+至少一台已導入配套協定的 App 要收到核准候選。
+
+本文件、測試與候選不代表已部署。
+HYC-39 的 `.3` 成品保留為歷史建置結果。
+它不代表通過 HYC-26 的新增要求。

@@ -65,6 +65,9 @@ func ParseSelfVersion(raw string) string {
 // the App's bundled CLI itself: the zh-tw Desktop opts in through the
 // environment, and the operator has not turned auto-reload off.
 func (d *Daemon) zhTWDesktopSelfReload() bool {
+	if strings.Contains(d.cfg.CLIVersion, "-zh-tw.") {
+		return false
+	}
 	return !d.independentlyPinned() && d.cfg.LaunchedBy == "desktop" && d.cfg.AutoReloadEnabled &&
 		os.Getenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD") == "1"
 }
@@ -123,6 +126,10 @@ var selfReloadProbeTimeout = 10 * time.Second
 // Each tick is silent on the happy path so the log stays uncluttered for users
 // who run the daemon for weeks at a time.
 func (d *Daemon) autoUpdateLoop(ctx context.Context) {
+	if strings.Contains(d.cfg.CLIVersion, "-zh-tw.") || cli.ZhTWReleaseManifestURL() != "" {
+		d.logger.Info("繁中版更新須使用經驗證的協調更新程序")
+		return
+	}
 	if d.independentlyPinned() {
 		d.logger.Info("Multica binary maintenance delegated to pinned launchd operator")
 		return

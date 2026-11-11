@@ -27,12 +27,16 @@ func runVersion(cmd *cobra.Command, _ []string) error {
 			"version":                 version,
 			"commit":                  commit,
 			"build_commit":            buildCommit,
+			"data_compatibility":      "multica-profile-v1",
 			"daemon_maintenance_gate": "v1",
 			"daemon_lifecycle":        "launchd-pinned-v1",
 			"date":                    date,
 			"go":                      runtime.Version(),
 			"os":                      runtime.GOOS,
 			"arch":                    runtime.GOARCH,
+		}
+		if runtime.GOOS == "darwin" || runtime.GOOS == "linux" {
+			info["daemon_maintenance_shutdown"] = "v1"
 		}
 		enc := json.NewEncoder(os.Stdout)
 		enc.SetIndent("", "  ")
