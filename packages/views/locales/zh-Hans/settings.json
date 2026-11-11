@@ -1537,6 +1537,8 @@
       "restarting_description": "執行環境將在幾秒後恢復線上。",
       "view_logs": "檢視日誌",
       "managed_externally": "由應用外部管理",
+      "pinned_managed": "此守護程序由外部獨立管理。",
+      "pinned_incompatible": "獨立守護程序與此桌面應用程式不相容，請更新應用程式或守護程序。",
       "restart": "重啟",
       "stop": "停止",
       "start": "啟動",

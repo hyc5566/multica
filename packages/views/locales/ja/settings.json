@@ -1537,6 +1537,8 @@
       "restarting_description": "ランタイムは数秒後にオンラインへ戻ります。",
       "view_logs": "ログを表示",
       "managed_externally": "アプリ外で管理されています",
+      "pinned_managed": "このデーモンは外部で独立して管理されています。",
+      "pinned_incompatible": "独立して管理されるデーモンはこのデスクトップアプリと互換性がありません。アプリまたはデーモンを更新してください。",
       "restart": "再起動",
       "stop": "停止",
       "start": "起動",

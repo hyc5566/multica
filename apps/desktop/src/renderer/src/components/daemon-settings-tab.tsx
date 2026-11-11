@@ -134,7 +134,13 @@ export function DaemonSettingsTab() {
         </div>
       )}
 
-      {externallyManaged && (
+      {status.incompatibleDaemon && (
+        <p role="alert" className="mt-4 text-body text-destructive">{t(($) => $.desktop.daemon.pinned_incompatible)}</p>
+      )}
+      {status.pinnedDaemon && (
+        <p className="mt-4 text-body text-muted-foreground">{t(($) => $.desktop.daemon.pinned_managed)}</p>
+      )}
+      {externallyManaged && !status.pinnedDaemon && (
         <div className="mt-4 flex items-start gap-3 rounded-lg border bg-muted/30 px-4 py-3">
           <Info className="mt-0.5 size-4 shrink-0 text-muted-foreground" />
           <p className="min-w-0 text-body text-muted-foreground">
