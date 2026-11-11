@@ -1,6 +1,8 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "crypto";
+import { app } from "electron";
+import { readFile } from "fs/promises";
 
 const { files, handlers, cliState, machine } = vi.hoisted(() => ({
   machine: { home: "/test-home", host: "test-host" },
@@ -54,7 +56,7 @@ vi.mock("./cli-bootstrap", () => ({
 }));
 
 import { desktopTokenRecord } from "./desktop-token";
-import { requestDaemonTrustRefresh, setupDaemonManager } from "./daemon-manager";
+import { preserveDaemonOnNextQuit, requestDaemonTrustRefresh, setupDaemonManager } from "./daemon-manager";
 import { DaemonOperationGate } from "./daemon-recovery";
 import { profileConfigPath, profileUserIdPath } from "./daemon-profile";
 
@@ -101,6 +103,23 @@ describe("Desktop daemon token synchronization", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+  });
+
+  it("skips daemon quit work for a cancelled update quit and releases preservation after cancellation", () => {
+    const registrations = vi.mocked(app.on).mock.calls as unknown as [string, (event: { defaultPrevented: boolean }) => void][];
+    const quit = registrations.filter(([name]) => name === "before-quit").at(-1)![1];
+    vi.mocked(readFile).mockClear();
+    quit({ defaultPrevented: true });
+    expect(readFile).not.toHaveBeenCalled();
+    const releasePreservation = preserveDaemonOnNextQuit();
+    try {
+      quit({ defaultPrevented: false });
+      expect(readFile).not.toHaveBeenCalled();
+    } finally {
+      releasePreservation();
+    }
+    quit({ defaultPrevented: false });
+    expect(readFile).toHaveBeenCalledWith("/test-home/.multica/desktop_prefs.json", "utf-8");
   });
 
   it("defers trust refresh until every counter is idle, retries refusal, and observes the replacement PID", async () => {
