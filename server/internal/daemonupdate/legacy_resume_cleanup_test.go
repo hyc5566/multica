@@ -109,14 +109,41 @@ func TestRunLegacyJournalResumesAfterCoordinatorCleanup(t *testing.T) {
 		t.Fatal(err)
 	}
 	j := Journal{Version: 1, Token: token, Phase: "finalizing", Profile: inventory.Profile, CLIEntry: inventory.CLIEntry, DaemonID: inventory.DaemonID, ServerURLSHA256: inventory.ServerURLSHA256, DaemonPID: daemon.PID, DaemonStartedAt: daemon.StartedAt, NewDaemonPID: 12345, NewDaemonStartedAt: "new-start", HealthPort: port, AppPID: app.PID, GatePath: gate, OldBundle: bundle, StagedBundle: filepath.Join(work, "staging", "Next.app"), RollbackBundle: rollback, OlderBundle: filepath.Join(work, "older", "Multica.app"), OldBinarySHA256: oldHash, NewBinarySHA256: selfHash, OldVersion: inventory.OldVersion, NewVersion: version, NewCommit: commit, OldDataCompatibility: inventory.OldDataCompatibility, DataCompatibility: inventory.OldDataCompatibility, RuntimeIDs: []string{"r"}, Workspaces: inventory.Workspaces, ReadyFile: filepath.Join(work, "ready-"+token), HandoffFile: filepath.Join(work, "handoff-"+token), GateReleasedAt: time.Now().UTC().Add(-time.Minute), Legacy: &LegacyState{InventorySHA256: inventoryHash, InventoryPath: inventoryPath, Inventory: inventory, ManifestPath: manifestPath, CompatibilityEvidencePath: evidence, BackupManifestSHA256: oldTree, CoordinatorSHA256: selfHash, BaselineCleanupRequested: true, CoordinatorCleanupRequested: true}}
+	// Explicitly model the same authenticated daemon and App on the macOS
+	// boundary; the journal still carries the real durable gate/tree evidence.
+	_, candidateTree, err := legacyTreeManifest(bundle)
+	if err != nil {
+		t.Fatal(err)
+	}
+	daemonNative := LegacyProcessIdentity{PID: 12345, UID: os.Getuid(), StartedAt: "native-daemon", ExecutablePath: bundleCLI(bundle), Device: 1, Inode: 3, SHA256: selfHash}
+	appNative := LegacyProcessIdentity{PID: 12346, UID: os.Getuid(), StartedAt: "native-app", ExecutablePath: filepath.Join(bundle, "Contents", "MacOS", "Multica"), Device: 1, Inode: 4, SHA256: strings.Repeat("c", 64)}
+	j.GateIdentity, j.GateReleaseRequested = "fixture-gate", true
+	j.OldTreeSHA256, j.CandidateTreeSHA256 = oldTree, candidateTree
+	j.NewAppPID, j.AcceptanceAppIdentity = appNative.PID, &appNative
+	j.Legacy.CandidateProcesses = []LegacyProcessIdentity{daemonNative, appNative}
 	path := filepath.Join(work, "journal.json")
 	if err := SaveJournal(path, j); err != nil {
 		t.Fatal(err)
 	}
-	savedMachine, savedSignature := legacyMachineIdentity, legacyVerifySignature
-	defer func() { legacyMachineIdentity, legacyVerifySignature = savedMachine, savedSignature }()
+	savedMachine, savedSignature, savedNative, savedInspect, savedList, savedApp := legacyMachineIdentity, legacyVerifySignature, acceptanceNativeRequired, inspectLegacy, enumerateLegacyApps, abortAppExecutable
+	defer func() {
+		legacyMachineIdentity, legacyVerifySignature, acceptanceNativeRequired, inspectLegacy, enumerateLegacyApps, abortAppExecutable = savedMachine, savedSignature, savedNative, savedInspect, savedList, savedApp
+	}()
 	legacyMachineIdentity = func() (string, error) { return strings.Repeat("c", 64), nil }
 	legacyVerifySignature = func(context.Context, string) error { return nil }
+	acceptanceNativeRequired = func() bool { return true }
+	inspectLegacy = func(pid int) (LegacyProcessIdentity, error) {
+		switch pid {
+		case daemonNative.PID:
+			return daemonNative, nil
+		case appNative.PID:
+			return appNative, nil
+		default:
+			return LegacyProcessIdentity{}, ErrLegacyProcessExited
+		}
+	}
+	enumerateLegacyApps = func(string) ([]int, error) { return []int{appNative.PID}, nil }
+	abortAppExecutable = func(context.Context, string) (string, error) { return "Multica", nil }
 	done, err := RunLegacyJournal(context.Background(), path, token)
 	if err != nil || !done {
 		t.Fatalf("fallback resume: %v %v", done, err)
