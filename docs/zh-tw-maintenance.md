@@ -51,6 +51,10 @@ maintenance, installation provenance checks, idle claim barrier, and proactive
 per-runtime model catalog refresh. See [behavior, limits and rebuilding](agent-cli-maintenance.zh-tw.md).
 This layer updates third-party CLIs, not the Taiwan-edition Multica binary.
 
+Managed Multica CLI/daemon updates use the persistent profile claim gate and
+verified rollback procedure in [daemon maintenance](daemon-maintenance.zh-tw.md).
+Keep its offline updater, capability checks and isolated Linux rehearsal together.
+
 ## Provider usage feature layer
 
 Provider quota display is a Taiwan-edition feature, not part of the locale
