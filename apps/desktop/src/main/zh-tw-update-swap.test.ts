@@ -9,7 +9,7 @@ import { SWAP_SCRIPT } from "./zh-tw-update-swap";
 describe("Taiwan app bundle swap", () => {
   let root = "";
   let oldProcess: ChildProcess | undefined;
-  afterEach(() => {
+  afterEach(({ task }) => {
     oldProcess?.kill();
     oldProcess = undefined;
     // Only terminate the fake executable spawned by this test, if still alive.
@@ -17,7 +17,10 @@ describe("Taiwan app bundle swap", () => {
     if (childPid && existsSync(childPid)) {
       try { process.kill(Number(readFileSync(childPid, "utf8")), "SIGKILL"); } catch { /* already exited */ }
     }
-    if (root) rmSync(root, { recursive: true, force: true });
+    if (root && task.result?.state === "fail") {
+      const log = join(root, "swap.log");
+      console.error(`Swap fixture retained at ${root}\n${existsSync(log) ? readFileSync(log, "utf8") : "No swap log"}`);
+    } else if (root) rmSync(root, { recursive: true, force: true });
     root = "";
   });
 
@@ -28,8 +31,9 @@ describe("Taiwan app bundle swap", () => {
     writeFileSync(join(bin, "open"), '#!/bin/sh\nprintf "%s\\n" "$2" >> "$OPENED"\n', { mode: 0o755 });
     writeFileSync(join(bin, "xattr"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
     const script = join(root, "swap.sh");
-    // Keep timeout tests fast without altering the actual script's logic.
-    writeFileSync(script, SWAP_SCRIPT.replace("seq 1 240", "seq 1 2").replaceAll("sleep 0.5", "sleep 0.05").replace("seq 1 50", "seq 1 2").replace("sleep 0.1", "sleep 0.05"), { mode: 0o700 });
+    // A fresh macOS executable can take over 100ms to start. Preserve the OS
+    // polling cadence while shortening the old App's exit window.
+    writeFileSync(script, SWAP_SCRIPT.replace("seq 1 240", "seq 1 2"), { mode: 0o700 });
     const current = join(root, "應用 程式", "Multica 繁中版.app");
     const next = join(root, "staging", "Multica 繁中版.app");
     const rollback = join(root, "rollback", "Multica 繁中版.app");
@@ -46,7 +50,7 @@ describe("Taiwan app bundle swap", () => {
     writeFileSync(join(next, "Contents", "MacOS", executable), `#!/bin/sh\necho $$ > "$CHILD_PID"\n${action}\n`, { mode: 0o755 });
     const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, READY: ready, CHILD_PID: join(root, "child.pid"), OPENED: join(root, "opened") };
     function run(pid = "99999999", staged = next) {
-      const processResult = spawnSync("bash", [script, pid, current, staged, rollback, join(root, "swap.log"), executable, "fixture-token", ready, result, "2"], { env, timeout: 5000 });
+      const processResult = spawnSync("bash", [script, pid, current, staged, rollback, join(root, "swap.log"), executable, "fixture-token", ready, result, "4"], { env, timeout: 10000 });
       return { status: processResult.status, outcome: readFileSync(result, "utf8").trim() };
     }
     return { current, next, rollback, run };
@@ -70,6 +74,8 @@ describe("Taiwan app bundle swap", () => {
   it("restores when the new child exits before readiness", () => {
     const { current, run } = setup("exit");
     expect(run()).toEqual({ status: 1, outcome: "restored" });
+    const pid = Number(readFileSync(join(root, "child.pid"), "utf8"));
+    expect(Number.isInteger(pid) && pid > 0).toBe(true);
     expect(readFileSync(join(current, "version"), "utf8")).toBe("old");
     expect(readFileSync(join(root, "opened"), "utf8").trim()).toBe(current);
   });
@@ -88,7 +94,7 @@ describe("Taiwan app bundle swap", () => {
     expect(readFileSync(join(current, "version"), "utf8")).toBe("new");
     expect(readFileSync(join(rollback, "version"), "utf8")).toBe("old");
     expect(existsSync(join(root, "opened"))).toBe(false);
-  });
+  }, 10000);
 
 
   it("does not move bundles while the old process remains alive", () => {
