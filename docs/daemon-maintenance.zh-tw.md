@@ -26,7 +26,7 @@
 
 `scripts/deploy/update-daemon.sh` 轉交同目錄的 Python 3 工具，只接受 Linux user systemd 的單一、獨占安裝。必須在目標擁有者的正常遠端 shell 或人工環境執行；工具會拒絕 daemon task 身分與工作目錄標記。不要移除 task 環境或改借擁有者憑證繞過限制。
 
-原生 binary 的核准範本如下；大寫值必須換成核准包的實際內容。`OBSERVER_CLI` 是獨立且固定的可用 CLI，不能是即將替換的檔案。`EVIDENCE_DIR` 必須是新目錄，其父目錄已存在。路徑須為絕對路徑且不可經 symlink。
+原生 binary 的核准範本如下；大寫值必須換成核准包的實際內容。`OBSERVER_CLI` 是獨立且固定的可用 CLI，不能是即將替換的檔案。`EVIDENCE_DIR` 必須是新目錄，其父目錄已存在。資產與入口路徑須為絕對路徑且不可經 symlink。既有 `.multica`／profile state 連結可保留：工具解析為擁有者持有的實體目錄，固定其 inode，在每個關鍵步驟核對連結仍指向相同目錄，直接在該實體目錄維護 gate；不遷移或改寫 state 連結。
 
 ```sh
 scripts/deploy/update-daemon.sh "$PROFILE" "$UNIT" "$STAGED_BINARY" "$BINARY_SHA256" \
