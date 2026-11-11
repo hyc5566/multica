@@ -420,6 +420,7 @@ func testLegacyThenNormalRetention(t *testing.T, ctx context.Context, root, work
 	j := &Journal{Version: 1, Token: token, Phase: "swapping", Profile: legacy.Profile, CLIEntry: legacy.CLIEntry, DaemonID: legacy.DaemonID, ServerURLSHA256: legacy.ServerURLSHA256, DaemonPID: 99999990, NewDaemonPID: proc.Process.Pid, NewDaemonStartedAt: fmt.Sprintf("start-%d", proc.Process.Pid), HealthPort: port, AppPID: 99999991, GatePath: legacy.GatePath, OldBundle: legacy.OldBundle, StagedBundle: staged, RollbackBundle: legacy.RollbackBundle, OlderBundle: legacy.OlderBundle, OldBinarySHA256: legacy.NewBinarySHA256, NewBinarySHA256: pHash, PreviousRollbackSHA256: legacy.OldBinarySHA256, OldVersion: legacy.NewVersion, NewVersion: "0.8.1-zh-tw.5", OldCommit: legacy.NewCommit, NewCommit: strings.Repeat("c", 40), OldDataCompatibility: legacy.DataCompatibility, DataCompatibility: legacy.DataCompatibility, RuntimeIDs: legacy.RuntimeIDs, Workspaces: legacy.Workspaces}
 	path := filepath.Join(work, "journal.json")
 	a := newLocalAdapter(path)
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := acquireGate(path, j); err != nil {
 		t.Fatal(err)
 	}

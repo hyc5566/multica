@@ -55,7 +55,15 @@ func (a *localAdapter) FinalizeRetention(ctx context.Context, j *Journal) error 
 	if j.DataCompatibility != "multica-profile-v1" || j.OldDataCompatibility != j.DataCompatibility {
 		return errors.New("profile data compatibility is unverified")
 	}
-	if _, err := a.candidateHealth(ctx, j); err != nil {
+	if j.AcceptanceEpoch != nil {
+		ready, _, err := a.resumeAcceptance(ctx, j, false)
+		if err != nil {
+			return err
+		}
+		if !ready {
+			return errors.New("restarted daemon requires fresh evidence")
+		}
+	} else if _, err := a.candidateHealth(ctx, j); err != nil {
 		return err
 	}
 	if err := a.validateBundlePaths(j); err != nil {
@@ -120,6 +128,17 @@ func (a *localAdapter) ReceiptAccepted(ctx context.Context, j *Journal) (bool, e
 		return false, errors.New("maintenance gate still present or inaccessible")
 	}
 	h, err := a.candidateHealth(ctx, j)
+	needsReauth := false
+	if err == nil && j.AcceptanceEpoch == nil {
+		needsReauth, err = a.stableAcceptanceNeedsReauth(ctx, j, h, false)
+	}
+	if j.AcceptanceEpoch != nil || needsReauth || (err != nil && (j.Phase == "awaiting_acceptance" || j.Phase == "finalizing")) {
+		var ready bool
+		ready, h, err = a.resumeAcceptance(ctx, j, false)
+		if err != nil || !ready {
+			return false, err
+		}
+	}
 	if err != nil {
 		return false, err
 	}
@@ -130,8 +149,12 @@ func (a *localAdapter) ReceiptAccepted(ctx context.Context, j *Journal) (bool, e
 	for _, id := range j.RuntimeIDs {
 		runtimes[id] = true
 	}
+	lowerBound := j.GateReleasedAt
+	if j.AcceptanceEpoch != nil && j.AcceptanceEpoch.Since.After(lowerBound) {
+		lowerBound = j.AcceptanceEpoch.Since
+	}
 	for _, receipt := range h.Attestation.TaskReceipts {
-		if receipt.TaskID != "" && runtimes[receipt.RuntimeID] && receipt.CompletedAt.After(j.GateReleasedAt) && !receipt.AckAt.Before(receipt.CompletedAt) {
+		if receipt.TaskID != "" && runtimes[receipt.RuntimeID] && receipt.CompletedAt.After(lowerBound) && !receipt.AckAt.Before(receipt.CompletedAt) {
 			return true, nil
 		}
 	}
@@ -145,13 +168,22 @@ func (a *localAdapter) RollbackReceiptAccepted(ctx context.Context, j *Journal) 
 	if _, err := os.Lstat(j.GatePath); !os.IsNotExist(err) {
 		return false, errors.New("rollback gate still present or inaccessible")
 	}
-	h, err := a.readHealth(ctx, j)
-	if err != nil {
-		return false, err
+	h, err := a.acceptanceHealth(ctx, j, true)
+	if err == nil && (h.PID != j.RollbackDaemonPID || h.Attestation.ProcessStartedAt != j.RollbackDaemonStartedAt) {
+		err = errors.New("rollback daemon process changed")
 	}
-	expected := *j
-	expected.NewVersion, expected.NewCommit, expected.NewBinarySHA256 = j.OldVersion, j.OldCommit, j.OldBinarySHA256
-	if err := validateNewHealth(&expected, h, j.RollbackDaemonPID, j.RollbackDaemonStartedAt); err != nil {
+	needsReauth := false
+	if err == nil && j.AcceptanceEpoch == nil {
+		needsReauth, err = a.stableAcceptanceNeedsReauth(ctx, j, h, true)
+	}
+	if j.AcceptanceEpoch != nil || needsReauth || (err != nil && (j.Phase == "rollback_awaiting_acceptance" || j.Phase == "rollback_finalizing")) {
+		var ready bool
+		ready, h, err = a.resumeAcceptance(ctx, j, true)
+		if err != nil || !ready {
+			return false, err
+		}
+	}
+	if err != nil {
 		return false, err
 	}
 	if !h.MaintenanceGate.Supported || h.MaintenanceGate.Blocked || h.MaintenanceGate.Path != j.GatePath {
@@ -161,8 +193,12 @@ func (a *localAdapter) RollbackReceiptAccepted(ctx context.Context, j *Journal) 
 	for _, id := range j.RuntimeIDs {
 		runtimes[id] = true
 	}
+	lowerBound := j.RollbackGateReleasedAt
+	if j.AcceptanceEpoch != nil && j.AcceptanceEpoch.Since.After(lowerBound) {
+		lowerBound = j.AcceptanceEpoch.Since
+	}
 	for _, receipt := range h.Attestation.TaskReceipts {
-		if receipt.TaskID != "" && runtimes[receipt.RuntimeID] && receipt.CompletedAt.After(j.RollbackGateReleasedAt) && !receipt.AckAt.Before(receipt.CompletedAt) {
+		if receipt.TaskID != "" && runtimes[receipt.RuntimeID] && receipt.CompletedAt.After(lowerBound) && !receipt.AckAt.Before(receipt.CompletedAt) {
 			return true, nil
 		}
 	}

@@ -96,6 +96,35 @@ func (a *localAdapter) SwapBundles(ctx context.Context, j *Journal) error {
 	if err := a.validateBundlePaths(j); err != nil {
 		return err
 	}
+	// Legacy preparation already captured an approved, signed backup tree.
+	if j.OldTreeSHA256 == "" && j.Legacy != nil && sha256Hex.MatchString(j.Legacy.BackupManifestSHA256) {
+		j.OldTreeSHA256 = j.Legacy.BackupManifestSHA256
+		if err := SaveJournal(a.journalPath, *j); err != nil {
+			return err
+		}
+	}
+	if !sha256Hex.MatchString(j.OldTreeSHA256) {
+		return errors.New("trusted original tree missing; manual recovery required")
+	}
+	if j.SwapStep <= 1 {
+		// A crash can occur after exchange but before SwapStep is saved.
+		original := ""
+		for _, p := range []string{j.OldBundle, j.StagedBundle} {
+			if verifyBundleHash(p, j.OldBinarySHA256) == nil {
+				if original != "" {
+					return errors.New("ambiguous original App")
+				}
+				original = p
+			}
+		}
+		if original == "" {
+			return errors.New("original App unavailable")
+		}
+		_, tree, err := legacyTreeManifest(original)
+		if err != nil || tree != j.OldTreeSHA256 {
+			return errors.New("original App tree changed before swap")
+		}
+	}
 	if j.CandidateTreeSHA256 == "" {
 		if j.SwapStep != 0 {
 			return errors.New("candidate tree identity missing during resumed swap")
@@ -229,6 +258,10 @@ func (a *localAdapter) SwapBundles(ctx context.Context, j *Journal) error {
 			}
 			if err := checkSharedBundle(j.OldBundle); err != nil {
 				return err
+			}
+			_, tree, err := legacyTreeManifest(j.OldBundle)
+			if err != nil || tree != j.OldTreeSHA256 {
+				return errors.New("original App tree changed before exchange")
 			}
 			if err := exchangeBundles(j.OldBundle, j.StagedBundle); err != nil {
 				return err
