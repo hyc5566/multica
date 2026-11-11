@@ -5090,6 +5090,13 @@ func (d *Daemon) reportRuntimeResultWithRetry(ctx context.Context, kind, runtime
 
 // handleUpdate performs the CLI update when triggered by the server via heartbeat.
 func (d *Daemon) handleUpdate(ctx context.Context, runtimeID string, update *PendingUpdate) {
+	if d.independentlyPinned() {
+		d.reportUpdateResult(ctx, runtimeID, update.ID, map[string]any{
+			"status": "failed",
+			"error":  "Daemon is pinned by launchd; use the approved offline maintenance procedure",
+		})
+		return
+	}
 	// Desktop-managed daemons share their CLI binary with the Electron app,
 	// which is responsible for shipping and replacing it. Letting the daemon
 	// self-update would just get overwritten on the next Desktop launch and

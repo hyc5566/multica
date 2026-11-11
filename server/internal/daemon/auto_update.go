@@ -65,7 +65,7 @@ func ParseSelfVersion(raw string) string {
 // the App's bundled CLI itself: the zh-tw Desktop opts in through the
 // environment, and the operator has not turned auto-reload off.
 func (d *Daemon) zhTWDesktopSelfReload() bool {
-	return d.cfg.LaunchedBy == "desktop" && d.cfg.AutoReloadEnabled &&
+	return !d.independentlyPinned() && d.cfg.LaunchedBy == "desktop" && d.cfg.AutoReloadEnabled &&
 		os.Getenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD") == "1"
 }
 
@@ -123,6 +123,10 @@ var selfReloadProbeTimeout = 10 * time.Second
 // Each tick is silent on the happy path so the log stays uncluttered for users
 // who run the daemon for weeks at a time.
 func (d *Daemon) autoUpdateLoop(ctx context.Context) {
+	if d.independentlyPinned() {
+		d.logger.Info("Multica binary maintenance delegated to pinned launchd operator")
+		return
+	}
 	desktopSelfReload := false
 	if d.cfg.LaunchedBy == "desktop" {
 		// The Taiwan Desktop replaces its own bundle — and the CLI this daemon
@@ -212,7 +216,7 @@ func (d *Daemon) autoUpdateLoop(ctx context.Context) {
 // fails today will be retried at the next tick, and we don't want a transient
 // network blip to escalate to a process-level shutdown.
 func (d *Daemon) tryAutoUpdate(ctx context.Context) {
-	if ctx.Err() != nil {
+	if ctx.Err() != nil || d.independentlyPinned() {
 		return
 	}
 	// Don't race the server-triggered update path. If a manual update from
@@ -341,7 +345,7 @@ func (d *Daemon) tryAutoUpdate(ctx context.Context) {
 // runtimeVersionProbeAttempts documents), and "couldn't read the version" is
 // not a reason to restart into one.
 func (d *Daemon) trySelfReload(ctx context.Context) {
-	if ctx.Err() != nil {
+	if ctx.Err() != nil || d.independentlyPinned() {
 		return
 	}
 	if d.RestartBinary() != "" {
