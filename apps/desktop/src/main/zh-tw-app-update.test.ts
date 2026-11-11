@@ -1,6 +1,6 @@
 // @vitest-environment node
-import { spawnSync } from "node:child_process";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { chmodSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -13,7 +13,10 @@ vi.mock("electron", () => ({
 }));
 
 import {
+  acknowledgeUpdateReady,
   appBundlePath,
+  downloadVerified,
+  fetchManifest,
   bundleNotUpdatableReason,
   DEFAULT_RELEASE_MANIFEST_URL,
   findAppUpdate,
@@ -21,7 +24,6 @@ import {
   manifestUrlFor,
   parseReleaseManifest,
   platformKey,
-  SWAP_SCRIPT,
 } from "./zh-tw-app-update";
 
 const sha = "a".repeat(64);
@@ -99,56 +101,85 @@ describe("bundle location", () => {
   });
 });
 
-describe("swap script", () => {
-  let root = "";
+
+describe("update download and readiness", () => {
+  let dir = "";
   afterEach(() => {
-    if (root) rmSync(root, { recursive: true, force: true });
+    vi.unstubAllGlobals();
+    if (dir) rmSync(dir, { recursive: true, force: true });
+    dir = "";
   });
-
-  function setup(openFailsForNew = false) {
-    root = mkdtempSync(join(tmpdir(), "zh-tw-swap-"));
-    const bin = join(root, "bin");
-    mkdirSync(bin);
-    // `open` and `xattr` are macOS tools; record calls instead.
-    const openFail = openFailsForNew ? `[ "$(cat "$2/version")" = new ] && exit 1\n` : "";
-    writeFileSync(join(bin, "open"), `#!/bin/sh\necho "$2" >> "${root}/opened"\n${openFail}exit 0\n`, { mode: 0o755 });
-    writeFileSync(join(bin, "xattr"), "#!/bin/sh\nexit 0\n", { mode: 0o755 });
-    const script = join(root, "swap.sh");
-    writeFileSync(script, SWAP_SCRIPT, { mode: 0o700 });
-    const current = join(root, "Applications", "Multica 繁中版.app");
-    const next = join(root, "staging", "Multica 繁中版.app");
-    mkdirSync(current, { recursive: true });
-    mkdirSync(next, { recursive: true });
-    writeFileSync(join(current, "version"), "old");
-    writeFileSync(join(next, "version"), "new");
-    const rollback = join(root, "rollback", "Multica 繁中版.app");
-    const env = { ...process.env, PATH: `${bin}:${process.env.PATH}` };
-    return { script, current, next, rollback, env };
+  function fixture() {
+    dir = mkdtempSync(join(tmpdir(), "zh-tw-download-"));
+    const contents = "test app archive";
+    return {
+      contents,
+      path: join(dir, "下載.zip"),
+      update: { version: "0.6.1-zh-tw.2", url: "https://example.test/app.zip", size: Buffer.byteLength(contents), sha256: createHash("sha256").update(contents).digest("hex") },
+    };
   }
-
-  it("installs the new bundle and keeps the old one for rollback", () => {
-    const { script, current, next, rollback, env } = setup();
-    const result = spawnSync("bash", [script, "999999", current, next, rollback, join(root, "swap.log")], { env });
-    expect(result.status).toBe(0);
-    expect(readFileSync(join(current, "version"), "utf8")).toBe("new");
-    expect(readFileSync(join(rollback, "version"), "utf8")).toBe("old");
-    expect(readFileSync(join(root, "opened"), "utf8").trim()).toBe(current);
+  it("downloads and validates content with redirects disabled and progress below 100", async () => {
+    const { contents, path, update } = fixture();
+    const request = vi.fn().mockResolvedValue(new Response(contents));
+    vi.stubGlobal("fetch", request);
+    const progress = vi.fn();
+    await downloadVerified(update, path, progress, new AbortController().signal);
+    expect(readFileSync(path, "utf8")).toBe(contents);
+    expect(request).toHaveBeenCalledWith(update.url, expect.objectContaining({ redirect: "error" }));
+    expect(progress).toHaveBeenCalled();
+    expect(progress.mock.calls.every(([value]) => value >= 0 && value <= 99)).toBe(true);
+    expect(progress).toHaveBeenLastCalledWith(99);
   });
-
-  it("restores the old bundle when the new one cannot be moved in", () => {
-    const { script, current, rollback, env } = setup();
-    const missing = join(root, "staging", "missing.app");
-    const result = spawnSync("bash", [script, "999999", current, missing, rollback, join(root, "swap.log")], { env });
-    expect(result.status).toBe(1);
-    expect(readFileSync(join(current, "version"), "utf8")).toBe("old");
-    expect(existsSync(rollback)).toBe(false);
+  it.each([
+    ["short", "tiny", undefined, /大小或 SHA-256/],
+    ["oversized", "test app archive extra", undefined, /超過/],
+    ["wrong digest", "test app archive", "0".repeat(64), /大小或 SHA-256/],
+  ])("rejects %s downloads", async (_name, body, digest, error) => {
+    const { path, update } = fixture();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(new Response(body)));
+    await expect(downloadVerified({ ...update, sha256: digest ?? update.sha256 }, path, vi.fn(), new AbortController().signal)).rejects.toThrow(error);
   });
-
-  it("puts the old bundle back when the new one fails to launch", () => {
-    const { script, current, next, rollback, env } = setup(true);
-    const result = spawnSync("bash", [script, "999999", current, next, rollback, join(root, "swap.log")], { env });
-    expect(result.status).toBe(1);
-    expect(readFileSync(join(current, "version"), "utf8")).toBe("old");
-    expect(readFileSync(join(root, "opened"), "utf8").trim().split("\n")).toEqual([current, current]);
+  it("propagates offline and abort failures", async () => {
+    const { path, update } = fixture();
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    await expect(downloadVerified(update, path, vi.fn(), new AbortController().signal)).rejects.toThrow("offline");
+    const controller = new AbortController();
+    controller.abort();
+    vi.stubGlobal("fetch", vi.fn().mockImplementation((_url, options: RequestInit) => {
+      options.signal?.throwIfAborted();
+      return Promise.resolve(new Response("test app archive"));
+    }));
+    await expect(downloadVerified(update, path, vi.fn(), controller.signal)).rejects.toMatchObject({ name: "AbortError" });
+  });
+  it("rejects oversized streamed manifests and HTTP errors", async () => {
+    const request = vi.fn().mockResolvedValueOnce(new Response(new ReadableStream({
+      start(controller) {
+        controller.enqueue(new Uint8Array(32768));
+        controller.enqueue(new Uint8Array(32769));
+        controller.close();
+      },
+    }))).mockResolvedValueOnce(new Response("error", { status: 503 }));
+    vi.stubGlobal("fetch", request);
+    const signal = new AbortController().signal;
+    await expect(fetchManifest("https://example.test/latest.json", signal)).rejects.toThrow(/too large/);
+    await expect(fetchManifest("https://example.test/latest.json", signal)).rejects.toThrow(/HTTP 503/);
+    expect(request).toHaveBeenCalledWith("https://example.test/latest.json", expect.objectContaining({ redirect: "error" }));
+  });
+  it("acknowledges only the pending token, version and bundle", async () => {
+    fixture();
+    const token = "f6f5f574-5dea-42c2-91c1-7bc09ca9da51";
+    const version = "0.6.1-zh-tw.2";
+    const bundle = "/Applications/Multica 繁中版.app";
+    const argv = [`--zh-tw-update-token=${token}`];
+    const ready = join(dir, `ready-${token}`);
+    // No token must not try to read even a nonexistent pending record.
+    await expect(acknowledgeUpdateReady(join(dir, "missing"), version, bundle, [])).resolves.toBeUndefined();
+    writeFileSync(join(dir, "pending-launch.json"), JSON.stringify({ token, version, bundle }));
+    await acknowledgeUpdateReady(dir, version, bundle, ["--zh-tw-update-token=f6f5f574-5dea-42c2-91c1-7bc09ca9da52"]);
+    await acknowledgeUpdateReady(dir, "0.6.1-zh-tw.3", bundle, argv);
+    await acknowledgeUpdateReady(dir, version, "/Applications/Other.app", argv);
+    expect(existsSync(ready)).toBe(false);
+    await acknowledgeUpdateReady(dir, version, bundle, argv);
+    expect(readFileSync(ready, "utf8")).toBe("ready\n");
   });
 });

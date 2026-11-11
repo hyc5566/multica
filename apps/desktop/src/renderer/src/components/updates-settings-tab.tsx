@@ -5,6 +5,7 @@ import { Switch } from "@multica/ui/components/ui/switch";
 import { useT } from "@multica/views/i18n";
 import { SettingsCard, SettingsRow, SettingsTab } from "@multica/views/settings";
 import { toast } from "sonner";
+import { useUpdaterStatus } from "../hooks/use-updater-status";
 
 type CheckState =
   | { status: "idle" }
@@ -16,10 +17,17 @@ type CheckState =
 export function UpdatesSettingsTab() {
   const { t } = useT("settings");
   const [state, setState] = useState<CheckState>({ status: "idle" });
+  const { status, statusError } = useUpdaterStatus();
   const [automaticUpdates, setAutomaticUpdates] = useState(true);
   const [preferencesReady, setPreferencesReady] = useState(false);
   const [savingPreference, setSavingPreference] = useState(false);
   const currentVersion = window.desktopAPI.appInfo.version;
+
+  useEffect(() => {
+    if (status && ["checking", "downloading", "ready"].includes(status.phase)) {
+      setState((current) => current.status === "error" ? { status: "idle" } : current);
+    }
+  }, [status]);
 
   useEffect(() => {
     let mounted = true;
@@ -61,16 +69,28 @@ export function UpdatesSettingsTab() {
 
   const handleCheck = useCallback(async () => {
     setState({ status: "checking" });
-    const result = await window.updater.checkForUpdates();
-    if (!result.ok) {
-      setState({ status: "error", message: result.error });
-      return;
+    try {
+      const result = await window.updater.checkForUpdates();
+      if (!result.ok) {
+        setState({ status: "error", message: result.error });
+        return;
+      }
+      setState(
+        result.available
+          ? { status: "available", latestVersion: result.latestVersion }
+          : { status: "up-to-date" },
+      );
+    } catch (error) {
+      setState({ status: "error", message: error instanceof Error ? error.message : String(error) });
     }
-    setState(
-      result.available
-        ? { status: "available", latestVersion: result.latestVersion }
-        : { status: "up-to-date" },
-    );
+  }, []);
+
+  const handleInstall = useCallback(async () => {
+    try {
+      await window.updater.installUpdate();
+    } catch (error) {
+      setState({ status: "error", message: error instanceof Error ? error.message : String(error) });
+    }
   }, []);
 
   return (
@@ -102,21 +122,24 @@ export function UpdatesSettingsTab() {
           description={
             <>
               <p>{t(($) => $.desktop.updates.check_section_description)}</p>
-              {state.status === "up-to-date" && (
+              {state.status === "up-to-date" && status?.phase === "idle" && (
                 <p className="mt-2 inline-flex items-center gap-1.5">
                   <Check className="size-3.5 text-success" />
                   {t(($) => $.desktop.updates.up_to_date)}
                 </p>
               )}
-              {state.status === "available" && (
+              {state.status === "available" && status?.phase !== "downloading" && status?.phase !== "ready" && (
                 <p className="mt-2 inline-flex items-center gap-1.5">
                   <ArrowDownToLine className="size-3.5 text-primary" />
-                  {t(($) => $.desktop.updates.downloading, {
-                    version: state.latestVersion,
-                  })}
+                  {t(($) => $.desktop.updates.available, { version: state.latestVersion })}
                 </p>
               )}
-              {state.status === "error" && (
+              {status?.phase === "downloading" && <p role="status">{t(($) => $.desktop.updates.progress, { percent: Math.round(status.percent ?? 0) })}</p>}
+              {status?.phase === "ready" && <p role="status">{t(($) => $.desktop.updates.ready, { version: status.version ?? "" })}</p>}
+              {status?.phase === "installing" && <p role="status">{t(($) => $.desktop.updates.installing)}</p>}
+              {status?.phase === "unsupported" && <p>{t(($) => $.desktop.updates.unsupported)}</p>}
+              {(statusError || status?.phase === "error") && <p role="alert" className="text-destructive">{status?.error || t(($) => $.desktop.updates.status_failed)}</p>}
+              {state.status === "error" && status?.phase !== "error" && (
                 <p className="mt-2 inline-flex items-center gap-1.5 text-destructive">
                   <AlertCircle className="size-3.5" />
                   {state.message}
@@ -125,21 +148,24 @@ export function UpdatesSettingsTab() {
             </>
           }
         >
+          <div className="flex flex-wrap gap-2">
+          {status?.phase === "ready" && <Button size="sm" onClick={handleInstall}>{t(($) => $.desktop.updates.restart_now)}</Button>}
           <Button
             variant="outline"
             size="sm"
             onClick={handleCheck}
-            disabled={state.status === "checking"}
+            disabled={state.status === "checking" || status?.phase === "checking" || status?.phase === "unsupported"}
           >
-            {state.status === "checking" ? (
+            {state.status === "checking" || status?.phase === "checking" ? (
               <>
                 <Loader2 className="size-3.5 animate-spin" />
-                {t(($) => $.desktop.updates.checking)}
+                {status?.phase === "downloading"
+                  ? t(($) => $.desktop.updates.progress, { percent: Math.round(status.percent ?? 0) })
+                  : t(($) => $.desktop.updates.checking)}
               </>
-            ) : (
-              t(($) => $.desktop.updates.check_now)
-            )}
+            ) : t(($) => $.desktop.updates.check_now)}
           </Button>
+          </div>
         </SettingsRow>
       </SettingsCard>
     </SettingsTab>

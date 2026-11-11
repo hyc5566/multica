@@ -2,6 +2,17 @@ export interface UpdaterPreferences {
   automaticUpdates: boolean;
 }
 
+export interface UpdaterStatus {
+  phase: "idle" | "checking" | "downloading" | "ready" | "installing" | "error" | "unsupported";
+  currentVersion: string;
+  version?: string;
+  percent?: number;
+  notesUrl?: string;
+  error?: string;
+  /** Defers automatic installation for this App session. */
+  deferred?: boolean;
+}
+
 export type ManualUpdateCheckResult =
   | {
       ok: true;

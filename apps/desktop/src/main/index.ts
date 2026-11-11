@@ -828,12 +828,12 @@ if (!gotTheLock) {
 
     // This local package is not signed or published by Multica. Never let it
     // consume the official app's update feed; it follows the s90 channel.
-    setupDaemonManager(() => mainWindow);
     setupZhTWAppUpdate({
       getMainWindow: () => mainWindow,
       getApiBaseUrl: getTargetApiBaseUrl,
       preserveDaemonOnQuit: preserveDaemonOnNextQuit,
     });
+    setupDaemonManager(() => mainWindow);
     setupLocalDirectory(() => mainWindow);
 
     app.on("activate", () => {
