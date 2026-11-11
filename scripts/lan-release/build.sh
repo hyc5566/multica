@@ -23,7 +23,9 @@ export GOFLAGS="${GOFLAGS:-} -p=4"
 cd "$repo/server"
 for platform in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
   mkdir "$out/$platform"
-  GOOS=${platform%-*} GOARCH=${platform#*-} go build -trimpath \
+  # Keep linker identity flags in Go build info for cross-platform verification.
+  # Go omits those flags when -trimpath is enabled.
+  GOOS=${platform%-*} GOARCH=${platform#*-} go build \
     -ldflags "-s -w -X main.version=$version -X main.commit=$commit -X main.buildCommit=$commit -X main.date=$build_date" \
     -o "$out/$platform/multica" ./cmd/multica
   cp "$out/$platform/multica" "$out/multica-$version-$platform"
@@ -33,7 +35,7 @@ for platform in linux-amd64 linux-arm64 darwin-amd64 darwin-arm64; do
 done
 mkdir "$out/server-linux-amd64"
 for binary in server migrate; do
-  GOOS=linux GOARCH=amd64 go build -trimpath \
+  GOOS=linux GOARCH=amd64 go build \
     -ldflags "-s -w -X main.version=$version -X main.commit=$commit" \
     -o "$out/server-linux-amd64/$binary" "./cmd/$binary"
 done
