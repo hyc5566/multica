@@ -6,13 +6,13 @@ import { readFile } from "fs/promises";
 
 const { files, handlers, cliState, machine } = vi.hoisted(() => ({
   machine: { home: "/test-home", host: "test-host" },
-  cliState: { running: true, pid: 100, failStart: false },
+  cliState: { running: true, pid: 100, failStart: false, commands: [] as string[][] },
   files: new Map<string, string>(),
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
 }));
 
 vi.mock("electron", () => ({
-  app: { on: vi.fn(), getAppPath: () => "/test-app" },
+  app: { on: vi.fn(), quit: vi.fn(), getAppPath: () => "/test-app" },
   ipcMain: {
     handle: (name: string, handler: (...args: unknown[]) => Promise<unknown>) =>
       handlers.set(name, handler),
@@ -23,6 +23,7 @@ vi.mock("electron", () => ({
 }));
 vi.mock("fs", () => ({ existsSync: (path: string) => path === "/test-app/resources/bin/multica", watchFile: vi.fn(), unwatchFile: vi.fn() }));
 vi.mock("child_process", () => ({ execFile: (_bin: string, args: string[], _opts: unknown, callback: (error: Error | null, out: string) => void) => {
+  cliState.commands.push(args);
   if (args[0] === "version") return callback(null, JSON.stringify({version:"test"}));
   if (args[1] === "stop") cliState.running = false;
   if (args[1] === "start") {
@@ -49,6 +50,10 @@ vi.mock("fs/promises", () => ({
   rm: vi.fn(async (path: string) => { files.delete(path); }),
   open: vi.fn(),
   stat: vi.fn(),
+  lstat: vi.fn(async (path: string) => {
+    if (!files.has(path)) throw Object.assign(new Error("ENOENT"), { code: "ENOENT" });
+    return {};
+  }),
 }));
 vi.mock("./cli-bootstrap", () => ({
   ensureManagedCli: vi.fn(),
@@ -75,6 +80,9 @@ function seedOwnership(id = "current", token = "mul_revoked") {
     desktopTokenRecord({ id, token }, { machine: machine.host + ":" + installation, userId: "user-1", serverUrl: server }),
   ));
 }
+function apiCalls() {
+  return fetchMock.mock.calls.filter(call => String(call[0]).startsWith(server + "/api/"));
+}
 function cachedToken() {
   return JSON.parse(files.get(configPath())!).token;
 }
@@ -82,7 +90,7 @@ function cachedToken() {
 describe("Desktop daemon token synchronization", () => {
   beforeEach(async () => {
     machine.home = "/test-home"; machine.host = "test-host";
-    cliState.running = true; cliState.pid = 100; cliState.failStart = false;
+    cliState.running = true; cliState.pid = 100; cliState.failStart = false; cliState.commands = [];
     files.clear();
     handlers.clear();
     fetchMock.mockReset();
@@ -95,7 +103,9 @@ describe("Desktop daemon token synchronization", () => {
     files.set(configPath(), JSON.stringify({ token: "mul_revoked", server_url: server }));
     files.set(profileUserIdPath(profile), "user-1");
     seedOwnership();
+    await invoke("daemon:set-target-api-url", "");
     await invoke("daemon:set-target-api-url", server);
+    fetchMock.mockClear();
   });
   afterEach(() => {
     vi.clearAllTimers();
@@ -103,6 +113,89 @@ describe("Desktop daemon token synchronization", () => {
     vi.restoreAllMocks();
     vi.unstubAllGlobals();
     vi.unstubAllEnvs();
+  });
+
+  it("connects to a reserved profile without bootstrapping a CLI or creating config", async () => {
+    await invoke("daemon:set-target-api-url", "");
+    files.set(machine.home + "/.multica/profiles/" + profile + "/daemon-management.json", "invalid");
+    files.delete(configPath());
+    cliState.commands = [];
+    fetchMock.mockResolvedValue({ ok: false });
+    await invoke("daemon:set-target-api-url", server);
+    await invoke("daemon:retry-install");
+    expect(files.has(configPath())).toBe(false);
+    expect(cliState.commands).toEqual([]);
+    expect(await invoke("daemon:get-status")).toMatchObject({ state: "stopped", pinnedDaemon: true });
+  });
+
+  it.each(["{broken", JSON.stringify({ schema_version: 1, manager: "launchd-pinned" })])(
+    "reserves a stopped profile with any marker: %s", async (marker) => {
+      files.set(machine.home + "/.multica/profiles/" + profile + "/daemon-management.json", marker);
+      fetchMock.mockResolvedValue({ ok: false });
+      const before = files.get(configPath());
+      expect(await invoke("daemon:get-status")).toMatchObject({ state: "stopped", pinnedDaemon: true, externallyManaged: true });
+      expect(await invoke("daemon:start")).toMatchObject({ success: false });
+      await invoke("daemon:restart");
+      await invoke("daemon:clear-token");
+      await invoke("daemon:sync-token", "session", "user-1");
+      expect(await invoke("daemon:rotate-desktop-token", "session", "user-1", "current")).toMatchObject({ ok: false });
+      expect(files.get(configPath())).toBe(before);
+      expect(cliState.pid).toBe(100);
+      expect(fetchMock.mock.calls.every(call => !call[1]?.method)).toBe(true);
+    },
+  );
+
+  it.each([undefined, 2, 1])("recognizes pinned health and reports protocol %s", async (protocol) => {
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({
+      status: "running", pid: 100, os: process.platform, profile, server_url: server,
+      launched_by: "desktop", lifecycle_manager: "launchd-pinned", desktop_protocol: protocol,
+      active_task_count: 0, running_task_count: 0, resource_wait_task_count: 0,
+    }) });
+    const status = await invoke("daemon:get-status");
+    expect(status).toMatchObject({ state: "running", pinnedDaemon: true, externallyManaged: true, incompatibleDaemon: protocol !== 1 });
+    await invoke("daemon:restart");
+    await invoke("daemon:clear-token");
+    expect(cliState.pid).toBe(100);
+    expect(cachedToken()).toBe("mul_revoked");
+  });
+
+  it("never sends an idle trust restart to a pinned daemon", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("MULTICA_CA_CERT_FILE", "/test/ca-bundle.crt");
+    files.set("/test/ca-bundle.crt", "CA");
+    vi.mocked(DaemonOperationGate.prototype.runBackground).mockRestore();
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({
+      status: "running", pid: 100, os: process.platform, profile, server_url: server,
+      launched_by: "desktop", lifecycle_manager: "launchd-pinned", desktop_protocol: 1,
+      active_task_count: 0, running_task_count: 0, resource_wait_task_count: 0,
+    }) });
+    requestDaemonTrustRefresh();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(fetchMock.mock.calls.every(call => call[1]?.method !== "POST")).toBe(true);
+    expect(cliState.pid).toBe(100);
+  });
+
+  it("preserves a pinned daemon during update quit and ordinary auto-stop quit", async () => {
+    files.set(machine.home + "/.multica/profiles/" + profile + "/daemon-management.json", "{}");
+    files.set("/test-home/.multica/desktop_prefs.json", JSON.stringify({ autoStop: true }));
+    fetchMock.mockResolvedValue({ ok: true, json: async () => ({
+      status: "running", pid: 100, profile, server_url: server,
+      lifecycle_manager: "launchd-pinned", desktop_protocol: 1,
+    }) });
+    const registrations = vi.mocked(app.on).mock.calls as unknown as [string, (event: { defaultPrevented: boolean; preventDefault: () => void }) => void][];
+    const quit = registrations.filter(([name]) => name === "before-quit").at(-1)![1];
+    const preventDefault = vi.fn();
+    cliState.commands = [];
+    const release = preserveDaemonOnNextQuit();
+    quit({ defaultPrevented: false, preventDefault });
+    release();
+    expect(preventDefault).not.toHaveBeenCalled();
+    expect(cliState.commands).toEqual([]);
+    quit({ defaultPrevented: false, preventDefault });
+    await vi.waitFor(() => expect(app.quit).toHaveBeenCalled());
+    expect(preventDefault).toHaveBeenCalledOnce();
+    expect(cliState.commands).toEqual([]);
+    expect(cliState.pid).toBe(100);
   });
 
   it("skips daemon quit work for a cancelled update quit and releases preservation after cancellation", () => {
@@ -236,14 +329,14 @@ describe("Desktop daemon token synchronization", () => {
     fetchMock.mockResolvedValue({ ok: true, json: async () => [{ id: "current", token_prefix: "mul_revo" }] });
     const result = await invoke("daemon:rotate-desktop-token", "session-jwt", "user-1", "other");
     expect(result).toMatchObject({ ok: false });
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(apiCalls()).toHaveLength(0);
     expect(cachedToken()).toBe("mul_revoked");
   });
 
   it("does not claim a substituted credential with the same prefix", async () => {
     files.set(configPath(), JSON.stringify({ token: "mul_revoked_other", server_url: server }));
     expect(await invoke("daemon:desktop-token-id", "session-jwt", "user-1")).toBeNull();
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(apiCalls()).toHaveLength(0);
   });
 
   it("refuses rotation while tasks are active", async () => {
@@ -277,24 +370,24 @@ describe("Desktop daemon token synchronization", () => {
     fetchMock.mockResolvedValue({ status });
     await invoke("daemon:sync-token", "session-jwt", "user-1");
     expect(cachedToken()).toBe("mul_revoked");
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0]?.[0]).toBe(`${server}/api/me`);
+    expect(apiCalls()).toHaveLength(1);
+    expect(apiCalls()[0]?.[0]).toBe(`${server}/api/me`);
   });
 
   it("does not mint or clear credentials on a network failure", async () => {
     fetchMock.mockRejectedValue(new Error("offline"));
     await invoke("daemon:sync-token", "session-jwt", "user-1");
     expect(cachedToken()).toBe("mul_revoked");
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(apiCalls()).toHaveLength(1);
   });
 
   it.each([401, 503])("preserves credentials and surfaces a failed mint (%s) without retries", async (status) => {
-    fetchMock.mockResolvedValueOnce({ status: 401 }).mockResolvedValueOnce({
-      ok: false, status, statusText: "error", text: async () => "",
-    });
+    fetchMock.mockImplementation(async (url: string) => url.endsWith("/api/me")
+      ? { status: 401 }
+      : url.endsWith("/api/tokens") ? { ok: false, status } : { ok: false });
     await expect(invoke("daemon:sync-token", "session-jwt", "user-1")).rejects.toMatchObject({ status });
     expect(cachedToken()).toBe("mul_revoked");
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(apiCalls()).toHaveLength(2);
   });
 
   it.each(["first login", "legacy profile"])("isolates two machine/HOME IPC sessions: %s", async (scenario) => {
@@ -392,14 +485,16 @@ describe("Desktop daemon token synchronization", () => {
     });
     expect(cachedToken()).toBe("mul_revoked");
     expect(await invoke("daemon:desktop-token-id", "session-jwt", "user-1")).toBe("current");
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock.mock.calls[0]?.[1]).toMatchObject({ method: "POST", signal: expect.any(AbortSignal) });
+    expect(apiCalls()).toHaveLength(1);
+    expect(apiCalls()[0]?.[1]).toMatchObject({ method: "POST", signal: expect.any(AbortSignal) });
   });
 
   it.each([null, {}, { id: "x" }, { token: "mul_secret" }, { id: "", token: "mul_secret" },
     { id: 1, token: "mul_secret" }, { id: "x", token: 2 }, { id: "x", token: "jwt" }])(
     "rejects malformed mint responses without saving or revoking: %j", async (body) => {
-      fetchMock.mockResolvedValueOnce({ status: 401 }).mockResolvedValueOnce({ ok: true, json: async () => body });
+      fetchMock.mockImplementation(async (url: string) => url.endsWith("/api/me")
+        ? { status: 401 }
+        : url.endsWith("/api/tokens") ? { ok: true, json: async () => body } : { ok: false });
       await expect(invoke("daemon:sync-token", "session-jwt", "user-1")).rejects.toThrow("token identity");
       expect(cachedToken()).toBe("mul_revoked");
       expect(fetchMock.mock.calls.some(call => call[1]?.method === "DELETE")).toBe(false);

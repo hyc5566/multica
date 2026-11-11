@@ -1351,6 +1351,8 @@
       "restarting_description": "Les runtimes seront de nouveau en ligne dans quelques secondes.",
       "view_logs": "Voir les journaux",
       "managed_externally": "Géré en dehors de l'application",
+      "pinned_managed": "Ce démon est géré indépendamment.",
+      "pinned_incompatible": "Le démon indépendant est incompatible avec cette application. Mettez à jour l’application ou le démon.",
       "restart": "Redémarrer",
       "stop": "Arrêter",
       "start": "Démarrer",

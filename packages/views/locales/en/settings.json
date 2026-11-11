@@ -1351,6 +1351,8 @@
       "restarting_description": "Runtimes will be back online in a few seconds.",
       "view_logs": "View logs",
       "managed_externally": "Managed outside the app",
+      "pinned_managed": "This daemon is managed independently.",
+      "pinned_incompatible": "The independent daemon is incompatible with this Desktop app. Update the app or daemon.",
       "restart": "Restart",
       "stop": "Stop",
       "start": "Start",

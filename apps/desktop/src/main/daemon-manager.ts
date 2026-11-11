@@ -10,6 +10,7 @@ import {
   rm,
   open,
   stat,
+  lstat,
 } from "fs/promises";
 import {
   existsSync,
@@ -118,6 +119,7 @@ let desiredDaemonRunning = false;
 // Once a foreign-OS daemon (for example WSL2) is observed on this profile, do
 // not replace it with a native daemon if its forwarded health endpoint drops.
 let externalDaemonObserved = false;
+let pinnedDaemonObserved = false;
 const recoveryPolicy = new DaemonRecoveryPolicy();
 const lifecycleOperations = new DaemonOperationGate();
 
@@ -150,11 +152,13 @@ async function writeProfileUserId(
   profile: string,
   userId: string,
 ): Promise<void> {
+  await assertProfileWritable({ name: profile });
   await mkdir(profileDir(profile), { recursive: true });
   await writeFile(profileUserIdPath(profile), userId, "utf-8");
 }
 
 async function removeProfileUserId(profile: string): Promise<void> {
+  await assertProfileWritable({ name: profile });
   try {
     await rm(profileUserIdPath(profile));
   } catch {
@@ -194,6 +198,8 @@ interface HealthPayload {
   device_name?: string;
   server_url?: string;
   cli_version?: string;
+  lifecycle_manager?: string;
+  desktop_protocol?: number;
   active_task_count?: number;
   running_task_count?: number;
   resource_wait_task_count?: number;
@@ -277,6 +283,28 @@ async function probeTokenValidity(profile: string): Promise<AuthProbeResult> {
   }
 }
 
+// A marker reserves the profile even if it is malformed, unreadable, or a
+// dangling symlink. Uncertain filesystem errors also fail closed.
+async function profileReserved(profile: string): Promise<boolean> {
+  try {
+    await lstat(join(profileDir(profile), "daemon-management.json"));
+    return true;
+  } catch (error) {
+    return (error as NodeJS.ErrnoException).code !== "ENOENT";
+  }
+}
+
+async function pinnedBoundary(active: ActiveProfile, health?: HealthPayload | null): Promise<boolean> {
+  if (await profileReserved(active.name)) return true;
+  const current = health === undefined ? await fetchProfileHealth(active) : health;
+  if (current?.lifecycle_manager === "launchd-pinned") pinnedDaemonObserved = true;
+  return pinnedDaemonObserved;
+}
+
+async function assertProfileWritable(active: ActiveProfile): Promise<void> {
+  if (await pinnedBoundary(active)) throw new Error("This daemon profile is managed independently; manage its credentials outside Desktop.");
+}
+
 async function readProfileConfig(
   profile: string,
 ): Promise<Record<string, unknown>> {
@@ -294,6 +322,7 @@ async function writeProfileConfig(
   cfg: Record<string, unknown>,
 ): Promise<void> {
   const op = async () => {
+    await assertProfileWritable({ name: profile });
     await mkdir(profileDir(profile), { recursive: true });
     await writeFile(
       profileConfigPath(profile),
@@ -322,7 +351,7 @@ async function resolveActiveProfile(): Promise<ActiveProfile | null> {
   const name = deriveProfileName(target);
   const cfg = await readProfileConfig(name);
 
-  if (cfg.server_url !== target) {
+  if (cfg.server_url !== target && !(await pinnedBoundary({ name }))) {
     cfg.server_url = target;
     await writeProfileConfig(name, cfg);
     console.log(`[daemon] initialized profile "${name}" → ${target}`);
@@ -343,6 +372,7 @@ async function ensureActiveProfile(): Promise<ActiveProfile | null> {
 function invalidateActiveProfile(): void {
   activeProfile = null;
   externalDaemonObserved = false;
+  pinnedDaemonObserved = false;
   recoveryPolicy.reset();
 }
 
@@ -353,6 +383,7 @@ function setDesiredDaemonRunning(desired: boolean, explicit = false): void {
 }
 
 function observeDaemonBoundary(status: DaemonStatus): void {
+  if (status.pinnedDaemon) { externalDaemonObserved = true; recoveryPolicy.reset(); return; }
   if (status.state !== "running") return;
   externalDaemonObserved = status.externallyManaged === true;
   if (externalDaemonObserved) {
@@ -364,7 +395,8 @@ async function fetchHealth(): Promise<DaemonStatus> {
   // While the CLI is being downloaded or has permanently failed, short-circuit
   // polling — there's nothing to probe yet and /health calls would just return
   // "stopped", which would overwrite the correct setup state in the UI.
-  if (currentState === "installing_cli" || currentState === "cli_not_found") {
+  if ((currentState === "installing_cli" || currentState === "cli_not_found") &&
+      (!targetApiBaseUrl || !(await pinnedBoundary({ name: deriveProfileName(targetApiBaseUrl) })))) {
     return { state: currentState };
   }
 
@@ -374,8 +406,12 @@ async function fetchHealth(): Promise<DaemonStatus> {
   // daemon as if it were Desktop's.
   if (!active) return { state: "stopped" };
   const data = await fetchProfileHealth(active);
+  const pinned = await pinnedBoundary(active, data);
 
   if (!data || data.status !== "running") {
+    if (pinned && data?.status !== "starting") {
+      return { state: "stopped", profile: active.name, externallyManaged: true, pinnedDaemon: true };
+    }
     // A start that never reaches "running" is the symptom; an expired/invalid
     // login is the most common cause and the one with no other signal (the
     // daemon exits before it can serve /health, so we can't read the reason
@@ -407,6 +443,9 @@ async function fetchHealth(): Promise<DaemonStatus> {
       return {
         state: "starting",
         profile: active.name,
+        externallyManaged: pinned,
+        pinnedDaemon: pinned,
+        incompatibleDaemon: pinned && data.desktop_protocol !== 1,
       };
     }
     return {
@@ -417,6 +456,8 @@ async function fetchHealth(): Promise<DaemonStatus> {
             ? "recovery_paused"
             : "stopped",
       profile: active.name,
+      externallyManaged: pinned,
+      pinnedDaemon: pinned,
     };
   }
 
@@ -430,7 +471,7 @@ async function fetchHealth(): Promise<DaemonStatus> {
   // reachable only over localhost forwarding). Surface it so the UI disables
   // the auto-start/auto-stop toggles instead of letting them silently no-op,
   // and so before-quit skips a stop that would never land. See #3916.
-  const externallyManaged = isDaemonExternallyManaged(
+  const externallyManaged = pinned || isDaemonExternallyManaged(
     data.os,
     normalizeHostOS(process.platform),
   );
@@ -442,8 +483,8 @@ async function fetchHealth(): Promise<DaemonStatus> {
     data.server_url &&
     !urlsMatch(data.server_url, targetApiBaseUrl)
   ) {
-    invalidateActiveProfile();
-    return { state: "stopped" };
+    if (!pinned) invalidateActiveProfile();
+    return { state: "stopped", externallyManaged: pinned, pinnedDaemon: pinned };
   }
 
   return {
@@ -459,6 +500,8 @@ async function fetchHealth(): Promise<DaemonStatus> {
     profile: active.name,
     serverUrl: data.server_url,
     externallyManaged,
+    pinnedDaemon: pinned,
+    incompatibleDaemon: pinned && data.desktop_protocol !== 1,
   };
 }
 
@@ -650,7 +693,7 @@ async function ensureRunningDaemonVersionMatches(): Promise<
   // Don't try to version-match a daemon we can't restart (e.g. WSL2). Treat it
   // as up-to-date — restartDaemon would no-op anyway, and skipping here avoids
   // a misleading "restarting daemon" log on every auto-start. #3916.
-  if (isDaemonExternallyManaged(running?.os, normalizeHostOS(process.platform))) {
+  if (await pinnedBoundary(active, running) || isDaemonExternallyManaged(running?.os, normalizeHostOS(process.platform))) {
     pendingVersionRestart = false;
     return "ok";
   }
@@ -753,6 +796,7 @@ async function saveDesktopToken(
   minted: MintedDesktopToken,
   owner: DesktopTokenOwner,
 ): Promise<void> {
+  await assertProfileWritable(active);
   const config = await readProfileConfig(active.name);
   config.token = minted.token;
   config.server_url = owner.serverUrl;
@@ -760,6 +804,7 @@ async function saveDesktopToken(
   await writeProfileUserId(active.name, owner.userId);
   // A partial write leaves no matching provenance, so the next login mints
   // again without ever claiming or revoking the previous credential.
+  await assertProfileWritable(active);
   await writeFile(join(profileDir(active.name), ".desktop-token.json"),
     JSON.stringify(desktopTokenRecord(minted, owner)), { mode: 0o600 });
 }
@@ -772,6 +817,8 @@ async function syncToken(
 ): Promise<{ active: ActiveProfile; userChanged: boolean }> {
   const active = await ensureActiveProfile();
   if (!active) throw new Error("daemon profile is not resolved yet; token sync skipped");
+  // Login remains usable without claiming the independent daemon credentials.
+  if (await pinnedBoundary(active)) return { active, userChanged: false };
   const config = await readProfileConfig(active.name);
   const previousUserId = await readProfileUserId(active.name);
   const owner = await tokenOwner(userId);
@@ -834,7 +881,7 @@ async function clearToken(): Promise<void> {
   const active = await ensureActiveProfile();
   // Nothing of ours to clear yet, and the default CLI profile is not ours to
   // strip a token from.
-  if (!active) return;
+  if (!active || await pinnedBoundary(active)) return;
   const config = await readProfileConfig(active.name);
   if ("token" in config) {
     delete config.token;
@@ -871,7 +918,7 @@ function errorMessage(err: unknown): string {
 // Only an exact locally recorded mint can be selected for rotation.
 async function getDesktopTokenId(_jwt: string, userId: string): Promise<string | null> {
   const active = await ensureActiveProfile();
-  if (!active || await readProfileUserId(active.name) !== userId) return null;
+  if (!active || await pinnedBoundary(active) || await readProfileUserId(active.name) !== userId) return null;
   const cfg = await readProfileConfig(active.name);
   return ownedDesktopTokenId(await readTokenRecord(active.name), cfg.token, await tokenOwner(userId));
 }
@@ -882,6 +929,7 @@ async function rotateDesktopToken(jwt: string, userId: string, id: string): Prom
     if (await getDesktopTokenId(jwt, userId) !== id) throw new Error("The selected token is no longer this App's Desktop token. Refresh and try again.");
     const active = await ensureActiveProfile();
     if (!active) throw new Error("Desktop profile unavailable.");
+    await assertProfileWritable(active);
     const status = await fetchHealth();
     if (status.externallyManaged || !["running", "stopped", "auth_expired"].includes(status.state))
       throw new Error("Daemon is busy or externally managed. Try again when it is idle.");
@@ -918,6 +966,9 @@ async function reauthenticate(
   userId: string,
 ): Promise<ReauthResult> {
   try {
+    const active = await ensureActiveProfile();
+    if (!active) throw new Error("Desktop profile unavailable.");
+    await assertProfileWritable(active);
     // Keep the previous credential recoverable until the mint succeeds.
     await syncToken(token, userId, true);
   } catch (err) {
@@ -964,10 +1015,10 @@ async function probeLocalRuntimes(): Promise<LocalRuntimeProbe> {
     return successfulRuntimeProbe(health.agents ?? [], true);
   }
 
+  const active = await ensureActiveProfile();
+  if (!active || await pinnedBoundary(active)) return { probeResult: "error" };
   const bin = await resolveCliBinary();
   if (!bin) return { probeResult: "error" };
-  const active = await ensureActiveProfile();
-  if (!active) return { probeResult: "error" };
   return new Promise((resolve) => {
     execFile(
       bin,
@@ -1051,6 +1102,7 @@ async function refreshDaemonTrustWhenIdle(): Promise<void> {
   if (!active) return;
   const probed = await fetchProfileHealthWithPort(active);
   const running = probed?.health ?? null;
+  if (await pinnedBoundary(active, running)) { pendingTrustRefresh = 0; return; }
   if (generation !== pendingTrustRefresh) return;
   if (!running) {
     if (await daemonPidIsConfirmedAbsent(active.name) && generation === pendingTrustRefresh) {
@@ -1071,7 +1123,7 @@ async function refreshDaemonTrustWhenIdle(): Promise<void> {
   if (running.active_task_count !== 0 ||
       running.running_task_count !== 0 || running.resource_wait_task_count !== 0) return;
   const ca = process.env.MULTICA_CA_CERT_FILE;
-  if (!ca) return;
+  if (!ca || await pinnedBoundary(active)) return;
   trustRestartPID = running.pid;
   trustRestartRequestedAt = Date.now();
   try {
@@ -1094,13 +1146,11 @@ async function refreshDaemonTrustWhenIdle(): Promise<void> {
 async function startDaemon(
   recoveryProfile?: ActiveProfile,
 ): Promise<{ success: boolean; error?: string }> {
+  const active = await ensureActiveProfile();
+  if (!active) return { success: false, error: "Waiting for the service address" };
+  if (await pinnedBoundary(active)) return { success: false, error: "This daemon is managed independently." };
   const bin = await resolveCliBinary();
   if (!bin) return { success: false, error: "multica CLI is not installed" };
-
-  const active = await ensureActiveProfile();
-  if (!active) {
-    return { success: false, error: "Waiting for the service address" };
-  }
   if (
     recoveryProfile &&
     !recoveryStartAllowed({
@@ -1136,6 +1186,7 @@ async function startDaemon(
     return { success: false, error: "Daemon recovery was superseded" };
   }
 
+  if (await pinnedBoundary(active, existing)) return { success: false, error: "This daemon is managed independently." };
   if (recoveryProfile) recoveryPolicy.recordRecoveryAttempt(Date.now());
   currentState = "starting";
   // Begin a fresh auth-probe window for this attempt.
@@ -1179,8 +1230,9 @@ async function startDaemon(
 async function lifecycleBlockedByForeignDaemon(): Promise<boolean> {
   const active = await ensureActiveProfile();
   if (!active) return false;
-  return daemonLifecycleUnreachable(
-    async () => (await fetchProfileHealth(active))?.os,
+  const health = await fetchProfileHealth(active);
+  return await pinnedBoundary(active, health) || daemonLifecycleUnreachable(
+    async () => health?.os,
     normalizeHostOS(process.platform),
   );
 }
@@ -1195,11 +1247,11 @@ async function stopDaemon(): Promise<{ success: boolean; error?: string }> {
   // it holds even when no poll ran first. #3916.
   if (await lifecycleBlockedByForeignDaemon()) return { success: true };
 
-  const bin = await resolveCliBinary();
-  if (!bin) return { success: false, error: "multica CLI is not installed" };
-
   const active = await ensureActiveProfile();
   if (!active) return { success: true };
+  if (await pinnedBoundary(active)) return { success: true };
+  const bin = await resolveCliBinary();
+  if (!bin) return { success: false, error: "multica CLI is not installed" };
   currentState = "stopping";
   // An explicit stop is a clean reset — drop any pending auth-failure verdict.
   authExpired = false;
@@ -1273,7 +1325,7 @@ async function attemptDaemonRecovery(active: ActiveProfile): Promise<void> {
     confirmAlive: async () => {
       const health = await fetchProfileHealth(active, RECOVERY_HEALTH_PROBE_TIMEOUT_MS);
       if (!daemonStatusAlive(health?.status)) return false;
-      externalDaemonObserved = isDaemonExternallyManaged(
+      externalDaemonObserved = await pinnedBoundary(active, health) || isDaemonExternallyManaged(
         health?.os,
         normalizeHostOS(process.platform),
       );
@@ -1383,6 +1435,12 @@ function startPolling(): void {
  * user-triggered `daemon:retry-install`.
  */
 async function bootstrapCli(): Promise<void> {
+  const active = await ensureActiveProfile();
+  if (!active || await pinnedBoundary(active)) {
+    currentState = "stopped";
+    startPolling();
+    return;
+  }
   const bin = await resolveCliBinary();
   if (!bin) {
     currentState = "cli_not_found";
@@ -1529,6 +1587,7 @@ export function setupDaemonManager(
       setDesiredDaemonRunning(false);
       targetApiBaseUrl = normalized;
       invalidateActiveProfile();
+      await bootstrapCli();
       await pollOnce();
     }
   }));
@@ -1580,6 +1639,8 @@ export function setupDaemonManager(
     },
   );
   ipcMain.handle("daemon:is-cli-installed", async () => {
+    const active = await ensureActiveProfile();
+    if (!active || await pinnedBoundary(active)) return false;
     const bin = await resolveCliBinary();
     return bin !== null;
   });
@@ -1610,6 +1671,8 @@ export function setupDaemonManager(
     // Login auto-start is emitted once per session. Queue it behind bootstrap
     // instead of dropping it like a retryable poll operation.
     await lifecycleOperations.runForeground(async () => {
+      const active = await ensureActiveProfile();
+      if (!active || await pinnedBoundary(active)) return;
       const bin = await resolveCliBinary();
       if (!bin) return;
       const health = await fetchHealth();
