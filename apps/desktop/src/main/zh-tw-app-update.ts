@@ -1,21 +1,20 @@
-import { app, dialog, type BrowserWindow } from "electron";
-import { createHash } from "node:crypto";
+import { app, BrowserWindow, ipcMain } from "electron";
+import { createHash, randomUUID } from "node:crypto";
 import { execFile, spawn } from "node:child_process";
 import { createWriteStream } from "node:fs";
-import { access, constants, mkdir, readdir, rm, writeFile } from "node:fs/promises";
+import { access, constants, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { basename, dirname, join } from "node:path";
 import { Readable, Transform } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { z } from "zod";
-import { openExternalSafely } from "./external-url";
+import { loadUpdaterPreferences, saveUpdaterPreferences, updaterPreferencesPath } from "./updater-preferences";
+import { createZhTWUpdateController } from "./zh-tw-update-controller";
+import { SWAP_SCRIPT } from "./zh-tw-update-swap";
+export { SWAP_SCRIPT } from "./zh-tw-update-swap";
+export { STARTUP_CHECK_DELAY_MS, CHECK_INTERVAL_MS } from "./zh-tw-update-controller";
 
-// The Taiwan build is locally signed and not published to the upstream update
-// feed, so electron-updater stays off. Instead the App reads the s90 release
-// channel (latest.json, published with each release), asks the user, then
-// downloads, verifies and swaps its own bundle — no agent involved.
+// The locally signed Taiwan build must never consume electron-updater's feed.
 export const DEFAULT_RELEASE_MANIFEST_URL = "https://10.1.24.90:45671/downloads/latest.json";
-export const STARTUP_CHECK_DELAY_MS = 30_000;
-export const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000;
 const MAX_MANIFEST_BYTES = 64 * 1024;
 const MAX_APP_ZIP_BYTES = 1024 * 1024 * 1024;
 const ZH_TW_VERSION = /^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)$/;
@@ -121,36 +120,6 @@ export function appBundlePath(exePath: string): string | null {
   return bundle;
 }
 
-// Runs after the App exits: move the old bundle aside as the single rollback
-// copy, move the verified bundle into place, and reopen it. Any failure puts
-// the old bundle back, so the user is never left without an App.
-export const SWAP_SCRIPT = `#!/bin/bash
-set -u
-pid=$1 current=$2 next=$3 rollback=$4 log=$5
-exec >>"$log" 2>&1
-echo "[$(date -u +%FT%TZ)] swap $current"
-for _ in $(seq 1 240); do kill -0 "$pid" 2>/dev/null || break; sleep 0.5; done
-if kill -0 "$pid" 2>/dev/null; then echo "App still running; update skipped"; exit 1; fi
-rm -rf -- "$rollback"
-mkdir -p -- "$(dirname "$rollback")"
-if ! mv -- "$current" "$rollback"; then echo "cannot move current bundle"; open -- "$current"; exit 1; fi
-if ! mv -- "$next" "$current"; then
-  echo "cannot install new bundle; restoring"
-  [ -e "$current" ] && rm -rf -- "$current"
-  mv -- "$rollback" "$current"
-  open -- "$current"
-  exit 1
-fi
-xattr -dr com.apple.quarantine "$current" 2>/dev/null || true
-if open -- "$current"; then echo "installed; rollback kept at $rollback"; exit 0; fi
-echo "new bundle failed to launch; restoring the previous one"
-failed="$(dirname "$rollback")/failed-$(basename "$current")"
-rm -rf -- "$failed"
-mv -- "$current" "$failed" && mv -- "$rollback" "$current"
-open -- "$current"
-exit 1
-`;
-
 function run(file: string, args: string[]): Promise<string> {
   return new Promise((resolve, reject) => {
     execFile(file, args, { timeout: 5 * 60_000 }, (err, stdout, stderr) => {
@@ -160,18 +129,29 @@ function run(file: string, args: string[]): Promise<string> {
   });
 }
 
-async function fetchManifest(url: string): Promise<ReleaseManifest> {
+export async function fetchManifest(url: string, signal: AbortSignal): Promise<ReleaseManifest> {
   // No redirects: the channel names its own origin and nothing else.
-  const res = await fetch(url, { redirect: "error", signal: AbortSignal.timeout(15_000) });
+  const res = await fetch(url, { redirect: "error", signal: AbortSignal.any([signal, AbortSignal.timeout(15_000)]) });
   if (!res.ok) throw new Error(`release manifest HTTP ${res.status}`);
-  return parseReleaseManifest(await res.text());
+  if (!res.body) throw new Error("release manifest has no body");
+  const chunks: Uint8Array[] = [];
+  let bytes = 0;
+  for await (const chunk of Readable.fromWeb(res.body as never)) {
+    bytes += chunk.length;
+    if (bytes > MAX_MANIFEST_BYTES) throw new Error("release manifest too large");
+    chunks.push(chunk);
+  }
+  return parseReleaseManifest(Buffer.concat(chunks).toString("utf8"));
 }
 
-async function downloadVerified(update: AppUpdate, destination: string): Promise<void> {
-  const res = await fetch(update.url, { redirect: "error", signal: AbortSignal.timeout(30 * 60_000) });
+export async function downloadVerified(
+  update: AppUpdate, destination: string, onProgress: (percent: number) => void, signal: AbortSignal,
+): Promise<void> {
+  const res = await fetch(update.url, { redirect: "error", signal: AbortSignal.any([signal, AbortSignal.timeout(30 * 60_000)]) });
   if (!res.ok || !res.body) throw new Error(`下載失敗（HTTP ${res.status}）`);
   const hash = createHash("sha256");
   let size = 0;
+  let lastPercent = -1;
   const meter = new Transform({
     transform(chunk: Buffer, _encoding, callback) {
       size += chunk.length;
@@ -179,11 +159,13 @@ async function downloadVerified(update: AppUpdate, destination: string): Promise
         callback(new Error("下載大小超過發行資訊"));
         return;
       }
+      const percent = Math.min(99, Math.floor(size * 100 / update.size));
+      if (percent !== lastPercent) { lastPercent = percent; onProgress(percent); }
       hash.update(chunk);
       callback(null, chunk);
     },
   });
-  await pipeline(Readable.fromWeb(res.body as never), meter, createWriteStream(destination, { mode: 0o600 }));
+  await pipeline(Readable.fromWeb(res.body as never), meter, createWriteStream(destination, { mode: 0o600 }), { signal });
   if (size !== update.size || hash.digest("hex") !== update.sha256) {
     throw new Error("下載檔案的大小或 SHA-256 與發行資訊不符");
   }
@@ -194,15 +176,23 @@ async function plistValue(bundle: string, key: string): Promise<string> {
 }
 
 /** Download, verify and stage the new bundle; returns the staged path. */
-async function stageUpdate(update: AppUpdate, currentBundle: string, workDir: string): Promise<string> {
+export async function stageUpdate(
+  update: AppUpdate, currentBundle: string, workDir: string,
+  onProgress: (percent: number) => void, signal: AbortSignal,
+): Promise<string> {
   const notUpdatable = await bundleNotUpdatableReason(currentBundle);
   if (notUpdatable) throw new Error(notUpdatable);
   await rm(join(workDir, "staging"), { recursive: true, force: true });
   await mkdir(join(workDir, "staging"), { recursive: true });
   const zip = join(workDir, `multica-desktop-${update.version}.zip`);
-  await downloadVerified(update, zip);
-  await run("/usr/bin/ditto", ["-x", "-k", zip, join(workDir, "staging")]);
-  await rm(zip, { force: true });
+  try {
+    await downloadVerified(update, zip, onProgress, signal);
+    signal.throwIfAborted();
+    await run("/usr/bin/ditto", ["-x", "-k", zip, join(workDir, "staging")]);
+  } finally {
+    await rm(zip, { force: true });
+  }
+  signal.throwIfAborted();
   // The archive's bundle name need not match a renamed local copy; the swap
   // installs it under the current path. Bundle ID and version decide.
   const bundles = (await readdir(join(workDir, "staging"))).filter((name) => name.endsWith(".app"));
@@ -216,6 +206,7 @@ async function stageUpdate(update: AppUpdate, currentBundle: string, workDir: st
   if (id !== currentId) throw new Error(`新版 bundle ID ${id} 與目前 ${currentId} 不同`);
   if (version !== update.version) throw new Error(`新版版本 ${version} 與發行資訊 ${update.version} 不同`);
   await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", staged]);
+  signal.throwIfAborted();
   return staged;
 }
 
@@ -223,85 +214,113 @@ export type ZhTWAppUpdateDeps = {
   getMainWindow: () => BrowserWindow | null;
   getApiBaseUrl: () => string | null;
   /** Keep the daemon (and its running tasks) alive through the update quit. */
-  preserveDaemonOnQuit: () => void;
+  preserveDaemonOnQuit: () => (() => void) | void;
 };
+
+const pendingLaunchSchema = z.object({
+  token: z.string().uuid(), version: z.string().regex(ZH_TW_VERSION), bundle: z.string(),
+});
+
+/** Only the matching installed App can acknowledge its own renderer readiness. */
+export async function acknowledgeUpdateReady(
+  workDir: string, version: string, bundle: string | null, argv: string[],
+): Promise<void> {
+  const token = argv.find((arg) => arg.startsWith("--zh-tw-update-token="))?.split("=")[1];
+  if (!token) return;
+  const pending = pendingLaunchSchema.parse(JSON.parse(await readFile(join(workDir, "pending-launch.json"), "utf8")));
+  if (pending.token !== token || pending.version !== version || pending.bundle !== bundle) return;
+  await writeFile(join(workDir, `ready-${pending.token}`), "ready\n", { mode: 0o600 });
+}
 
 export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
   const key = platformKey(process.platform, process.arch);
   const currentBundle = appBundlePath(app.getPath("exe"));
-  if (!app.isPackaged || !key || !currentBundle) return;
+  const currentVersion = app.getVersion();
+  const supported = app.isPackaged && key && currentBundle && versionParts(currentVersion);
   const workDir = join(app.getPath("userData"), "zh-tw-update");
-  let busy = false;
-
-  const showError = async (err: unknown): Promise<void> => {
-    const message = err instanceof Error ? err.message : String(err);
-    console.error("[zh-tw-update]", message);
-    await dialog.showMessageBox({
-      type: "error",
-      title: "更新失敗",
-      message: "Multica 繁中版更新失敗，目前版本沒有變更。",
-      detail: `${message}\n\n可稍後再試，或到下載頁手動下載新版。`,
-    });
-  };
-
-  const install = async (update: AppUpdate): Promise<void> => {
-    const staged = await stageUpdate(update, currentBundle, workDir);
-    const script = join(workDir, "swap.sh");
-    await writeFile(script, SWAP_SCRIPT, { mode: 0o700 });
-    const rollback = join(workDir, "rollback", basename(currentBundle));
-    spawn("/bin/bash", [script, String(process.pid), currentBundle, staged, rollback, join(workDir, "swap.log")], {
-      detached: true,
-      stdio: "ignore",
-    }).unref();
-    // Running agent tasks belong to the daemon, not to this window: keep it
-    // alive across the swap instead of stopping it (which would cancel them).
-    deps.preserveDaemonOnQuit();
-    app.quit();
-  };
-
-  const check = async (): Promise<void> => {
-    if (busy) return;
-    busy = true;
-    try {
-      const manifest = await fetchManifest(manifestUrlFor(deps.getApiBaseUrl()));
-      const update = findAppUpdate(manifest, app.getVersion(), key);
-      if (!update) return;
-      const notUpdatable = await bundleNotUpdatableReason(currentBundle);
-      if (notUpdatable) {
-        await dialog.showMessageBox({
-          type: "info",
-          title: "Multica 繁中版有新版本",
-          message: `有新版本 ${update.version}，但這個位置的 App 無法自動更新。`,
-          detail: `${notUpdatable}\n請結束 App，把它移到「應用程式」資料夾後重新開啟，之後就能自動更新。`,
-        });
-        return;
+  const preferencesFile = updaterPreferencesPath(app.getPath("userData"));
+  let quittingForUpdate = false;
+  const controller = createZhTWUpdateController({
+    currentVersion,
+    unsupportedReason: supported ? null : "自動更新目前僅支援已安裝的 macOS Apple Silicon 繁中正式版。",
+    loadPreferences: () => loadUpdaterPreferences(preferencesFile),
+    savePreferences: (preferences) => saveUpdaterPreferences(preferencesFile, preferences),
+    fetchManifest: (signal) => fetchManifest(manifestUrlFor(deps.getApiBaseUrl()), signal),
+    findUpdate: (manifest) => findAppUpdate(manifest, currentVersion, key),
+    stage: (update, progress, signal) => stageUpdate(update, currentBundle!, workDir, progress, signal),
+    publish: (status) => {
+      for (const window of BrowserWindow.getAllWindows()) {
+        if (!window.isDestroyed() && !window.webContents.isDestroyed()) window.webContents.send("updater:status", status);
       }
-      const window = deps.getMainWindow();
-      const options = {
-        type: "info" as const,
-        title: "Multica 繁中版有新版本",
-        message: `可以更新到 ${update.version}（目前 ${app.getVersion()}）。`,
-        detail:
-          "App 會直接下載並核對 SHA-256 與簽章，完成後重新啟動。執行中的任務不會中斷；" +
-          "內附的 CLI 與 daemon 會在任務結束後換成新版。",
-        buttons: update.notesUrl ? ["立即更新", "稍後提醒", "查看版本說明"] : ["立即更新", "稍後提醒"],
-        defaultId: 0,
-        cancelId: 1,
-      };
-      const { response } = window && !window.isDestroyed()
-        ? await dialog.showMessageBox(window, options)
-        : await dialog.showMessageBox(options);
-      if (response === 2 && update.notesUrl) void openExternalSafely(update.notesUrl);
-      if (response !== 0) return;
-      await install(update).catch(showError);
-    } catch (err) {
-      // A failed background check is retried at the next interval.
-      console.warn("[zh-tw-update] check failed:", err);
-    } finally {
-      busy = false;
-    }
-  };
+      if (status.phase === "ready") queueMicrotask(() => {
+        if (BrowserWindow.getAllWindows().length === 0) void controller.install(true).catch(console.error);
+      });
+    },
+    install: async (staged, update, shouldContinue) => {
+      const reason = await bundleNotUpdatableReason(currentBundle!);
+      if (reason) throw new Error(reason);
+      const executable = await plistValue(staged, "CFBundleExecutable");
+      if (!executable || basename(executable) !== executable || executable === "." || executable === "..") {
+        throw new Error("新版 App 的執行檔名稱無效。");
+      }
+      await access(join(staged, "Contents/MacOS", executable), constants.X_OK);
+      const token = randomUUID();
+      const script = join(workDir, "swap.sh");
+      await writeFile(script, SWAP_SCRIPT, { mode: 0o700 });
+      await rm(join(workDir, "result"), { force: true });
+      await writeFile(join(workDir, "pending-launch.json"), JSON.stringify({ token, version: update.version, bundle: currentBundle }), { mode: 0o600 });
+      if (!shouldContinue()) throw new Error("自動安裝已暫停，App 尚未變更。");
+      const rollback = join(workDir, "rollback", basename(currentBundle!));
+      const child = spawn("/bin/bash", [script, String(process.pid), currentBundle!, staged, rollback,
+        join(workDir, "swap.log"), executable, token, join(workDir, `ready-${token}`), join(workDir, "result")], {
+        detached: true, stdio: "ignore",
+      });
+      await new Promise<void>((resolve, reject) => { child.once("spawn", resolve); child.once("error", reject); });
+      if (!shouldContinue()) { child.kill(); throw new Error("自動安裝已暫停，App 尚未變更。"); }
+      child.unref();
+      quittingForUpdate = true;
+      const releasePreservation = deps.preserveDaemonOnQuit();
+      child.once("exit", () => {
+        // A live parent means quit was cancelled: the helper never swapped it.
+        quittingForUpdate = false;
+        releasePreservation?.();
+        controller.reportInstallError("App 尚未結束，更新未安裝。請儲存內容後重試。");
+      });
+      app.quit();
+    },
+  });
 
-  setTimeout(() => void check(), STARTUP_CHECK_DELAY_MS);
-  setInterval(() => void check(), CHECK_INTERVAL_MS);
+  // Register even on unsupported platforms so settings always have an answer.
+  ipcMain.handle("updater:get-preferences", () => controller.getPreferences());
+  ipcMain.handle("updater:set-automatic-updates", (_event, enabled: unknown) => controller.setAutomaticUpdates(enabled));
+  ipcMain.handle("updater:check", () => controller.check());
+  ipcMain.handle("updater:download", async () => { await controller.check(); });
+  ipcMain.handle("updater:install", () => controller.install());
+  ipcMain.handle("updater:get-status", async () => { await controller.ready; return controller.getStatus(); });
+  ipcMain.handle("updater:defer", () => controller.defer());
+  ipcMain.on("updater:renderer-ready", (event) => {
+    const window = deps.getMainWindow();
+    if (!supported || !window || event.sender !== window.webContents) return;
+    void acknowledgeUpdateReady(workDir, currentVersion, currentBundle, process.argv).catch(console.error);
+  });
+
+  // Only user-initiated quit / closing every window is a safe automatic restart.
+  // This handler must precede daemon-manager's quit handler.
+  app.on("before-quit", (event) => {
+    if (quittingForUpdate) return;
+    if (controller.getStatus().phase === "installing") { event.preventDefault(); return; }
+    if (!controller.canAutoInstall()) return;
+    event.preventDefault();
+    void controller.install(true).catch(console.error);
+  });
+  app.on("window-all-closed", () => { void controller.install(true).catch(console.error); });
+  app.on("will-quit", () => controller.dispose());
+  void controller.ready.then(async () => {
+    const result = await readFile(join(workDir, "result"), "utf8").catch(() => "");
+    if (!result.trim() || result.trim() === "installed") return;
+    controller.reportStartupError(result.trim() === "restored"
+      ? "新版 App 未在 60 秒內就緒或在啟動時結束，已還原舊版。可重試更新。"
+      : "App 更新未完成，請查看更新紀錄與保留的舊版，確認後再重試。");
+    await rm(join(workDir, "result"), { force: true });
+  }).catch(console.error);
 }

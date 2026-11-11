@@ -13,11 +13,8 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import fixPath from "fix-path";
-import { createElectronBusyInstallPrompt, setupAutoUpdater } from "./updater";
 import { getEffectiveDialogLocale, setAppDialogLocale } from "./dialog-locale";
 import {
-  prepareDaemonForUpdateInstall,
-  resumeDaemonAfterAbortedUpdateInstall,
   setupDaemonManager,
   requestDaemonTrustRefresh,
   getTargetApiBaseUrl,
@@ -1069,32 +1066,14 @@ if (!gotTheLock) {
       createMainWindow(saved);
     }
 
-    const taiwanPackage = app.isPackaged && app.getName() === PACKAGED_APP_NAME;
-    if (!taiwanPackage) {
-      // Register first so the update quit gate can block daemon autoStop.
-      setupAutoUpdater(() => mainWindows.all(), {
-        // Windows only (the updater ignores it elsewhere): stop the bundled
-        // daemon before the installer runs so multica.exe is replaced. #8823
-        daemonGate: {
-          prepare: prepareDaemonForUpdateInstall,
-          resumeAfterAbortedInstall: resumeDaemonAfterAbortedUpdateInstall,
-          confirmInstallWhileBusy: createElectronBusyInstallPrompt((options) => {
-            const parent = mainWindows.mostRecent();
-            return parent && !parent.isDestroyed()
-              ? dialog.showMessageBox(parent, options)
-              : dialog.showMessageBox(options);
-          }, getEffectiveLocale),
-        },
-      });
-    }
+    // The Taiwan edition uses the s90 update channel. The controller still
+    // registers renderer IPC in dev, where native installation is unsupported.
     setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all());
-    if (taiwanPackage) {
-      setupZhTWAppUpdate({
-        getMainWindow: () => mainWindows.mostRecent(),
-        getApiBaseUrl: getTargetApiBaseUrl,
-        preserveDaemonOnQuit: preserveDaemonOnNextQuit,
-      });
-    }
+    setupZhTWAppUpdate({
+      getMainWindow: () => mainWindows.mostRecent(),
+      getApiBaseUrl: getTargetApiBaseUrl,
+      preserveDaemonOnQuit: preserveDaemonOnNextQuit,
+    });
     setupLocalDirectory(() => mainWindows.mostRecent());
     setupThemeFolder();
     setupVoiceInput();
