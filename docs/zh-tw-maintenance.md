@@ -55,6 +55,14 @@ Managed Multica CLI/daemon updates use the persistent profile claim gate and
 verified rollback procedure in [daemon maintenance](daemon-maintenance.zh-tw.md).
 Keep its offline updater, capability checks and isolated Linux rehearsal together.
 
+The macOS independent-daemon layer adds a persistent profile reservation marker,
+`launchd-pinned` lifecycle ownership and local `desktop_protocol=1`. Replay the
+Desktop lifecycle/credential guards together with the daemon's internal update
+and trust-restart refusals, immutable staging and gate-aware LaunchAgent manager.
+Preserve the [macOS owner procedure and acceptance checklist](macos-pinned-daemon.zh-tw.md).
+It permits different App/daemon binaries under the tested local contract; it
+does not certify arbitrary Server versions or authorize live migration.
+
 ## Provider usage feature layer
 
 Provider quota display is a Taiwan-edition feature, not part of the locale
