@@ -449,6 +449,15 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
               'old_version_output': old_info, 'candidate_version_output': new_info,
               'boundary': 'fixture API, fake systemctl/cgroup and fake agent; cross-UID process set is fixture-only, not a host inventory; not real Server or systemd'}
     try:
+        def fixture_process_inventory():
+            # The process namespace is a fixture boundary; only the launched
+            # Go daemon's mapped image and owner come from the real host.
+            if not unit.alive():
+                return []
+            image = os.stat('/proc/%d/exe' % unit.proc.pid)
+            return [{'pid': unit.proc.pid, 'uid': os.stat('/proc/%d' % unit.proc.pid).st_uid,
+                     'exe': str(current), 'device': image.st_dev, 'inode': image.st_ino, 'app': False}]
+
         def fixture_executable_users(executable):
             if not unit.alive():
                 return []
@@ -460,7 +469,8 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
         with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(coordinator.pwd, 'getpwuid', return_value=account), \
              mock.patch.object(coordinator, 'target_machine_fingerprint', return_value='e' * 64), \
              mock.patch.object(coordinator, 'scan_roots', return_value=[]), mock.patch.object(coordinator, 'scan_programs', return_value=[]), \
-             mock.patch.object(coordinator, 'process_inventory', side_effect=lambda uid: [{'pid': unit.proc.pid, 'exe': str(current)}] if unit.alive() else []), \
+             mock.patch.object(coordinator, 'process_inventory', side_effect=lambda uid: fixture_process_inventory()), \
+             mock.patch.object(coordinator.updater, 'process_inventory', side_effect=fixture_process_inventory), \
              mock.patch.object(coordinator.updater, 'run', side_effect=unit.run), \
              mock.patch.object(coordinator.updater, 'cgroup_members', side_effect=unit.members), \
              mock.patch.object(coordinator.updater, 'executable_users', side_effect=fixture_executable_users), \
