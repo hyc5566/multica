@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useT } from "@multica/views/i18n";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -77,7 +78,7 @@ vi.mock("@multica/ui/components/common/multica-icon", () => ({
   MulticaIcon: () => <div data-testid="app-loading" />,
 }));
 vi.mock("@multica/ui/components/ui/sonner", () => ({ Toaster: () => null }));
-vi.mock("@multica/views/locales", () => ({ RESOURCES: { en: {} } }));
+vi.mock("@multica/views/locales", () => ({ RESOURCES: { en: { settings: { desktop: { updates: { title: "Updates" } } } } } }));
 
 vi.mock("./pages/login", () => ({
   DesktopLoginPage: () => <div data-testid="login-page" />,
@@ -103,7 +104,10 @@ vi.mock("./components/desktop-layout", () => ({
   DesktopShell: () => <div data-testid="desktop-shell" />,
 }));
 vi.mock("./components/update-notification", () => ({
-  UpdateNotification: () => null,
+  UpdateNotification: () => {
+    const { t } = useT("settings");
+    return <div data-testid="update-notification">{t(($) => $.desktop.updates.title)}</div>;
+  },
 }));
 vi.mock("./components/issue-window", () => ({
   IssueWindow: () => <div data-testid="issue-window" />,
@@ -231,4 +235,12 @@ describe("App main-window auth recovery", () => {
     expect(screen.getByTestId("auth-recovery")).toBeInTheDocument();
     expect(screen.queryByTestId("issue-window")).toBeNull();
   });
+
+  it("keeps a translated update notification mounted when runtime configuration fails", () => {
+    window.desktopAPI.runtimeConfig = { ok: false, error: { message: "bad configuration" } };
+    render(<App />);
+    expect(screen.getByText("bad configuration")).toBeInTheDocument();
+    expect(screen.getByTestId("update-notification")).toHaveTextContent("Updates");
+  });
+
 });

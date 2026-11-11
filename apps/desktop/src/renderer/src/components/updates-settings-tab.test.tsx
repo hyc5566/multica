@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
 const mocks = vi.hoisted(() => ({
   getPreferences: vi.fn(),
@@ -25,6 +25,7 @@ const translations = {
       downloading: "Downloading v{{version}}",
       check_now: "Check now",
       checking: "Checking",
+      available: "Available {{version}}", progress: "Downloading {{percent}}%", ready: "Ready {{version}}", installing: "Installing", unsupported: "Unsupported", status_failed: "Status failed", restart_now: "Restart now",
     },
   },
 };
@@ -52,6 +53,9 @@ vi.mock("sonner", () => ({
 }));
 
 import { UpdatesSettingsTab } from "./updates-settings-tab";
+import type { UpdaterStatus } from "../../../shared/updater-types";
+let listener: (status: UpdaterStatus) => void;
+const initial: UpdaterStatus = { phase: "idle", currentVersion: "1.2.3" };
 
 describe("UpdatesSettingsTab", () => {
   beforeEach(() => {
@@ -73,6 +77,9 @@ describe("UpdatesSettingsTab", () => {
         getPreferences: mocks.getPreferences,
         setAutomaticUpdates: mocks.setAutomaticUpdates,
         checkForUpdates: mocks.checkForUpdates,
+        getStatus: vi.fn().mockResolvedValue({ phase: "idle", currentVersion: "1.2.3" }),
+        onStatusChange: (callback: typeof listener) => { listener = callback; return vi.fn(); },
+        installUpdate: vi.fn(),
       },
     });
   });
@@ -101,4 +108,35 @@ describe("UpdatesSettingsTab", () => {
       id: "settings-auto-save",
     });
   });
+
+  it("shows a rejected manual check", async () => {
+    mocks.checkForUpdates.mockRejectedValue(new Error("offline"));
+    render(<UpdatesSettingsTab />);
+    fireEvent.click(screen.getByRole("button", { name: "Check now" }));
+    expect(await screen.findByText("offline")).toBeInTheDocument();
+  });
+
+  it("labels a pending manual check as downloading when the status changes", async () => {
+    let finish!: (result: { ok: true; currentVersion: string; latestVersion: string; available: boolean }) => void;
+    mocks.checkForUpdates.mockReturnValue(new Promise((resolve) => { finish = resolve; }));
+    render(<UpdatesSettingsTab />);
+    fireEvent.click(screen.getByRole("button", { name: "Check now" }));
+    await act(async () => listener({ ...initial, phase: "checking" }));
+    expect(screen.getByRole("button", { name: "Checking" })).toBeDisabled();
+    await act(async () => listener({ ...initial, phase: "downloading", percent: 42 }));
+    expect(screen.getByRole("button", { name: "Downloading 42%" })).toBeDisabled();
+    await act(async () => finish({ ok: true, currentVersion: "1.2.3", latestVersion: "1.2.4", available: true }));
+  });
+
+  it("does not duplicate a shared error and clears an old manual error on background recovery", async () => {
+    mocks.checkForUpdates.mockRejectedValue(new Error("offline"));
+    render(<UpdatesSettingsTab />);
+    fireEvent.click(screen.getByRole("button", { name: "Check now" }));
+    expect(await screen.findByText("offline")).toBeInTheDocument();
+    await act(async () => listener({ ...initial, phase: "error", error: "offline" }));
+    expect(screen.getAllByText("offline")).toHaveLength(1);
+    await act(async () => listener({ ...initial, phase: "downloading", percent: 1 }));
+    expect(screen.queryByText("offline")).not.toBeInTheDocument();
+  });
+
 });
