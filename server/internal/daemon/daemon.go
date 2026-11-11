@@ -5168,12 +5168,13 @@ const (
 // therefore never starve an update; a claim that returns work increments
 // activeTasks before exitClaim, so the final check still defers safely.
 func (d *Daemon) tryBeginServerUpdate(ctx context.Context) serverUpdateAcquireResult {
+	d.claimMu.Lock()
 	if !d.updating.CompareAndSwap(false, true) {
+		d.claimMu.Unlock()
 		return serverUpdateAlreadyRunning
 	}
 
-	d.claimMu.Lock()
-	if d.pauseClaims || d.activeTasks.Load() > 0 {
+	if d.maintenanceGateLocked().Blocked || d.pauseClaims || d.activeTasks.Load() > 0 {
 		d.claimMu.Unlock()
 		d.updating.Store(false)
 		return serverUpdateRuntimeBusy
@@ -5302,7 +5303,7 @@ func (d *Daemon) reportUpdateResultWithRetry(ctx context.Context, runtimeID, upd
 func (d *Daemon) tryEnterClaim() bool {
 	d.claimMu.Lock()
 	defer d.claimMu.Unlock()
-	if d.pauseClaims {
+	if d.pauseClaims || d.maintenanceGateLocked().Blocked {
 		return false
 	}
 	d.claimsInFlight++
@@ -5330,7 +5331,7 @@ func (d *Daemon) trySetClaimBarrier() bool {
 	// double-acquires: two holders both believe they own it, and whichever
 	// finishes first releases it out from under the other. tryBeginServerUpdate
 	// makes the same check for the same reason.
-	if d.pauseClaims || d.claimsInFlight > 0 || d.activeTasks.Load() > 0 {
+	if d.maintenanceGateLocked().Blocked || d.pauseClaims || d.claimsInFlight > 0 || d.activeTasks.Load() > 0 {
 		return false
 	}
 	d.pauseClaims = true

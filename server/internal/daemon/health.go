@@ -22,6 +22,7 @@ import (
 
 // HealthResponse is returned by the daemon's local health endpoint.
 type HealthResponse struct {
+	MaintenanceGate  maintenanceGateStatus   `json:"maintenance_gate"`
 	AgentMaintenance *AgentMaintenanceStatus `json:"agent_maintenance,omitempty"`
 	Status           string                  `json:"status"`
 	PID              int                     `json:"pid"`
@@ -392,6 +393,7 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 		}
 
 		resp := HealthResponse{
+			MaintenanceGate:       d.maintenanceGate(),
 			AgentMaintenance:      d.agentMaintenance.Load(),
 			Status:                status,
 			PID:                   os.Getpid(),
