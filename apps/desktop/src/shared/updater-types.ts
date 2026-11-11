@@ -3,12 +3,13 @@ export interface UpdaterPreferences {
 }
 
 export interface UpdaterStatus {
-  phase: "idle" | "checking" | "downloading" | "ready" | "installing" | "error" | "unsupported";
+  phase: "idle" | "checking" | "downloading" | "ready" | "installing" | "pending" | "error" | "unsupported";
   currentVersion: string;
   version?: string;
   percent?: number;
   notesUrl?: string;
   error?: string;
+  message?: string;
   /** Defers automatic installation for this App session. */
   deferred?: boolean;
 }

@@ -22,12 +22,14 @@ import (
 
 // HealthResponse is returned by the daemon's local health endpoint.
 type HealthResponse struct {
-	LifecycleManager string                  `json:"lifecycle_manager,omitempty"`
-	DesktopProtocol  int                     `json:"desktop_protocol"`
-	MaintenanceGate  maintenanceGateStatus   `json:"maintenance_gate"`
-	AgentMaintenance *AgentMaintenanceStatus `json:"agent_maintenance,omitempty"`
-	Status           string                  `json:"status"`
-	PID              int                     `json:"pid"`
+	UpdateAttestation   updateAttestationSnapshot `json:"update_attestation"`
+	MaintenanceShutdown bool                      `json:"maintenance_shutdown"`
+	LifecycleManager    string                    `json:"lifecycle_manager,omitempty"`
+	DesktopProtocol     int                       `json:"desktop_protocol"`
+	MaintenanceGate     maintenanceGateStatus     `json:"maintenance_gate"`
+	AgentMaintenance    *AgentMaintenanceStatus   `json:"agent_maintenance,omitempty"`
+	Status              string                    `json:"status"`
+	PID                 int                       `json:"pid"`
 	// OS is the daemon's runtime.GOOS. The desktop app compares it against its
 	// own host OS to detect a daemon it cannot manage — e.g. a Windows desktop
 	// reaching a Linux daemon inside WSL2 over localhost forwarding. The
@@ -395,6 +397,8 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 		}
 
 		resp := HealthResponse{
+			UpdateAttestation:     d.updateAttestation.snapshot(startedAt),
+			MaintenanceShutdown:   maintenanceShutdownSupported,
 			LifecycleManager:      d.cfg.LifecycleManager,
 			DesktopProtocol:       DesktopProtocol,
 			MaintenanceGate:       d.maintenanceGate(),
@@ -458,6 +462,75 @@ func (d *Daemon) shutdownHandler() http.HandlerFunc {
 			// srv.Close() races with the writer.
 			go d.cancelFunc()
 		}
+	}
+}
+
+func (d *Daemon) maintenanceShutdownHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		if !maintenanceShutdownSupported || r.Header.Get("Origin") != "" || r.Header.Get("Content-Type") != "application/json" {
+			http.Error(w, "local maintenance request required", http.StatusForbidden)
+			return
+		}
+		var request struct {
+			ExpectedPID      int       `json:"expected_pid"`
+			ProcessStartedAt time.Time `json:"process_started_at"`
+			DaemonID         string    `json:"daemon_id"`
+			Profile          string    `json:"profile"`
+			GateIdentity     string    `json:"gate_identity"`
+			GateToken        string    `json:"gate_token"`
+		}
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 8192))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&request); err != nil || decoder.Decode(&struct{}{}) != io.EOF {
+			http.Error(w, "invalid request", http.StatusBadRequest)
+			return
+		}
+		d.claimMu.Lock()
+		defer d.claimMu.Unlock()
+		gate := d.maintenanceGateLocked()
+		if d.cfg.LifecycleManager != "" || d.cfg.LaunchedBy != "desktop" || d.cancelFunc == nil ||
+			request.ExpectedPID != os.Getpid() || request.DaemonID == "" || request.DaemonID != d.cfg.DaemonID ||
+			request.Profile != d.cfg.Profile || request.ProcessStartedAt.IsZero() || !request.ProcessStartedAt.Equal(d.updateAttestation.startedAt) ||
+			request.GateToken == "" || len(request.GateToken) > 128 || !gate.Supported || !gate.Blocked || !gate.Ready {
+			http.Error(w, "identity or maintenance gate mismatch", http.StatusConflict)
+			return
+		}
+		before, err := os.Lstat(gate.Path)
+		if err != nil || !before.IsDir() || !maintenanceOwnedByCurrentUser(before) || request.GateIdentity == "" || maintenanceGateIdentity(before) != request.GateIdentity {
+			http.Error(w, "gate identity mismatch", http.StatusConflict)
+			return
+		}
+		ownerPath := filepath.Join(gate.Path, "owner")
+		ownerInfo, err := os.Lstat(ownerPath)
+		if err != nil || !ownerInfo.Mode().IsRegular() || !maintenanceOwnedByCurrentUser(ownerInfo) || ownerInfo.Size() > 4096 {
+			http.Error(w, "gate owner missing", http.StatusConflict)
+			return
+		}
+		ownerFile, err := os.Open(ownerPath)
+		if err != nil {
+			http.Error(w, "gate owner unavailable", http.StatusConflict)
+			return
+		}
+		openedOwner, ownerStatErr := ownerFile.Stat()
+		owner, readErr := io.ReadAll(io.LimitReader(ownerFile, 4097))
+		closeErr := ownerFile.Close()
+		after, statErr := os.Lstat(gate.Path)
+		var ownerRecord struct {
+			ID  string `json:"id"`
+			PID int    `json:"pid"`
+		}
+		parseErr := json.Unmarshal(owner, &ownerRecord)
+		if ownerStatErr != nil || readErr != nil || closeErr != nil || !os.SameFile(ownerInfo, openedOwner) || statErr != nil || !os.SameFile(before, after) || parseErr != nil || ownerRecord.PID <= 0 || ownerRecord.ID != request.GateToken {
+			http.Error(w, "gate owner mismatch", http.StatusConflict)
+			return
+		}
+		d.pauseClaims = true
+		w.WriteHeader(http.StatusAccepted)
+		go d.cancelFunc()
 	}
 }
 
@@ -527,6 +600,7 @@ func (d *Daemon) idleRestartHandler() http.HandlerFunc {
 func (d *Daemon) serveHealth(ctx context.Context, ln net.Listener, startedAt time.Time) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/health", d.healthHandler(startedAt))
+	mux.HandleFunc("/shutdown/maintenance", d.maintenanceShutdownHandler())
 	mux.HandleFunc("/shutdown", d.shutdownHandler())
 	mux.HandleFunc("/restart/idle", d.idleRestartHandler())
 	mux.HandleFunc("/repo/checkout", d.repoCheckoutHandler())

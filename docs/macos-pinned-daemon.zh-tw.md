@@ -1,5 +1,7 @@
 # macOS：獨立釘選 daemon
 
+> 此方案已由 HYC-26 的 App 配套更新政策取代。不要依本文件新增或遷移獨立 daemon。既有標記與安裝應先盤點，不自動刪除。最新流程見 [配套更新維護](unified-update.zh-tw.md)。以下保留歷史技術資料。
+
 本程序適用於支援 `launchd-pinned-v1` 的 Multica 繁中版。選定的 A 案以使用者 LaunchAgent 執行固定版本的 daemon；App 僅連到原 profile，App 更新不改 daemon 版本。這份文件是候選操作指引，不表示已發布或已遷移任何 Mac。安裝、換版和服務中斷仍須另取得擁有者核准。
 
 ## 安裝形態與操作前提
@@ -52,15 +54,20 @@ python3 scripts/deploy/manage-macos-daemon.py migrate \
 
 ## 缺少維護閘門時的首次導入
 
-工具會拒絕一般遷移。`active_task_count=0`、health HTTP 200、或聲稱「已停派」不能代替排他屏障。此情況只能走 [全 Server 冷窗口](daemon-maintenance.zh-tw.md#舊版首次導入全-server-停機窗口)，另行核准對所有使用者的影響，並由擁有者互動操作：
+缺少 gate 時，一般遷移工具會拒絕。
+`active_task_count=0` 或 HTTP 200 不能證明停止領取。
+新導入採 [App 統管配套](unified-update.zh-tw.md)。不要再安裝獨立 daemon。
 
-1. 記錄原 App／CLI／profile／ID／全部 runtime、binary 及設定位置。準備已驗證的支援版 App、固定候選與完整舊 App；備份須可恢復且不得將憑證附到 issue。
-2. 完整結束 App；停止全部派工入口與 Server 實例。對照當前 DB schema，核對原 runtime 沒有已領取的非終態工作，且 daemon 排空。保留可查證的停派與排空證據。
-3. 在正確 profile 建立並記錄冷導入 gate 的所有權，安裝已檢閱的獨立管理標記。核對精確舊 PID／binary／身分後正常停止它，確認程序消失；禁止開 App。
-4. 將檢閱過的 plist 安裝到核准的 LaunchAgent 位置；對確切 `gui/UID` 載入它。先確認服務 binary／profile 和 gate；Server 尚未恢復時 preflight 可能不 ready，不能為此移除 gate。
-5. 恢復 Server 後，完成與一般遷移相同的版本、原身分、runtime、固定 PID、三次心跳及 gate 驗證；由冷窗口 gate 的持有人解除。再以新 App 驗證連線，並完成已授權的派工和結果回傳。
+由跨實體機操作者使用經核准的 App 整組首次導入流程。
+先核對實跑映像與原身分，盡量等待已知工作，再備份完整舊 App 及原 CLI 入口。
+中央 Server 持續運作。只停止已核對的目標 App 及 daemon。
+候選啟動前建立新版 gate，驗完整配套、原身分及三個心跳週期後才恢復接單。
+再驗一次已授權的派工及回傳。缺證據時維持待驗收。
 
-冷導入失敗時，保持全 Server 停派，正常卸載確切候選服務並確認程序消失；恢復舊 App／CLI 及原設定位置，確認原身分後才移除獨立標記並重新交回 App 管理。若退回不識別 gate 的舊 daemon，必須在 Server 仍停派時完成檢查；一旦恢復 Server，它可能立即領取工作，再次停止須重建冷窗口。冷導入是人工程序，不是工具的未驗證旁路。
+失敗時恢復完整前版及原入口。
+若前版缺 gate，須記錄它可能立即領取工作。
+維護交界的漏接或中斷由使用者重新驅動，不承諾自動補跑。
+既有獨立管理標記及 LaunchAgent 的轉換仍需專屬盤點，不由一般使用者自行刪除。
 
 ## 升級與回滾
 
@@ -102,7 +109,7 @@ python3 scripts/deploy/manage-macos-daemon.py rollback \
 
 - [ ] 確認 Apple Silicon 成品來源、完整 commit、SHA、簽章／Gatekeeper、隔離屬性與執行權限；獨立觀察 CLI 可用。
 - [ ] 確認 launchctl domain／label、lsof 對執行檔的辨識、ps 的 UID／PID 與健康資訊一致；同 profile 唯一程序。
-- [ ] 有 gate 時驗證停止領取與自然排空；無 gate 時先完成另准的冷窗口。確認原 profile、daemon ID、CA、全部 runtime 未改。
+- [ ] 有 gate 時驗證停止領取與自然排空；無 gate 時採明確的舊版專用首次導入流程，中央 Server 持續運作。確認原 profile、daemon ID、CA、全部 runtime 未改。
 - [ ] 成功遷移、固定 PID、至少三次實際 heartbeat 前進、解除 gate 後一次授權派工及結果回傳。
 - [ ] App binary 較新與較舊但 protocol=1 均可連線；未知 protocol 有可見提示且無重啟；對實際核准 Server 版本驗證登入及工作回傳。
 - [ ] App 手動重啟、自動更新／復原、版本差異、閒置 reload、信任刷新、登入／登出與結束，都不變更獨立 daemon 的 PID／binary／標記。

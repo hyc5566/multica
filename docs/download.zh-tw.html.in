@@ -28,7 +28,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
 </head>
 <body>
 <a class="skip" href="#main">跳到主要內容</a>
-<header><strong>Multica 繁中版</strong><nav aria-label="網站"><a href="/">回到首頁</a><a href="/login">登入</a><a href="/help">基本使用說明</a><a href="/download/guide">完整安裝手冊</a></nav></header>
+<header><strong>Multica 繁中版</strong><nav aria-label="網站"><a href="/">回到首頁</a><a href="/login">登入</a><a href="/help">基本使用說明</a><a href="@AGENT_GUIDE_URL@">Agent 更新指引</a></nav></header>
 <main id="main">
 <h1>下載 Multica 繁中版</h1>
 <p class="lead">在自己的電腦安裝 App 或 CLI，連上內網 Multica，讓 Agent 在這台電腦上執行任務。目前版本 <strong class="nowrap">@VERSION@</strong>。</p>
@@ -40,103 +40,85 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
 
 <div class="quick">
   <div class="card">
-    <h2>macOS App</h2>
-    <p class="note">Apple Silicon（M 系列晶片）。內含 CLI 與背景服務 daemon。</p>
-    <a class="button" href="@APP_URL@" download="multica-desktop-latest-mac-arm64.zip">下載 App（latest）</a>
-    <p class="note">SHA-256：<code>@APP_SHA256@</code><br><a href="@NOTES_URL@">版本說明</a> · 第一次安裝請看<a href="#app">下方步驟</a>。</p>
+    <h2>有 App：更新整組</h2>
+    <p>適用 macOS Apple Silicon。App、內附 CLI 與 daemon 使用同一套版本。</p>
+    <a class="button" href="@APP_URL@" download="multica-desktop-latest-mac-arm64.zip">下載 App</a>
+    <p class="note">App SHA-256：<code>@APP_SHA256@</code></p>
   </div>
   <div class="card">
-    <h2>CLI（Linux／macOS）</h2>
-    <p class="note">x86_64、ARM64 都適用。這行指令固定不變，永遠安裝最新版。</p>
-    <div class="cmd"><pre><code id="install-cmd">curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash</code></pre><button class="copy" type="button" data-copy="install-cmd" hidden>複製</button></div>
-    <p class="note">安裝後還要登入並啟動 daemon，第一次安裝請看<a href="#cli">下方步驟</a>。</p>
+    <h2>無 App：跨機更新</h2>
+    <p>請另一台實體機上的 Agent 更新。Linux 沿用原 systemd service。</p>
+    <a class="button" href="@UPDATE_SCRIPT_URL@" download="multica-update.sh">下載更新腳本</a>
+    <p class="note"><a href="@UPDATE_CHECKSUM_URL@">下載 SHA-256 清單</a>。先核對 hash，再執行腳本。</p>
   </div>
 </div>
 
-<section id="updates" aria-labelledby="updates-title">
-  <h2 id="updates-title">安裝後會自動檢查更新</h2>
-  <table>
-    <tr><th scope="row">App</th><td>開啟後約 30 秒檢查一次，之後每 24 小時再檢查。有新版會先詢問你；按「立即更新」後，App 直接下載、核對 SHA-256 與簽章後重新啟動，不需要透過 Agent。執行中的任務不會中斷；內附的 CLI 與 daemon 會在任務結束後換成新版。</td></tr>
-    <tr><th scope="row">CLI</th><td>daemon 啟動約 2 分鐘後檢查一次，之後每 24 小時再檢查。有新版且沒有執行中的任務時，daemon 用該版的安裝腳本自行更新並重新啟動，帳號設定不變；前一版保留供回復。</td></tr>
-  </table>
-  <p class="note">CLI 想手動更新，執行 <code>multica update</code>。不要自動更新：啟動 daemon 前設定 <code>MULTICA_DAEMON_AUTO_UPDATE=false</code>。</p>
+<section id="before" aria-labelledby="before-title">
+  <h2 id="before-title">先檢查 App</h2>
+  <ol>
+    <li>查 App 的安裝位置。也要查非預設位置。</li>
+    <li>查正在執行的 App。核對實際執行檔。</li>
+    <li>查 CLI 入口。確認來源相同。</li>
+    <li>查 daemon 的實際執行檔。核對 profile、版本及服務。</li>
+  </ol>
+  <div class="callout warning">有 App 時，不要再安裝獨立 CLI 或 daemon。發現混合安裝、來源不明或檢查權限不足時，停止並回報。不要自行移除舊安裝。</div>
 </section>
 
-<section id="before" aria-labelledby="before-title">
-  <h2 id="before-title">第一次安裝前</h2>
-  <ol>
-    <li><strong>帳號</strong>：先到 <a href="/login">登入頁</a> 用公司信箱註冊或登入，建立或加入工作區。</li>
-    <li><strong>網路</strong>：電腦要能連到內網 <code>https://10.1.24.90:45671</code>；CLI 安裝指令另外需要連到 GitHub。</li>
-    <li><strong>Git 2.40 以上</strong>：App 和 CLI 的 daemon 恢復工作樹需要新版 Git。安裝或升級前，請在執行 daemon 的帳號與 PATH 執行 <code>git --version</code>。版本不足時，請透過作業系統套件管理員更新或洽管理員；macOS 已有 Homebrew 時可執行 <code>brew install git</code>，並確認其 bin 目錄在 daemon 的 PATH 中優先於 <code>/usr/bin</code>。安裝器不會替你更新 Git。</li>
-    <li><strong>Agent 工具</strong>：在同一個作業系統帳號下先安裝要用的 Agent CLI（Claude Code、Codex、Antigravity 等），daemon 會從 PATH 自動偵測。</li>
-  </ol>
+<section id="updates" aria-labelledby="updates-title">
+  <h2 id="updates-title">依安裝方式更新</h2>
+  <table>
+    <tr><th scope="row">App</th><td>由 App 一併更新 App、內附 CLI 與 daemon。App 先停止領取新工作，再等待任務完成。完成後要核對實跑 daemon 的版本與 hash。App 或 OS 重開後，仍使用同一套配套。</td></tr>
+    <tr><th scope="row">CLI</th><td>有 App 時，CLI 入口使用 App 配套。無 App 時，使用已驗證的固定版本腳本。新版繁中版的 <code>multica update</code> 會引導到此流程，不直接換檔。</td></tr>
+    <tr><th scope="row">daemon</th><td>無 App 時，由其他實體機上的 Agent 更新。Linux 使用原 user 或 system unit。腳本先核對 MainPID，再從同一個 unit 停止與啟動。不要另起 daemon。</td></tr>
+  </table>
+  <p>舊版首次導入使用專用流程。中央 Server 持續運作，只更新已核對的目標機。維護期間漏接或中斷的任務，由使用者重新驅動。</p>
 </section>
 
 <section id="app" aria-labelledby="app-title">
-  <h2 id="app-title">用 App 安裝（macOS）</h2>
+  <h2 id="app-title">App 更新</h2>
   <ol>
-    <li>按上方「下載 App」，下載完成後在「下載項目」中按兩下 ZIP 解壓縮。</li>
-    <li>把 <strong>Multica 繁中版</strong> 拖到「應用程式」資料夾。</li>
-    <li>第一次開啟：在「應用程式」對 App 按右鍵 →「打開」。若 macOS 顯示無法驗證開發者，到「系統設定 → 隱私權與安全性」，在最下方按「仍要打開」。這個 App 採本機簽章，尚未經 Apple 公證。</li>
-    <li>用內網帳號登入。App 會自動安裝內附 CLI、啟動 daemon，並登記這台電腦。</li>
-    <li>到工作區的「執行環境」頁面，確認這台電腦顯示在線，並列出偵測到的 Agent。</li>
+    <li>確認待安裝版本。通過條件：版本符合您的核准清單。</li>
+    <li>在設定中檢查更新。通過條件：下載及驗證完成。</li>
+    <li>在更新窗口啟動安裝。通過條件：停止領取並自然排空。</li>
+    <li>等待 App 重開。通過條件：App、CLI 與 daemon 都符合配套清單。</li>
+    <li>完成驗收。通過條件：原身分、三個心跳週期及一次派工回傳都正常。</li>
   </ol>
-  <div class="callout">之後不用再手動下載：App 會自己檢查並詢問是否更新。若 App 放在你沒有寫入權限的位置，更新會失敗並保留原版，請改放到「應用程式」。</div>
+  <p>自動更新預設開啟。App 啟動約 30 秒後檢查，之後約每 24 小時檢查。App 會自動下載並驗證新版，再等待明確重開或正常結束的時機。選擇「稍後」可延後本次程序的自動安裝。</p>
+  <p>缺少驗收證據時，結果是「待驗收」。配套更新失敗時，整組回到更新前版。舊版缺少維護能力時，由跨機操作者使用首次導入流程。</p>
+  <p>舊 App 不會從新的配套頻道下載候選。請先由管理者安排一次手動整組導入。不要用舊 App 的更新程序代替這個窗口。</p>
 </section>
 
 <section id="cli" aria-labelledby="cli-title">
-  <h2 id="cli-title">用 CLI 安裝（Linux／macOS）</h2>
-  <h3>1. 建立個人 API token</h3>
-  <p>在 Web 登入後，到「設定 → API Token」建立個人 token。只在終端機提示時貼上，不要貼進議題、聊天或指令參數。</p>
-  <h3>2. 安裝 CLI</h3>
-  <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash</code></pre>
-  <p>安裝到 <code>~/.local/bin/multica</code>，並自動設定內網位址與 s90 憑證；下載的檔案都會核對 SHA-256。若畫面提示 <code>Add to PATH</code>，照著把該行加到 <code>~/.bashrc</code> 或 <code>~/.zshrc</code>。</p>
-  <h3>3. 登入並啟動 daemon</h3>
-  <pre><code>multica login --token
-multica daemon start</code></pre>
-  <p>也可以在安裝時一起完成：把第 2 步改成 <code>curl -fsSL …/install.sh | bash -s -- --login</code>。</p>
-  <h3>4. 確認狀態</h3>
-  <pre><code>multica daemon status
-multica runtime list</code></pre>
-  <p>看到這台電腦的 runtime 為 online 就完成了。</p>
-  <details id="service">
-    <summary>Linux：讓 daemon 常駐（systemd 使用者服務）</summary>
-    <p>全新安裝時，用這行<strong>取代</strong>第 2、3 步，會完成安裝、登入，並建立啟用 <code>multica.service</code>：</p>
-    <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash -s -- --service</code></pre>
-    <p>常用指令：<code>systemctl --user status multica.service</code>、<code>systemctl --user restart multica.service</code>、<code>journalctl --user -u multica.service -n 50</code>。關閉終端機不會停止服務；登出後或開機未登入也要接單，請管理員執行 <code>loginctl enable-linger 你的帳號</code>。不要同時用 App、手動 CLI 與 systemd 啟動多份 daemon。</p>
-  </details>
+  <h2 id="cli-title">請 Agent 更新無 App 的機器</h2>
+  <ol>
+    <li>下載腳本。使用下方固定版本連結。</li>
+    <li>核對 SHA-256。通過條件：與公布值相同。</li>
+    <li>請 Agent 執行乾跑。通過條件：只讀盤點，沒有變更服務或程式。</li>
+    <li>檢閱計畫。通過條件：目標、版本、服務及回滾都在核准範圍。</li>
+    <li>請 Agent 執行更新。通過條件：重新核對同一計畫，再取得 gate、排空、備份及換版。</li>
+    <li>完成驗收。通過條件：版本、hash、原身分、三個心跳週期及一次派工回傳都通過。</li>
+  </ol>
+  <p><a href="@UPDATE_SCRIPT_URL@" download="multica-update.sh">固定版本 shell script</a> · <a href="@UPDATE_CHECKSUM_URL@">SHA-256 清單</a> · <a href="@AGENT_GUIDE_URL@" download="agent-update-guide.md">Agent 操作指引（.md）</a></p>
+  <p class="note">腳本 SHA-256：<code>@UPDATE_SCRIPT_SHA256@</code></p>
+  <div class="callout warning">Agent 不得更新自己所在機台的 daemon。同機不同帳號或 profile 仍算同機。只有版本及心跳、尚無派工結果時，不算完整成功。</div>
 </section>
 
-<section id="upgrade" aria-labelledby="upgrade-title">
-  <h2 id="upgrade-title">從舊版升級</h2>
-  <p>舊版不會自動更新，需要手動升級一次，之後就會自動檢查。</p>
-  <ul>
-    <li><strong>App</strong>：等執行中的任務結束，結束舊 App，下載新版取代「應用程式」中的舊版後重新開啟。帳號與設定會保留。舊版留下的 daemon 不會自己換版，新 App 會在它沒有任務時重新啟動它；完成後在「執行環境」頁確認這台電腦的 CLI 版本與 App 相同。若仍是舊版，請在沒有任務時，在「執行環境」頁打開這台電腦，按「重啟」。</li>
-    <li><strong>CLI</strong>：執行下面這行，保留原本的登入與設定，只替換程式；之後重新啟動 daemon（用 systemd 的人執行 <code>systemctl --user restart multica.service</code>，其他人執行 <code>multica daemon stop</code> 再 <code>multica daemon start</code>）。
-      <pre><code>curl -fsSL https://github.com/hyc5566/multica/releases/latest/download/install.sh | bash -s -- --upgrade</code></pre></li>
-  </ul>
+<section id="retention" aria-labelledby="retention-title">
+  <h2 id="retention-title">只保留兩版程式</h2>
+  <p>全部驗收通過後，保留目前版及本次更新前版。再清理更舊的受管程式資產。前版依實際交易記錄判定，不依版號排序。</p>
+  <p>初裝沒有前版。同版重跑不輪替前版。失敗時保留復原資產。profile、state、workspace、設定、憑證及非受管檔案都保留。</p>
+  <p>只允許回滾到本次更新前版。回滾後重新驗證配套、原身分、心跳及派工。清理失敗或驗收未完成時，不回報完整成功。</p>
 </section>
 
 <section id="faq" aria-labelledby="faq-title">
   <h2 id="faq-title">常見問題</h2>
-  <details><summary>安裝時出現「Existing configuration」或「Existing installation」</summary><p>這台電腦已經裝過，腳本為了保護原本的設定而停止。改用上面「從舊版升級」的 <code>--upgrade</code> 指令。</p></details>
-  <details><summary>公司網路出現 TLS 驗證失敗</summary><p>若公司使用 TLS 代理，向管理員取得代理的公開 CA 憑證檔，執行前設定 <code>export MULTICA_INSTALL_CA_FILE=/path/to/proxy-ca.crt</code> 再重試。安裝腳本不會關閉 TLS 驗證。</p></details>
-  <details><summary>更新後想退回前一版</summary><p>CLI：升級完成時畫面會印出回復指令（<code>ln -f …/launcher ~/.local/bin/multica</code>），執行後重新啟動 daemon。App：前一版保留在 <code>~/Library/Application Support/Multica 繁中版/zh-tw-update/rollback/</code>，結束 App 後把它搬回「應用程式」。</p></details>
-  <details><summary>想先檢查安裝腳本再執行</summary><pre><code>curl -fsSLo install.sh https://github.com/hyc5566/multica/releases/latest/download/install.sh
-less install.sh
-bash install.sh</code></pre></details>
+  <details><summary>multica update 適用哪些安裝？</summary><p>舊版的繁中頻道版本化 launcher 可用該指令換 CLI 入口，但不代表 daemon 已安全換版。新版已停止這條直接換檔路徑。請改用本頁的固定版本腳本。App 內附 CLI、裸 binary、Homebrew 與未知來源不能混用舊流程。</p></details>
+  <details><summary>MULTICA_DAEMON_AUTO_UPDATE=false 會停止什麼？</summary><p>它控制舊版 daemon 的背景自動更新機制。新版繁中版由 App 或跨機腳本管理換版。此開關不會停止領取工作，也不會停止 App 更新。請勿用它代替 gate。</p></details>
+  <details><summary>遇到 TLS 驗證失敗？</summary><p>先向管理者取得公開 CA。核對指紋後使用系統信任或明確的 CA 檔案。不要關閉 TLS 驗證。</p></details>
+  <details><summary>已經有兩套安裝？</summary><p>停止更新。回報實際 App、CLI 入口及 daemon 來源。不要自行刪除程式或管理標記。</p></details>
+  <details><summary>第一次使用？</summary><p>先登入並加入工作區。安裝 Git 2.40 以上及要使用的 Agent CLI。macOS 請使用 App；需要獨立 CLI 時，先請管理者確認無 App 及安裝來源。帳號、token 及登入資料只在本人終端機處理。</p></details>
 </section>
 </main>
-<footer><a href="/download/guide">完整安裝手冊</a><a href="/help">基本使用說明</a><a href="https://github.com/hyc5566/multica/releases">繁中版發行紀錄</a><a href="@BASE_URL@/SHA256SUMS">本版 SHA256SUMS</a></footer>
-<script>
-for (const button of document.querySelectorAll("[data-copy]")) {
-  button.hidden = !navigator.clipboard;
-  button.addEventListener("click", async () => {
-    await navigator.clipboard.writeText(document.getElementById(button.dataset.copy).textContent);
-    button.textContent = "已複製";
-    setTimeout(() => { button.textContent = "複製"; }, 2000);
-  });
-}
-</script>
+<footer><a href="/">首頁</a><a href="/help">基本使用說明</a><a href="@AGENT_GUIDE_URL@">Agent 操作正本</a><a href="@BASE_URL@/SHA256SUMS">下載檢查碼</a><a href="@NOTES_URL@">版本說明</a></footer>
 </body>
 </html>
