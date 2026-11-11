@@ -28,6 +28,7 @@ func runVersion(cmd *cobra.Command, _ []string) error {
 			"commit":                  commit,
 			"build_commit":            buildCommit,
 			"daemon_maintenance_gate": "v1",
+			"daemon_lifecycle":        "launchd-pinned-v1",
 			"date":                    date,
 			"go":                      runtime.Version(),
 			"os":                      runtime.GOOS,

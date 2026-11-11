@@ -22,6 +22,8 @@ import (
 
 // HealthResponse is returned by the daemon's local health endpoint.
 type HealthResponse struct {
+	LifecycleManager string                  `json:"lifecycle_manager,omitempty"`
+	DesktopProtocol  int                     `json:"desktop_protocol"`
 	MaintenanceGate  maintenanceGateStatus   `json:"maintenance_gate"`
 	AgentMaintenance *AgentMaintenanceStatus `json:"agent_maintenance,omitempty"`
 	Status           string                  `json:"status"`
@@ -355,6 +357,8 @@ func (d *Daemon) healthHandler(startedAt time.Time) http.HandlerFunc {
 		}
 
 		resp := HealthResponse{
+			LifecycleManager:      d.cfg.LifecycleManager,
+			DesktopProtocol:       DesktopProtocol,
 			MaintenanceGate:       d.maintenanceGate(),
 			AgentMaintenance:      d.agentMaintenance.Load(),
 			Status:                status,
@@ -425,6 +429,10 @@ func (d *Daemon) idleRestartHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+		if d.independentlyPinned() {
+			http.Error(w, "daemon is pinned by launchd; operator maintenance required", http.StatusConflict)
 			return
 		}
 		if r.Header.Get("Origin") != "" || r.Header.Get("Content-Type") != "application/json" {
