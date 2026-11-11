@@ -82,6 +82,43 @@ class ReleaseVerification(unittest.TestCase):
             with self.subTest(binary=str(binary), version=version, commit=commit, arch=arch), self.assertRaises(ValueError):
                 verifier.verify_binary(binary, version, commit, goos, arch)
 
+    def test_release_build_retains_linker_identity(self):
+        # Run the real release script against a tiny source checkout. This catches
+        # build-option changes that remove identity metadata from shipped files.
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo = root / 'repo'
+            repo.mkdir()
+            for command in ('multica', 'server', 'migrate'):
+                source = repo / 'server' / 'cmd' / command / 'main.go'
+                source.parent.mkdir(parents=True)
+                source.write_text(self.source.read_text(), encoding='utf-8')
+            (repo / 'server' / 'migrations').mkdir()
+            (repo / 'server' / 'migrations' / 'fixture.sql').write_text('-- fixture\n')
+            for name in ('LICENSE', 'NOTICE'):
+                (repo / name).write_text('release fixture\n')
+            def run(args, **kwargs):
+                return subprocess.run(args, check=True, stdout=subprocess.PIPE,
+                                      stderr=subprocess.PIPE, **kwargs)
+            run(['git', 'init', str(repo)])
+            run(['git', '-C', str(repo), 'add', '.'])
+            run(['git', '-C', str(repo), '-c', 'user.name=Release Fixture',
+                 '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture'])
+            commit = run(['git', '-C', str(repo), 'rev-parse', 'HEAD']).stdout.decode().strip()
+            certificate = root / 'public-ca.crt'
+            run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes',
+                 '-keyout', str(root / 'fixture.key'), '-out', str(certificate),
+                 '-days', '1', '-subj', '/CN=Release Test CA'])
+            release = root / 'release'
+            env = dict(os.environ, GOTOOLCHAIN='local', GO111MODULE='off', CGO_ENABLED='0')
+            run(['bash', str(HERE / 'build.sh'), VERSION, str(release), BASE,
+                 str(certificate)], cwd=repo, env=env)
+            self.assertEqual(verifier.build_identity(release), (VERSION, commit))
+            for platform in self.binaries:
+                goos, arch = platform.split('-')
+                verifier.verify_binary(release / f'multica-{VERSION}-{platform}',
+                                       VERSION, commit, goos, arch)
+
     def test_old_binary_refused_before_packaging(self):
         with tempfile.TemporaryDirectory() as root:
             root = Path(root)
