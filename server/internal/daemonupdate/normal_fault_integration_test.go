@@ -166,6 +166,7 @@ func TestNormalLocalTransactionFaultsRestoreOriginalBundle(t *testing.T) {
 			}
 			path := filepath.Join(work, "journal.json")
 			a := newLocalAdapter(path)
+			_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 			if err := acquireGate(path, j); err != nil {
 				t.Fatal(err)
 			}
