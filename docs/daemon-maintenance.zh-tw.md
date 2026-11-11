@@ -1,5 +1,7 @@
 # Daemon 維護閘門與換版
 
+> HYC-26 已改為 App 統管配套，以及無 App 的跨機更新。最新入口、交易驗收及兩版保留見 [配套更新維護](unified-update.zh-tw.md)。本文件保留底層 gate 與舊版首次導入機制。下方獨立釘選方案不再作為新的 Mac 部署方式。
+
 本文件說明支援維護閘門的 daemon 換版前提與首次導入方式。正式變更必須先核准機台、範圍、影響、驗證與回滾；此文件本身不構成授權。以實際發布品的 commit、版本、雜湊及來源為準，不能只憑版本字串認定含有閘門。
 
 ## 維護閘門
@@ -41,37 +43,46 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 
 `updated` 代表更新與驗證完成；`rolled_back_verified` 代表更新失敗但回滾及驗證完成，仍以非零碼退出。`blocked` 表示自動恢復未能安全完成，保留 gate 供核准後處置。心跳證據在 `heartbeats.jsonl`，基準、原入口備份及結果另存 evidence 目錄，不包含登入設定。任何解除後的 fsync／signal 錯誤會明報 `*_gate_released_error`、`claims_may_resume=true`；此時工作可能已恢復，不能直接停止或再回滾，須重新取得屏障並排空。保留 gate 不代表正式服務健康；故障時需持續處理。
 
-## 舊版首次導入：全 Server 停機窗口
+## 舊版首次導入：Server 持續運作
 
-已知 `0.6.0-131` 與既有 `0.8.1-zh-tw.1` 均不應被當作具閘門能力；先以 `/health` 實測能力，缺少 capability 的舊版須拒絕常態 updater。首次導入可採下列冷窗口，會影響所有連接該 Server 的主機與使用者，須另案核准與隔離演練，並由跨機維護者或人操作；不是本文件的既成部署結果。
+先實測舊版的能力。缺少 gate 的舊版仍拒絕常態 updater。
+首次導入使用明確的專用入口。中央 Server 持續運作。
+維護交界可能漏接或中斷任務。據實記錄，交由使用者重新驅動。
+不要承諾自動補跑，也不要把 `active_task_count=0` 當成排他屏障。
 
-1. 確定整批維護窗口、所有 Server 實例、反向代理與連線路徑、目標 daemon/profile/runtime ID 和回滾資產；先停止接收新業務並自然排空，通知所有受影響者。準備支援閘門的已驗證候選和備份，不碰其他程序。
-2. 核准並停止**全部** Server 實例，確認所有提供領取工作服務的 HTTP 與 WebSocket 入口均已停止且沒有其他實例可派工。只停單一實例或僅等待 daemon 的 active=0 並非排他屏障。保留資料庫供唯讀核對，並確認無其他服務可寫入派工狀態。
-3. Server 完全停止後，對照目標 daemon 的所有 runtime ID 與目前 schema，唯讀查詢 `agent_task_queue`，確認這些 runtime 沒有 `dispatched`、`running`、`waiting_local_directory` 任務，並核對 daemon 的 active task 為零；若有記錄，查明與安全處置後重新核對，不可把錯誤或查不到資料視為零。此版 schema 的領取會把 `queued` 改為 `dispatched`，上述三種是已有領取的非終態（見 `server/pkg/db/queries/agent.sql` 的 `ClaimAgentTask` 和 runtime recovery 查詢）；`queued`、`deferred` 尚未領取，不能憑空使用 `claimed` 狀態。檢查當前版本 schema 是否有其他已領取狀態及其他寫入者，並完整納入。只有 Server 完全停派、資料庫沒有已領取任務、daemon 已排空三者都成立，才能建立冷導入的排他條件。
-4. 記錄並備份舊 binary、launcher、CA、config、state 的位置與復原方式，不讀取或輸出秘密；核對服務的精確 MainPID 和目標，再停止該 unit／受管 daemon。預先建立正確 profile 的 gate 和所有權紀錄，換入驗證過的支援閘門候選，保留舊版備份。
-5. 在 gate 保持存在下啟動候選。Server 仍停止時 preflight 可能失敗或無法到達 running；不要把它當成 gate 失敗，也不要為求 running 移除 gate。恢復 Server 後再檢查候選的 profile、原 daemon ID、版本、commit、執行檔 hash、所有原 runtime 的註冊和心跳，以及 `supported/blocked/ready`。完成驗收後解除 gate，確認恢復派工。
+1. 核對目標。通過條件：跨實體機操作者、原精確服務、MainPID、profile、daemon ID 與全部 runtime 都符合核准盤點。
+2. 核對舊資產。通過條件：實跑映像 SHA-256 與核准 baseline 相符。舊版缺完整 build metadata 時，不補造 commit。
+3. 等待已知工作。通過條件：已盡量等候目前已知工作完成，並記錄無 gate 的競態及可能中斷。資料無法核對時停止。
+4. 備份原形態。通過條件：完整舊 App、CLI、真正入口 wrapper／launcher、權限及配套均可恢復。不要假定版本目錄中存在 launcher。
+5. 建立新版 gate。通過條件：正確 profile 的 gate 路徑、owner 與 inode 已記錄。這個 gate 不保護舊版。
+6. 停止目標。通過條件：只停止已核對的原 unit 或精確程序。中央 Server、其他 daemon 與 profile 繼續運作。
+7. 換入候選。通過條件：候選來源、完整 commit、配套及 hash 通過。從原管理方式啟動，不另起游離 daemon。
+8. 驗證新版。通過條件：gate 跨重啟仍 blocked 且 ready；原身分及執行版本正確；全部原 runtime 至少跨三個心跳週期。
+9. 恢復接單。通過條件：由 gate 持有人解除後，完成一次已授權的派工、執行及回傳。沒有派工證據時維持待驗收。
 
-舊 launcher 若只在安裝入口有 wrapper、版本目錄沒有配對 `launcher`（東京主機的採樣即為此形態），常態 updater 會拒絕。首次冷導入須另備份真正入口的完整檔案與雜湊，離線準備新版本目錄及配對 launcher，再在排他窗口切換；回退使用已備份的實際舊 wrapper，不使用不存在的版本目錄 launcher。這項首次安裝形態轉換須列入該機核准包，不由常態 updater 自動猜測。
-
-冷窗口失敗時，保留 gate 並先查明原因。若必須退回**不支援閘門的舊版**，在全 Server 仍停派／停機、確認無已領取任務時恢復已驗證的舊資產，檢查原 profile、daemon ID、執行檔及服務設定後才恢復 Server；舊 daemon 不能靠 gate 保護。Server 一旦恢復，舊 daemon 可能立即領取工作；若又要停止或再次回滾，必須重新建立全 Server 冷窗口並排空，不可盲目停止。任何無法證明排他或身分的狀況都停止操作並升級處理。
+故障時只停止已證明屬於本交易的候選，恢復整組舊資產及原入口。
+回到無 gate 舊版時，不能宣稱 gate 保護有效。
+中央 Server 仍持續運作，舊版可能立即領取工作。
+核對原身分、實跑 hash、心跳與實際派工，並記錄漏接或中斷。
+使用者重新驅動受影響任務。再次維護仍走明確的舊版專用流程。
 
 ## 錯誤與復原
 
 - gate 已存在：先辨識所有權、是否仍有 updater 或維護在途；不要覆蓋 `owner` JSON 檔、因逾時刪除或讓兩個操作者共同持有。接手與解除須依核准程序及 updater 介面處理。
 - `blocked=true` 但 `ready=false`：檢查 in-flight、active、更新與其他維護屏障，確認 gate 是可存取的目錄及路徑正確；持續觀察至工作結束，存取錯誤、異常型別或不明所有權時停止並查明。
 - 維護中 profile state 連結或目錄被改動：停止自動處理並明報 `profile_changed=true`、`claims_may_resume=true`。舊實體 gate 留存不保證 daemon 仍停派；先重新核對身分與實際 state，再取得可證明的屏障，不能直接停止或回滾。
-- 新程序未起、ID 不同、runtime 離線、hash 不符或健康資訊缺少 capability：保留 gate，停止發布並依已核准回滾處理。若回退版具 gate，仍須驗證其 gate 和身分；若不具 gate，採上述全 Server 冷窗口。
+- 新程序未起、ID 不同、runtime 離線、hash 不符或健康資訊缺少 capability：保留 gate，停止發布並依已核准回滾處理。若回退版具 gate，仍須驗證其 gate 和身分；若不具 gate，採上述舊版專用回復流程，記錄可能漏接。
 - 解除後確認恢復健康與派工。未完成驗證前不要刪除備份或把失敗視為成功。
 
-## macOS Desktop：已選定獨立釘選 daemon（A 案）
+## macOS Desktop：既有獨立釘選安裝
 
-2026-11-11 已選定 A 案：固定版本 binary、獨立 launchd LaunchAgent 與原 profile；Desktop 僅連線，App／OS 重啟後仍維持經核准的 daemon 版本。候選實作尚未發布，也未在目標 Mac 遷移。
+本節只說明既有獨立釘選安裝的辨識與保護。新導入由 App 統管 App、內附 CLI 及 daemon，不再新增獨立 daemon。已有獨立標記時只回報並停止，不自行移除或接管。
 
-可直接用於使用者更新指引的 [macOS 安裝、遷移、升級、回滾與驗收程序](macos-pinned-daemon.zh-tw.md) 不含內部主機、註冊 UUID 或憑證。原機器清單不作為公開操作範本；每次操作另備受限存取的核准包，以實際盤點為準。
+既有安裝的 [macOS 安裝、遷移、升級、回滾與驗收程序](macos-pinned-daemon.zh-tw.md) 不含內部主機、註冊 UUID 或憑證。原機器清單不作為公開操作範本；每次操作另備受限存取的核准包，以實際盤點為準。
 
 Desktop 透過 profile 的 `daemon-management.json` 與 health 的 `lifecycle_manager=launchd-pinned` 辨識管理權；標記存在即保留，即使 daemon 停止、標記損壞或 health 無法連線也不接管。App 不下載／安裝替代 CLI、不改原憑證、不因版本差異、信任刷新、登出、結束或更新而重新啟動它。daemon 也拒絕自行跟隨 App bundle、server 換版要求和 idle trust restart。
 
-一般遷移與換版仍須完整 gate、排空、原身分及心跳驗證。沒有 gate capability 的首次導入須採上方的全 Server 冷窗口，不能將 `active_task_count=0` 當作停止派工的證據。macOS 實機檢查未完成前，不得將 Linux fixture 的通過當作正式遷移成功。
+一般遷移與換版仍須完整 gate、排空、原身分及心跳驗證。沒有 gate capability 的首次導入依上方專用流程，不停止中央 Server。不能將 `active_task_count=0` 當作停止派工的證據。macOS 實機檢查未完成前，不得將 Linux fixture 的通過當作正式遷移成功。
 
 ## 隔離演練
 
@@ -79,4 +90,4 @@ Desktop 透過 profile 的 `daemon-management.json` 與 health 的 `lifecycle_ma
 
 測試涵蓋原生 binary 與 hardlink launcher：在途 claim 延遲期間 gate 不 ready、完成交接後三次心跳仍無新 claim、解除後領取恢復；錯 hash 拒絕、既有 gate 不接管；成功換版保持 ID/runtime；候選通過版本查詢但啟動失敗時，還原原入口並重驗相同 ID/runtime、執行中 hash、固定 PID 與三次新心跳。`test_maintenance_release.py` 額外覆蓋解除後 fsync 失敗時必須回報已開放工作的回歸案例。
 
-每次演練保存 JSON 與心跳時間序列，並清理唯一 lab unit 的 runtime link。HTTP fallback 有實際演練，WS／HTTP／legacy 共用的 claim 入口由鎖與既有單元測試核對；正式 Server、真資料庫、舊版冷窗口、macOS 遷移及正式任務派工不在這個 fixture 演練內，部署前另行驗證。
+每次演練保存 JSON 與心跳時間序列，並清理唯一 lab unit 的 runtime link。HTTP fallback 有實際演練，WS／HTTP／legacy 共用的 claim 入口由鎖與既有單元測試核對；正式 Server、真資料庫、無 gate 舊版首次導入、macOS 實機及正式任務派工不在這個 fixture 演練內，部署前另行驗證。
