@@ -452,6 +452,7 @@ type Daemon struct {
 	logger                *slog.Logger
 	agentMaintenance      atomic.Pointer[AgentMaintenanceStatus]
 	agentInstallationLock string // initialized before pollers; all profiles use the same per-user lock
+	updateAttestation     updateAttestationState
 
 	// gitCALastErr is the last applyGitCACerts failure, so a persistent one
 	// (e.g. on Windows) is logged once rather than on every repo refresh.
@@ -838,6 +839,8 @@ func New(cfg Config, logger *slog.Logger) *Daemon {
 		taskQuotaInflight:           make(map[string]*taskQuotaProbeCall),
 		taskQuotaProbeFn:            agent.ProbeProviderUsage,
 	}
+	d.updateAttestation.binarySHA256 = runningBinarySHA256()
+	d.updateAttestation.startedAt = time.Now().UTC()
 	d.activeEnvRootsCond = sync.NewCond(&d.activeEnvRootsMu)
 	d.activeStoresCond = sync.NewCond(&d.activeStoresMu)
 	// Seed the copy-on-write availability set from the startup probe. Callers
@@ -2057,6 +2060,7 @@ func (d *Daemon) recordWSHeartbeatAck(runtimeID string) {
 	if runtimeID == "" {
 		return
 	}
+	d.updateAttestation.recordHeartbeat(runtimeID)
 	d.wsHBMu.Lock()
 	d.wsHBLastAck[runtimeID] = time.Now()
 	d.wsHBMu.Unlock()
@@ -4611,6 +4615,9 @@ func (d *Daemon) runHeartbeatTick(ctx context.Context, rid string) bool {
 		go d.handleRuntimeGone(rid)
 		return false
 	}
+	if resp != nil {
+		d.updateAttestation.recordHeartbeat(rid)
+	}
 	d.handleHeartbeatActions(ctx, rid, resp)
 	return false
 }
@@ -4762,6 +4769,7 @@ func (d *Daemon) handlePendingWorkHint(runtimeID, kind string) {
 		go d.handleRuntimeGone(runtimeID)
 		return
 	}
+	d.updateAttestation.recordHeartbeat(runtimeID)
 	d.logger.Debug("pending work hint served", "runtime_id", runtimeID, "kind", kind)
 	d.handleHeartbeatActions(ctx, runtimeID, resp)
 }
@@ -5090,6 +5098,12 @@ func (d *Daemon) reportRuntimeResultWithRetry(ctx context.Context, kind, runtime
 
 // handleUpdate performs the CLI update when triggered by the server via heartbeat.
 func (d *Daemon) handleUpdate(ctx context.Context, runtimeID string, update *PendingUpdate) {
+	if strings.Contains(d.cfg.CLIVersion, "-zh-tw.") || cli.ZhTWReleaseManifestURL() != "" {
+		d.reportUpdateResult(ctx, runtimeID, update.ID, map[string]any{
+			"status": "failed", "error": "繁中版須使用經驗證的跨機更新程序；Desktop 請使用整組更新。",
+		})
+		return
+	}
 	if d.independentlyPinned() {
 		d.reportUpdateResult(ctx, runtimeID, update.ID, map[string]any{
 			"status": "failed",
@@ -5222,13 +5236,8 @@ func (d *Daemon) tryBeginServerUpdate(ctx context.Context) serverUpdateAcquireRe
 // the restart — extracted so the server-triggered path (handleUpdate) and the
 // auto-update poller (autoUpdateLoop) share the exact same execution body.
 func (d *Daemon) runUpdate(targetVersion string) (string, error) {
-	if cli.ZhTWReleaseManifestURL() != "" {
-		d.logger.Info("updating CLI via the zh-tw release installer...", "target_version", targetVersion)
-		out, err := cli.UpdateViaZhTWInstaller(targetVersion, d.cfg.CLIVersion, cli.DefaultUpdateDownloadTimeout)
-		if err != nil {
-			return out, fmt.Errorf("zh-tw installer update failed: %w", err)
-		}
-		return out, nil
+	if strings.Contains(d.cfg.CLIVersion, "-zh-tw.") || cli.ZhTWReleaseManifestURL() != "" {
+		return "", errors.New("繁中版須使用經驗證的跨機更新程序；Desktop 請使用整組更新")
 	}
 	if cli.IsBrewInstall() {
 		d.logger.Info("updating CLI via Homebrew...")
@@ -6088,7 +6097,17 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 		result.Comment = "daemon shut down while task was in flight"
 	}
 
-	d.reportTaskResult(ctx, task.ID, result, taskLog)
+	completedAt := time.Now().UTC()
+	if d.reportTaskResult(ctx, task.ID, result, taskLog) {
+		// A 200 completion response can also mean an already-cancelled task or
+		// a server-side failure normalization. Confirm the terminal status.
+		statusCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
+		status, statusErr := d.client.GetTaskStatus(statusCtx, task.ID)
+		cancel()
+		if statusErr == nil && status == "completed" {
+			d.updateAttestation.recordReceipt(task.ID, task.RuntimeID, completedAt)
+		}
+	}
 
 	// Write GC metadata after the task finishes so the periodic GC loop
 	// can look up the parent record (issue / chat session / autopilot run /
@@ -6483,7 +6502,7 @@ func (d *Daemon) acquireLocalDirectoryLockIfNeeded(ctx context.Context, task Tas
 // the agent may have built a real session before getting stuck, and we want
 // the next chat turn to resume there rather than start over and "forget"
 // the conversation.
-func (d *Daemon) reportTaskResult(ctx context.Context, taskID string, result TaskResult, taskLog *slog.Logger) {
+func (d *Daemon) reportTaskResult(ctx context.Context, taskID string, result TaskResult, taskLog *slog.Logger) bool {
 	switch result.Status {
 	case "completed":
 		taskLog.Info("task completed", "status", result.Status)
@@ -6499,7 +6518,7 @@ func (d *Daemon) reportTaskResult(ctx context.Context, taskID string, result Tas
 			retiredSessionID:      result.RetiredSessionID,
 		})
 		if err == nil {
-			return
+			return true
 		}
 		// The original completion is already durable. Never overwrite it with a
 		// synthetic failure: a temporary auth/config skew can make a 4xx recover
@@ -6545,6 +6564,7 @@ func (d *Daemon) reportTaskResult(ctx context.Context, taskID string, result Tas
 			taskLog.Error("report failed task failed", "error", err)
 		}
 	}
+	return false
 }
 
 // reportTerminalTask is the only path that sends complete/fail callbacks. It

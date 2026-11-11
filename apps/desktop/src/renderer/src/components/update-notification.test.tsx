@@ -38,6 +38,12 @@ beforeEach(() => {
 });
 
 describe("UpdateNotification", () => {
+  it("shows pending acceptance without presenting it as complete", async () => {
+    render(<UpdateNotification />);
+    await act(async () => listener({ ...initial, phase: "pending", message: "待原 runtime 任務驗收" }));
+    expect(screen.getByText("待原 runtime 任務驗收")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Restart now" })).not.toBeInTheDocument();
+  });
   it("shows progress and ready actions, using the manifest notes URL", async () => {
     render(<UpdateNotification />);
     expect(rendererReady).toHaveBeenCalledOnce();

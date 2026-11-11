@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/multica-ai/multica/server/internal/cli"
 )
@@ -34,10 +33,7 @@ func TestRestartTargetIgnoresMissingZhTWLauncher(t *testing.T) {
 	}
 }
 
-// The zh-tw Desktop swaps its bundle, and the CLI this daemon runs from, in
-// place. With its opt-in the daemon follows the new binary through the
-// idle-only, claim-barrier self-reload, and never pulls a release itself.
-func TestAutoUpdateLoop_ZhTWDesktopFollowsBundledBinary(t *testing.T) {
+func TestAutoUpdateLoop_ZhTWDesktopRequiresCoordinatedUpdate(t *testing.T) {
 	shortenLoopTimers(t)
 	d, restartCalls := newSelfReloadTestDaemon(t, "0.6.1-zh-tw.1")
 	d.cfg.LaunchedBy = "desktop"
@@ -49,20 +45,23 @@ func TestAutoUpdateLoop_ZhTWDesktopFollowsBundledBinary(t *testing.T) {
 	stubSelfVersion(t, "0.6.1-zh-tw.2", nil)
 	t.Setenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD", "1")
 
-	// Busy: the reload waits.
-	d.activeTasks.Store(1)
-	ctx, cancel := context.WithCancel(context.Background())
-	done := make(chan struct{})
-	go func() { d.autoUpdateLoop(ctx); close(done) }()
-	time.Sleep(30 * time.Millisecond)
+	d.autoUpdateLoop(context.Background())
 	if restartCalls.Load() != 0 {
-		t.Fatal("restarted while a task was running")
+		t.Fatal("Desktop must not reload outside its transaction")
 	}
-	// Idle: it restarts into the new binary.
-	d.activeTasks.Store(0)
-	waitFor(t, func() bool { return restartCalls.Load() == 1 }, "no restart once idle")
-	cancel()
-	<-done
+}
+
+func TestZhTWStandaloneRefusesSelfUpdateAndReload(t *testing.T) {
+	d, restarts := newSelfReloadTestDaemon(t, "0.6.1-zh-tw.1")
+	d.cfg.AutoUpdateEnabled = true
+	probes := stubSelfVersion(t, "0.6.1-zh-tw.2", nil)
+	d.autoUpdateLoop(context.Background())
+	if probes.Load() != 0 || restarts.Load() != 0 {
+		t.Fatal("standalone Taiwan daemon must be updated by verified procedure")
+	}
+	if _, err := d.runUpdate("0.6.1-zh-tw.2"); err == nil {
+		t.Fatal("installer update unexpectedly allowed")
+	}
 }
 
 func TestAutoUpdateLoop_DesktopWithoutOptInStillSkips(t *testing.T) {
@@ -80,8 +79,9 @@ func TestAutoUpdateLoop_DesktopWithoutOptInStillSkips(t *testing.T) {
 func TestZhTWDesktopSelfReloadCapability(t *testing.T) {
 	d := &Daemon{cfg: Config{LaunchedBy: "desktop", AutoReloadEnabled: true}}
 	t.Setenv("MULTICA_ZH_TW_DESKTOP_SELF_RELOAD", "1")
-	if !d.zhTWDesktopSelfReload() {
-		t.Fatal("opted-in Desktop daemon must report the capability")
+	d.cfg.CLIVersion = "0.6.1-zh-tw.1"
+	if d.zhTWDesktopSelfReload() {
+		t.Fatal("Taiwan Desktop must not report independent reload")
 	}
 	d.cfg.AutoReloadEnabled = false
 	if d.zhTWDesktopSelfReload() {

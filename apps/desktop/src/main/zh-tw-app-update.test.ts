@@ -30,12 +30,16 @@ const sha = "a".repeat(64);
 const manifest = (desktop: Record<string, unknown>, version = "0.6.1-zh-tw.2") =>
   JSON.stringify({
     version,
+    source_id: "hyc5566/multica",
+    data_compatibility: "multica-profile-v1",
+    coordinated_update_protocol: 1,
     commit: "b".repeat(40),
     notes_url: "https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.6.1-zh-tw.2",
     cli: { install_url: "https://s90.example/install.sh", install_sha256: sha },
-    desktop,
+    desktop: {},
+    coordinated_desktop: desktop,
   });
-const macAsset = { url: "https://s90.example/app.zip", sha256: sha.toUpperCase(), size: 123 };
+const macAsset = { url: "https://s90.example/app.zip", sha256: sha.toUpperCase(), size: 123, binary_sha256: sha, binary_version: "0.6.1-zh-tw.2", binary_commit: "b".repeat(40), data_compatibility: "multica-profile-v1", bundle_id: "ai.multica.desktop.zh-tw.local" };
 
 describe("zh-tw app update channel", () => {
   it("compares only Taiwan release versions", () => {
@@ -55,6 +59,11 @@ describe("zh-tw app update channel", () => {
       sha256: sha,
       size: 123,
       notesUrl: "https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.6.1-zh-tw.2",
+      binarySha256: sha,
+      binaryVersion: "0.6.1-zh-tw.2",
+      binaryCommit: "b".repeat(40),
+      dataCompatibility: "multica-profile-v1",
+      bundleId: "ai.multica.desktop.zh-tw.local",
     });
     expect(findAppUpdate(parsed, "0.6.1-zh-tw.2", "darwin-arm64")).toBeNull();
     expect(findAppUpdate(parsed, "0.6.1-zh-tw.1", null)).toBeNull();
@@ -66,6 +75,13 @@ describe("zh-tw app update channel", () => {
     expect(() => parseReleaseManifest(manifest({ "darwin-arm64": { ...macAsset, sha256: "short" } }))).toThrow();
     expect(() => parseReleaseManifest(manifest({ "darwin-arm64": macAsset }, "0.6.1"))).toThrow();
     expect(() => parseReleaseManifest("x".repeat(70 * 1024))).toThrow(/too large/);
+  });
+
+  it("refuses an old manifest lacking coordinated binary evidence", () => {
+    const parsed = parseReleaseManifest(manifest({ "darwin-arm64": { url: macAsset.url, size: 123, sha256: sha } }));
+    expect(() => findAppUpdate(parsed, "0.6.1-zh-tw.1", "darwin-arm64")).toThrow(/整組更新/);
+    const legacy = parseReleaseManifest(JSON.stringify({ version: "0.6.1-zh-tw.2", desktop: { "darwin-arm64": macAsset } }));
+    expect(() => findAppUpdate(legacy, "0.6.1-zh-tw.1", "darwin-arm64")).toThrow(/不支援整組協調更新/);
   });
 
   it("follows the connected server and falls back to s90", () => {
@@ -165,7 +181,7 @@ describe("update download and readiness", () => {
     await expect(fetchManifest("https://example.test/latest.json", signal)).rejects.toThrow(/HTTP 503/);
     expect(request).toHaveBeenCalledWith("https://example.test/latest.json", expect.objectContaining({ redirect: "error" }));
   });
-  it("acknowledges only the pending token, version and bundle", async () => {
+  it("does not acknowledge a legacy renderer-only update", async () => {
     fixture();
     const token = "f6f5f574-5dea-42c2-91c1-7bc09ca9da51";
     const version = "0.6.1-zh-tw.2";
@@ -180,6 +196,6 @@ describe("update download and readiness", () => {
     await acknowledgeUpdateReady(dir, version, "/Applications/Other.app", argv);
     expect(existsSync(ready)).toBe(false);
     await acknowledgeUpdateReady(dir, version, bundle, argv);
-    expect(readFileSync(ready, "utf8")).toBe("ready\n");
+    expect(existsSync(ready)).toBe(false);
   });
 });

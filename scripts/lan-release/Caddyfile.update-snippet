@@ -1,0 +1,11 @@
+# Insert inside the existing HTTPS site before the generic frontend handler.
+# Keep the current TLS issuer, proxy routes, and bind-mounted config inode.
+@zhtw_agent_update_guide path /download/agent-update-guide.md
+handle @zhtw_agent_update_guide {
+    root * /config/releases
+    rewrite * /agent-update-guide.md
+    header Content-Type "text/markdown; charset=utf-8"
+    header Content-Disposition "attachment; filename=agent-update-guide.md"
+    header Cache-Control "no-store"
+    file_server
+}

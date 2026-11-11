@@ -16,6 +16,11 @@ for each operation; a tested candidate is not proof of production initialization
 
 ## Customization layers
 
+The current Taiwan update contract is [unified App/CLI/daemon updating](unified-update.zh-tw.md).
+HYC-26 supersedes the new-install recommendation for independent pinned macOS daemons.
+Rebuild the coordinated updater, daemon attestations, and release packaging as one feature layer.
+Keep the legacy App channel empty; only protocol-aware clients consume `coordinated_desktop`.
+
 Apply these layers in order when rebuilding the branch:
 
 1. UI copy: convert `packages/views/locales/zh-Hans/*.json`, landing-page copy,
@@ -375,89 +380,59 @@ there is no new dependency or database migration.
 - Never overwrite a running deployment without first recording its executable,
   process identity, version, and rollback path.
 
-### Taiwan App automatic updates (HYC-24)
+### Taiwan coordinated App updates (HYC-26)
 
-Keep `zh-tw-app-update.ts`, `zh-tw-update-controller.ts`, and
-`zh-tw-update-swap.ts` as a separate Taiwan feature layer. The Desktop entry
-registers this updater before `setupDaemonManager`, without importing the
-official `updater.ts` or `electron-updater`. Only packaged macOS arm64 Taiwan
-release versions (`X.Y.Z-zh-tw.N`) can update. Other builds still register
-settings IPC and return an explicit unsupported status.
+Rebuild the Desktop updater, bundled CLI coordinator, persistent daemon claim
+gate, process attestations and release packager together. The contract is in
+[unified updating](unified-update.zh-tw.md). An old UI-only helper cannot safely
+replace a coordinated transaction.
 
-- The connected HTTPS server's `/downloads/latest.json` is the channel;
-  without a valid HTTPS server use the existing s90 URL. Never follow HTTP
-  redirects or substitute the official release feed. Versioned asset URLs,
-  bounded manifest/download size, SHA-256, bundle ID/version and codesign
-  verification remain mandatory. The locally ad-hoc-signed release trusts
-  the HTTPS channel and its manifest: codesign verifies bundle integrity,
-  not an independently pinned release publisher.
-- `updater-preferences.json` defaults to automatic updates enabled. Startup
-  checks run after 30 seconds, then every 24 hours. Failed checks/downloads
-  publish a visible error and retry after one minute, backing off to at most
-  15 minutes. Disabling the preference cancels timers and an automatic
-  download; manual checks still download and verify available updates. IPC
-  status snapshots plus broadcasts restore progress/errors after remounting.
-- A verified download waits for an explicit restart, an ordinary user quit,
-  or all App windows to close. Focus loss, minimization, idle time and daemon
-  task counts are not sufficient restart signals. `Later` suppresses automatic
-  installation for the rest of that App process; settings can still restart
-  explicitly. Staging is not resumed across launches: a subsequent process
-  checks and downloads again. A preference write in progress blocks automatic
-  installation, and the preference is rechecked before quitting.
-- Update quit preserves the existing daemon. A cancelled quit must not stop
-  daemon polling or leave preservation enabled for a later ordinary quit.
-  This change does not alter bundled-daemon version mismatch/reload policy;
-  managed-host rollout, including m5, remains gated by HYC-25 and separate
-  authorization.
+- Only packaged macOS arm64 Taiwan releases use this channel. Keep the
+  verified HTTPS origin, immutable asset URLs, bounded download size, SHA-256,
+  bundle ID/version and codesign checks. Ad-hoc signing verifies integrity;
+  publisher trust still comes from the approved HTTPS channel and hashes.
+- Preserve the existing update preferences and scheduling: startup after 30
+  seconds, then every 24 hours; manual checks remain available. An explicit
+  restart or ordinary quit may install. Minimization and focus loss may not.
+- Before exchange, bind the App, CLI entry and running daemon to the accepted
+  ledger. Block new claims and drain in-flight work. The coordinator outlives
+  the old App and owns the journal, gate and atomic bundle exchange.
+- Verify the candidate's actual executable, full commit, original daemon,
+  profile, Server identity, workspace/runtime set and three new heartbeat
+  cycles while the gate remains held. Opening a window alone is insufficient.
+- Resume claims only after those checks. Wait for a successful task receipt
+  before accepting and cleaning older managed assets. Missing receipts remain
+  pending; cleanup errors must not report complete success.
+- Restore the full previous bundle and its CLI/daemon pairing on a verified
+  failure. Never move a live unknown App or signal a replacement PID. An
+  uncertain gate-release outcome requires recovery without a blind stop.
+- First adoption from a daemon without a gate uses its separate approved
+  inventory and process hashes. It does not stop the central Server or invent
+  old build metadata. Preserve the actual old installation and record that
+  interrupted or missed work must be re-driven by the user.
 
-The helper waits up to 120 seconds for the old App to exit, saves one previous
-bundle in the App user-data directory's `zh-tw-update/rollback/`, and starts
-the new bundle's verified executable with a random attempt token. The new
-main process accepts readiness only from its main renderer after the React
-update notification has mounted, matching token, version and installed bundle
-path against `pending-launch.json`. This proves the renderer shell mounted;
-it does not prove server connectivity, authentication, or subsequent stability.
+The channel publishes `coordinated_desktop` and leaves legacy `desktop` empty.
+Old clients must first complete the explicit adoption transaction. Do not
+remove fail-closed installation protection until the real adapter and failure
+recovery tests pass. Fixtures and cross-builds do not establish macOS installed
+update, login, restart, task delivery or rollback acceptance.
 
-Before this handshake, an exited child or a 60-second readiness timeout causes
-restoration. On timeout only the newly launched child receives TERM; if it
-does not exit within five seconds, leave both bundles in place and record
-`recovery-required` instead of moving a live App. Move/restore/relaunch
-failures also require manual recovery. A cancelled original quit leaves the
-old bundle unchanged and, when the helper exits, restores a retryable error
-in the live UI. `zh-tw-update/result` records the outcome and `swap.log`
-records the exchange; an unsuccessful result is surfaced on the next launch.
-Crashes after the readiness handshake are outside automatic rollback coverage.
-Keep the previous bundle available for manual recovery; do not describe this
-as recovery from every crash.
+### Managed artifact retention
 
-Local Linux verification uses fixture executables and mocked macOS tools.
-`electron-vite build` and a same-commit Darwin arm64 CLI cross-build are
-development checks, not a signed/released macOS App. Before release, separately
-authorize and perform macOS packaging and a real two-version install/rollback
-exercise, including cancelled quit, renderer failure and daemon continuity.
+The installed transaction ledger identifies current and immediate previous by
+actual update order. Same-version runs do not rotate them; initial adoption has
+no invented predecessor. Keep recovery assets until every acceptance check
+passes. Only then remove older ledger-owned program assets after rechecking
+their paths and hashes. Never delete state, profiles, workspaces, settings,
+credentials or unowned files. Release archives and historical issue evidence
+are separate from installed program retention and are not pruned by a build.
 
-### Desktop artifact retention
+Use `stage-latest.mjs` and `publish-latest.sh` as described in
+[the publishing procedure](getting-started-publishing.zh-tw.md). Publish the
+page, operation guide, fixed updater and checksums together; switch the channel
+last. Keep automatic-update URLs immutable. Verify HTTPS, Markdown charset,
+download hashes and a protocol-aware App receiving latest after publication.
 
-The stable download page and release copies are maintained by
-`scripts/lan-release/stage-latest.mjs` and `publish-latest.sh`; see
-[the publishing procedure](getting-started-publishing.zh-tw.md). Keep the version
-only in the page introduction and use `/downloads/latest/` for manual downloads.
-After validating each immutable release, copy it over the latest assets and
-regenerate their checksums before switching the page/channel. Automatic updater
-manifest URLs remain versioned to pin downloads already in progress.
-
-- Keep exactly two installable Desktop archives in the controlled checkout's
-  `artifacts/` directory: the current build and its immediate predecessor.
-  `scripts/build-desktop-zh-tw-macos.sh` enforces this only after a new archive
-  passes build and codesign verification.
-- Keep one installed app at `/Applications/Multica 繁中版.app` and one previous
-  app in the controlled rollback directory. Do not also retain a second copy of
-  the installed app in rollback.
-- Remove completed staging checkouts and their `node_modules`/`dist-zh-tw`
-  directories after deployment verification. Dependency caches are
-  reproducible and may be pruned when no build is running; never remove daemon
-  workspaces, profiles, logs, databases, or the one retained rollback app as
-  cache cleanup.
 # 介面用語與入口語系（HYCLV-64）
 
 繁中介面中的 agent 一律保留英文 `Agent`，列表標題可用 `Agents`；不翻成「智能體」「智慧體」「助理」或「代理」。此規則包含 Web／Desktop 共用 locale、入口頁、內建上手引導、CLI 顯示文案及分支內相關說明文件；網路 proxy 的「代理」與使用者自行命名的內容不在替換範圍。

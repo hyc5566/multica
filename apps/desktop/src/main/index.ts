@@ -15,8 +15,14 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils";
 import fixPath from "fix-path";
 import { installLanTrust } from "./lan-trust";
 import { DESKTOP_PROTOCOL as PROTOCOL, handleDesktopDeepLink } from "./desktop-deep-link";
-import { setupDaemonManager, requestDaemonTrustRefresh, getTargetApiBaseUrl, preserveDaemonOnNextQuit } from "./daemon-manager";
-import { setupZhTWAppUpdate } from "./zh-tw-app-update";
+import {
+  setupDaemonManager,
+  requestDaemonTrustRefresh,
+  getTargetApiBaseUrl,
+  preserveDaemonOnNextQuit,
+  withCoordinatedDaemon,
+} from "./daemon-manager";
+import { setupZhTWAppUpdate, watchCoordinatedStartup } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
 import { setupThemeFolder } from "./theme-folder";
 import { configureLinuxFileDialogs } from "./linux-file-dialog";
@@ -1046,11 +1052,15 @@ if (!gotTheLock) {
     }
 
     // The Taiwan package follows the s90 channel and preserves active tasks.
-    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all());
+    let releaseDaemonLifecycle!: () => void;
+    const lifecycleBarrier = new Promise<void>((resolve) => { releaseDaemonLifecycle = resolve; });
+    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all(), lifecycleBarrier);
+    if (!process.argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) watchCoordinatedStartup(releaseDaemonLifecycle);
     setupZhTWAppUpdate({
       getMainWindow: () => mainWindows.mostRecent(),
       getApiBaseUrl: getTargetApiBaseUrl,
       preserveDaemonOnQuit: preserveDaemonOnNextQuit,
+      withCoordinatedDaemon,
     });
     setupLocalDirectory(() => mainWindows.mostRecent());
     setupThemeFolder();
