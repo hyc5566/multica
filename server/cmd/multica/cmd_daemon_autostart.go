@@ -403,6 +403,9 @@ func mechanismLabel(key string) string {
 //     setting.
 //   - unsupported platforms skip silently; see requireAutostartSupported.
 func shouldManageAutostart() bool {
+	if os.Getenv("MULTICA_DAEMON_SUPERVISOR") == "launchd-pinned" {
+		return false
+	}
 	if !autostartSupported() {
 		return false
 	}
