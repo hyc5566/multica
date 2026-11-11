@@ -58,6 +58,9 @@ type Journal struct {
 	OlderBundle                  string                 `json:"older_bundle"`
 	OldBinarySHA256              string                 `json:"old_binary_sha256"`
 	NewBinarySHA256              string                 `json:"new_binary_sha256"`
+	OldTreeSHA256                string                 `json:"old_tree_sha256,omitempty"`
+	AcceptanceAppIdentity        *LegacyProcessIdentity `json:"acceptance_app_identity,omitempty"`
+	AcceptanceEpoch              *AcceptanceEpoch       `json:"acceptance_epoch,omitempty"`
 	CandidateTreeSHA256          string                 `json:"candidate_tree_sha256,omitempty"`
 	RollbackCleanupRequested     bool                   `json:"rollback_cleanup_requested,omitempty"`
 	OldVersion                   string                 `json:"old_version"`
@@ -112,4 +115,15 @@ func saveJSON(path string, value any) error {
 		return fmt.Errorf("sync journal directory: %w", err)
 	}
 	return nil
+}
+
+// AcceptanceEpoch binds observed evidence to one authenticated daemon process.
+type AcceptanceEpoch struct {
+	Rollback  bool                  `json:"rollback"`
+	Daemon    LegacyProcessIdentity `json:"daemon"`
+	App       LegacyProcessIdentity `json:"app"`
+	StartedAt string                `json:"started_at"`
+	Since     time.Time             `json:"since"`
+	Last      map[string]uint64     `json:"last"`
+	Observed  map[string]int        `json:"observed"`
 }

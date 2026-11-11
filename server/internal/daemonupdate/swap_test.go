@@ -42,6 +42,7 @@ func TestSwapPreservesPriorRollbackUntilAcceptance(t *testing.T) {
 	j.NewBinarySHA256 = fixtureBundle(t, j.StagedBundle, "new")
 	j.PreviousRollbackSHA256 = fixtureBundle(t, j.RollbackBundle, "previous")
 	path := filepath.Join(work, "journal.json")
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := acquireGate(path, j); err != nil {
 		t.Fatal(err)
 	}
@@ -108,6 +109,7 @@ func TestSwapResumesAfterExchangeBeforeJournalAdvance(t *testing.T) {
 		t.Fatal(err)
 	}
 	path := filepath.Join(work, "journal.json")
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := acquireGate(path, j); err != nil {
 		t.Fatal(err)
 	}
@@ -146,6 +148,7 @@ func TestTwoSequentialSwapsKeepImmediatePreviousVersion(t *testing.T) {
 	v2 := fixtureBundle(t, j.StagedBundle, "v2")
 	j.OldBinarySHA256, j.NewBinarySHA256 = v1, v2
 	path := filepath.Join(work, "journal.json")
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := acquireGate(path, j); err != nil {
 		t.Fatal(err)
 	}
@@ -157,6 +160,7 @@ func TestTwoSequentialSwapsKeepImmediatePreviousVersion(t *testing.T) {
 	j.OldBinarySHA256, j.NewBinarySHA256, j.PreviousRollbackSHA256 = v2, v3, v1
 	j.SwapStep, j.CurrentIdentity, j.StagedIdentity = 0, "", ""
 	j.CandidateTreeSHA256 = ""
+	_, j.OldTreeSHA256, _ = legacyTreeManifest(j.OldBundle)
 	if err := a.SwapBundles(context.Background(), j); err != nil {
 		t.Fatal(err)
 	}
