@@ -259,11 +259,39 @@ class PreparationTests(unittest.TestCase):
             self.assertEqual(result['status'], 'standalone')
             self.assertEqual(result['app_processes'], [])
 
+    def test_process_inventory_includes_cross_uid_app(self):
+        info = type('Stat', (), {'st_uid': 43, 'st_dev': 1, 'st_ino': 999})()
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/home/other/Multica.AppImage'):
+            self.assertEqual(u.process_inventory(42), [{'pid': 12, 'uid': 43, 'exe': '/home/other/Multica.AppImage', 'device': 1, 'inode': 999, 'app': True}])
+
     def test_process_inventory_detects_actual_executable(self):
         def stat(path):
-            return type('Stat', (), {'st_uid': 42})()
-        with mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', side_effect=stat), mock.patch.object(u.os, 'readlink', return_value='/custom/Multica.AppImage'):
-            self.assertEqual(u.process_inventory(42), [{'pid': 12, 'exe': '/custom/Multica.AppImage'}])
+            return type('Stat', (), {'st_uid': 42, 'st_dev': 1, 'st_ino': 2})()
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', side_effect=stat), mock.patch.object(u.os, 'readlink', return_value='/custom/Multica.AppImage'):
+            self.assertEqual(u.process_inventory(42), [{'pid': 12, 'uid': 42, 'exe': '/custom/Multica.AppImage', 'device': 1, 'inode': 2, 'app': True}])
+
+    def test_inventory_electron_identity_and_uninspectable_process(self):
+        info = type('Stat', (), {'st_uid': 43, 'st_dev': 1, 'st_ino': 5})()
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/usr/bin/electron'), mock.patch('builtins.open', mock.mock_open(read_data=b'/usr/bin/electron\0/home/other/Multica/app.asar\0')):
+            self.assertTrue(u.process_inventory(42)[0]['app'])
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/tmp/.mount_xyz/usr/bin/multica-desktop'):
+            self.assertTrue(u.process_inventory(42)[0]['app'])
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/home/other/renamed.AppImage'):
+            with self.assertRaisesRegex(u.updater.Refusal, 'cannot identify AppImage'):
+                u.process_inventory(42)
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/usr/bin/electron'), mock.patch('builtins.open', mock.mock_open(read_data=b'/usr/bin/electron\0--no-sandbox\0')):
+            with self.assertRaisesRegex(u.updater.Refusal, 'cannot identify Electron'):
+                u.process_inventory(42)
+        for command in (b'/opt/editor/electron\0--no-sandbox\0', b'', b'/opt/editor/electron\0/opt/editor/app.asar\0'):
+            with self.subTest(command=command), mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/opt/editor/electron'), mock.patch('builtins.open', mock.mock_open(read_data=command)):
+                with self.assertRaisesRegex(u.updater.Refusal, 'cannot identify Electron'):
+                    u.process_inventory(42)
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'readlink', return_value='/opt/editor/electron'), mock.patch('builtins.open', side_effect=PermissionError('denied')):
+            with self.assertRaisesRegex(u.updater.Refusal, 'cannot inspect every process'):
+                u.process_inventory(42)
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.os, 'listdir', return_value=['12']), mock.patch.object(u.os, 'stat', side_effect=PermissionError('denied')):
+            with self.assertRaisesRegex(u.updater.Refusal, 'cannot inspect every process'):
+                u.process_inventory(42)
 
     def test_darwin_spotlight_running_bundle_and_symlinked_cli(self):
         with tempfile.TemporaryDirectory() as root:
@@ -370,6 +398,15 @@ class PreparationTests(unittest.TestCase):
         with mock.patch.object(u.os, 'geteuid', return_value=42), mock.patch.object(u, 'target_machine_fingerprint', return_value='e' * 64), mock.patch.object(u.pwd, 'getpwuid', return_value=type('User', (), {'pw_dir': '/home/owner'})()), mock.patch.object(u, 'scan_roots', return_value=[]), mock.patch.object(u, 'scan_programs', return_value=[]), mock.patch.object(u, 'read_ledger', return_value={'current': {'data_compatibility': 'multica-profile-v1'}, 'assets': []}), mock.patch.object(u, 'process_inventory', return_value=[{'pid': 123, 'exe': '/program/multica'}]), mock.patch.multiple(u.updater, executable_users=mock.Mock(return_value=[{'pid': 123, 'uid': 42}]), path_clean=mock.Mock(side_effect=lambda p, *a: p), Updater=FakeUpdater, proc_exe=mock.Mock(return_value='/program/multica'), version=mock.Mock(return_value=('1.0.0', 'c' * 40)), sha=mock.Mock(return_value='d' * 64), validate_observer_ca=mock.Mock()), mock.patch.object(u, 'validate_staged_asset'), mock.patch.object(u.os, 'stat', return_value=info), mock.patch.object(u.os, 'access', return_value=True), mock.patch.object(u.os.path, 'lexists', return_value=False), mock.patch.object(u.os.path, 'samefile', side_effect=lambda a, b: a == b):
             plan = u.build_plan(config, self.manifest(), 'e' * 64)
             self.assertEqual(plan['unit_pid'], 123)
+            cross_app = {'pid': 124, 'uid': 43, 'exe': '/home/other/Multica.AppImage', 'device': 9, 'inode': 999, 'app': True}
+            with mock.patch.object(u, 'process_inventory', return_value=[{'pid': 123, 'uid': 42, 'exe': '/program/multica'}, cross_app]):
+                with self.assertRaisesRegex(u.updater.Refusal, 'desktop application running'):
+                    u.build_plan(config, self.manifest(), 'e' * 64)
+            independent = {'pid': 125, 'uid': 43, 'exe': '/other/multica', 'device': 9, 'inode': 998, 'app': False}
+            with mock.patch.object(u, 'process_inventory', return_value=[{'pid': 123, 'uid': 42, 'exe': '/program/multica'}, independent]):
+                independent_plan = u.build_plan(config, self.manifest(), 'e' * 64)
+            self.assertIn(independent, independent_plan['processes'])
+            self.assertNotEqual(u.fingerprint(plan), u.fingerprint(independent_plan))
             with self.assertRaises(u.updater.Refusal):
                 u.build_plan(dict(config, staged='/outside/stage'), self.manifest(), 'e' * 64)
             self.assertNotEqual(u.fingerprint(plan), u.fingerprint(dict(plan, unit_pid=124)))
