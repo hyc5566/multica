@@ -129,6 +129,34 @@ App 會自動下載及驗證新版。
 更新成功前保留復原資產。
 配套驗證失敗時，整組回到更新前版。
 派工尚未回傳時，結果仍是「待驗收」。
+等待驗收或清理時，daemon 或電腦重啟會觸發重新認證。
+工具會重驗實跑程序、配套及原身分。
+三個新心跳週期與新的派工回傳通過後，才繼續完成交易。
+不能沿用重啟前的回執。
+缺少可信配套證據時，保留復原資料並回報人工處理。
+
+### 回復舊 App 後接續驗收
+
+舊 CLI 可能無法讀取新版交易欄位。
+這時不要改寫 journal，也不要重做安裝。
+由已獲授權的跨機操作者，在目標機使用本次固定候選的 CLI 接續。
+本節只適用一般整組交易；`legacy` 交易沿用下方的 `legacy-apply` 入口。
+
+1. 從已驗證的固定候選取得配套 Darwin arm64 CLI。
+   通過條件：版本、完整 commit 及 SHA-256 符合固定清單。`COORDINATOR_SHA256` 取自已核對的 `@APP_MANIFEST_URL@` 中 `coordinated_desktop.darwin-arm64.binary_sha256`。
+2. 將 CLI 保存在 App 與候選 bundle 之外的私人控制目錄。
+   通過條件：目錄由原 App 帳號管理，副本名稱為 `acceptance-coordinator`。已有不明副本時停止。不要從會被清理的 staged／failed App 內直接執行。
+3. 核對副本後接續同一筆交易。
+
+   ```sh
+   printf '%s  %s\n' "$COORDINATOR_SHA256" "$PINNED_CLI" | shasum -a 256 -c -
+   "$PINNED_CLI" daemon coordinated-update \
+     --journal "$APP_UPDATE_DIR/journal.json" --token "$TRANSACTION_TOKEN"
+   ```
+
+   通過條件：缺心跳或派工時仍為待驗收，使用同一副本與參數接續。新程序重新通過三個心跳週期及新派工後才完成。
+4. 保留該副本至 journal 已持久記錄 `complete` 或 `restored`。
+   通過條件：即使候選已清理、最後寫入前中斷，仍有已核對的協調程式可以重試。確認驗收與兩版保留後，才依核准清單移除這份受管副本。
 
 ### 新安裝或已有閘門：建立版本基準
 
@@ -273,6 +301,9 @@ App 會自動下載及驗證新版。
    不要填目標機自己的指紋。
    工具會另讀目標機的指紋並比對。
    指紋相同或無法讀取時，工具停止。
+   另保存兩端各自採集的機台、時間與指紋證據。
+   清單填了兩個不同值，不能單獨證明跨實體機。
+   尚未核對兩端來源時，不執行實際換版。
 
    `MANIFEST`、`PRIVATE_INVENTORY`、`LEDGER` 及 JSON 中的檔案位置都使用絕對實體路徑。
    `NEW_ASSET_DIR` 放在 `asset_root` 內。
@@ -286,7 +317,10 @@ App 會自動下載及驗證新版。
    填入 `observer_ca_cert_file` 與獨立核對的 `observer_ca_sha256`。
    使用私有或公開 CA 時，都提供適用的可信 CA bundle。
    通過條件：工具先驗證 CA，再交給獨立 observer。不要依賴操作者 shell 碰巧帶入的 CA。
-   先確認可讀取所有已執行程序的實際映像，排除其他 UID 共用目標 binary。
+   先確認可讀取所有已執行程序的實際映像。
+   其他帳號的 App 也納入分流，即使它在搜尋根目錄外或使用另一個程式檔。
+   有 App 時停止獨立更新，交由 App 管理。
+   另排除其他 UID 共用目標 binary。
    權限不足時只回報並停止，不自行改權限或提權。
    已授權的 root 操作者可控制原 system unit，或透過原 UID 的 user bus 控制原 user unit。
    `owner_uid` 仍填原 daemon 的 UID，不填操作者的 root UID。

@@ -32,6 +32,22 @@ daemon health 提供 `update_attestation`。
 三個 runtime 在同一輪各收到一次 ACK，不算三個週期。
 驗證端須在固定 PID 及程序起始時間下，對所有原 runtime 觀察三次新前進。
 
+待驗收或清理階段允許重新認證已重啟的 daemon。
+先核對原生程序映像、UID、起始身分、完整配套、原 profile、Server、daemon、workspace 及 runtime。
+閘門必須符合本交易已釋放的紀錄與目前開啟狀態。
+先持久保存新的認證起點，再累積每個 runtime 三次新心跳。
+成功派工必須來自同一個新程序，且在新的認證起點之後完成及回傳。
+再次重啟時重新計數；不能沿用前一個程序的回執。
+更新與回滾的待驗收及清理都適用。
+無法核對可信配套時，保留復原資料並停止，不直接取消 PID 檢查。
+
+可信原配套摘要在建立閘門前保存，重試及交換前重新比對，不覆寫已存值。
+因此在交換前失敗並回滾，仍有可驗的原配套。
+回復的舊 CLI 若不支援新交易 schema，使用本次候選的已驗證 CLI 接續。
+先將該 CLI 放在 bundle 外的受管控制目錄；不能只依賴會在回滾清理時移除的候選。
+使用原 journal/token 執行 `daemon coordinated-update`，保留副本直到終態已持久保存。
+這是明確的人工接續路徑，不宣稱舊 CLI 能自動讀取新欄位，也不偽裝成 legacy 交易。
+
 成功任務紀錄只來自本程序實際領取的工作。
 它必須已成功回報 Server，且 Server 狀態確認為 completed。
 terminal outbox replay 不能冒充新版派工證據。
@@ -62,6 +78,11 @@ private inventory 提供服務、profile、搜尋邊界與資產位置。
 工具仍要核對實際程序、映像、UID、unit、runtime 及 state inode。
 工具不能信任 `has_app=false` 之類的自證布林。
 指定範圍無法檢查時，結果為 unknown 並停止。
+
+執行中程序的 App 分流涵蓋所有可見 UID，不只目標帳號。
+另一 UID 的 App 即使使用不同 inode、位於搜尋根目錄外，也會阻止獨立更新。
+計畫、停止前及替換前都重新檢查。
+原本同 inode 共用檢查保持獨立；另一 UID 的獨立 daemon 不會只因多 profile 而被當成共用目標。
 
 ## 兩版保留
 
