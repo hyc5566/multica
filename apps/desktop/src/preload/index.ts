@@ -5,6 +5,7 @@ import type { FreezeBreadcrumb } from "../shared/freeze-breadcrumb";
 import type {
   ManualUpdateCheckResult,
   UpdaterPreferences,
+  UpdaterStatus,
 } from "../shared/updater-types";
 import {
   RENDERER_ROUTE_CONTEXT_CHANNEL,
@@ -447,6 +448,14 @@ const daemonAPI = {
 };
 
 const updaterAPI = {
+  getStatus: (): Promise<UpdaterStatus> => ipcRenderer.invoke("updater:get-status"),
+  onStatusChange: (callback: (status: UpdaterStatus) => void) => {
+    const handler = (_: unknown, status: UpdaterStatus) => callback(status);
+    ipcRenderer.on("updater:status", handler);
+    return () => ipcRenderer.removeListener("updater:status", handler);
+  },
+  deferUpdate: (): Promise<void> => ipcRenderer.invoke("updater:defer"),
+  rendererReady: (): void => { ipcRenderer.send("updater:renderer-ready"); },
   onUpdateAvailable: (callback: (info: { version: string; releaseNotes?: string }) => void) => {
     const handler = (_: unknown, info: { version: string; releaseNotes?: string }) => callback(info);
     ipcRenderer.on("updater:update-available", handler);

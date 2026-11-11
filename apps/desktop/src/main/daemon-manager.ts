@@ -1618,8 +1618,10 @@ let preserveDaemonOnQuit = false;
  * tasks after the 30-second shutdown drain. The relaunched App restarts the
  * daemon into its bundled CLI once the daemon is idle (version-mismatch path).
  */
-export function preserveDaemonOnNextQuit(): void {
+export function preserveDaemonOnNextQuit(): () => void {
+  const previous = preserveDaemonOnQuit;
   preserveDaemonOnQuit = true;
+  return () => { preserveDaemonOnQuit = previous; };
 }
 
 export function setupDaemonManager(
