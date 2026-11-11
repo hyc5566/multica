@@ -18,6 +18,10 @@ import (
 )
 
 func TestAcceptanceRequiresLiveMatchingRuntimeReceiptBeforeCleanup(t *testing.T) {
+	// This test exercises receipt filtering and retention, not OS process inspection.
+	savedNative := acceptanceNativeRequired
+	defer func() { acceptanceNativeRequired = savedNative }()
+	acceptanceNativeRequired = func() bool { return false }
 	root := t.TempDir()
 	t.Setenv(cli.TaskConfigRootEnv, root)
 	profile := filepath.Join(root, "profiles", "test")
