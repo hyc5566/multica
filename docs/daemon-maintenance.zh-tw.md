@@ -51,6 +51,8 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 4. 記錄並備份舊 binary、launcher、CA、config、state 的位置與復原方式，不讀取或輸出秘密；核對服務的精確 MainPID 和目標，再停止該 unit／受管 daemon。預先建立正確 profile 的 gate 和所有權紀錄，換入驗證過的支援閘門候選，保留舊版備份。
 5. 在 gate 保持存在下啟動候選。Server 仍停止時 preflight 可能失敗或無法到達 running；不要把它當成 gate 失敗，也不要為求 running 移除 gate。恢復 Server 後再檢查候選的 profile、原 daemon ID、版本、commit、執行檔 hash、所有原 runtime 的註冊和心跳，以及 `supported/blocked/ready`。完成驗收後解除 gate，確認恢復派工。
 
+舊 launcher 若只在安裝入口有 wrapper、版本目錄沒有配對 `launcher`（東京主機的採樣即為此形態），常態 updater 會拒絕。首次冷導入須另備份真正入口的完整檔案與雜湊，離線準備新版本目錄及配對 launcher，再在排他窗口切換；回退使用已備份的實際舊 wrapper，不使用不存在的版本目錄 launcher。這項首次安裝形態轉換須列入該機核准包，不由常態 updater 自動猜測。
+
 冷窗口失敗時，保留 gate 並先查明原因。若必須退回**不支援閘門的舊版**，在全 Server 仍停派／停機、確認無已領取任務時恢復已驗證的舊資產，檢查原 profile、daemon ID、執行檔及服務設定後才恢復 Server；舊 daemon 不能靠 gate 保護。Server 一旦恢復，舊 daemon 可能立即領取工作；若又要停止或再次回滾，必須重新建立全 Server 冷窗口並排空，不可盲目停止。任何無法證明排他或身分的狀況都停止操作並升級處理。
 
 ## 錯誤與復原
@@ -69,7 +71,7 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 | --- | --- | --- |
 | s234（`linker-4124GS-4092x2`） | `multica-s234.service`，profile `s234`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/s234/bin/multica` | persisted `disable_auto_update=true`、`disable_auto_reload=true`，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
 | v6（`LKVS-B200-V06`） | `multica-v6.service`，profile `v6`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica` | persisted 兩個 disable 均為 true，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
-| 東京 mycc（`chy1010-ubuntu-jp-tyo-3`） | user systemd `multica.service`；預設 profile，執行檔位於 `~/.local/share/multica-zh-tw/0.8.1-zh-tw.1/` 版本目錄 | 環境的 auto-update／auto-reload 均為 false，persisted disable 欄位缺省；unit 的 ExecStart 為 `~/.local/bin/multica` launcher，執行中的 binary 位於該版本目錄。 |
+| 東京 mycc（`chy1010-ubuntu-jp-tyo-3`） | user systemd `multica.service`；預設 profile，執行檔位於 `~/.local/share/multica-zh-tw/0.8.1-zh-tw.1/` 版本目錄 | 環境的 auto-update／auto-reload 均為 false，persisted disable 欄位缺省；unit 的 ExecStart 為 `~/.local/bin/multica` script launcher，執行中的 binary 位於該版本目錄；舊版本目錄沒有 `launcher` 檔，不能直接套用 hardlink updater。 |
 | m5（`chy1010-linker-m5.local`） | Desktop bundle 內的 CLI 啟動 profile `desktop-10.1.24.90-45671`；當時 launchctl 僅見 App label，未見 daemon LaunchAgent | persisted 兩個 disable 均為 true，環境兩個自動更新值為 false；self-reload opt-in 為 1，但有效 auto-reload 為 false，故未啟用。舊文件中的 daemon LaunchAgent label 不是此採樣的現況。 |
 
 m5 若要求排定更新在 App 或 OS 重啟後仍有效，建議選**獨立釘選 daemon**：保留獨立固定版 binary、明確的管理者、profile／daemon 身分、CA、升級與回滾；Desktop 需能連接既有 daemon，並明確處理版本相容與生命週期。相對工作量較大，必須驗證身分遷移、避免雙 daemon、App/daemon/server API 混版、安裝與回滾。
