@@ -67,9 +67,9 @@ launcher 模式將第三個位置參數改為已離線準備的完整版本目�
 
 | 主機 | 當時管理與路徑 | 關閉來源及待核對事項 |
 | --- | --- | --- |
-| s234（`linker-4124GS-4092x2`） | `multica-s234.service`，profile `s234`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/s234/bin/multica` | persisted `disable_auto_update=true`、`disable_auto_reload=true`，程序未見對應環境覆寫。 |
-| v6（`LKVS-B200-V06`） | `multica-v6.service`，profile `v6`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica` | persisted 兩個 disable 均為 true，程序未見對應環境覆寫。 |
-| 東京 mycc（`chy1010-ubuntu-jp-tyo-3`） | user systemd `multica.service`；預設 profile，執行檔位於 `~/.local/share/multica-zh-tw/0.8.1-zh-tw.1/` 版本目錄 | 環境的 auto-update／auto-reload 均為 false，persisted disable 欄位缺省；服務直接執行版本目錄 binary，launcher 設定是否持續接入未知。 |
+| s234（`linker-4124GS-4092x2`） | `multica-s234.service`，profile `s234`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/s234/bin/multica` | persisted `disable_auto_update=true`、`disable_auto_reload=true`，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
+| v6（`LKVS-B200-V06`） | `multica-v6.service`，profile `v6`，user systemd MainPID 與 daemon 一致；`/mnt/data-home/hungyu/multica-zh-tw/v6/bin/multica` | persisted 兩個 disable 均為 true，程序未見對應環境覆寫；`.multica` 連至部署 state。 |
+| 東京 mycc（`chy1010-ubuntu-jp-tyo-3`） | user systemd `multica.service`；預設 profile，執行檔位於 `~/.local/share/multica-zh-tw/0.8.1-zh-tw.1/` 版本目錄 | 環境的 auto-update／auto-reload 均為 false，persisted disable 欄位缺省；unit 的 ExecStart 為 `~/.local/bin/multica` launcher，執行中的 binary 位於該版本目錄。 |
 | m5（`chy1010-linker-m5.local`） | Desktop bundle 內的 CLI 啟動 profile `desktop-10.1.24.90-45671`；當時 launchctl 僅見 App label，未見 daemon LaunchAgent | persisted 兩個 disable 均為 true，環境兩個自動更新值為 false；self-reload opt-in 為 1，但有效 auto-reload 為 false，故未啟用。舊文件中的 daemon LaunchAgent label 不是此採樣的現況。 |
 
 m5 若要求排定更新在 App 或 OS 重啟後仍有效，建議選**獨立釘選 daemon**：保留獨立固定版 binary、明確的管理者、profile／daemon 身分、CA、升級與回滾；Desktop 需能連接既有 daemon，並明確處理版本相容與生命週期。相對工作量較大，必須驗證身分遷移、避免雙 daemon、App/daemon/server API 混版、安裝與回滾。
