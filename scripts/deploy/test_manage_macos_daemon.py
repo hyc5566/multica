@@ -189,6 +189,20 @@ class Transactions(unittest.TestCase):
         self.assertTrue((Path(self.args.evidence_dir)/'baseline.json').exists())
         self.assertEqual(len((Path(self.args.evidence_dir)/'heartbeats.jsonl').read_text().splitlines()), 3)
 
+    def test_release_must_confirm_same_daemon_unblocked(self):
+        original_health = self.fake.health
+        def still_blocked():
+            health = original_health()
+            if self.tx.released:
+                health['maintenance_gate']['blocked'] = True
+            return health
+        self.fake.health = still_blocked
+        with self.assertRaises(m.Refusal):
+            self.tx.execute()
+        self.assertTrue(self.tx.released)
+        self.assertEqual(self.fake.events, ['term', 'bootstrap'])
+        self.assertNotEqual(self.tx.result, 'updated_verified')
+
     def test_interrupt_during_gate_creation_preserves_owned_gate(self):
         self.tx.real_profile = str(self.profile)
         st = self.profile.stat()

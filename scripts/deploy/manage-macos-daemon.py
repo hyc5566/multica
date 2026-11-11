@@ -351,6 +351,15 @@ class Transaction:
                     break
                 require(time.monotonic() < end, 'runtime heartbeat did not advance')
         self.check(self.os.health(), target=target, ready=True, pid=pid, managed=managed)
+        return pid
+
+    def release_verified(self, target, managed, pid):
+        self.release()
+        self.profile_ok()
+        health = self.os.health()
+        self.check(health, target=target, pid=pid, managed=managed)
+        require(health['maintenance_gate'].get('blocked') is False, 'released gate is still blocked')
+        self.os.runtimes(self.base)
 
     def wait_stopped(self, pid):
         end = time.monotonic() + self.a.timeout
@@ -400,12 +409,12 @@ class Transaction:
             atomic(self.plist_path, self.old_plist)
             atomic(self.marker_path, self.old_marker)
             self.os.bootstrap(self.plist_path)
-            self.verify(self.old_target, True)
+            verified_pid = self.verify(self.old_target, True)
         else:
             environment = {key: self.plist_env[key] for key in ('HOME', 'PATH', 'MULTICA_CA_CERT_FILE')}
             environment.update({'MULTICA_DAEMON_AUTO_UPDATE': 'false', 'MULTICA_DAEMON_AUTO_RELOAD': 'false', 'MULTICA_LAUNCHED_BY': 'desktop', 'MULTICA_ZH_TW_DESKTOP_SELF_RELOAD': '1'})
             self.os.start_app_daemon(self.old_target['binary'], environment)
-            self.verify(self.old_target, False)
+            verified_pid = self.verify(self.old_target, False)
             self.profile_ok()
             with open(self.marker_path, 'rb') as f:
                 require(f.read() == self.marker_bytes, 'marker changed; refusing removal')
@@ -416,7 +425,7 @@ class Transaction:
                     require(f.read() == self.new_plist, 'LaunchAgent plist changed')
                 os.unlink(self.plist_path)
                 sync_dir(os.path.dirname(self.plist_path))
-        self.release()
+        self.release_verified(self.old_target, self.old_managed, verified_pid)
         self.result = 'rolled_back_verified'
 
     def execute(self):
@@ -542,10 +551,10 @@ class Transaction:
         require(self.os.job_pid() is None, 'unexpected LaunchAgent before bootstrap')
         atomic(self.plist_path, self.new_plist)
         self.os.bootstrap(self.plist_path)
-        self.verify(self.target, True)
+        verified_pid = self.verify(self.target, True)
         with open(self.marker_path, 'rb') as f:
             require(f.read() == self.marker_bytes, 'marker changed before release')
-        self.release()
+        self.release_verified(self.target, True, verified_pid)
         self.result = 'updated_verified'
 
 
