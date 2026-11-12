@@ -21,6 +21,7 @@ import ssl
 import sys
 from urllib.parse import urlsplit
 import urllib.request
+import uuid
 
 
 def load_updater():
@@ -148,8 +149,8 @@ def scan_roots(roots):
     return sorted(set(found))
 
 
-def process_inventory(owner_uid):
-    return updater.process_inventory()
+def process_inventory(owner_uid, account_scope=None):
+    return updater.process_inventory() if account_scope is None else updater.process_inventory(account_scope)
 
 
 def scan_programs(roots):
@@ -443,6 +444,11 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
     require(isinstance(controller, str) and re.fullmatch(r'[0-9a-f]{64}', controller) is not None, 'controller machine fingerprint required')
     machine = target_machine_fingerprint()
     require(controller != machine, 'controller and target are the same physical machine')
+    inventory_scope = config.get('inventory_scope', 'host')
+    require(inventory_scope in ('host', 'account'), 'invalid inventory scope')
+    if inventory_scope == 'account':
+        require(platform.system() == 'Linux', 'account inventory requires Linux')
+        require(config.get('layout', 'binary') == 'binary', 'account inventory only supports binary layout')
     uid = config['owner_uid']
     require(type(uid) is int and uid >= 0, 'invalid owner UID')
     require(uid == os.geteuid() or os.geteuid() == 0, 'operator cannot act for target owner')
@@ -454,9 +460,15 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
     require(health_url.scheme == 'http' and health_url.hostname == '127.0.0.1' and health_url.port and health_url.path == '/health' and not health_url.query and not health_url.fragment and not health_url.username, 'health URL must be loopback HTTP /health')
     roots = config['search_roots']
     require(isinstance(roots, list) and roots and all(isinstance(root, str) and os.path.isabs(root) and os.path.normpath(root) == root for root in roots), 'explicit application search roots required')
+    if inventory_scope == 'account':
+        for root in roots:
+            require(path_present(root), 'account search root does not exist: ' + root)
+            updater.path_clean(root, 'dir')
+            require(os.lstat(root).st_uid == uid, 'account search root must be owned by target: ' + root)
     home = pwd.getpwuid(uid).pw_dir
-    roots = sorted(set(roots + ['/usr/share/applications', '/usr/local/share/applications', '/var/lib/flatpak/exports/share/applications', '/var/lib/snapd/desktop/applications', '/opt',
-                                os.path.join(home, 'Applications'), os.path.join(home, '.local/share/applications'), os.path.join(home, '.local/share/flatpak/exports/share/applications')]))
+    personal_roots = [os.path.join(home, 'Applications'), os.path.join(home, '.local/share/applications'), os.path.join(home, '.local/share/flatpak/exports/share/applications')]
+    global_roots = ['/usr/share/applications', '/usr/local/share/applications', '/var/lib/flatpak/exports/share/applications', '/var/lib/snapd/desktop/applications', '/opt']
+    roots = sorted(set(roots + personal_roots + (global_roots if inventory_scope == 'host' else [config['asset_root']])))
     apps = scan_roots(roots)
     require(not apps, 'desktop application found; update through the application')
     assets = {a['role']: a for a in manifest['assets']}
@@ -518,8 +530,92 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
     image = os.stat('/proc/%d/exe' % pid)
     installed = os.stat(exe)
     require((image.st_dev, image.st_ino) == (installed.st_dev, installed.st_ino), 'running executable path changed')
-    executable_processes = updater.require_exclusive_executable(exe, pid, uid)
     asset_root = updater.path_clean(config['asset_root'], 'dir')
+    account_guard = None
+    ledger = read_ledger(config['ledger'])
+    if isinstance(ledger, dict) and isinstance(ledger.get('transaction'), dict):
+        previous_inventory = ledger['transaction'].get('inventory')
+        if isinstance(previous_inventory, dict):
+            previous_scope = previous_inventory.get('inventory_scope', 'host')
+            require(previous_scope == inventory_scope, 'ledger inventory scope changed')
+    if inventory_scope == 'account':
+        require(uid == os.geteuid() and config['systemd_scope'] == 'user', 'account inventory requires the target effective UID and user unit')
+        require(os.path.realpath(expected) == expected, 'account profile state symlink is unsupported')
+        require(updater.path_clean(expected, 'dir') == profile_path, 'account profile state must have a canonical path')
+        require(os.path.commonpath((asset_root, config['ledger'])) == asset_root, 'account ledger must be inside private asset root')
+        immutable = [exe, config['cli'], staged_binary]
+        account_recorded_inputs = []
+        if ledger is not None:
+            require(isinstance(ledger.get('assets'), list), 'ledger managed assets missing')
+            immutable.extend(item['path'] for item in ledger['assets'] if isinstance(item, dict) and isinstance(item.get('path'), str) and path_present(item['path']))
+            evidence_records = ledger.get('account_evidence_files', [])
+            require(isinstance(evidence_records, list), 'invalid account evidence records')
+            for row in evidence_records:
+                names = {'heartbeat': 'heartbeats.jsonl', 'baseline': 'baseline.json', 'result': 'result.json'}
+                require(isinstance(row, dict) and set(row) == {'role', 'path', 'sha256'} and row['role'] in names and
+                        isinstance(row['path'], str) and os.path.isabs(row['path']) and os.path.normpath(row['path']) == row['path'] and
+                        os.path.commonpath((asset_root, row['path'])) == asset_root and os.path.basename(row['path']) == names[row['role']] and
+                        isinstance(row['sha256'], str) and re.fullmatch(r'[0-9a-f]{64}', row['sha256']), 'invalid account evidence record')
+                updater.path_clean(row['path'], 'file')
+                require(updater.sha(row['path']) == row['sha256'], 'recorded account evidence changed')
+                immutable.append(row['path'])
+            for key in ('account_inputs', 'account_obsolete_inputs'):
+                rows = ledger.get(key, [])
+                require(isinstance(rows, list), 'invalid account input records')
+                for row in rows:
+                    require(isinstance(row, dict) and set(row) == {'role', 'path', 'sha256'} and
+                            row['role'] in ('observer', 'ca', 'baseline') and isinstance(row['path'], str) and
+                            os.path.isabs(row['path']) and os.path.normpath(row['path']) == row['path'] and
+                            os.path.commonpath((asset_root, row['path'])) == asset_root and
+                            isinstance(row['sha256'], str) and re.fullmatch(r'[0-9a-f]{64}', row['sha256']), 'invalid account input record')
+                    if path_present(row['path']):
+                        updater.path_clean(row['path'], 'file')
+                        require(updater.sha(row['path']) == row['sha256'], 'recorded account input changed')
+                        account_recorded_inputs.append(row['path'])
+                        immutable.append(row['path'])
+                    else:
+                        require(key == 'account_obsolete_inputs' and ledger.get('status') in ('cleaning', 'cleanup_failed'), 'recorded account input missing')
+        require('account_auxiliary_paths' not in config, 'account auxiliary path assertions are unsupported')
+        for role in ('observer_ca_cert_file', 'baseline_manifest'):
+            path = config.get(role)
+            if path is not None:
+                require(isinstance(path, str) and os.path.isabs(path) and os.path.commonpath((asset_root, path)) == asset_root,
+                        'account input must be inside private asset root')
+                immutable.append(path)
+        prior_evidence = []
+        if ledger is not None and isinstance(ledger.get('transaction'), dict):
+            previous_inventory = ledger['transaction'].get('inventory', {})
+            previous_dir = previous_inventory.get('evidence_dir') if isinstance(previous_inventory, dict) else None
+            if isinstance(previous_dir, str) and os.path.isabs(previous_dir) and os.path.commonpath((asset_root, previous_dir)) == asset_root:
+                prior_evidence = [os.path.join(previous_dir, name) for name in ('heartbeats.jsonl', 'original-entrypoint', 'baseline.json', 'result.json') if path_present(os.path.join(previous_dir, name))]
+                immutable.extend(prior_evidence)
+        directories = []
+        if ledger is not None:
+            records = ledger.get('account_directories', [])
+            require(isinstance(records, list), 'invalid account directory records')
+            for record in records:
+                require(isinstance(record, dict) and set(record) == {'path', 'identity'} and isinstance(record['path'], str) and
+                        os.path.isabs(record['path']) and os.path.normpath(record['path']) == record['path'] and
+                        os.path.commonpath((asset_root, record['path'])) == asset_root and record['path'] != asset_root and
+                        isinstance(record['identity'], list), 'invalid account directory record')
+                info = os.lstat(record['path'])
+                require(stat.S_ISDIR(info.st_mode) and updater.AccountScope._fields(info)[:5] == record['identity'], 'account recorded directory changed')
+                directories.append(record['path'])
+        evidence_dir = config['evidence_dir']
+        transaction_paths = [exe, config['ledger'], config['ledger'] + '.lock', evidence_dir, *directories,
+                             *[os.path.join(evidence_dir, name) for name in ('heartbeats.jsonl', 'original-entrypoint', 'baseline.json', 'result.json')],
+                             os.path.join(profile_path, 'daemon.maintenance'), os.path.join(profile_path, 'daemon.maintenance.lock'),
+                             os.path.join(profile_path, 'daemon.maintenance', 'owner'), *immutable]
+        exec_start = u.account_unit_property('ExecStart')
+        fragment = u.account_unit_property('FragmentPath')
+        require(not os.path.islink(fragment), 'account unit FragmentPath symlink is unsupported')
+        dropins = u.account_unit_property('DropInPaths')
+        unit_object, ancillary = u.account_unit_ancillary()
+        account_guard = updater.AccountScope(uid, asset_root, profile_path, immutable, transaction_paths,
+                                             config['unit'], config['systemd_scope'], exec_start, fragment, exe,
+                                             config['profile'], dropins, unit_object, ancillary)
+    executable_processes = (updater.require_exclusive_executable(exe, pid, uid) if account_guard is None else
+                            updater.require_exclusive_executable(exe, pid, uid, account_guard))
     managed_paths = [exe, config['evidence_dir'], staged_binary]
     if layout == 'launcher':
         managed_paths.extend([staged_binary, config['staged'], config['entrypoint']])
@@ -530,7 +626,7 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
         require(os.path.samefile(config['entrypoint'], original_launcher), 'entrypoint does not match running launcher')
         old_ca = launcher_ca_path(original_launcher, config.get('ca_sha256'))
         new_ca = launcher_ca_path(config['staged'], config.get('ca_sha256'))
-    processes = process_inventory(uid)
+    processes = process_inventory(uid) if account_guard is None else process_inventory(uid, account_guard)
     require(not any(item.get('app', False) for item in processes), 'desktop application running; update through the application')
     related = [item for item in processes if item.get('uid', uid) == uid and 'multica' in item['exe'].casefold()]
     require(len(related) == 1 and related[0]['pid'] == pid and os.path.samefile(related[0]['exe'], exe), 'running Multica process inventory is ambiguous')
@@ -541,8 +637,7 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
     u.base = {'daemon_id': health['daemon_id'], 'workspaces': u.workspaces(health)}
     runtime = u.runtimes()
     require(runtime, 'runtime inventory required')
-    ledger = read_ledger(config['ledger'])
-    known_paths = [exe, config['cli'], staged_binary]
+    known_paths = [exe, config['cli'], staged_binary] + (account_recorded_inputs if account_guard is not None else [])
     if legacy_bootstrap and config.get('legacy_wrapper'):
         known_paths.append(updater.path_clean(config['legacy_wrapper'], 'file'))
     if ledger is not None:
@@ -617,7 +712,8 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
             'commit': manifest['commit'], 'data_compatibility': manifest['data_compatibility'], 'baseline_compatibility': baseline_compatibility, 'target_sha256': assets['binary']['sha256'],
             'inventory': config, 'ledger_sha256': updater.sha(config['ledger']) if ledger is not None else None, 'target_machine_id_sha256': machine, 'search_roots': roots, 'applications': apps, 'programs': programs, 'processes': processes,
             'unit_pid': pid, 'executable_processes': executable_processes,
-            'process_visibility_requirement': 'Run from a verified native host shell; the operator must confirm a complete host /proc view during target inventory.',
+            **({'account_scope_evidence': account_guard.evidence(), 'account_lease_required': True} if account_guard is not None else {}),
+            'process_visibility_requirement': ('Native host /proc view required; unreadable foreign mappings remain unverified until an exclusive kernel lease is acquired before replacement.' if account_guard is not None else 'Run from a verified native host shell; the operator must confirm a complete host /proc view during target inventory.'),
             'profile_path': profile_path, 'profile_inode': [profile_stat.st_dev, profile_stat.st_ino],
             'launcher_ca_paths': [old_ca, new_ca] if layout == 'launcher' else [], 'original_launcher': original_launcher if layout == 'launcher' else None, 'running_exe': exe, 'observer_sha256': updater.sha(config['cli']), 'running_sha256': updater.sha('/proc/%d/exe' % pid),
             'running_version': health.get('cli_version'), 'running_commit': health.get('cli_commit') or None,
@@ -661,12 +757,132 @@ def read_ledger(path):
     return ledger
 
 
+def account_guard_from_evidence(evidence, config, pending_missing=None):
+    updater.require(isinstance(evidence, dict) and evidence.get('scope') == 'account', 'account scope evidence missing')
+    if pending_missing is not None:
+        evidence = json.loads(json.dumps(evidence))
+        updater.require(pending_missing in evidence.get('immutable', {}) and not path_present(pending_missing), 'invalid interrupted account cleanup')
+        del evidence['immutable'][pending_missing]
+    home = pwd.getpwuid(config['owner_uid']).pw_dir
+    expected_state = os.path.join(home, '.multica', 'profiles', config['profile']) if config['profile'] else os.path.join(home, '.multica')
+    updater.require(evidence.get('state_root') == expected_state and evidence.get('asset_root') == config.get('asset_root'), 'account private root binding mismatch')
+    args = argparse.Namespace(owner_uid=config['owner_uid'], unit=config['unit'], systemd_scope=config['systemd_scope'], inventory_scope='account')
+    operation = updater.Updater(args)
+    try:
+        start = operation.account_unit_property('ExecStart')
+        fragment = operation.account_unit_property('FragmentPath')
+        dropins = operation.account_unit_property('DropInPaths')
+        unit_object, ancillary = operation.account_unit_ancillary()
+        guard = updater.AccountScope(config['owner_uid'], config['asset_root'], evidence['state_root'],
+                                     list(evidence['immutable']), evidence['transaction_paths'], config['unit'],
+                                     config['systemd_scope'], start, fragment, evidence['exec_start']['path'],
+                                     config['profile'], dropins, unit_object, ancillary)
+    except (KeyError, TypeError, UnicodeError) as error:
+        raise updater.Refusal('invalid account scope evidence') from error
+    updater.require(guard.evidence() == evidence, 'account scope evidence changed')
+    return guard
+
+
+def write_account_ledger(path, data, guard):
+    guard.check_mutation(path)
+    old = guard._file_snapshot(path) if path_present(path) else None
+    temp = path + '.tmp-' + uuid.uuid4().hex
+    guard.authorize_temporary(temp)
+    created = False
+    try:
+        fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        created = True
+        with os.fdopen(fd, 'w', encoding='utf-8') as stream:
+            json.dump(data, stream, sort_keys=True)
+            stream.write('\n')
+            stream.flush()
+            os.fsync(stream.fileno())
+        guard.check_mutation(path)
+        updater.require((guard._file_snapshot(path) if path_present(path) else None) == old, 'account ledger changed during write')
+        guard.check_mutation(temp)
+        os.replace(temp, path)
+        created = False
+        updater.fsync_dir(os.path.dirname(path))
+    finally:
+        if created:
+            guard.check_mutation(temp)
+            os.unlink(temp)
+
+
+def record_account_inputs(ledger, config):
+    recorded = ledger.get('account_inputs', [])
+    obsolete = ledger.get('account_obsolete_inputs', [])
+    updater.require(isinstance(recorded, list) and isinstance(obsolete, list), 'invalid account input records')
+    mapping = [('observer', config['cli']), ('ca', config.get('observer_ca_cert_file')), ('baseline', config.get('baseline_manifest'))]
+    for role, path in mapping:
+        if path is None:
+            continue
+        updater.require(isinstance(path, str) and os.path.isabs(path) and os.path.commonpath((config['asset_root'], path)) == config['asset_root'], 'account input outside private asset root')
+        digest = updater.sha(path)
+        for item in recorded + obsolete:
+            if item.get('path') == path:
+                updater.require(item.get('sha256') == digest, 'recorded account input changed')
+        recorded = [item for item in recorded if not (item.get('role') == role and item.get('path') == path)]
+        obsolete = [item for item in obsolete if not (item.get('role') == role and item.get('path') == path)]
+        recorded.insert(0, {'role': role, 'path': path, 'sha256': digest})
+        same_role = [item for item in recorded if item.get('role') == role]
+        for item in same_role[2:]:
+            recorded.remove(item)
+            obsolete.append(item)
+    ledger['account_inputs'] = recorded
+    ledger['account_obsolete_inputs'] = obsolete
+
+
+def record_account_evidence(ledger, guard):
+    transaction = ledger.get('transaction')
+    inventory = transaction.get('inventory') if isinstance(transaction, dict) else None
+    if not isinstance(inventory, dict):
+        return
+    directory = inventory.get('evidence_dir')
+    if not isinstance(directory, str):
+        return
+    records = ledger.setdefault('account_evidence_files', [])
+    updater.require(isinstance(records, list), 'invalid account evidence records')
+    for role, name in (('heartbeat', 'heartbeats.jsonl'), ('baseline', 'baseline.json'), ('result', 'result.json')):
+        path = os.path.join(directory, name)
+        if not path_present(path):
+            continue
+        guard.add_immutable(path)
+        entry = {'role': role, 'path': path, 'sha256': updater.sha(path)}
+        prior = [item for item in records if isinstance(item, dict) and item.get('path') == path]
+        updater.require(not prior or prior == [entry], 'recorded account evidence changed')
+        if not prior:
+            records.append(entry)
+
+
+def save_transaction_ledger(path, ledger, guard):
+    if guard is None:
+        write_ledger(path, ledger)
+    else:
+        record_account_evidence(ledger, guard)
+        ledger['account_directories'] = [{'path': path, 'identity': identity} for path, identity in sorted(guard._dynamic_directories.items())
+                                         if os.path.commonpath((guard.asset_root, path)) == guard.asset_root and path != guard.asset_root]
+        transaction = ledger.get('transaction')
+        updater.require(isinstance(transaction, dict) and isinstance(transaction.get('inventory'), dict), 'account transaction inventory missing')
+        transaction['account_scope_evidence'] = guard.evidence()
+        account_guard_from_evidence(transaction['account_scope_evidence'], transaction['inventory'])
+        write_account_ledger(path, ledger, guard)
+
+
 def apply_plan(plan, manifest, *, rollback=False):
     """Execute one planned transaction; retain all files until acceptance."""
     cfg = plan['inventory']
+    scope = cfg.get('inventory_scope', 'host')
+    updater.require(scope in ('host', 'account') and
+                    ((scope == 'account') == ('account_scope_evidence' in plan)),
+                    'plan scope evidence mismatch')
+    account_guard = (account_guard_from_evidence(plan.get('account_scope_evidence'), cfg)
+                     if scope == 'account' else None)
     ledger_path = cfg['ledger']
     updater.path_clean(os.path.dirname(ledger_path), 'dir')
     lock_path = ledger_path + '.lock'
+    if account_guard is not None:
+        account_guard.check_mutation(lock_path)
     fd = os.open(lock_path, os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd, 'r+') as lock:
         updater.require(os.fstat(lock.fileno()).st_uid == os.geteuid() and stat.S_ISREG(os.fstat(lock.fileno()).st_mode), 'invalid transaction lock')
@@ -695,6 +911,8 @@ def apply_plan(plan, manifest, *, rollback=False):
             current = ledger.get('current')
             updater.require(isinstance(previous, dict) and isinstance(current, dict) and current.get('data_compatibility') == previous.get('data_compatibility') == 'multica-profile-v1', 'rollback data compatibility is unverified')
             updater.require((plan['version'], plan['commit'], plan['target_sha256']) == (previous.get('version'), previous.get('commit'), previous.get('sha256')), 'rollback target is not the immediately previous release')
+        if account_guard is not None:
+            record_account_inputs(ledger, cfg)
         if (plan['running_version'], plan['running_commit'], plan['running_sha256']) == (plan['version'], plan['commit'], plan['target_sha256']):
             if adopting:
                 ledger['assets'] = [ledger['current']]
@@ -715,8 +933,12 @@ def apply_plan(plan, manifest, *, rollback=False):
                     'gate_released_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                     'target_pid': plan['unit_pid'], 'process_started_at': plan['process_started_at'],
                     'observer_sha256': plan['observer_sha256']}
-                write_ledger(ledger_path, ledger)
+                save_transaction_ledger(ledger_path, ledger, account_guard)
                 return {'status': 'awaiting_baseline_acceptance', 'ledger': ledger_path}
+            if account_guard is not None:
+                if not isinstance(ledger.get('transaction'), dict):
+                    ledger['transaction'] = {'inventory': cfg}
+                save_transaction_ledger(ledger_path, ledger, account_guard)
             return {'status': 'no_change'}
         old = ledger['current']
         if plan.get('legacy_bootstrap'):
@@ -731,8 +953,8 @@ def apply_plan(plan, manifest, *, rollback=False):
         shared_by_role = {item['role']: item for item in shared}
         ledger.update(status='applying', transaction={'plan_fingerprint': fingerprint(plan), 'target_version': plan['version'],
                        'target_commit': plan['commit'], 'target_sha256': plan['target_sha256'],
-                       'evidence_dir': cfg['evidence_dir']})
-        write_ledger(ledger_path, ledger)
+                       'evidence_dir': cfg['evidence_dir'], 'inventory': cfg})
+        save_transaction_ledger(ledger_path, ledger, account_guard)
         layout = cfg.get('layout', 'binary')
         args = argparse.Namespace(profile=cfg['profile'], unit=cfg['unit'], systemd_scope=cfg['systemd_scope'], owner_uid=cfg['owner_uid'],
                     staged=cfg['staged'], sha256=plan['target_sha256'], cli=cfg['cli'], health_url=cfg['health_url'],
@@ -742,7 +964,7 @@ def apply_plan(plan, manifest, *, rollback=False):
                     observer_ca_cert_file=cfg.get('observer_ca_cert_file'), observer_ca_sha256=cfg.get('observer_ca_sha256'),
                     legacy_bootstrap=plan.get('legacy_bootstrap', False), legacy_baseline=plan.get('legacy_baseline'), legacy_wrapper=cfg.get('legacy_wrapper') or shared_by_role.get('wrapper', {}).get('path'),
                     legacy_ca_sha256=cfg.get('ca_sha256') or shared_by_role.get('ca', {}).get('sha256'),
-                    legacy_target=plan.get('legacy_target', False),
+                    legacy_target=plan.get('legacy_target', False), account_guard=account_guard, inventory_scope=cfg.get('inventory_scope', 'host'),
                     expected_base={'pid': plan['unit_pid'], 'daemon_id': plan['daemon_id'],
                         'version': plan['running_version'], 'commit': plan['running_commit'],
                         'sha256': plan['running_sha256'], 'workspaces': plan['workspaces'],
@@ -762,7 +984,7 @@ def apply_plan(plan, manifest, *, rollback=False):
             ledger['assets'] = list(assets.values())
             ledger['status'] = 'legacy_rollback_pending_manual'
             ledger['transaction'].update(result=operation.result, inventory=cfg, daemon_id=plan['daemon_id'], workspaces=plan['workspaces'])
-            write_ledger(ledger_path, ledger)
+            save_transaction_ledger(ledger_path, ledger, account_guard)
             return {'status': 'legacy_rollback_pending_manual', 'ledger': ledger_path, 'result': operation.result}
         if code != 0 or operation.result.get('status') != 'updated':
             if operation.result.get('status') == 'rolled_back_verified' and operation.result.get('restored_pid'):
@@ -788,14 +1010,14 @@ def apply_plan(plan, manifest, *, rollback=False):
                         'gate_released_at': operation.result['gate_released_at'],
                         'target_pid': restored['pid'], 'process_started_at': stamp,
                         'observer_sha256': plan['observer_sha256']}
-                    write_ledger(ledger_path, ledger)
+                    save_transaction_ledger(ledger_path, ledger, account_guard)
                     return {'status': 'rolled_back_pending_acceptance', 'ledger': ledger_path,
                             'result': operation.result}
                 except (updater.Refusal, OSError, ValueError, AttributeError, KeyError):
                     pass
             ledger['status'] = 'recovery_required'
             ledger['transaction']['result'] = operation.result
-            write_ledger(ledger_path, ledger)
+            save_transaction_ledger(ledger_path, ledger, account_guard)
             return {'status': 'recovery_required', 'result': operation.result}
         backup = os.path.join(cfg['evidence_dir'], 'original-entrypoint')
         if layout == 'binary':
@@ -848,7 +1070,7 @@ def apply_plan(plan, manifest, *, rollback=False):
                     daemon_id=plan['daemon_id'], profile=cfg['profile'],
                     runtime_ids=[rid for ids in plan['workspaces'].values() for rid in ids],
                     gate_released_at=operation.result['gate_released_at'], result=operation.result)
-        write_ledger(ledger_path, ledger)
+        save_transaction_ledger(ledger_path, ledger, account_guard)
         return {'status': 'awaiting_acceptance', 'daemon_id': plan['daemon_id'], 'ledger': ledger_path}
 
 
@@ -861,6 +1083,12 @@ def rollback_plan(ledger_path, evidence_dir):
     transaction = ledger.get('transaction')
     updater.require(isinstance(transaction, dict) and isinstance(transaction.get('inventory'), dict), 'rollback inventory is missing')
     cfg = dict(transaction['inventory'])
+    scope = cfg.get('inventory_scope', 'host')
+    if scope == 'account':
+        updater.require(cfg.get('ledger') == ledger_path, 'account ledger path changed')
+    updater.require(scope in ('host', 'account') and ((scope == 'account') == ('account_scope_evidence' in transaction)), 'transaction scope evidence mismatch')
+    if scope == 'account':
+        account_guard_from_evidence(transaction['account_scope_evidence'], cfg)
     cfg['ledger'] = ledger_path
     cfg['evidence_dir'] = evidence_dir
     path = previous['path']
@@ -888,7 +1116,7 @@ def rollback_plan(ledger_path, evidence_dir):
     return build_plan(cfg, manifest, digest, rollback_observer=True), manifest
 
 
-def cleanup_managed_assets(ledger, asset_root):
+def cleanup_managed_assets(ledger, asset_root, account_guard=None, account_check=None, before_remove=None, after_remove=None):
     """Remove only obsolete, explicitly recorded files with matching digests."""
     updater.path_clean(asset_root, 'dir')
     updater.require(isinstance(ledger, dict) and ledger.get('schema') == 1, 'invalid transaction ledger')
@@ -932,8 +1160,60 @@ def cleanup_managed_assets(ledger, asset_root):
     for path in remove:
         updater.path_clean(path, 'file')
         updater.require(updater.sha(path) == entries[path]['sha256'], 'obsolete asset changed during cleanup')
-        os.unlink(path)
+        if account_guard is None:
+            os.unlink(path)
+        else:
+            if account_check is not None:
+                account_check()
+            account_guard.check_mutation(path)
+            if before_remove is not None:
+                before_remove(path, entries[path]['sha256'])
+            removed = False
+            try:
+                with updater.ExclusiveFileLease(path, account_guard.uid) as lease:
+                    updater.require(lease.digest() == entries[path]['sha256'], 'account cleanup asset changed')
+                    account_guard.revalidate_while_leased(path)
+                    lease.verify()
+                    os.unlink(path)
+                    removed = True
+                    lease.verify(renamed=True)
+            finally:
+                if removed:
+                    account_guard.acknowledge_removal(path, entries[path]['sha256'])
+                    if after_remove is not None:
+                        after_remove(path, entries[path]['sha256'])
     return [entries[path] for path in entries if path in keep]
+
+
+def cleanup_account_inputs(ledger, guard, account_check, before_remove, after_remove):
+    records = ledger.get('account_obsolete_inputs', [])
+    updater.require(isinstance(records, list), 'invalid obsolete account inputs')
+    protected = {item.get('path') for item in ledger.get('account_inputs', []) + ledger.get('assets', [])}
+    for item in list(records):
+        path, digest = item['path'], item['sha256']
+        if path in protected:
+            records.remove(item)
+            continue
+        if not path_present(path):
+            records.remove(item)
+            continue
+        account_check()
+        guard.check_mutation(path)
+        before_remove(path, digest)
+        removed = False
+        try:
+            with updater.ExclusiveFileLease(path, guard.uid) as lease:
+                updater.require(lease.digest() == digest, 'obsolete account input changed')
+                guard.revalidate_while_leased(path)
+                lease.verify()
+                os.unlink(path)
+                removed = True
+                lease.verify(renamed=True)
+        finally:
+            if removed:
+                guard.acknowledge_removal(path, digest)
+                after_remove(path, digest)
+    ledger['account_obsolete_inputs'] = [item for item in ledger.get('account_obsolete_inputs', []) if path_present(item['path']) and item['path'] not in protected]
 
 
 def verify_receipt(health, transaction, now):
@@ -995,6 +1275,27 @@ def verify_heartbeat_evidence(tx, current):
 def accept_transaction(ledger_path):
     """Confirm a live observer's acknowledged task, then clean recorded assets."""
     updater.path_clean(os.path.dirname(ledger_path), 'dir')
+    before_lock = read_ledger(ledger_path)
+    updater.require(isinstance(before_lock, dict), 'transaction ledger missing')
+    before_tx = before_lock.get('transaction')
+    updater.require(isinstance(before_tx, dict) and isinstance(before_tx.get('inventory'), dict), 'transaction inventory missing')
+    before_cfg = before_tx['inventory']
+    scope = before_cfg.get('inventory_scope', 'host')
+    if scope == 'account':
+        updater.require(before_cfg.get('ledger') == ledger_path, 'account ledger path changed')
+    updater.require(scope in ('host', 'account'), 'invalid inventory scope')
+    updater.require((scope == 'account') == ('account_scope_evidence' in before_tx), 'transaction scope evidence mismatch')
+    pending = before_tx.get('account_cleanup_pending') if scope == 'account' else None
+    missing_pending = None
+    if pending is not None:
+        updater.require(before_lock.get('status') in ('cleaning', 'cleanup_failed') and isinstance(pending, dict) and set(pending) == {'path', 'sha256'}, 'invalid account cleanup checkpoint')
+        candidates = before_lock.get('assets', []) + before_lock.get('account_obsolete_inputs', [])
+        updater.require(any(isinstance(item, dict) and item.get('path') == pending['path'] and item.get('sha256') == pending['sha256'] for item in candidates), 'unknown account cleanup checkpoint')
+        if not path_present(pending['path']):
+            missing_pending = pending['path']
+    account_guard = account_guard_from_evidence(before_tx.get('account_scope_evidence'), before_cfg, missing_pending) if scope == 'account' else None
+    if account_guard is not None:
+        account_guard.check_mutation(ledger_path + '.lock')
     fd = os.open(ledger_path + '.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
     with os.fdopen(fd, 'r+') as lock:
         updater.require(os.fstat(lock.fileno()).st_uid == os.geteuid() and stat.S_ISREG(os.fstat(lock.fileno()).st_mode), 'invalid transaction lock')
@@ -1003,14 +1304,20 @@ def accept_transaction(ledger_path):
         except BlockingIOError as error:
             raise updater.Refusal('another transaction is active') from error
         ledger = read_ledger(ledger_path)
+        updater.require(ledger == before_lock, 'transaction ledger changed while locking')
         updater.require(isinstance(ledger, dict) and ledger.get('status') in ('awaiting_acceptance', 'awaiting_baseline_acceptance', 'awaiting_rollback_acceptance', 'cleanup_failed', 'cleaning'), 'no pending transaction')
         tx = ledger.get('transaction')
         updater.require(isinstance(tx, dict) and isinstance(tx.get('inventory'), dict), 'transaction inventory missing')
         cfg = tx['inventory']
+        if missing_pending is not None:
+            ledger['assets'] = [item for item in ledger['assets'] if item.get('path') != missing_pending]
+            ledger['account_obsolete_inputs'] = [item for item in ledger.get('account_obsolete_inputs', []) if item.get('path') != missing_pending]
+            tx.pop('account_cleanup_pending', None)
+            save_transaction_ledger(ledger_path, ledger, account_guard)
         updater.require(cfg['owner_uid'] == os.geteuid() or os.geteuid() == 0, 'operator cannot act for target owner')
         updater.require(tx.get('process_started_at'), 'post-update process start evidence missing')
         args = argparse.Namespace(profile=cfg['profile'], unit=cfg['unit'], systemd_scope=cfg['systemd_scope'], owner_uid=cfg['owner_uid'],
-                    cli=cfg['cli'], health_url=cfg['health_url'], observer_ca_cert_file=cfg.get('observer_ca_cert_file'), observer_ca_sha256=cfg.get('observer_ca_sha256'))
+                    cli=cfg['cli'], health_url=cfg['health_url'], observer_ca_cert_file=cfg.get('observer_ca_cert_file'), observer_ca_sha256=cfg.get('observer_ca_sha256'), account_guard=account_guard, inventory_scope=cfg.get('inventory_scope', 'host'))
         updater.path_clean(cfg['cli'], 'file')
         updater.require(updater.sha(cfg['cli']) == tx.get('observer_sha256'), 'observer CLI changed since plan')
         operation = updater.Updater(args)
@@ -1067,15 +1374,25 @@ def accept_transaction(ledger_path):
             updater.require(updater.sha(path) == asset_map[path]['sha256'], 'associated program asset checksum mismatch')
         ledger['status'] = 'cleaning'
         ledger['transaction']['receipt'] = receipt
-        write_ledger(ledger_path, ledger)
+        save_transaction_ledger(ledger_path, ledger, account_guard)
+        def before_remove(path, digest):
+            tx['account_cleanup_pending'] = {'path': path, 'sha256': digest}
+            save_transaction_ledger(ledger_path, ledger, account_guard)
+        def after_remove(path, digest):
+            ledger['assets'] = [item for item in ledger['assets'] if item.get('path') != path]
+            ledger['account_obsolete_inputs'] = [item for item in ledger.get('account_obsolete_inputs', []) if item.get('path') != path]
+            tx.pop('account_cleanup_pending', None)
+            save_transaction_ledger(ledger_path, ledger, account_guard)
         try:
-            ledger['assets'] = cleanup_managed_assets(ledger, cfg['asset_root'])
+            ledger['assets'] = cleanup_managed_assets(ledger, cfg['asset_root'], account_guard, operation.account_check, before_remove, after_remove) if account_guard is not None else cleanup_managed_assets(ledger, cfg['asset_root'])
+            if account_guard is not None:
+                cleanup_account_inputs(ledger, account_guard, operation.account_check, before_remove, after_remove)
         except (updater.Refusal, OSError, ValueError):
             ledger['status'] = 'cleanup_failed'
-            write_ledger(ledger_path, ledger)
+            save_transaction_ledger(ledger_path, ledger, account_guard)
             raise
         ledger['status'] = 'accepted'
-        write_ledger(ledger_path, ledger)
+        save_transaction_ledger(ledger_path, ledger, account_guard)
         return {'status': 'rolled_back' if tx.get('rollback_result') else 'accepted',
                 'task_id': receipt['task_id'], 'runtime_id': receipt['runtime_id']}
 
