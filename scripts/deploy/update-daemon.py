@@ -153,6 +153,8 @@ class AccountScope:
         require(systemd_scope == 'user', 'account scope requires a user unit')
         require(isinstance(unit, str) and re.fullmatch(r'[A-Za-z0-9_.:@-]+\.service', unit), 'account scope requires an exact unit')
         self.uid, self.asset_root, self.state_root = uid, asset_root, state_root
+        self.unverified_process_images = []
+        self.process_managed_inodes = set()
         self.path_policy = account_path_policy
         if self.path_policy is not None:
             require(isinstance(self.path_policy, dict) and set(self.path_policy) == {'extended_home', 'sticky_parent'}, 'unknown account path policy')
@@ -339,6 +341,7 @@ class AccountScope:
 
     def evidence(self):
         return {'scope': 'account', 'uid': self.uid, 'asset_root': self.asset_root,
+                'process_uid_policy': 'ruid-owner-esfs-same-foreign-eacces-unverified-v1',
                 'state_root': self.state_root, 'unit': self.unit, 'systemd_scope': 'user',
                 'exec_start': self.exec_start, 'profile': self.profile, 'argv': self.argv, 'dropins': self.dropins,
                 'unit_object': self.unit_object, 'ancillary': self.ancillary, 'fragment': self.fragment,
@@ -548,6 +551,34 @@ def _account_process_stable(proc, original):
     require(_process_account_identity(proc, after) == original, 'account process identity changed during inventory')
 
 
+def _account_image_access(proc, original, operation):
+    _account_process_stable(proc, original)
+    try:
+        return operation(proc + '/exe')
+    finally:
+        _account_process_stable(proc, original)
+
+
+def _account_unverified(scope, proc, identity, error, operation, image=None):
+    if scope is None:
+        return False
+    uids = identity[3]
+    if not (error.errno == errno.EACCES and uids[0] == scope.uid and
+            uids[1] == uids[2] == uids[3] and uids[1] != scope.uid):
+        return False
+    item = {'pid': int(os.path.basename(proc)), 'proc_device': identity[0],
+            'proc_inode': identity[1], 'proc_owner': identity[2], 'uids': list(uids),
+            'start_time': identity[4], 'operation': operation,
+            'status': 'external privilege identity; image, managed inode and App relationship unverified'}
+    if image is not None:
+        inode = (image.st_dev, image.st_ino)
+        require(inode not in scope.process_managed_inodes, 'executable is shared or process inventory is ambiguous')
+        item['observed_image_inode'] = list(inode)
+    if item not in scope.unverified_process_images:
+        scope.unverified_process_images.append(item)
+    return True
+
+
 def process_inventory(account_scope=None):
     """Inspect visible process identities without excluding other owners."""
     if account_scope is not None:
@@ -567,23 +598,27 @@ def process_inventory(account_scope=None):
             identity_before = _process_account_identity(proc, before) if account_scope is not None else None
             foreign = identity_before is not None and account_scope.uid not in identity_before[3]
             try:
-                image = os.stat(proc + '/exe')
-            except PermissionError:
-                if not foreign:
+                image = os.stat(proc + '/exe') if account_scope is None else _account_image_access(proc, identity_before, os.stat)
+            except PermissionError as error:
+                if not foreign and not _account_unverified(account_scope, proc, identity_before, error, 'stat'):
                     raise
-                _account_process_stable(proc, identity_before)
                 continue
             if foreign:
                 try:
-                    os.readlink(proc + '/exe')
-                    image_after = os.stat(proc + '/exe')
+                    _account_image_access(proc, identity_before, os.readlink)
+                    image_after = _account_image_access(proc, identity_before, os.stat)
                 except PermissionError:
                     _account_process_stable(proc, identity_before)
                     continue
                 require((image.st_dev, image.st_ino) == (image_after.st_dev, image_after.st_ino), 'process executable changed during inventory')
                 _account_process_stable(proc, identity_before)
                 continue
-            executable = os.readlink(proc + '/exe')
+            try:
+                executable = os.readlink(proc + '/exe') if account_scope is None else _account_image_access(proc, identity_before, os.readlink)
+            except PermissionError as error:
+                if account_scope is None or not _account_unverified(account_scope, proc, identity_before, error, 'readlink', image):
+                    raise
+                continue
             require(not executable.endswith(' (deleted)'), 'process has deleted executable')
             identity = executable.casefold()
             if identity.endswith('.appimage'):
@@ -593,7 +628,14 @@ def process_inventory(account_scope=None):
                     command = f.read()
                 identity += ' ' + os.fsdecode(command).casefold()
                 require(bool(command) and 'multica' in identity, 'cannot identify Electron process')
-            image_after = os.stat(proc + '/exe')
+            app = 'multica' in identity and ('.appimage' in identity or 'electron' in os.path.basename(executable).casefold() or os.path.basename(executable).casefold() in ('multica-desktop', '@multicadesktop') or '.app/' in identity)
+            try:
+                image_after = os.stat(proc + '/exe') if account_scope is None else _account_image_access(proc, identity_before, os.stat)
+            except PermissionError as error:
+                if account_scope is None or not _account_unverified(account_scope, proc, identity_before, error, 'stat', image):
+                    raise
+                require(not app, 'desktop application running; update through the application')
+                continue
             after = os.stat(proc)
             require((image.st_dev, image.st_ino) == (image_after.st_dev, image_after.st_ino), 'process executable changed during inventory')
             require((before.st_dev, before.st_ino, before.st_uid) == (after.st_dev, after.st_ino, after.st_uid), 'process identity changed during inventory')
@@ -614,7 +656,7 @@ def process_inventory(account_scope=None):
             raise Refusal('cannot inspect every process executable or identity') from error
         if 'multica' in identity or executable.casefold().endswith('.appimage') or 'electron' in os.path.basename(executable).casefold():
             result.append({'pid': int(name), 'uid': before.st_uid if account_scope is None else account_scope.uid, 'exe': executable,
-                           'device': image.st_dev, 'inode': image.st_ino, 'app': 'multica' in identity and ('.appimage' in identity or 'electron' in os.path.basename(executable).casefold() or os.path.basename(executable).casefold() in ('multica-desktop', '@multicadesktop') or '.app/' in identity)})
+                           'device': image.st_dev, 'inode': image.st_ino, 'app': app})
     return sorted(result, key=lambda item: item['pid'])
 
 
@@ -629,6 +671,10 @@ def executable_users(executable, account_scope=None):
         _account_guard(account_scope)
     require_visible_proc()
     target = os.stat(executable)
+    if account_scope is not None:
+        target_inode = (target.st_dev, target.st_ino)
+        require(not any(item.get('observed_image_inode') == list(target_inode) for item in account_scope.unverified_process_images), 'executable is shared or process inventory is ambiguous')
+        account_scope.process_managed_inodes.add(target_inode)
     users = []
     try:
         names = os.listdir('/proc')
@@ -643,11 +689,10 @@ def executable_users(executable, account_scope=None):
             identity_before = _process_account_identity(proc, before) if account_scope is not None else None
             foreign = identity_before is not None and account_scope.uid not in identity_before[3]
             try:
-                image = os.stat(proc + '/exe')
-            except PermissionError:
-                if not foreign:
+                image = os.stat(proc + '/exe') if account_scope is None else _account_image_access(proc, identity_before, os.stat)
+            except PermissionError as error:
+                if not foreign and not _account_unverified(account_scope, proc, identity_before, error, 'stat'):
                     raise
-                _account_process_stable(proc, identity_before)
                 continue
             after = os.stat(proc)
             require((before.st_dev, before.st_ino, before.st_uid) == (after.st_dev, after.st_ino, after.st_uid), 'process identity changed during inventory')
