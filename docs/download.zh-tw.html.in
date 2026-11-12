@@ -99,6 +99,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
     <li>完成驗收。通過條件：版本、hash、原身分、三個心跳週期及一次派工回傳都通過。</li>
   </ol>
   <p>預設盤點整台機器。Linux 本人帳號模式須明確選擇，僅適用本人私有、可證明隔離的 binary 安裝及原 user unit；共用或未知安裝請停止並查閱操作指引。原服務有額外啟停程式、附加設定或不支援的符號連結時，請查閱操作指引。無法證明私有範圍或安全換檔時，腳本會停止；請勿自行改權限或搬移資料。</p>
+  <p>本人帳號模式的可選 <code>account_path_policy</code> 僅含 <code>extended_home</code> 和 <code>sticky_parent</code>：指定父目錄必須由 root 擁有且為 1775 sticky，下一層既存目錄由原帳號擁有；安全上層及受管後代不得讓其他 UID 有效寫入。受檢路徑不接受非平凡 POSIX ACL 或 default ACL；只有 ENODATA 表示不存在，讀取未知即停止。asset 與 profile state 各須為本人 0700，state 須為實體目錄。標準 user unit 註冊符號連結可支援，但入口的 lstat、readlink、owner、inode 與 canonical target 各層 ACL、mode、hash 均須綁定計畫並重驗；任何變動即停止。完整操作及程序、租約檢查請見指引。</p>
   <p><a href="@UPDATE_SCRIPT_URL@" download="multica-update.sh">固定版本 shell script</a> · <a href="@UPDATE_CHECKSUM_URL@">SHA-256 清單</a> · <a href="@AGENT_GUIDE_URL@" download="agent-update-guide.md">Agent 操作指引（.md）</a></p>
   <p class="note">腳本 SHA-256：<code>@UPDATE_SCRIPT_SHA256@</code></p>
   <div class="callout warning">Agent 不得更新自己所在機台的 daemon。同機不同帳號或 profile 仍算同機。只有版本及心跳、尚無派工結果時，不算完整成功。</div>
