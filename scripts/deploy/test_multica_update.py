@@ -1,4 +1,5 @@
 import contextlib
+import hashlib
 import datetime
 import importlib.util
 import io
@@ -6,10 +7,12 @@ import http.server
 import ssl
 import subprocess
 import threading
+import types
 import urllib.request
 import json
 import os
 import plistlib
+import re
 from pathlib import Path
 import tempfile
 import unittest
@@ -19,6 +22,618 @@ HERE = Path(__file__).resolve().parent
 spec = importlib.util.spec_from_file_location('multica_update', HERE / 'multica_update.py')
 u = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(u)
+
+
+class AccountScopeTests(unittest.TestCase):
+    def test_scope_downgrade_refuses_before_creating_lock(self):
+        plan = {'inventory': {'inventory_scope': 'host', 'ledger': str(self.ledger)},
+                'account_scope_evidence': {'scope': 'account'}}
+        with self.assertRaisesRegex(u.updater.Refusal, 'plan scope evidence mismatch'):
+            u.apply_plan(plan, {})
+        self.assertFalse(Path(str(self.ledger) + '.lock').exists())
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        root = Path(self.temp.name)
+        self.asset = root / 'asset'
+        self.state = root / 'state'
+        self.asset.mkdir(mode=0o700)
+        self.state.mkdir(mode=0o700)
+        self.binary = self.asset / 'multica'
+        self.binary.write_text('fixture binary')
+        self.binary.chmod(0o600)
+        self.fragment = root / 'test.service'
+        self.fragment.write_text('fixture unit')
+        self.fragment.chmod(0o600)
+        self.ledger = self.asset / 'ledger'
+        self.gate = self.state / 'daemon.maintenance'
+        # The test's real workspace ancestors are group-writable; model a
+        # trusted ancestor without changing permissions outside the fixture.
+        original = os.lstat
+        fixture_parent = str(root)
+        def fixture_lstat(path, *args, **kwargs):
+            info = original(path, *args, **kwargs)
+            if str(path) != fixture_parent and fixture_parent.startswith(str(path).rstrip('/') + '/'):
+                fields = list(info)
+                fields[0] = (fields[0] & ~0o022)
+                return os.stat_result(fields)
+            return info
+        patcher = mock.patch.object(u.updater.os, 'lstat', side_effect=fixture_lstat)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.ancillary = {name: '' for name in u.updater.ACCOUNT_UNIT_ANCILLARY}
+        self.unit_object = '/org/freedesktop/systemd1/unit/test_2eservice'
+        self.start = '{ path=%s ; argv[]=%s daemon start --foreground ; ignore_errors=no ; }' % (self.binary, self.binary)
+
+    def guard(self):
+        return u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary)], [str(self.ledger), str(self.gate)],
+            'test.service', 'user', self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+
+    def test_private_evidence_and_drift(self):
+        guard = self.guard()
+        self.assertEqual(guard.evidence()['scope'], 'account')
+        guard.check_mutation(str(self.ledger))
+        self.ledger.write_text('legitimate transaction')
+        self.ledger.chmod(0o600)
+        guard.revalidate()
+        with self.assertRaisesRegex(u.updater.Refusal, 'not authorized'):
+            guard.check_mutation(str(self.asset / 'unexpected'))
+        self.binary.write_text('changed binary')
+        with self.assertRaisesRegex(u.updater.Refusal, 'immutable input changed'):
+            guard.revalidate()
+
+    def test_unsafe_roots_unknown_links_and_unit(self):
+        self.asset.chmod(0o775)
+        with self.assertRaisesRegex(u.updater.Refusal, 'permissions unsafe'):
+            self.guard()
+        self.asset.chmod(0o700)
+        unknown = self.asset / 'unknown'
+        unknown.write_text('unknown')
+        unknown.chmod(0o600)
+        with self.assertRaisesRegex(u.updater.Refusal, 'unknown or shared'):
+            self.guard()
+        unknown.unlink()
+        os.link(self.binary, unknown)
+        with self.assertRaisesRegex(u.updater.Refusal, 'links unsafe'):
+            self.guard()
+        unknown.unlink()
+        with self.assertRaisesRegex(u.updater.Refusal, 'user unit'):
+            u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'system', self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        with self.assertRaisesRegex(u.updater.Refusal, 'entrypoint mismatch'):
+            u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'user', self.start.replace(str(self.binary), '/other', 1), str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+
+    def test_stop_refuses_drift_before_systemctl(self):
+        guard = self.guard()
+        operation = u.updater.Updater.__new__(u.updater.Updater)
+        operation.a = types.SimpleNamespace(account_guard=guard, unit='test.service', systemd_scope='user')
+        def unit_property(name):
+            if name == 'ExecStart':
+                self.binary.write_text('changed before stop')
+                return self.start
+            return {'FragmentPath': str(self.fragment), 'DropInPaths': ''}[name]
+        with mock.patch.object(operation, 'account_unit_property', side_effect=unit_property), \
+             mock.patch.object(operation, 'account_unit_ancillary', return_value=(self.unit_object, self.ancillary)), \
+             mock.patch.object(u.updater, 'run') as systemctl:
+            with self.assertRaisesRegex(u.updater.Refusal, 'immutable input changed'):
+                operation.safe_stop(first=True)
+            systemctl.assert_not_called()
+
+    def test_account_replace_requires_lease_and_copies_new_inode(self):
+        source = self.asset / 'staged'
+        source.write_bytes(b'new binary')
+        source.chmod(0o600)
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary), str(source)], [str(self.binary)], 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        operation = u.updater.Updater.__new__(u.updater.Updater)
+        operation.a = types.SimpleNamespace(layout='binary', sha256=hashlib.sha256(b'new binary').hexdigest())
+        operation.owner = 'test'
+        operation.owner_uid = os.geteuid()
+        operation.backup = None
+        operation.base = {'sha256': hashlib.sha256(b'fixture binary').hexdigest()}
+        old_inode = self.binary.stat().st_ino
+        with open(self.binary, 'rb'):
+            with self.assertRaisesRegex(u.updater.Refusal, 'lease unavailable'):
+                operation.replace_account(str(source), str(self.binary), guard)
+        self.assertEqual(self.binary.read_bytes(), b'fixture binary')
+        operation.replace_account(str(source), str(self.binary), guard)
+        self.assertEqual(self.binary.read_bytes(), b'new binary')
+        self.assertNotEqual(self.binary.stat().st_ino, old_inode)
+        guard.revalidate()
+
+    def test_account_apply_accept_real_transaction_with_synthetic_services(self):
+        # File/lease/stop/replace/gate/ledger paths are real; process, systemd,
+        # health and unsafe workspace ancestors are synthetic fixture inputs.
+        root = self.asset.parent
+        profile = root / '.multica'
+        self.state.rename(profile)
+        self.state = profile
+        self.binary.chmod(0o700)
+        staged, observer, ca = (self.asset / name for name in ('staged', 'observer', 'ca'))
+        staged.write_bytes(b'new binary')
+        observer.write_bytes(b'observer binary')
+        ca.write_bytes(b'fixture ca')
+        staged.chmod(0o700)
+        observer.chmod(0o700)
+        ca.chmod(0o600)
+        evidence = self.asset / 'evidence'
+        ledger_path = self.asset / 'ledger'
+        gate = profile / 'daemon.maintenance'
+        old_hash, new_hash = (hashlib.sha256(value).hexdigest() for value in (b'fixture binary', b'new binary'))
+        old_commit, new_commit = 'a' * 40, 'b' * 40
+        cfg = {'inventory_scope': 'account', 'owner_uid': os.geteuid(), 'profile': '', 'unit': 'test.service',
+               'systemd_scope': 'user', 'asset_root': str(self.asset), 'cli': str(observer), 'staged': str(staged),
+               'search_roots': [str(self.asset)], 'health_url': 'http://127.0.0.1:12345/health',
+               'ledger': str(ledger_path), 'evidence_dir': str(evidence), 'observer_ca_cert_file': str(ca),
+               'controller_machine_id_sha256': 'f' * 64,
+               'observer_ca_sha256': hashlib.sha256(b'fixture ca').hexdigest()}
+        old = {'path': str(self.binary), 'sha256': old_hash, 'version': '1.0.0', 'commit': old_commit,
+               'data_compatibility': 'multica-profile-v1'}
+        u.write_ledger(str(ledger_path), {'schema': 1, 'status': 'accepted', 'assets': [old],
+                                          'current': old, 'previous': None})
+        paths = [str(self.binary), str(ledger_path), str(ledger_path) + '.lock', str(evidence),
+                 *[str(evidence / name) for name in ('heartbeats.jsonl', 'original-entrypoint', 'baseline.json', 'result.json')],
+                 str(gate), str(gate) + '.lock', str(gate / 'owner')]
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(profile),
+            [str(self.binary), str(staged), str(observer), str(ca)], paths, 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        s = profile.stat()
+        plan = {'inventory': cfg, 'account_scope_evidence': guard.evidence(), 'manifest_sha256': 'c' * 64,
+                'unit_pid': 123, 'daemon_id': 'daemon', 'running_exe': str(self.binary), 'running_sha256': old_hash,
+                'running_version': '1.0.0', 'running_commit': old_commit, 'version': '2.0.0', 'commit': new_commit,
+                'target_sha256': new_hash, 'profile_inode': [s.st_dev, s.st_ino], 'workspaces': {'workspace': ['runtime']},
+                'observer_sha256': hashlib.sha256(b'observer binary').hexdigest(),
+                'baseline_compatibility': 'multica-profile-v1', 'data_compatibility': 'multica-profile-v1'}
+        state = {'active': True, 'pid': 123, 'ticks': 0, 'fail_start': False}
+        def run(command, **kwargs):
+            if command[0] == 'busctl':
+                return json.dumps({'type': 'o', 'data': [self.unit_object]} if 'call' in command else {'type': 'a(sasbttttuii)', 'data': []}).encode()
+            if '--property=ExecStart' in command: return ('ExecStart=' + self.start + '\n').encode()
+            if 'FragmentPath' in ' '.join(command): return ('FragmentPath=' + str(self.fragment) + '\n').encode()
+            if 'DropInPaths' in ' '.join(command): return b'DropInPaths=\n'
+            if any('--property=' + name in command for name in u.updater.ACCOUNT_UNIT_ANCILLARY):
+                return (next(name for name in u.updater.ACCOUNT_UNIT_ANCILLARY if '--property=' + name in command) + '=\n').encode()
+            if 'stop' in command:
+                state['active'] = False
+                return b''
+            if 'start' in command:
+                if state['fail_start']:
+                    state['fail_start'] = False
+                    raise u.updater.Refusal('fixture start failure')
+                state['active'] = True
+                state['pid'] += 1
+                return b''
+            raise AssertionError(command)
+        third_commit, third_hash = 'd' * 40, hashlib.sha256(b'third binary').hexdigest()
+        def current_release():
+            content = self.binary.read_bytes()
+            if content == b'third binary': return ('3.0.0', third_commit, third_hash)
+            if content == b'new binary': return ('2.0.0', new_commit, new_hash)
+            return ('1.0.0', old_commit, old_hash)
+        def health(instance):
+            version, commit, digest = current_release()
+            now = datetime.datetime.now(datetime.timezone.utc).isoformat()
+            return {'status': 'running', 'profile': '', 'daemon_id': 'daemon', 'pid': state['pid'],
+                    'cli_version': version, 'cli_commit': commit, 'active_task_count': 0,
+                    'workspaces': [{'id': 'workspace', 'runtimes': ['runtime']}],
+                    'maintenance_gate': {'supported': True, 'path': str(gate), 'blocked': gate.exists(),
+                                         'ready': gate.exists(), 'claims_in_flight': 0},
+                    'update_attestation': {'binary_sha256': digest, 'process_started_at': '2020-01-01T00:00:00Z',
+                        'runtime_heartbeat_acks': {'runtime': 3}, 'task_receipts': [{'task_id': 'test-task',
+                        'runtime_id': 'runtime', 'completed_at': now, 'ack_at': now}]}}
+        def runtimes(instance):
+            state['ticks'] += 1
+            return {'workspace': {'runtime': datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=state['ticks'])}}
+        real_stat, real_sha = os.stat, u.updater.sha
+        def fixture_stat(path, *args, **kwargs):
+            path = str(path)
+            if re.fullmatch(r'/proc/\d+', path):
+                return types.SimpleNamespace(st_uid=os.geteuid(), st_dev=1, st_ino=int(path.split('/')[-1]))
+            if re.fullmatch(r'/proc/\d+/exe', path):
+                path = str(self.binary)
+            return real_stat(path, *args, **kwargs)
+        def sha(path):
+            return real_sha(str(self.binary) if re.fullmatch(r'/proc/\d+/exe', str(path)) else path)
+        def users(executable, account_scope=None):
+            return [{'pid': state['pid'], 'uid': os.geteuid()}] if state['active'] else []
+        def version(instance, path):
+            content = Path(path).read_bytes()
+            if content == b'third binary': return ('3.0.0', third_commit)
+            if content == b'new binary': return ('2.0.0', new_commit)
+            return ('1.0.0', old_commit)
+        account = types.SimpleNamespace(pw_dir=str(root), pw_gid=os.getgid())
+        class FastUpdater(u.updater.Updater):
+            def __init__(self, args):
+                if hasattr(args, 'heartbeat_interval'):
+                    args.heartbeat_interval = 0.001
+                    args.timeout = 2
+                super().__init__(args)
+        real_build_plan = u.build_plan
+        with mock.patch.object(u, 'build_plan', return_value=plan), \
+             mock.patch.object(u.updater, 'task_marker_present', return_value=False), mock.patch.object(u.os, 'getenv', return_value=None), \
+             mock.patch.object(u.pwd, 'getpwuid', return_value=account), mock.patch.object(u.updater, 'run', side_effect=run), \
+             mock.patch.object(u.updater, 'Updater', FastUpdater), \
+             mock.patch.multiple(FastUpdater, account_bus_environment=mock.Mock(return_value={}), health=health, runtimes=runtimes, version_as_owner=version), \
+             mock.patch.object(FastUpdater, 'unit_pid', lambda instance: ('active', state['pid']) if state['active'] else ('inactive', 0)), \
+             mock.patch.object(u.updater, 'proc_exe', return_value=str(self.binary)), mock.patch.object(u.updater, 'sha', side_effect=sha), \
+             mock.patch.object(u.updater, 'executable_users', side_effect=users), mock.patch.object(u.updater, 'process_inventory', return_value=[]), \
+             mock.patch.object(u.updater, 'validate_observer_ca', return_value=str(ca)), mock.patch.object(u.os, 'stat', side_effect=fixture_stat):
+            with mock.patch.object(u, 'build_plan', return_value=dict(plan, inventory=dict(cfg, inventory_scope='host'))):
+                with self.assertRaisesRegex(u.updater.Refusal, 'plan fingerprint changed'):
+                    u.apply_plan(plan, {})
+            self.assertEqual(self.binary.read_bytes(), b'fixture binary')
+            result = u.apply_plan(plan, {})
+            self.assertEqual(result['status'], 'awaiting_acceptance', result)
+            self.assertEqual(self.binary.read_bytes(), b'new binary')
+            self.assertFalse(gate.exists())
+            accepted = u.accept_transaction(str(ledger_path))
+            self.assertEqual(accepted['status'], 'accepted', accepted)
+            accepted_ledger = u.read_ledger(str(ledger_path))
+            self.assertEqual(accepted_ledger['status'], 'accepted')
+            repeated = dict(plan, account_scope_evidence=accepted_ledger['transaction']['account_scope_evidence'],
+                            running_sha256=new_hash, running_version='2.0.0', running_commit=new_commit,
+                            unit_pid=state['pid'])
+            with mock.patch.object(u, 'build_plan', return_value=repeated):
+                self.assertEqual(u.apply_plan(repeated, {})['status'], 'no_change')
+
+            third = self.asset / 'third'
+            observer2 = self.asset / 'observer2'
+            third.write_bytes(b'third binary')
+            observer2.write_bytes(b'third binary')
+            third.chmod(0o700)
+            observer2.chmod(0o700)
+            manifest = {'version': '3.0.0', 'commit': third_commit, 'data_compatibility': 'multica-profile-v1',
+                        'assets': [{'role': 'binary', 'size': len(b'third binary'), 'sha256': third_hash}]}
+            cfg2 = dict(cfg, staged=str(third), cli=str(observer2), evidence_dir=str(self.asset / 'evidence-second'))
+            def processes(uid, guard=None):
+                return [{'pid': state['pid'], 'uid': uid, 'exe': str(self.binary), 'app': False}]
+            with mock.patch.object(u, 'build_plan', side_effect=real_build_plan), \
+                 mock.patch.object(u, 'target_machine_fingerprint', return_value='e' * 64), \
+                 mock.patch.object(u, 'process_inventory', side_effect=processes):
+                plan2 = u.build_plan(cfg2, manifest, 'e' * 64)
+                self.assertEqual(u.apply_plan(plan2, manifest)['status'], 'awaiting_acceptance')
+                self.assertEqual(u.accept_transaction(str(ledger_path))['status'], 'accepted')
+                self.assertEqual(self.binary.read_bytes(), b'third binary')
+                account_rows = u.read_ledger(str(ledger_path))['account_inputs']
+                self.assertEqual({item['path'] for item in account_rows if item['role'] == 'observer'}, {str(observer), str(observer2)})
+                self.assertTrue(observer.exists())
+                self.assertTrue(observer2.exists())
+                previous = u.read_ledger(str(ledger_path))['previous']['path']
+                self.assertTrue(os.access(previous, os.X_OK))
+                rollback, rollback_manifest = u.rollback_plan(str(ledger_path), str(self.asset / 'evidence-explicit-rollback'))
+                self.assertEqual(u.apply_plan(rollback, rollback_manifest, rollback=True)['status'], 'awaiting_acceptance')
+                self.assertEqual(u.accept_transaction(str(ledger_path))['status'], 'accepted')
+                self.assertEqual(self.binary.read_bytes(), b'new binary')
+                failed_cfg = dict(cfg2, evidence_dir=str(self.asset / 'evidence-failed'))
+                failed_plan = u.build_plan(failed_cfg, manifest, 'e' * 64)
+                state['fail_start'] = True
+                failed = u.apply_plan(failed_plan, manifest)
+                self.assertEqual(failed['status'], 'rolled_back_pending_acceptance', failed)
+                self.assertEqual(self.binary.read_bytes(), b'new binary')
+                self.assertFalse(gate.exists())
+                with mock.patch.object(u.time, 'sleep'):
+                    self.assertEqual(u.accept_transaction(str(ledger_path))['status'], 'rolled_back')
+                observer3 = self.asset / 'observer3'
+                observer3.write_bytes(b'third binary')
+                observer3.chmod(0o700)
+                cfg3 = dict(cfg2, cli=str(observer3), evidence_dir=str(self.asset / 'evidence-third'))
+                plan3 = u.build_plan(cfg3, manifest, 'e' * 64)
+                self.assertEqual(u.apply_plan(plan3, manifest)['status'], 'awaiting_acceptance')
+                self.assertEqual(u.accept_transaction(str(ledger_path))['status'], 'accepted')
+                self.assertFalse(observer.exists())
+                self.assertTrue(observer2.exists())
+                self.assertTrue(observer3.exists())
+                final_ledger = u.read_ledger(str(ledger_path))
+                self.assertEqual({item['path'] for item in final_ledger['account_inputs'] if item['role'] == 'observer'},
+                                 {str(observer2), str(observer3)})
+                u.account_guard_from_evidence(final_ledger['transaction']['account_scope_evidence'], final_ledger['transaction']['inventory'])
+
+    def test_account_cleanup_needs_lease_and_updates_guard(self):
+        obsolete = self.asset / 'obsolete'
+        obsolete.write_bytes(b'obsolete binary')
+        obsolete.chmod(0o600)
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary), str(obsolete)], [str(obsolete)], 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        digest = lambda content: hashlib.sha256(content).hexdigest()
+        ledger = {'schema': 1, 'current': {'path': str(self.binary)}, 'previous': None,
+                  'assets': [{'path': str(self.binary), 'sha256': digest(b'fixture binary')},
+                             {'path': str(obsolete), 'sha256': digest(b'obsolete binary')}]}
+        with open(obsolete, 'rb'):
+            with self.assertRaisesRegex(u.updater.Refusal, 'lease unavailable'):
+                u.cleanup_managed_assets(ledger, str(self.asset), guard)
+        self.assertTrue(obsolete.exists())
+        self.assertEqual(len(u.cleanup_managed_assets(ledger, str(self.asset), guard)), 1)
+        self.assertFalse(obsolete.exists())
+        guard.revalidate()
+
+    def test_cleanup_empty_managed_directory_rebuilds_scope(self):
+        root = self.asset.parent
+        profile = root / '.multica'
+        self.state.rename(profile)
+        self.state = profile
+        old_dir = self.asset / 'old-release'
+        old_dir.mkdir(mode=0o700)
+        obsolete = old_dir / 'old'
+        obsolete.write_bytes(b'obsolete binary')
+        obsolete.chmod(0o600)
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(profile),
+            [str(self.binary), str(obsolete)], [str(obsolete)], 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        digest = lambda content: hashlib.sha256(content).hexdigest()
+        ledger = {'schema': 1, 'current': {'path': str(self.binary)}, 'previous': None,
+                  'assets': [{'path': str(self.binary), 'sha256': digest(b'fixture binary')},
+                             {'path': str(obsolete), 'sha256': digest(b'obsolete binary')}]}
+        before_removal = json.loads(json.dumps(guard.evidence()))
+        u.cleanup_managed_assets(ledger, str(self.asset), guard)
+        self.assertTrue(old_dir.is_dir())
+        account = types.SimpleNamespace(pw_dir=str(root), pw_gid=os.getgid())
+        def property_value(instance, name):
+            return {'ExecStart': self.start, 'FragmentPath': str(self.fragment), 'DropInPaths': ''}[name]
+        cfg = {'owner_uid': os.geteuid(), 'profile': '', 'unit': 'test.service', 'systemd_scope': 'user', 'asset_root': str(self.asset)}
+        with mock.patch.object(u.pwd, 'getpwuid', return_value=account), \
+             mock.patch.object(u.updater.Updater, 'account_unit_property', property_value), \
+             mock.patch.object(u.updater.Updater, 'account_unit_ancillary', return_value=(self.unit_object, self.ancillary)):
+            rebuilt = u.account_guard_from_evidence(guard.evidence(), cfg)
+            resumed = u.account_guard_from_evidence(before_removal, cfg, str(obsolete))
+        self.assertEqual(rebuilt.evidence(), resumed.evidence())
+        rebuilt.revalidate()
+        (old_dir / 'unknown').write_text('not authorized')
+        with self.assertRaises(u.updater.Refusal):
+            rebuilt.revalidate()
+
+    def test_account_post_rename_lease_loss_marks_committed(self):
+        source = self.asset / 'staged'
+        source.write_bytes(b'new binary')
+        source.chmod(0o600)
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary), str(source)], [str(self.binary)], 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        operation = u.updater.Updater.__new__(u.updater.Updater)
+        operation.a = types.SimpleNamespace(layout='binary', sha256=hashlib.sha256(b'new binary').hexdigest())
+        operation.owner, operation.owner_uid, operation.backup = 'postcheck', os.geteuid(), None
+        operation.changed = False
+        operation.base = {'sha256': hashlib.sha256(b'fixture binary').hexdigest()}
+        original_verify = u.updater.ExclusiveFileLease.verify
+        def verify(lease, *, renamed=False):
+            if renamed:
+                raise u.updater.Refusal('fixture post-rename lease break')
+            return original_verify(lease)
+        with mock.patch.object(u.updater.ExclusiveFileLease, 'verify', verify):
+            with self.assertRaisesRegex(u.updater.Refusal, 'post-rename'):
+                operation.replace_account(str(source), str(self.binary), guard)
+        self.assertTrue(operation.changed)
+        self.assertEqual(self.binary.read_bytes(), b'new binary')
+        guard.revalidate()
+
+    def test_lease_refuses_open_target_and_detects_break(self):
+        with open(self.binary, 'rb'):
+            with self.assertRaisesRegex(u.updater.Refusal, 'lease unavailable'):
+                with u.updater.ExclusiveFileLease(str(self.binary), os.geteuid()):
+                    pass
+        with u.updater.ExclusiveFileLease(str(self.binary), os.geteuid()) as lease:
+            self.assertEqual(lease.digest(), hashlib.sha256(b'fixture binary').hexdigest())
+            lease._break(None, None)
+            with self.assertRaisesRegex(u.updater.Refusal, 'break requested'):
+                lease.verify()
+
+    def test_unrelated_ancestor_sibling_does_not_change_scope_proof(self):
+        guard = self.guard()
+        expected = u.fingerprint(guard.evidence())
+        sibling = self.asset.parent / 'unrelated-sibling'
+        sibling.mkdir(mode=0o700)
+        guard.revalidate()
+        self.assertEqual(u.fingerprint(guard.evidence()), expected)
+        sibling.rmdir()
+        guard.revalidate()
+        self.assertEqual(u.fingerprint(guard.evidence()), expected)
+        self.asset.chmod(0o775)
+        with self.assertRaises(u.updater.Refusal):
+            guard.revalidate()
+
+    def test_nested_transactions_allow_created_children_and_reject_drift(self):
+        root = self.asset.parent
+        profile = root / '.multica'
+        self.state.rename(profile)
+        self.state = profile
+        history = self.asset / 'history'
+        history.mkdir(mode=0o700)
+        old = history / 'old.json'
+        old.write_text('fixture history')
+        old.chmod(0o600)
+        first, second = history / 'first', history / 'second'
+        first_result, second_result = first / 'result.json', second / 'result.json'
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary), str(old)], [str(first), str(first_result), str(second), str(second_result)],
+            'test.service', 'user', self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        for directory, result in ((first, first_result), (second, second_result)):
+            guard.check_mutation(str(directory))
+            directory.mkdir(mode=0o700)
+            guard.note_created_directory(str(directory))
+            guard.check_mutation(str(result))
+            result.write_text('fixture result')
+            result.chmod(0o600)
+            guard.revalidate()
+            account = types.SimpleNamespace(pw_dir=str(root), pw_gid=os.getgid())
+            cfg = {'owner_uid': os.geteuid(), 'profile': '', 'unit': 'test.service',
+                   'systemd_scope': 'user', 'asset_root': str(self.asset)}
+            def property_value(instance, name):
+                return {'ExecStart': self.start, 'FragmentPath': str(self.fragment), 'DropInPaths': ''}[name]
+            with mock.patch.object(u.pwd, 'getpwuid', return_value=account), \
+                 mock.patch.object(u.updater.Updater, 'account_unit_property', property_value), \
+                 mock.patch.object(u.updater.Updater, 'account_unit_ancillary', return_value=(self.unit_object, self.ancillary)):
+                guard = u.account_guard_from_evidence(guard.evidence(), cfg)
+        unknown = history / 'unknown'
+        unknown.mkdir(mode=0o700)
+        with self.assertRaisesRegex(u.updater.Refusal, 'unknown account asset directory'):
+            guard.revalidate()
+        unknown.rmdir()
+        history.chmod(0o755)
+        with self.assertRaisesRegex(u.updater.Refusal, 'boundary changed'):
+            guard.revalidate()
+        history.chmod(0o700)
+        guard.revalidate()
+        history.rename(self.asset / 'moved-history')
+        history.mkdir(mode=0o700)
+        with self.assertRaisesRegex(u.updater.Refusal, 'boundary changed'):
+            guard.revalidate()
+
+    def test_transaction_directory_identity_and_link_count(self):
+        evidence = self.asset / 'evidence'
+        output = evidence / 'result.json'
+        guard = u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state),
+            [str(self.binary)], [str(evidence), str(output)], 'test.service', 'user',
+            self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        guard.check_mutation(str(evidence))
+        evidence.mkdir(mode=0o700)
+        guard.note_created_directory(str(evidence))
+        guard.check_mutation(str(output))
+        output.write_text('fixture')
+        output.chmod(0o600)
+        guard.revalidate()
+        (evidence / 'unknown-dir').mkdir(mode=0o700)
+        with self.assertRaises(u.updater.Refusal):
+            guard.revalidate()
+
+    def test_busctl_requires_typed_empty_properties(self):
+        operation = u.updater.Updater.__new__(u.updater.Updater)
+        operation.a = types.SimpleNamespace(unit='test.service')
+        unit = {'type': 'o', 'data': [self.unit_object]}
+        empty = {'type': 'a(sasbttttuii)', 'data': []}
+        with mock.patch.object(operation, 'account_bus_environment', return_value={}), \
+             mock.patch.object(u.updater, 'json_cmd', side_effect=[unit, *([empty] * len(self.ancillary))]):
+            self.assertEqual(operation.account_unit_ancillary(), (self.unit_object, self.ancillary))
+        with mock.patch.object(operation, 'account_bus_environment', return_value={}), \
+             mock.patch.object(u.updater, 'json_cmd', side_effect=[unit, {'type': 'a(sasbttttuii)', 'data': ['/unexpected']}]):
+            with self.assertRaisesRegex(u.updater.Refusal, 'nonempty'):
+                operation.account_unit_ancillary()
+        with mock.patch.object(operation, 'account_bus_environment', return_value={}), \
+             mock.patch.object(u.updater, 'json_cmd', side_effect=[unit, {'type': 's', 'data': []}]):
+            with self.assertRaisesRegex(u.updater.Refusal, 'nonempty'):
+                operation.account_unit_ancillary()
+
+    def test_unit_argv_dropin_and_special_mode_are_rejected(self):
+        with self.assertRaisesRegex(u.updater.Refusal, 'argv or profile'):
+            u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'user', self.start.replace('--foreground', '--foreground --other'), str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        with self.assertRaisesRegex(u.updater.Refusal, 'DropInPaths'):
+            u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'user', self.start, str(self.fragment), str(self.binary), '', '/tmp/overrides', self.unit_object, self.ancillary)
+        bad = dict(self.ancillary, ExecStop='/unexpected')
+        with self.assertRaisesRegex(u.updater.Refusal, 'ancillary commands'):
+            u.updater.AccountScope(os.geteuid(), str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'user', self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, bad)
+        guard = self.guard()
+        with self.assertRaisesRegex(u.updater.Refusal, 'unit changed'):
+            guard.revalidate_unit('test.service', 'user', self.start, str(self.fragment), '', self.unit_object, bad)
+        self.binary.chmod(0o4600)
+        with self.assertRaisesRegex(u.updater.Refusal, 'permissions or links unsafe'):
+            self.guard()
+
+    def test_unit_and_boundary_revalidation(self):
+        guard = self.guard()
+        guard.revalidate_unit('test.service', 'user', self.start, str(self.fragment), '', self.unit_object, self.ancillary)
+        with self.assertRaisesRegex(u.updater.Refusal, 'unit changed'):
+            guard.revalidate_unit('other.service', 'user', self.start, str(self.fragment), '', self.unit_object, self.ancillary)
+        self.fragment.write_text('changed unit')
+        with self.assertRaisesRegex(u.updater.Refusal, 'unit fragment changed'):
+            guard.revalidate()
+        self.fragment.write_text('fixture unit')
+        guard = self.guard()
+        self.state.chmod(0o755)
+        with self.assertRaisesRegex(u.updater.Refusal, 'owner 0700'):
+            guard.revalidate()
+
+    def test_symlink_and_uid_are_rejected(self):
+        with self.assertRaisesRegex(u.updater.Refusal, 'effective UID'):
+            u.updater.AccountScope(os.geteuid() + 1, str(self.asset), str(self.state), [str(self.binary)], [],
+                'test.service', 'user', self.start, str(self.fragment), str(self.binary), '', '', self.unit_object, self.ancillary)
+        self.binary.unlink()
+        self.binary.symlink_to(self.fragment)
+        with self.assertRaisesRegex(u.updater.Refusal, 'symlink'):
+            self.guard()
+
+    def test_status_and_start_time_are_required(self):
+        proc = type('Stat', (), {'st_dev': 1, 'st_ino': 91, 'st_uid': 0})()
+        status = 'Name:\tfixture\nUid:\t10\t11\t12\t13\n'
+        statline = '91 (fixture with spaces) ' + ' '.join(['S'] + ['0'] * 18 + ['123'])
+        def fixture_open(path, *args, **kwargs):
+            if path.endswith('/status'): return io.StringIO(status)
+            if path.endswith('/stat'): return io.StringIO(statline)
+            raise AssertionError(path)
+        with mock.patch('builtins.open', side_effect=fixture_open):
+            self.assertEqual(u.updater._process_account_identity('/proc/91', proc), (1, 91, 0, (10, 11, 12, 13), '123'))
+        with mock.patch('builtins.open', side_effect=PermissionError('denied')):
+            with self.assertRaisesRegex(u.updater.Refusal, 'UID and start time'):
+                u.updater._process_account_identity('/proc/91', proc)
+        with self.assertRaisesRegex(u.updater.Refusal, 'verified private scope'):
+            u.updater.process_inventory(object())
+
+    def test_account_same_uid_app_unknown_and_unreadable_are_refused(self):
+        guard = self.guard()
+        owner = type('Stat', (), {'st_dev': 1, 'st_ino': 91, 'st_uid': 0})()
+        image = type('Stat', (), {'st_dev': 2, 'st_ino': 10})()
+        def fake_stat(path):
+            if path == '/proc/91': return owner
+            if path == '/proc/91/exe': return image
+            raise AssertionError(path)
+        identity = (1, 91, 0, (os.geteuid(),) * 4, '123')
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.updater, '_account_guard'), \
+             mock.patch.object(u.updater, '_process_account_identity', return_value=identity), \
+             mock.patch.object(u.updater.os, 'listdir', return_value=['91']), \
+             mock.patch.object(u.updater.os, 'stat', side_effect=fake_stat):
+            with mock.patch.object(u.updater.os, 'readlink', return_value='/custom/Multica.AppImage'):
+                self.assertTrue(u.updater.process_inventory(guard)[0]['app'])
+                with self.assertRaisesRegex(u.updater.Refusal, 'desktop application running'):
+                    u.updater.require_no_running_app(guard)
+            with mock.patch.object(u.updater.os, 'readlink', return_value='/custom/unknown.AppImage'):
+                with self.assertRaisesRegex(u.updater.Refusal, 'cannot identify AppImage'):
+                    u.updater.process_inventory(guard)
+            with mock.patch.object(u.updater.os, 'readlink', return_value='/custom/electron'), \
+                 mock.patch('builtins.open', mock.mock_open(read_data=b'/custom/electron\0other-app\0')):
+                with self.assertRaisesRegex(u.updater.Refusal, 'cannot identify Electron'):
+                    u.updater.process_inventory(guard)
+            with mock.patch.object(u.updater, '_process_account_identity', side_effect=u.updater.Refusal('unknown process uid')):
+                with self.assertRaisesRegex(u.updater.Refusal, 'unknown process uid'):
+                    u.updater.process_inventory(guard)
+
+    def test_process_foreign_permission_and_uid_stability(self):
+        guard = self.guard()
+        proc_owner = type('Stat', (), {'st_dev': 1, 'st_ino': 91, 'st_uid': 0})()
+        image = type('Stat', (), {'st_dev': 2, 'st_ino': 10})()
+        target = type('Stat', (), {'st_dev': 2, 'st_ino': 11})()
+        foreign = os.geteuid() + 1000
+        def fake_stat(path):
+            if path == str(self.binary): return target
+            if path == '/proc/91': return proc_owner
+            if path == '/proc/91/exe': raise PermissionError('denied')
+            raise AssertionError(path)
+        def identity(proc, info):
+            return (info.st_dev, info.st_ino, info.st_uid, (foreign,) * 4, '123')
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.updater, '_account_guard'), \
+             mock.patch.object(u.updater, '_process_account_identity', side_effect=identity), \
+             mock.patch.object(u.updater.os, 'listdir', return_value=['91']), mock.patch.object(u.updater.os, 'stat', side_effect=fake_stat):
+            self.assertEqual(u.updater.process_inventory(guard), [])
+            self.assertEqual(u.updater.executable_users(str(self.binary), guard), [])
+            with self.assertRaisesRegex(u.updater.Refusal, 'every process'):
+                u.updater.process_inventory()
+        same = (foreign, foreign, os.geteuid(), foreign)
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.updater, '_account_guard'), \
+             mock.patch.object(u.updater, '_process_account_identity', return_value=(1, 91, 0, same, '123')), \
+             mock.patch.object(u.updater.os, 'listdir', return_value=['91']), mock.patch.object(u.updater.os, 'stat', side_effect=fake_stat):
+            with self.assertRaisesRegex(u.updater.Refusal, 'every process'):
+                u.updater.process_inventory(guard)
+        def readable_stat(path):
+            if path == '/proc/91/exe': return target
+            return fake_stat(path)
+        with mock.patch.object(u.updater, 'require_visible_proc'), mock.patch.object(u.updater, '_account_guard'), \
+             mock.patch.object(u.updater, '_process_account_identity', side_effect=identity), \
+             mock.patch.object(u.updater.os, 'listdir', return_value=['91']), mock.patch.object(u.updater.os, 'stat', side_effect=readable_stat):
+            self.assertEqual(u.updater.executable_users(str(self.binary), guard), [{'pid': 91, 'uid': 0}])
 
 
 class PreparationTests(unittest.TestCase):
