@@ -1,0 +1,524 @@
+# Multica 繁中版：請 Agent 協助更新
+
+本指引只適用 `hyc5566/multica`。
+本版是 `@VERSION@`。
+來源 commit 是 `@COMMIT@`。
+HTML 下載頁是一般說明正本。
+本檔是操作正本。
+
+## 1. 確認授權
+
+1. 確認目標是您自己擁有的機器。
+   通過條件：您有該機器的管理權限。
+2. 確認操作者與目標是不同實體機器。
+   通過條件：兩台機器的識別資料不同。同機不同帳號或 profile 仍算同機。
+3. 確認本次更新窗口。
+   通過條件：授權涵蓋機器、固定版本、服務影響、備份與回滾。
+
+已有相同範圍的核准時，沿用該核准。
+不要清除 task 環境標記來繞過限制。
+Agent 不得更新自己所在機台的 daemon。
+需要密碼或系統點按時，交由機器擁有者操作。
+
+## 2. 先檢查 App
+
+1. 查 App 的安裝位置。
+   通過條件：已查標準位置及擁有者指定的程式目錄。
+2. 查正在執行的 App。
+   通過條件：已核對程序的實際執行檔。不能只看作業系統或 `/Applications`。
+3. 查 CLI 入口。
+   通過條件：入口及其實際執行檔屬同一套安裝。
+4. 查 daemon 的實際執行檔。
+   通過條件：PID、profile、版本、來源及服務管理方式一致。
+
+有 App 時，使用第 4 節。
+沒有 App 時，使用第 5 節。
+發現兩套安裝時，只回報並停止。
+無法檢查指定範圍時，只回報並停止。
+來源未知或共用安裝時，一般使用者的 agent 只回報並停止。
+不要自行移除任何安裝。
+
+## 3. 下載並驗證腳本
+
+1. 從固定網址下載腳本。
+
+   ```sh
+   curl --fail --show-error --proto '=https' \
+     --output multica-update.sh '@SCRIPT_URL@'
+   ```
+
+   通過條件：HTTPS 驗證通過。回應為 200。檔案下載完整。
+2. 核對腳本 SHA-256。
+
+   ```sh
+   printf '%s  %s\n' '@SCRIPT_SHA256@' multica-update.sh | sha256sum --check
+   ```
+
+   通過條件：結果為 `OK`。macOS 可用 `shasum -a 256` 比對同一個預期值。
+3. 下載對應平台的版本清單。
+   Linux amd64：`@MANIFEST_AMD64_URL@`。
+   Linux arm64：`@MANIFEST_ARM64_URL@`。
+4. 核對版本清單 SHA-256。
+   Linux amd64：`@MANIFEST_AMD64_SHA256@`。
+   Linux arm64：`@MANIFEST_ARM64_SHA256@`。
+5. 核對版本清單內容。
+   通過條件：來源、版號、完整 commit、固定資產網址、位元組數與 SHA-256 都符合核准清單。
+6. 準備候選資產。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" \
+     --download-assets --asset-dir "$NEW_ASSET_DIR"
+   ```
+
+   通過條件：全部資產的大小及 SHA-256 通過，才出現新的候選目錄。這是下載準備，不是乾跑，也不換版。
+
+已有完整的離線核准包時，可以使用其中的同版資產。
+仍須核對相同的版本清單與 hash。
+
+需要內部 CA 時，先向管理者取得公開 CA 並核對指紋。
+下載時用系統信任或明確的 `--cacert`。
+腳本內的 Python 下載使用系統信任或 `SSL_CERT_FILE`。
+需要額外 CA 時，先把 `SSL_CERT_FILE` 設為已核對的公開 CA bundle 絕對路徑。
+不要假定 curl 的 `--cacert` 會自動傳給 Python。
+不要用 `-k` 或 `--insecure`。
+不要把下載內容直接 pipe 給 shell。
+不要用自行計算的 hash 代替發布者的預期值。
+
+## 4. 有 App：由 App 更新整組
+
+1. 確認 App 是 Apple Silicon 繁中正式版。
+   通過條件：來源是本指引指定的繁中版。
+2. 確認待安裝版本。
+   通過條件：版號及配套清單符合本次核准。
+3. 在 App 的設定中檢查更新。
+   通過條件：App 顯示已驗證的固定候選版本。
+4. 在核准窗口啟動更新。
+   通過條件：App 已停止 daemon 領取新工作，並等待在途工作完成。
+5. 等待 App 重開。
+   通過條件：App、內附 CLI 與執行中的 daemon 都符合配套版號及雜湊。
+6. 驗證第 7 節的項目。
+   通過條件：每項都有證據。
+
+App 一併更新內附 CLI 與 daemon。
+CLI 入口使用該 App 的配套版本。
+不要再安裝獨立 CLI 或 daemon。
+不要刪除獨立管理標記來強制接管舊安裝。
+App 或 OS 重開後，仍應使用同一套配套。
+
+自動更新偏好預設開啟。
+App 啟動約 30 秒後檢查更新。
+之後約每 24 小時檢查一次。
+App 會自動下載及驗證新版。
+安裝會等待明確重開或正常結束的時機。
+選擇「稍後」可延後本次程序的自動安裝。
+最小化或失焦不會觸發安裝。
+
+受管機器必須核對已下載的版本及窗口。
+不要假定關閉自動更新會清除已暫存版本。
+不能確認版本或停止領取能力時，停止並回報。
+舊版缺少維護停止能力時，使用明確的首次導入流程。
+中央 Server 持續運作，只停止已核對的目標 App 與 daemon。
+先盡量等已知工作完成，再備份完整前版。
+維護交界的漏接或中斷由使用者重新驅動，不承諾自動補跑。
+不要由 Multica agent 停止自己的 Server。
+舊 App 不會從新的配套更新頻道下載候選。
+首次導入也必須建立可信 baseline 及交易紀錄。
+不能只靠手動換檔便宣稱納管完成。
+
+更新成功前保留復原資產。
+配套驗證失敗時，整組回到更新前版。
+派工尚未回傳時，結果仍是「待驗收」。
+等待驗收或清理時，daemon 或電腦重啟會觸發重新認證。
+工具會重驗實跑程序、配套及原身分。
+三個新心跳週期與新的派工回傳通過後，才繼續完成交易。
+不能沿用重啟前的回執。
+缺少可信配套證據時，保留復原資料並回報人工處理。
+
+### 回復舊 App 後接續驗收
+
+舊 CLI 可能無法讀取新版交易欄位。
+這時不要改寫 journal，也不要重做安裝。
+由已獲授權的跨機操作者，在目標機使用本次固定候選的 CLI 接續。
+本節只適用一般整組交易；`legacy` 交易沿用下方的 `legacy-apply` 入口。
+
+1. 從已驗證的固定候選取得配套 Darwin arm64 CLI。
+   通過條件：版本、完整 commit 及 SHA-256 符合固定清單。`COORDINATOR_SHA256` 取自已核對的 `@APP_MANIFEST_URL@` 中 `coordinated_desktop.darwin-arm64.binary_sha256`。
+2. 將 CLI 保存在 App 與候選 bundle 之外的私人控制目錄。
+   通過條件：目錄由原 App 帳號管理，副本名稱為 `acceptance-coordinator`。已有不明副本時停止。不要從會被清理的 staged／failed App 內直接執行。
+3. 核對副本後接續同一筆交易。
+
+   ```sh
+   printf '%s  %s\n' "$COORDINATOR_SHA256" "$PINNED_CLI" | shasum -a 256 -c -
+   "$PINNED_CLI" daemon coordinated-update \
+     --journal "$APP_UPDATE_DIR/journal.json" --token "$TRANSACTION_TOKEN"
+   ```
+
+   通過條件：缺心跳或派工時仍為待驗收，使用同一副本與參數接續。新程序重新通過三個心跳週期及新派工後才完成。
+4. 保留該副本至 journal 已持久記錄 `complete` 或 `restored`。
+   通過條件：即使候選已清理、最後寫入前中斷，仍有已核對的協調程式可以重試。確認驗收與兩版保留後，才依核准清單移除這份受管副本。
+
+### 新安裝或已有閘門：建立版本基準
+
+目前 App、內附 CLI 與 daemon 都已是本版，但沒有 ledger 時，先建立可信基準。
+這一步不換版、不重啟，也不虛構前版。
+舊 daemon 沒有閘門時，不適用本節，改用下一節。
+
+1. 取得目前 App 同版的固定版本資訊。
+   網址：`@APP_MANIFEST_URL@`。
+   通過條件：SHA-256 為 `@APP_MANIFEST_SHA256@`，版號、commit 及內附 CLI hash 全部符合目前安裝。
+2. 在 App 完成原有登入與連線。
+   通過條件：原 profile、daemon ID 及 runtime 可核對。
+3. 從已核對的 App 配套 CLI 執行採認。
+
+   ```sh
+   "$APP_CLI" daemon coordinated-adopt \
+     --manifest "$APP_MANIFEST" --manifest-sha256 "$APP_MANIFEST_SHA256" \
+     --bundle "$INSTALLED_APP" --cli-entry "$APP_CLI_ENTRY" \
+     --desktop-profile "$ORIGINAL_PROFILE" --work-dir "$APP_UPDATE_DIR"
+   ```
+
+   通過條件：三次新心跳及採認後的成功派工都通過，才回報 `adopted`。資料不足時保持待驗收，使用相同參數接續。
+
+首次採認的 `previous` 為空。
+同版重跑不輪替既有前版。
+完成採認後，後續由 App 的整組更新流程管理。
+完全沒有 Linux unit 或 daemon 的新安裝，不由更新腳本猜測建立。
+
+### 舊 App 首次整組導入
+
+先下載本版 App ZIP，核對本頁與 checksum 的 SHA-256。
+把 App 解壓到實際 App 使用者資料目錄下的 `zh-tw-update/staging/`。
+不要替換已安裝的 App。不要使用獨立 CLI installer。
+以下 `CANDIDATE_CLI` 是該候選 App 內附的 `Contents/Resources/app.asar.unpacked/resources/bin/multica`。
+
+1. 下載固定候選版本資訊。
+   網址：`@APP_MANIFEST_URL@`。
+   通過條件：SHA-256 為 `@APP_MANIFEST_SHA256@`。
+2. 核對私人的舊版盤點。
+   通過條件：只含指定 App、原 daemon、CLI 入口、原 Server 及全部 workspace/runtime。
+3. 核對資料相容性證據。
+   通過條件：獨立證據支持 `multica-profile-v1`，且證據檔 hash 符合盤點。不能用候選的宣告推定舊版相容。
+4. 執行唯讀預檢。
+
+   ```sh
+   "$CANDIDATE_CLI" daemon legacy-preflight \
+     --inventory "$APP_INVENTORY" --inventory-sha256 "$APP_INVENTORY_SHA256" \
+     --manifest "$APP_MANIFEST" --staged-bundle "$STAGED_APP" \
+     --compatibility-evidence "$COMPATIBILITY_EVIDENCE"
+   ```
+
+   通過條件：`status=preflight_only`，`idle=true`。沒有建立 gate、備份、換版或停止程序。
+5. 在同一授權範圍執行首次導入。
+
+   ```sh
+   "$CANDIDATE_CLI" daemon legacy-apply \
+     --inventory "$APP_INVENTORY" --inventory-sha256 "$APP_INVENTORY_SHA256" \
+     --manifest "$APP_MANIFEST" --staged-bundle "$STAGED_APP" \
+     --compatibility-evidence "$COMPATIBILITY_EVIDENCE"
+   ```
+
+   通過條件：完整舊 App 與 CLI 入口已保存。精確停止原程序後整組交換。新版保持 gate，原身分與三個心跳週期通過後才恢復接單。
+6. 完成一次已授權派工。
+   通過條件：原 runtime 完成工作並回傳。沒有 receipt 時保留 pending，不清理前版。
+
+恢復同一筆交易時，使用保留的 coordinator：
+
+```sh
+"$APP_UPDATE_DIR/legacy-coordinator" daemon legacy-apply \
+  --journal "$APP_UPDATE_DIR/journal.json" --token "$TRANSACTION_TOKEN"
+```
+
+只恢復同一個 token。不要重建或手動修改 journal。
+故障回到無閘門舊版時，記錄可能漏接或中斷，由使用者重新驅動。
+仍需核對舊版實跑 hash、原身分、心跳、App 登入及派工。
+
+私人盤點使用 JSON。`version` 是數字 `1`。`source_id` 固定為 `hyc5566/multica`。
+必填欄位如下：
+
+- 路徑：`profile`、`bundle`、`cli_entry`、`work_dir`。`work_dir` 必須是實際 App 使用的 `zh-tw-update` 目錄。
+- 舊版：`old_version`、`old_binary_sha256`、`old_data_compatibility`、`compatibility_evidence_sha256`。缺少的舊 commit 不填造值。
+- 候選：`candidate_manifest_sha256`。
+- 原身分：`daemon_id`、`server_url_sha256`、`workspaces`。`workspaces` 是 workspace ID 到原 runtime ID 陣列的對照。
+- 跨機：`controller_machine_id_sha256`。控制端為 Mac 時，使用候選 CLI 的 `daemon machine-fingerprint` 取得 hash。控制端為 Linux 時，使用第 5 節的機器指紋指令。不得填目標機的指紋。
+- 程序：`daemon` 是原 daemon 的程序身分；`apps` 是全部原 App／Helper 程序身分陣列。
+
+每筆程序身分包含數字 `pid`、`uid`、`device`、`inode`，以及 `started_at`、`executable_path`、`sha256`。
+`started_at` 使用 `LC_ALL=C`、`TZ=UTC` 的 `ps lstart` 原值。
+映像 hash 必須先核對精確 PID 的 lsof text device/inode 與開啟檔案相同，再計算。
+只計算磁碟檔案 hash 不足以證明實跑映像。
+無權限、缺少程序、增加程序或身分改變時，停止並重新盤點。
+不要把這份私人盤點附到公開下載頁。
+
+## 5. 無 App：由跨機 Agent 更新
+
+本腳本的常態路徑適用 Linux 的單一、獨占安裝。
+從已核對的原生主機 shell 執行。
+預設 `inventory_scope` 為 `host`，必須確認完整 `/proc` 視圖；容器、隱藏程序的掛載或無法檢查其他 UID 時，只回報並停止。
+明確選擇 `inventory_scope: "account"` 時，僅支援 Linux binary layout，操作者 EUID 必須是原 owner UID，且只控制精確的原 user unit。共用 CLI 與其他帳號的 App 不在更新目標。
+腳本只使用已核對的原 systemd unit。
+它不建立另一個 daemon。
+其他平台或未知安裝只回報並停止。
+
+1. 準備私人的操作清單。
+   通過條件：清單列出 owner UID、profile、原 unit、user 或 system scope、CLI、health 位址、程式搜尋根目錄、候選資產、證據目錄、ledger 與受管資產邊界。
+   清單也要有控制端實體機指紋，以及可信 baseline manifest 和獨立 hash。
+   launcher 安裝還要有原 CA 路徑及 hash。
+
+   下列 JSON 是欄位範本。
+   請以該機實際資料取代所有範例值。
+   `owner_uid` 必須是實際數字。
+
+   ```json
+   {
+     "inventory_scope": "host",
+     "owner_uid": 1000,
+     "profile": "ORIGINAL_PROFILE",
+     "unit": "EXACT_ORIGINAL_UNIT.service",
+     "systemd_scope": "user",
+     "layout": "binary",
+     "controller_machine_id_sha256": "CONTROL_MACHINE_SHA256",
+     "cli": "/PRIVATE_OBSERVER/multica",
+     "health_url": "http://127.0.0.1:HEALTH_PORT/health",
+     "observer_ca_cert_file": "/PRIVATE_CA_BUNDLE/ca-bundle.crt",
+     "observer_ca_sha256": "APPROVED_PUBLIC_CA_BUNDLE_SHA256",
+     "search_roots": ["/PRIVATE_PROGRAM_ROOT"],
+     "asset_root": "/PRIVATE_PROGRAM_ROOT",
+     "staged": "/PRIVATE_PROGRAM_ROOT/candidate/multica",
+     "evidence_dir": "/PRIVATE_PROGRAM_ROOT/evidence/NEW_TRANSACTION",
+     "ledger": "/PRIVATE_CONTROL_ROOT/update-ledger.json",
+     "baseline_manifest": "/PRIVATE_CONTROL_ROOT/approved-baseline.json",
+     "baseline_manifest_sha256": "APPROVED_BASELINE_SHA256"
+   }
+   ```
+
+   在控制端計算實體機指紋：
+
+   ```sh
+   python3 -c 'from pathlib import Path; import hashlib; print(hashlib.sha256(Path("/etc/machine-id").read_bytes().strip()).hexdigest())'
+   ```
+
+   把輸出填入 `controller_machine_id_sha256`。
+   不要填目標機自己的指紋。
+   工具會另讀目標機的指紋並比對。
+   指紋相同或無法讀取時，工具停止。
+   另保存兩端各自採集的機台、時間與指紋證據。
+   清單填了兩個不同值，不能單獨證明跨實體機。
+   尚未核對兩端來源時，不執行實際換版。
+
+   `MANIFEST`、`PRIVATE_INVENTORY`、`LEDGER` 及 JSON 中的檔案位置都使用絕對實體路徑。
+   `NEW_ASSET_DIR` 放在 `asset_root` 內。
+   `asset_root` 必須包含實跑程式及受管候選。
+   它不能包含 profile、state 或 workspace。
+   `evidence_dir` 必須是新目錄。
+   證據及 ledger 的父目錄必須先存在。
+   `cli` 是本版已驗證 binary 的獨立副本。
+   它的大小、SHA-256、版號及 commit 必須符合本版清單。
+   不要把 `cli` 指向即將替換的檔案，也不要用 hardlink 指向候選。
+   填入 `observer_ca_cert_file` 與獨立核對的 `observer_ca_sha256`。
+   使用私有或公開 CA 時，都提供適用的可信 CA bundle。
+   通過條件：工具先驗證 CA，再交給獨立 observer。不要依賴操作者 shell 碰巧帶入的 CA。
+   `host` 模式先確認可讀取所有已執行程序的實際映像。
+   `host` 模式將其他帳號的 App 也納入分流，即使它在搜尋根目錄外或使用另一個程式檔。
+   有 App 時停止獨立更新，交由 App 管理。
+   `host` 模式另排除其他 UID 共用目標 binary。
+   權限不足時只回報並停止，不自行改權限或提權。
+   `host` 模式下，已授權的 root 操作者可控制原 system unit，或透過原 UID 的 user bus 控制原 user unit。
+   `owner_uid` 仍填原 daemon 的 UID，不填操作者的 root UID。
+   候選與 profile 的擁有者仍是原 daemon 帳號。
+
+   選擇 `account` 時，將範本的 `inventory_scope` 設為 `account`，並逐項確認：
+
+   | 檢查 | 通過條件 |
+   | --- | --- |
+   | 帳號與工具 | Linux `binary` 佈局，操作者 EUID 是原 owner UID；有 `systemctl` 和支援 JSON 的 `busctl`。 |
+   | 私有範圍 | 受管 root 為 owner 的 `0700` 私有目錄，祖先安全；state、受管檔案、CLI、daemon 與 unit 均屬本人且同源。所有寫入、備份、回滾與清理均限本人範圍。 |
+   | 路徑與資產 | 使用經核對的實體私有 root；state 和 unit 的 `FragmentPath` 不得是符號連結。檔案 owner、類型或連結數未知，或發現 hardlink、未知資產時停止。 |
+   | 原服務 | 使用精確的原 user unit，啟動參數與 profile 符合盤點，沒有額外啟停 helper 或 drop-in。 |
+   | 程序 | 可信確認同 UID 的全部相關程序；owner 沒有 App、混裝、共享或未知目標。可讀取的其他 UID 程序使用同 inode 時拒絕。 |
+
+   `account` 的 `cli`、`staged`、CA bundle、baseline manifest（如需）、`ledger` 及 `evidence_dir` 都必須位於同一個私有 `asset_root`。
+   profile state 使用另一個獨立、屬於 owner 的 `0700` 實體目錄。
+   原 unit 只接受 `daemon start --foreground`；指定 profile 時，在命令前使用 `--profile PROFILE`。
+   不支援其他啟動選項。
+   現有佈局不符合時，回報缺項並停止，不自行調整。
+
+   單憑 `no_shared` 自證或檔案 owner 無法證明隔離。計畫不代表已排除所有其他帳號的映像；私有範圍與後續排他檢查都通過後，才可不因已確認其他 UID 的映像無法讀取而單獨拒絕。不要自行改權限、提權或搬移 state。
+
+   停止原 unit 後，每次換檔或回滾換檔前都要取得核心寫入租約；檔案仍被執行、開啟或映射，系統不支援租約，或租約失效時停止，不能改用較弱的檢查。清理舊受管檔案也須通過同樣檢查。換檔以新檔核對 hash、同步至磁碟後原子替換，不覆寫舊 inode 的內容或權限。若租約失效時已部分換檔，安全回滾並回報失敗。
+
+2. 核對原 systemd unit。
+   通過條件：unit 存在、狀態正確，且 MainPID 對應目標 daemon。
+3. 備份更新前資產。
+   通過條件：舊程式、入口及必要資料可恢復。私人設定與憑證不出現在公開紀錄。
+4. 執行乾跑。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" --inventory "$PRIVATE_INVENTORY"
+   ```
+
+   通過條件：結果列出盤點範圍、原身分、服務、版本、hash、保留版本、回滾計畫及 fingerprint。沒有建 gate、換檔、重啟、清理或變更註冊。
+5. 檢閱乾跑計畫。
+   通過條件：實際目標及動作都在核准範圍。
+6. 執行同一計畫。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" --inventory "$PRIVATE_INVENTORY" \
+     --apply --fingerprint "$PLAN_FINGERPRINT"
+   ```
+
+   通過條件：腳本重新核對現場與 fingerprint，並在停止前、替換前重驗，先取得 gate 並排空，再備份、換版，從原 unit 啟動。盤點後現場變動時停止。
+7. 執行一次已授權的無害派工。
+   通過條件：原 runtime 領取任務，任務成功，結果已回傳 Server。
+8. 驗收本次交易。
+
+   ```sh
+   bash multica-update.sh --accept --ledger "$LEDGER"
+   ```
+
+   通過條件：腳本即時核對執行版本、原身分、三次新心跳及本次換版後的成功派工紀錄。清理及保留驗證也通過。
+
+大寫變數來自私人的核准清單。
+不要把這些命令直接套用到未知機器。
+腳本發現 App 時會拒絕獨立換版。
+腳本發現既有 gate 或無法排空時會停止。
+不要強殺任務或刪除 gate。
+
+### 舊版沒有閘門
+
+這是首次導入專用入口。不要放寬常態路徑的能力檢查。
+中央 Server 持續運作。只更新已核對的目標機。
+
+1. 取得舊版盤點提案。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" --inventory "$PRIVATE_INVENTORY" \
+     --observe-legacy
+   ```
+
+   通過條件：結果為 `observed`。沒有建立 gate、ledger、備份或改動服務。
+2. 核對盤點提案。
+   通過條件：先以可信發布或編譯清單證明舊程式來源，再核對實體機指紋、原 unit、scope、MainPID、ExecStart、KillMode、cgroup、實跑 hash、daemon ID 與入口檔案形態符合核准盤點。
+3. 保存核准基準。
+   通過條件：將已核對的 `legacy_baseline` 放入私人操作清單。觀察結果本身不代表核准。
+4. 執行首次導入乾跑。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" --inventory "$PRIVATE_INVENTORY" \
+     --legacy-bootstrap
+   ```
+
+   通過條件：明列無閘門風險、備份、完整候選來源及本次 fingerprint。舊版缺完整 commit 時保持缺值。
+5. 執行同一計畫。
+
+   ```sh
+   bash multica-update.sh --manifest "$MANIFEST" \
+     --manifest-sha256 "$MANIFEST_SHA256" --inventory "$PRIVATE_INVENTORY" \
+     --legacy-bootstrap --apply --fingerprint "$PLAN_FINGERPRINT"
+   ```
+
+   通過條件：先盡量等已知工作完成，再備份原程式與入口。只停止原 unit，確認程序群清空後換版。新版先保持 gate，原身分與三個心跳週期通過後才恢復接單。
+6. 完成派工及交易驗收。
+   通過條件：重新驅動受影響的任務，完成一次已授權的成功派工回傳，再執行 `--accept --ledger "$LEDGER"`。
+
+私人清單可用 `legacy_wrapper` 指定原 unit 直接執行的 regular wrapper。
+同時提供已核對的 `ca_sha256`。
+腳本只辨識固定模板及官方 installer 的既定模板。
+符號連結、未知 shell 或無法核對的入口會停止。
+原 wrapper 留在原位，備份保留內容及 metadata。
+舊版原有的背景更新可能造成競態，不能宣稱已被新版 gate 阻擋。
+腳本停止前重查身分及 hash；原服務的程序群必須確實停止。
+
+維護交界可能漏接或中斷。由使用者重新驅動，不承諾自動補跑。
+故障時恢復原 binary 及原 wrapper 形態。
+回到無閘門舊版時，只能先回報待人工復驗。
+核對原身分、心跳及實際派工前，不能回報完整成功。
+
+## 6. 版本保留與回滾
+
+1. 保留目前版。
+2. 保留本次更新前版。
+3. 完成全部驗收。
+4. 清理更舊的受管程式資產。
+
+以前一次實際交易辨識前版。
+不要依版號排序選前版。
+首次建立受管紀錄時，不虛構前版。
+本腳本更新既有安裝，不建立新的 systemd unit。
+完全沒有 binary、unit 或 daemon 的全新安裝不適用本流程。
+同版重跑不輪替前版。
+驗收前不清理復原所需資產。
+清理只限 ledger 登記且可驗證的程式檔。
+保留 profile、state、workspace、設定、憑證及非受管檔案。
+清理失敗不算完整成功。
+
+只允許回滾到本次更新前版。
+回滾前核對完整配套、hash 與資料相容條件。
+回滾後重驗原身分、版本、心跳及派工。
+更舊版不能作為選項。
+回滾或復驗失敗時，保留現場並停止下一台。
+
+無 App 的常態回滾，先產生計畫：
+
+```sh
+bash multica-update.sh --rollback --ledger "$LEDGER" \
+  --rollback-evidence-dir "$NEW_ROLLBACK_EVIDENCE_DIR"
+```
+
+檢閱計畫後，才執行同一個 fingerprint：
+
+```sh
+bash multica-update.sh --rollback --ledger "$LEDGER" \
+  --rollback-evidence-dir "$NEW_ROLLBACK_EVIDENCE_DIR" \
+  --apply --fingerprint "$ROLLBACK_PLAN_FINGERPRINT"
+```
+
+通過條件：只能選本次更新前版。回退後仍須重新完成第 7 節。支援閘門的前版使用 `--accept`。
+無閘門前版會回傳 `legacy_rollback_pending_manual` 及 exit 2。先保留兩版，交由操作者核對原身分、實際心跳及派工，並重新驅動受影響任務。不要用新版 receipt 冒充舊版證據。
+
+## 7. 驗收與回報
+
+1. 核對執行中的 App、CLI 及 daemon 版號與 hash。
+2. 核對原 daemon ID、profile、workspace 與所有 runtime。
+3. 觀察至少三個實際心跳週期。
+4. 核對一次已授權派工的完整回傳。
+5. 核對目前版及更新前版仍可辨識。
+6. 核對保留範圍外的資料未變。
+
+回報以下其中一種結果：完整成功、待驗收、已回滾或失敗。
+未完成派工時，只能回報待驗收。
+失敗或清理失敗必須回傳非零 exit code。
+不要用 HTTP 200、服務 active 或介面開啟代替完整驗收。
+
+新版已停用繁中版的舊 `multica update` 直接換檔路徑。
+它會引導您使用本指引的固定版本腳本。
+舊版的該指令只適用繁中頻道的版本化 launcher。
+不要將舊指令套用到 App 內附 CLI、裸 binary、Homebrew 或未知來源。
+`MULTICA_DAEMON_AUTO_UPDATE=false` 不是停止領取的開關。
+它也不會停止 App 更新。
+
+回報不含憑證的版本、hash、時間、驗收結果及私人證據位置。
+不要公開註冊 UUID、完整設定或內部服務路徑。
+
+## 8. 委託範本
+
+```text
+請協助更新我自己擁有的機器。
+目標機器與 OS：［私下提供］
+安裝來源與目前版本：［先唯讀確認］
+核准固定版、完整 commit 與 hash：［版本清單］
+更新窗口與時區：［填寫］
+備份及回滾授權：［填寫］
+請先檢查 App。
+請先執行乾跑。
+有 App 時，由 App 更新整組，不另裝 CLI 或 daemon。
+無 App 時，請從另一台實體機操作，並沿用原 systemd unit。
+遇到混合、未知或共用安裝時，只回報並停止。
+舊版首次導入不中止中央 Server，維護交界的漏接任務由我重新驅動。
+沒有全部驗收證據時，請標示待驗收。
+不要提供或記錄密碼、token、私鑰或登入檔。
+```

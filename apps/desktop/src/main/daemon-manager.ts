@@ -27,6 +27,7 @@ import type {
 } from "../shared/daemon-types";
 import { daemonStatusAlive } from "../shared/daemon-types";
 import { ensureManagedCli, managedCliPath } from "./cli-bootstrap";
+import { verifyCLIEntries } from "./zh-tw-cli-entry";
 import { decideVersionAction } from "./version-decision";
 import {
   deriveProfileName,
@@ -208,6 +209,48 @@ interface HealthPayload {
   launched_by?: string;
   agents?: string[];
   workspaces?: unknown[];
+  maintenance_shutdown?: boolean;
+  cli_commit?: string;
+  maintenance_gate?: { supported?: boolean; blocked?: boolean; path?: string };
+  update_attestation?: { binary_sha256?: string; process_started_at?: string; runtime_heartbeat_acks?: Record<string, number> };
+}
+
+export type CoordinatedDaemonSnapshot = {
+  profile: string; daemonId: string; serverURLSHA256: string; pid: number; startedAt: string; port: number;
+  gatePath: string; binarySHA256: string; version: string; commit: string;
+  workspaces: Record<string, string[]>; runtimeIDs: string[];
+};
+
+export async function withCoordinatedDaemon<T>(work: (snapshot: CoordinatedDaemonSnapshot) => Promise<T>): Promise<T> {
+  return lifecycleOperations.runForeground(async () => {
+    const active = await ensureActiveProfile();
+    if (!active) throw new Error("尚未確認 Desktop daemon 的服務與 profile，無法更新。");
+    const probed = await fetchProfileHealthWithPort(active);
+    const h = probed?.health;
+    if (!probed || !h || await pinnedBoundary(active, h)) throw new Error("此 profile 由獨立 daemon 管理或無法確認；請另案處置，不會自動接管。");
+    const attestation = h.update_attestation;
+    const gatePath = join(profileDir(active.name), "daemon.maintenance");
+    if (h.status !== "running" || h.os !== "darwin" || h.launched_by !== "desktop" || !!h.lifecycle_manager || h.profile !== active.name ||
+        !h.daemon_id || !h.server_url || !Number.isSafeInteger(h.pid) || !h.pid || h.pid < 1 || h.maintenance_shutdown !== true ||
+        h.maintenance_gate?.supported !== true || h.maintenance_gate.blocked !== false || h.maintenance_gate.path !== gatePath ||
+        !/^[a-f0-9]{64}$/.test(attestation?.binary_sha256 ?? "") || !attestation?.process_started_at ||
+        !h.cli_version || !/^[a-f0-9]{40}$/i.test(h.cli_commit ?? "")) {
+      throw new Error("daemon 缺少安全協調能力或身分無法確認，無法更新。");
+    }
+    const workspaces: Record<string, string[]> = {};
+    const runtimeIDs: string[] = [];
+    if (!Array.isArray(h.workspaces)) throw new Error("無法確認原工作區與 runtime。");
+    for (const row of h.workspaces) {
+      if (!row || typeof row !== "object") throw new Error("無法確認原工作區與 runtime。");
+      const { id, runtimes } = row as { id?: unknown; runtimes?: unknown };
+      if (typeof id !== "string" || !id || Object.hasOwn(workspaces, id) || !Array.isArray(runtimes) || runtimes.some((v) => typeof v !== "string" || !v)) throw new Error("無法確認原工作區與 runtime。");
+      workspaces[id] = [...runtimes].sort();
+      runtimeIDs.push(...runtimes);
+    }
+    if (!runtimeIDs.length || new Set(runtimeIDs).size !== runtimeIDs.length || runtimeIDs.some((id) => !Number.isSafeInteger(attestation.runtime_heartbeat_acks?.[id]))) throw new Error("無法確認原 runtime 心跳。");
+    return work({ profile: active.name, daemonId: h.daemon_id, serverURLSHA256: createHash("sha256").update(h.server_url).digest("hex"), pid: h.pid, startedAt: attestation.process_started_at,
+      port: probed.port, gatePath, binarySHA256: attestation.binary_sha256!, version: h.cli_version, commit: h.cli_commit!, workspaces, runtimeIDs });
+  });
 }
 
 async function fetchHealthAtPort(
@@ -602,6 +645,13 @@ async function resolveCliBinary(): Promise<string | null> {
       }
     }
 
+    // A Taiwan release must use the CLI embedded in that same App bundle.
+    if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+      cachedCliBinary = null;
+      cachedCliBinaryVersion = null;
+      return null;
+    }
+
     const managed = managedCliPath();
     if (existsSync(managed)) {
       const version = await probeCliBinary(managed, "managed");
@@ -689,6 +739,11 @@ async function ensureRunningDaemonVersionMatches(): Promise<
   const active = await ensureActiveProfile();
   if (!active) return "not_running";
   const running = await fetchProfileHealth(active);
+
+  if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+    pendingVersionRestart = false;
+    return running ? "ok" : "not_running";
+  }
 
   // Don't try to version-match a daemon we can't restart (e.g. WSL2). Treat it
   // as up-to-date — restartDaemon would no-op anyway, and skipping here avoids
@@ -1151,6 +1206,10 @@ async function startDaemon(
   if (await pinnedBoundary(active)) return { success: false, error: "This daemon is managed independently." };
   const bin = await resolveCliBinary();
   if (!bin) return { success: false, error: "multica CLI is not installed" };
+  if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+    try { await verifyCLIEntries(bin, bin, managedCliPath(), process.env.PATH ?? "", process.platform); }
+    catch (error) { return { success: false, error: error instanceof Error ? error.message : String(error) }; }
+  }
   if (
     recoveryProfile &&
     !recoveryStartAllowed({
@@ -1577,20 +1636,32 @@ export function preserveDaemonOnNextQuit(): () => void {
 
 export function setupDaemonManager(
   windowGetter: () => BrowserWindow | null,
+  lifecycleBarrier?: Promise<void>,
 ): void {
   getMainWindow = windowGetter;
 
-  ipcMain.handle("daemon:set-target-api-url", (_e, url: string) => lifecycleOperations.runForeground(async () => {
+  let transactionPending = lifecycleBarrier !== undefined;
+  if (lifecycleBarrier) {
+    void lifecycleOperations.runForeground(async () => { await lifecycleBarrier; transactionPending = false; });
+  }
+
+  ipcMain.handle("daemon:set-target-api-url", (_e, url: string) => {
     const normalized = url || null;
-    if (targetApiBaseUrl !== normalized) {
-      console.log(`[daemon] target API URL set to ${normalized ?? "(none)"}`);
-      setDesiredDaemonRunning(false);
-      targetApiBaseUrl = normalized;
-      invalidateActiveProfile();
-      await bootstrapCli();
-      await pollOnce();
+    if (transactionPending) {
+      if (targetApiBaseUrl !== normalized) { targetApiBaseUrl = normalized; invalidateActiveProfile(); }
+      return;
     }
-  }));
+    return lifecycleOperations.runForeground(async () => {
+      if (targetApiBaseUrl !== normalized) {
+        console.log(`[daemon] target API URL set to ${normalized ?? "(none)"}`);
+        setDesiredDaemonRunning(false);
+        targetApiBaseUrl = normalized;
+        invalidateActiveProfile();
+        await bootstrapCli();
+        await pollOnce();
+      }
+    });
+  });
   ipcMain.handle("daemon:start", () => {
     externalDaemonObserved = false;
     setDesiredDaemonRunning(true, true);
@@ -1605,8 +1676,8 @@ export function setupDaemonManager(
     setDesiredDaemonRunning(true, true);
     return lifecycleOperations.runForeground(() => restartDaemon());
   });
-  ipcMain.handle("daemon:get-status", () => fetchHealth());
-  ipcMain.handle("daemon:probe-runtimes", () => probeLocalRuntimes());
+  ipcMain.handle("daemon:get-status", () => transactionPending ? { state: "starting" } : fetchHealth());
+  ipcMain.handle("daemon:probe-runtimes", () => lifecycleOperations.runForeground(() => probeLocalRuntimes()));
   // The host's OS name, available regardless of daemon state. The Runtimes
   // page uses it as a fallback identity for "this machine" when no
   // app-managed daemon is reporting a device name (e.g. the daemon runs
@@ -1639,10 +1710,12 @@ export function setupDaemonManager(
     },
   );
   ipcMain.handle("daemon:is-cli-installed", async () => {
-    const active = await ensureActiveProfile();
-    if (!active || await pinnedBoundary(active)) return false;
-    const bin = await resolveCliBinary();
-    return bin !== null;
+    return lifecycleOperations.runForeground(async () => {
+      const active = await ensureActiveProfile();
+      if (!active || await pinnedBoundary(active)) return false;
+      const bin = await resolveCliBinary();
+      return bin !== null;
+    });
   });
   ipcMain.handle("daemon:retry-install", async () => {
     cachedCliBinary = undefined;
@@ -1700,6 +1773,7 @@ export function setupDaemonManager(
   // app. Acts as the escape hatch when the in-app log viewer isn't enough
   // (full history, complex search, copy-to-clipboard at scale).
   ipcMain.handle("daemon:open-log-file", async () => {
+    if (transactionPending) return { success: false, error: "更新進行中。" };
     const active = await ensureActiveProfile();
     const logPath = active ? profileLogPath(active.name) : null;
     if (!logPath || !existsSync(logPath)) {
@@ -1714,11 +1788,12 @@ export function setupDaemonManager(
   // until the managed binary is on disk (instant on subsequent launches).
   currentState = "installing_cli";
   sendStatus({ state: "installing_cli" });
-  void lifecycleOperations.runBackground(() => bootstrapCli());
+  if (lifecycleBarrier) void lifecycleBarrier.then(() => lifecycleOperations.runForeground(() => bootstrapCli()));
+  else void lifecycleOperations.runBackground(() => bootstrapCli());
 
   let isQuitting = false;
   app.on("before-quit", (event) => {
-    if (isQuitting || event.defaultPrevented || preserveDaemonOnQuit) return;
+    if (isQuitting || event.defaultPrevented || preserveDaemonOnQuit || transactionPending) return;
     setDesiredDaemonRunning(false);
     stopPolling();
     stopLogTail();

@@ -66,6 +66,7 @@ export function createZhTWUpdateController(runtime: ZhTWUpdateRuntime) {
 
   async function check(manual = true): Promise<ManualUpdateCheckResult> {
     await ready;
+    if (status.phase === "pending") return { ok: false, error: status.message ?? "更新尚待驗收。" };
     if (runtime.unsupportedReason) return { ok: false, error: runtime.unsupportedReason };
     if (disposed || (!manual && !preferences.automaticUpdates)) {
       return { ok: false, error: "自動更新已暫停。" };
@@ -159,6 +160,8 @@ export function createZhTWUpdateController(runtime: ZhTWUpdateRuntime) {
       }
     },
     reportStartupError: (error: string) => publish({ phase: "error", currentVersion: runtime.currentVersion, error }),
+    reportPending: (version: string) => publish({ phase: "pending", currentVersion: runtime.currentVersion, version, message: "目前版本已啟動，待原 runtime 完成並回報任務後才完成驗收。" }),
+    reportAccepted: () => publish({ phase: "idle", currentVersion: runtime.currentVersion }),
     reportInstallError: (error: string) => publish({ ...status, phase: "error", error }),
     dispose: () => { disposed = true; cancelTimers(); abort?.abort(); },
   };

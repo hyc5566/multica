@@ -115,6 +115,25 @@ describe("Desktop daemon token synchronization", () => {
     vi.unstubAllEnvs();
   });
 
+  it("registers IPC immediately and queues token synchronization until the transaction barrier opens", async () => {
+    let release!: () => void;
+    const barrier = new Promise<void>((resolve) => { release = resolve; });
+    setupDaemonManager(() => null, barrier);
+    const target = "https://next.example.test";
+    await invoke("daemon:set-target-api-url", target);
+    const reserved = machine.home + "/.multica/profiles/desktop-next.example.test/daemon-management.json";
+    files.set(reserved, "{}");
+    let settled = false;
+    const pending = invoke("daemon:sync-token", "session", "user-1").then(() => { settled = true; });
+    await Promise.resolve(); await Promise.resolve();
+    expect(settled).toBe(false);
+    expect(await invoke("daemon:get-status")).toMatchObject({ state: "starting" });
+    release();
+    await pending;
+    expect(settled).toBe(true);
+    expect(files.has(reserved)).toBe(true);
+  });
+
   it("connects to a reserved profile without bootstrapping a CLI or creating config", async () => {
     await invoke("daemon:set-target-api-url", "");
     files.set(machine.home + "/.multica/profiles/" + profile + "/daemon-management.json", "invalid");

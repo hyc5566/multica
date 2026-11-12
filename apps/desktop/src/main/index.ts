@@ -11,8 +11,9 @@ import {
   requestDaemonTrustRefresh,
   getTargetApiBaseUrl,
   preserveDaemonOnNextQuit,
+  withCoordinatedDaemon,
 } from "./daemon-manager";
-import { setupZhTWAppUpdate } from "./zh-tw-app-update";
+import { setupZhTWAppUpdate, watchCoordinatedStartup } from "./zh-tw-app-update";
 import { setupLocalDirectory } from "./local-directory";
 import { openExternalSafely, downloadURLSafely } from "./external-url";
 import { installContextMenu } from "./context-menu";
@@ -832,8 +833,14 @@ if (!gotTheLock) {
       getMainWindow: () => mainWindow,
       getApiBaseUrl: getTargetApiBaseUrl,
       preserveDaemonOnQuit: preserveDaemonOnNextQuit,
+      withCoordinatedDaemon,
     });
-    setupDaemonManager(() => mainWindow);
+    // Register IPC before renderer effects; lifecycle mutations wait until the
+    // coordinator releases the gate. Legacy helpers never release the barrier.
+    let releaseDaemonLifecycle!: () => void;
+    const lifecycleBarrier = new Promise<void>((resolve) => { releaseDaemonLifecycle = resolve; });
+    setupDaemonManager(() => mainWindow, lifecycleBarrier);
+    if (!process.argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) watchCoordinatedStartup(releaseDaemonLifecycle);
     setupLocalDirectory(() => mainWindow);
 
     app.on("activate", () => {
