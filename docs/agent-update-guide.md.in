@@ -347,6 +347,10 @@ App 會自動下載及驗證新版。
 
    單憑 `no_shared` 自證或檔案 owner 無法證明隔離。計畫不代表已排除所有其他帳號的映像；私有範圍與後續排他檢查都通過後，才可不因已確認其他 UID 的映像無法讀取而單獨拒絕。不要自行改權限、提權或搬移 state。
 
+   通過 account 範圍驗證後，只有 RUID=owner、EUID=SUID=FSUID 同為非 owner 的窄分類可將映像 `EACCES` 記為未核實並繼續觀察／規劃。計畫的 `unverified_process_images` 列出完整身分、失敗操作及已知 inode，並與 `process_uid_policy` 一起綁定 fingerprint。這不能證明沒有 App、共享或 writer；完全 foreign UID 沿既有獨立政策。普通本人不可讀、SUID/FSUID 留 owner、混合／未知 UID 或身分變動仍停止，不按名稱或 PID 略過程序，預設全機模式不放寬。
+
+   每次 stat/readlink 映像前後均核 proc dev/inode/owner、四 UID、start time；已讀取的同 inode、App、deleted 或映像變動仍可拒絕。前後一致不能排除 exec／身分 ABA。更換、回滾及清理前的真核心租約與 hash/inode 重驗仍必要；租約不能證明不可讀程序不是 App 或任意 state 沒有 writer。
+
    停止原 unit 後，每次換檔或回滾換檔前都要取得核心寫入租約；檔案仍被執行、開啟或映射，系統不支援租約，或租約失效時停止，不能改用較弱的檢查。清理舊受管檔案也須通過同樣檢查。換檔以新檔核對 hash、同步至磁碟後原子替換，不覆寫舊 inode 的內容或權限。若租約失效時已部分換檔，安全回滾並回報失敗。
 
 2. 核對原 systemd unit。
