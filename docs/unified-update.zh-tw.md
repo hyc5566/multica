@@ -92,9 +92,15 @@ account 必須有 `systemctl` 與支援 typed JSON user-bus 查詢的 `busctl`�
 
 account 計畫先證明私有 root、state、安全祖先及範圍，綁定 fingerprint；計畫階段不宣稱全域映像排他。state 必須是本人 `0700` 實體目錄。標準 `~/.config/systemd/user/<unit>` 註冊入口可為符號連結，但須將入口的 lstat、readlink、owner、inode，以及 canonical target 各層的 ACL、mode 與內容 hash 綁入證明；後續變動即拒絕，不能只以 realpath 略過入口。不自動搬移 state、改權限或提權。可讀取的其他 UID 程序若使用同 inode，應提早拒絕。對同 UID 程序須可信核對 `/proc` status 的四個 UID 與起始時間；不能因 nondumpable 程序的 `/proc` 目錄顯示 root owner 就略過。App、混裝與未知目標仍拒絕。
 
+通過私有範圍驗證的 account 模式另有一個窄分類：只有 RUID 等於 owner，且 EUID、SUID、FSUID 三者相等、同為非 owner 時，映像查讀的 `EACCES` 可繼續觀察及規劃。這與完全 foreign UID 的既有分類分開，不依程序名稱、PID、sudo 或 root 白名單。普通本人程序不可讀、任何 E/S/FS UID 仍是 owner、權限 UID 混合、資料未知或身分變動，均拒絕。缺省 host 模式不使用此例外。
+
+每次實際 stat/readlink 映像前後，均重核 proc dev/inode/owner、完整四 UID 及 start time。可讀部分仍核對受管 inode、App、deleted 與映像變動；已知同 inode 額外持有者仍拒絕。新分類遇 EACCES 時，計畫的 `unverified_process_images` 明列身分、失敗操作及已知 image inode，表示映像、App、受管 inode 或 writer 關係仍未核實，不能據此宣稱沒有 App、共享或 writer。分類政策 `process_uid_policy` 及當次未核實清單均綁入 fingerprint；apply 重新建計畫比對，scope 證據亦重驗政策。前後快照屬保守競態檢查，不是原子快照，不能排除 exec 或身分 ABA。
+
 可選的 `account_path_policy` 必須只含 `extended_home` 與 `sticky_parent` 兩個絕對路徑：指定的父目錄須由 root 擁有且為 `1775` sticky，下一個既存的 `extended_home` 須由原 owner UID 擁有；其安全上層及受管後代不得有其他 UID 的有效寫入權。受檢路徑不得有非平凡 POSIX ACL 或 default ACL；ACL 不存在只接受 `ENODATA`，無法讀取或結果未知時拒絕。各私有 asset 與 profile state root 均須為原 owner 的 `0700`。政策、路徑、連結與各層身分及權限綁入 fingerprint，並在停止前、替換前及交易中重驗；任何變動拒絕。沒有指定此政策時不套用 sticky 例外。
 
 停止原 unit 後，每次換檔或回滾換檔前，對 owner 檔案取得 Linux `F_SETLEASE` / `F_WRLCK` 可撤銷寫入租約，作為核心排他證據。活躍的 exec、open 或 mmap 會使租約以 `EAGAIN` 失敗；檔案系統不支援或失去租約時拒絕，不能退回較弱檢查。清理舊受管資產也須通過相同 guard 與租約。參見 [Linux F_SETLEASE 說明](https://man7.org/linux/man-pages/man2/F_SETLEASE.2const.html)。只有私有證明與這些檢查全部成立，才可不因已確認 foreign UID 的 `/proc` 映像 `EACCES` 單獨拒絕；不能據此宣稱不存在其他映像。
+
+新窄分類同樣保留每個實際舊 inode 的真核心租約、hash/inode、break/lost 與 scope 重驗。租約只保護指定檔案，不能證明不可讀程序不是 App，也不能證明任意 state 沒有 writer。
 
 換檔以新 inode 複製，重驗 hash 並 fsync，再原子 rename，不覆寫舊 inode 的內容或權限。租約可能被撤銷；若已部分換檔，安全回滾並標示失敗，不能宣稱完整成功。fingerprint、停止前及替換前重驗、gate、排空、心跳、receipt、回滾及清理驗收均不放寬。
 
