@@ -254,8 +254,8 @@ App 會自動下載及驗證新版。
 
 本腳本的常態路徑適用 Linux 的單一、獨占安裝。
 從已核對的原生主機 shell 執行。
-通過條件：操作者已在目標盤點確認完整 `/proc` 視圖。
-容器、隱藏程序的掛載或無法檢查其他 UID 時，只回報並停止。
+預設 `inventory_scope` 為 `host`，必須確認完整 `/proc` 視圖；容器、隱藏程序的掛載或無法檢查其他 UID 時，只回報並停止。
+明確選擇 `inventory_scope: "account"` 時，僅支援 Linux binary layout，操作者 EUID 必須是原 owner UID，且只控制精確的原 user unit。共用 CLI 與其他帳號的 App 不在更新目標。
 腳本只使用已核對的原 systemd unit。
 它不建立另一個 daemon。
 其他平台或未知安裝只回報並停止。
@@ -271,6 +271,7 @@ App 會自動下載及驗證新版。
 
    ```json
    {
+     "inventory_scope": "host",
      "owner_uid": 1000,
      "profile": "ORIGINAL_PROFILE",
      "unit": "EXACT_ORIGINAL_UNIT.service",
@@ -317,14 +318,35 @@ App 會自動下載及驗證新版。
    填入 `observer_ca_cert_file` 與獨立核對的 `observer_ca_sha256`。
    使用私有或公開 CA 時，都提供適用的可信 CA bundle。
    通過條件：工具先驗證 CA，再交給獨立 observer。不要依賴操作者 shell 碰巧帶入的 CA。
-   先確認可讀取所有已執行程序的實際映像。
-   其他帳號的 App 也納入分流，即使它在搜尋根目錄外或使用另一個程式檔。
+   `host` 模式先確認可讀取所有已執行程序的實際映像。
+   `host` 模式將其他帳號的 App 也納入分流，即使它在搜尋根目錄外或使用另一個程式檔。
    有 App 時停止獨立更新，交由 App 管理。
-   另排除其他 UID 共用目標 binary。
+   `host` 模式另排除其他 UID 共用目標 binary。
    權限不足時只回報並停止，不自行改權限或提權。
-   已授權的 root 操作者可控制原 system unit，或透過原 UID 的 user bus 控制原 user unit。
+   `host` 模式下，已授權的 root 操作者可控制原 system unit，或透過原 UID 的 user bus 控制原 user unit。
    `owner_uid` 仍填原 daemon 的 UID，不填操作者的 root UID。
    候選與 profile 的擁有者仍是原 daemon 帳號。
+
+   選擇 `account` 時，將範本的 `inventory_scope` 設為 `account`，並逐項確認：
+
+   | 檢查 | 通過條件 |
+   | --- | --- |
+   | 帳號與工具 | Linux `binary` 佈局，操作者 EUID 是原 owner UID；有 `systemctl` 和支援 JSON 的 `busctl`。 |
+   | 私有範圍 | 受管 root 為 owner 的 `0700` 私有目錄，祖先安全；state、受管檔案、CLI、daemon 與 unit 均屬本人且同源。所有寫入、備份、回滾與清理均限本人範圍。 |
+   | 路徑與資產 | 使用經核對的實體私有 root；state 和 unit 的 `FragmentPath` 不得是符號連結。檔案 owner、類型或連結數未知，或發現 hardlink、未知資產時停止。 |
+   | 原服務 | 使用精確的原 user unit，啟動參數與 profile 符合盤點，沒有額外啟停 helper 或 drop-in。 |
+   | 程序 | 可信確認同 UID 的全部相關程序；owner 沒有 App、混裝、共享或未知目標。可讀取的其他 UID 程序使用同 inode 時拒絕。 |
+
+   `account` 的 `cli`、`staged`、CA bundle、baseline manifest（如需）、`ledger` 及 `evidence_dir` 都必須位於同一個私有 `asset_root`。
+   profile state 使用另一個獨立、屬於 owner 的 `0700` 實體目錄。
+   原 unit 只接受 `daemon start --foreground`；指定 profile 時，在命令前使用 `--profile PROFILE`。
+   不支援其他啟動選項。
+   現有佈局不符合時，回報缺項並停止，不自行調整。
+
+   單憑 `no_shared` 自證或檔案 owner 無法證明隔離。計畫不代表已排除所有其他帳號的映像；私有範圍與後續排他檢查都通過後，才可不因已確認其他 UID 的映像無法讀取而單獨拒絕。不要自行改權限、提權或搬移 state。
+
+   停止原 unit 後，每次換檔或回滾換檔前都要取得核心寫入租約；檔案仍被執行、開啟或映射，系統不支援租約，或租約失效時停止，不能改用較弱的檢查。清理舊受管檔案也須通過同樣檢查。換檔以新檔核對 hash、同步至磁碟後原子替換，不覆寫舊 inode 的內容或權限。若租約失效時已部分換檔，安全回滾並回報失敗。
+
 2. 核對原 systemd unit。
    通過條件：unit 存在、狀態正確，且 MainPID 對應目標 daemon。
 3. 備份更新前資產。
@@ -347,7 +369,7 @@ App 會自動下載及驗證新版。
      --apply --fingerprint "$PLAN_FINGERPRINT"
    ```
 
-   通過條件：腳本重新核對現場與 fingerprint，先取得 gate 並排空，再備份、換版，從原 unit 啟動。
+   通過條件：腳本重新核對現場與 fingerprint，並在停止前、替換前重驗，先取得 gate 並排空，再備份、換版，從原 unit 啟動。盤點後現場變動時停止。
 7. 執行一次已授權的無害派工。
    通過條件：原 runtime 領取任務，任務成功，結果已回傳 Server。
 8. 驗收本次交易。

@@ -98,6 +98,7 @@ footer{font-size:14px;color:var(--muted);padding-bottom:40px}footer a{margin-rig
     <li>請 Agent 執行更新。通過條件：重新核對同一計畫，再取得 gate、排空、備份及換版。</li>
     <li>完成驗收。通過條件：版本、hash、原身分、三個心跳週期及一次派工回傳都通過。</li>
   </ol>
+  <p>預設盤點整台機器。Linux 本人帳號模式須明確選擇，僅適用本人私有、可證明隔離的 binary 安裝及原 user unit；共用或未知安裝請停止並查閱操作指引。原服務有額外啟停程式、附加設定或不支援的符號連結時，請查閱操作指引。無法證明私有範圍或安全換檔時，腳本會停止；請勿自行改權限或搬移資料。</p>
   <p><a href="@UPDATE_SCRIPT_URL@" download="multica-update.sh">固定版本 shell script</a> · <a href="@UPDATE_CHECKSUM_URL@">SHA-256 清單</a> · <a href="@AGENT_GUIDE_URL@" download="agent-update-guide.md">Agent 操作指引（.md）</a></p>
   <p class="note">腳本 SHA-256：<code>@UPDATE_SCRIPT_SHA256@</code></p>
   <div class="callout warning">Agent 不得更新自己所在機台的 daemon。同機不同帳號或 profile 仍算同機。只有版本及心跳、尚無派工結果時，不算完整成功。</div>

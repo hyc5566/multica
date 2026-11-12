@@ -79,10 +79,22 @@ private inventory 提供服務、profile、搜尋邊界與資產位置。
 工具不能信任 `has_app=false` 之類的自證布林。
 指定範圍無法檢查時，結果為 unknown 並停止。
 
-執行中程序的 App 分流涵蓋所有可見 UID，不只目標帳號。
+缺省的 `inventory.inventory_scope=host` 保持完整全機盤點：執行中程序的 App 分流涵蓋所有 UID，不只目標帳號。
 另一 UID 的 App 即使使用不同 inode、位於搜尋根目錄外，也會阻止獨立更新。
 計畫、停止前及替換前都重新檢查。
 原本同 inode 共用檢查保持獨立；另一 UID 的獨立 daemon 不會只因多 profile 而被當成共用目標。
+
+明確設定 `inventory.inventory_scope=account` 才選用本人帳號模式。此模式僅支援 Linux binary layout，執行者的 EUID 必須等於原 owner UID，並沿用精確的原 user unit。共用 CLI、其他帳號的 App 及 system unit 不在更新目標。
+
+在忽略已確認屬於其他 UID 且無法讀取的 `/proc` 映像之前，必須先正面證明：受管 root 為 owner 私有且其他人無法存取（owner-only 權限與安全祖先）、state 與受管檔案均屬本人，CLI、daemon 及 unit 同源；所有寫入、備份、回滾與清理均限本人範圍；owner 沒有 App、混裝、共享或未知目標。單憑檔案 owner 或 `no_shared` 自證不足。hardlink 或未知資產一律拒絕，不自動改權限或提權。無法確認 UID 或隔離時停止。
+
+account 必須有 `systemctl` 與支援 typed JSON user-bus 查詢的 `busctl`，並核對原 owner 的 `/run/user/UID/bus` socket。從 user bus 查詢實際生效的 unit：`ExecCondition`、`ExecStartPre`、`ExecStartPost`、`ExecStop`、`ExecStopPost`、`ExecReload` 與 `DropInPaths` 均須為空，啟動 argv 與 profile 必須精確符合經核對的 canonical 值。不得把 systemctl 249 省略的空 Exec 陣列誤判為不支援，也不得忽略其他啟停 helper 或 drop-in。
+
+account 計畫先證明私有 root、state、安全祖先及範圍，綁定 fingerprint；計畫階段不宣稱全域映像排他。state 或 unit 的 `FragmentPath` 是符號連結時拒絕；保留經核對的實體私有 root，不自動搬移 state、改權限或提權。可讀取的其他 UID 程序若使用同 inode，應提早拒絕。對同 UID 程序須可信核對 `/proc` status 的四個 UID 與起始時間；不能因 nondumpable 程序的 `/proc` 目錄顯示 root owner 就略過。App、混裝與未知目標仍拒絕。
+
+停止原 unit 後，每次換檔或回滾換檔前，對 owner 檔案取得 Linux `F_SETLEASE` / `F_WRLCK` 可撤銷寫入租約，作為核心排他證據。活躍的 exec、open 或 mmap 會使租約以 `EAGAIN` 失敗；檔案系統不支援或失去租約時拒絕，不能退回較弱檢查。清理舊受管資產也須通過相同 guard 與租約。參見 [Linux F_SETLEASE 說明](https://man7.org/linux/man-pages/man2/F_SETLEASE.2const.html)。只有私有證明與這些檢查全部成立，才可不因已確認 foreign UID 的 `/proc` 映像 `EACCES` 單獨拒絕；不能據此宣稱不存在其他映像。
+
+換檔以新 inode 複製，重驗 hash 並 fsync，再原子 rename，不覆寫舊 inode 的內容或權限。租約可能被撤銷；若已部分換檔，安全回滾並標示失敗，不能宣稱完整成功。fingerprint、停止前及替換前重驗、gate、排空、心跳、receipt、回滾及清理驗收均不放寬。
 
 ## 兩版保留
 

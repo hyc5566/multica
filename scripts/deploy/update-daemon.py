@@ -15,6 +15,7 @@ import os
 import pwd
 import re
 import shutil
+import shlex
 import signal
 import ssl
 import stat
@@ -34,6 +35,12 @@ class ScopedSystemctl(list):
     def __init__(self, command, uid, gid, environment):
         super().__init__(command)
         self.uid, self.gid, self.environment = uid, gid, environment
+
+
+class SafeUserCommand(list):
+    def __init__(self, command, environment):
+        super().__init__(command)
+        self.environment = environment
 
 
 def require(condition, message):
@@ -81,7 +88,7 @@ def known(value):
 def run(args, timeout=30):
     try:
         privileges = ({'user': args.uid, 'group': args.gid, 'extra_groups': [], 'env': args.environment}
-                      if isinstance(args, ScopedSystemctl) else {})
+                      if isinstance(args, ScopedSystemctl) else {'env': args.environment} if isinstance(args, SafeUserCommand) else {})
         p = subprocess.run(list(args), stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout, check=False, **privileges)
     except (OSError, subprocess.TimeoutExpired):
         raise Refusal('required subprocess unavailable or timed out')
@@ -129,8 +136,345 @@ def require_visible_proc():
     require(not options or all(option == 'hidepid=0' for option in options), 'proc mount hides other processes')
 
 
-def process_inventory():
+
+ACCOUNT_UNIT_ANCILLARY = ('ExecCondition', 'ExecStartPre', 'ExecStartPost', 'ExecStop', 'ExecStopPost', 'ExecReload')
+
+
+class AccountScope:
+    """Evidence for a private binary installation and its explicit writes.
+
+    This is deliberately not an owner assertion: every path component is
+    inspected. Callers must revalidate unit properties around systemd actions.
+    """
+    def __init__(self, uid, asset_root, state_root, immutable_paths, transaction_paths,
+                 unit, systemd_scope, exec_start, fragment, executable, profile, dropins, unit_object, ancillary):
+        require(type(uid) is int and uid == os.geteuid(), 'account scope requires the target effective UID')
+        require(systemd_scope == 'user', 'account scope requires a user unit')
+        require(isinstance(unit, str) and re.fullmatch(r'[A-Za-z0-9_.:@-]+\.service', unit), 'account scope requires an exact unit')
+        self.uid, self.asset_root, self.state_root = uid, asset_root, state_root
+        self.unit = unit
+        self.immutable_paths = tuple(sorted(set(immutable_paths)))
+        transaction_paths = set(transaction_paths)
+        for path in self.immutable_paths:
+            parent = os.path.dirname(path)
+            while parent != asset_root and os.path.commonpath((asset_root, parent)) == asset_root:
+                transaction_paths.add(parent)
+                parent = os.path.dirname(parent)
+        self.transaction_paths = tuple(sorted(transaction_paths))
+        self.static_transaction_paths = self.transaction_paths
+        self.fragment = fragment
+        self.executable = executable
+        self.exec_start = exec_start_configuration(exec_start)
+        require(self.exec_start['path'] == executable and self.exec_start['ignore_errors'] == 'no', 'account unit ExecStart entrypoint mismatch')
+        require(dropins == '', 'account unit DropInPaths are unsupported')
+        require(isinstance(ancillary, dict) and set(ancillary) == set(ACCOUNT_UNIT_ANCILLARY) and all(value == '' for value in ancillary.values()), 'account unit ancillary commands are unsupported')
+        require(isinstance(unit_object, str) and re.fullmatch(r'/org/freedesktop/systemd1/unit/[A-Za-z0-9_]+', unit_object), 'invalid account unit object')
+        self.unit_object, self.ancillary = unit_object, dict(ancillary)
+        try:
+            argv = shlex.split(self.exec_start['argv'])
+        except ValueError as error:
+            raise Refusal('invalid account unit argv') from error
+        expected_argv = [executable] + (['--profile', profile] if profile else []) + ['daemon', 'start', '--foreground']
+        require(argv == expected_argv, 'account unit argv or profile mismatch')
+        self.profile, self.argv, self.dropins = profile, argv, dropins
+        require(executable in self.immutable_paths, 'account executable must be an immutable input')
+        for path in (asset_root, state_root, fragment, executable, *self.immutable_paths, *self.transaction_paths):
+            require(isinstance(path, str) and os.path.isabs(path) and os.path.normpath(path) == path and path != '/', 'account path must be absolute and normalized')
+        require(os.path.commonpath((asset_root, state_root)) not in (asset_root, state_root), 'account state must be independent of asset root')
+        for path in self.immutable_paths:
+            require(os.path.commonpath((asset_root, path)) == asset_root and path != asset_root, 'account input outside asset root')
+        for path in self.transaction_paths:
+            require(any(os.path.commonpath((root, path)) == root and path != root for root in (asset_root, state_root)), 'account transaction path outside private roots')
+        self._dynamic_directories = {}
+        for path in self.static_transaction_paths:
+            if os.path.lexists(path) and stat.S_ISDIR(self._identity(path).st_mode):
+                self._dynamic_directories[path] = self._fields(self._identity(path))[:5]
+        self._boundaries = self._boundary_snapshot()
+        self._inputs = {path: self._file_snapshot(path) for path in self.immutable_paths}
+        self._fragment = self._file_snapshot(fragment)
+        self._scan_assets()
+
+    def _identity(self, path):
+        try:
+            info = os.lstat(path)
+        except OSError as error:
+            raise Refusal('account path unavailable: ' + path) from error
+        require(not stat.S_ISLNK(info.st_mode), 'account path is a symlink: ' + path)
+        return info
+
+    @staticmethod
+    def _fields(info):
+        return [info.st_dev, info.st_ino, info.st_uid, info.st_gid,
+                stat.S_IMODE(info.st_mode), info.st_nlink]
+
+    def _ancestors(self, path):
+        result = {}
+        current = '/'
+        for part in ['', *path.strip('/').split('/')]:
+            if part:
+                current = os.path.join(current, part)
+            info = self._identity(current)
+            require(stat.S_ISDIR(info.st_mode), 'account ancestor is not a directory: ' + current)
+            require(info.st_uid in (0, self.uid) and not (info.st_mode & 0o022), 'account ancestor owner or permissions unsafe: ' + current)
+            result[current] = self._fields(info)[:5]
+        return result
+
+    def _boundary_snapshot(self):
+        result = {}
+        paths = [self.asset_root, self.state_root, os.path.dirname(self.fragment)]
+        paths.extend(os.path.dirname(path) for path in self.immutable_paths)
+        paths.extend(path for path in self.static_transaction_paths if os.path.lexists(path) and stat.S_ISDIR(self._identity(path).st_mode))
+        for path in paths:
+            result.update(self._ancestors(path))
+        for path in (self.asset_root, self.state_root):
+            info = self._identity(path)
+            require(info.st_uid == self.uid and stat.S_IMODE(info.st_mode) == 0o700, 'account private root must be owner 0700: ' + path)
+        return result
+
+    def _file_snapshot(self, path):
+        self._ancestors(os.path.dirname(path))
+        info = self._identity(path)
+        require(stat.S_ISREG(info.st_mode) and info.st_uid == self.uid and info.st_nlink == 1 and not (info.st_mode & 0o7022), 'account file owner, type, permissions or links unsafe: ' + path)
+        try:
+            fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
+            with os.fdopen(fd, 'rb') as stream:
+                before = os.fstat(stream.fileno())
+                require(not os.listxattr(stream.fileno()), 'account file extended attributes unsupported: ' + path)
+                require(self._fields(before) == self._fields(info), 'account file changed during inspection: ' + path)
+                digest = hashlib.sha256()
+                for block in iter(lambda: stream.read(1024 * 1024), b''):
+                    digest.update(block)
+                after = os.fstat(stream.fileno())
+            final = self._identity(path)
+            signature = lambda item: self._fields(item) + [item.st_size, item.st_mtime_ns, item.st_ctime_ns]
+            require(signature(info) == signature(before) == signature(after) == signature(final), 'account file changed during inspection: ' + path)
+            return signature(info) + [digest.hexdigest()]
+        except OSError as error:
+            raise Refusal('cannot inspect account file: ' + path) from error
+
+    def _scan_assets(self):
+        allowed = set(self.immutable_paths) | set(self.transaction_paths)
+        def fail(error):
+            raise Refusal('cannot inspect account asset root') from error
+        for base, directories, files in os.walk(self.asset_root, followlinks=False, onerror=fail):
+            for name in directories + files:
+                path = os.path.join(base, name)
+                info = self._identity(path)
+                require(info.st_uid == self.uid and not (info.st_mode & 0o7022), 'account asset owner or permissions unsafe: ' + path)
+                if stat.S_ISDIR(info.st_mode):
+                    require(path in allowed or any(item.startswith(path + '/') for item in allowed), 'unknown account asset directory: ' + path)
+                else:
+                    require(stat.S_ISREG(info.st_mode) and info.st_nlink == 1 and path in allowed, 'unknown or shared account asset: ' + path)
+
+    def evidence(self):
+        return {'scope': 'account', 'uid': self.uid, 'asset_root': self.asset_root,
+                'state_root': self.state_root, 'unit': self.unit, 'systemd_scope': 'user',
+                'exec_start': self.exec_start, 'profile': self.profile, 'argv': self.argv, 'dropins': self.dropins,
+                'unit_object': self.unit_object, 'ancillary': self.ancillary, 'fragment': self.fragment,
+                'fragment_identity': self._fragment, 'boundaries': self._boundaries,
+                'immutable': self._inputs, 'transaction_paths': list(self.static_transaction_paths),
+                'dynamic_directories': self._dynamic_directories}
+
+    def revalidate(self):
+        require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
+        for path, expected in self._dynamic_directories.items():
+            info = self._identity(path)
+            require(stat.S_ISDIR(info.st_mode) and self._fields(info)[:5] == expected, 'account transaction directory changed: ' + path)
+        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        for path, expected in self._inputs.items():
+            require(self._file_snapshot(path) == expected, 'account immutable input changed: ' + path)
+        self._scan_assets()
+
+    def note_created_directory(self, path):
+        require(path in self.static_transaction_paths and path not in self._dynamic_directories, 'account directory creation not authorized')
+        info = self._identity(path)
+        require(stat.S_ISDIR(info.st_mode) and info.st_uid == self.uid and stat.S_IMODE(info.st_mode) == 0o700,
+                'account created directory is not private')
+        current = self._boundary_snapshot()
+        require(all(current.get(key) == value for key, value in self._boundaries.items()), 'account boundary changed')
+        self._boundaries = current
+        self._dynamic_directories[path] = self._fields(info)[:5]
+        self.revalidate()
+
+    def note_removed_directory(self, path):
+        require(path in self._dynamic_directories and not os.path.lexists(path), 'account directory removal not authorized')
+        del self._dynamic_directories[path]
+        current = self._boundary_snapshot()
+        require(all(current.get(key) == value for key, value in self._boundaries.items() if key != path), 'account boundary changed')
+        self._boundaries = current
+        self.revalidate()
+
+    def authorize_temporary(self, path):
+        self.revalidate()
+        require(isinstance(path, str) and os.path.isabs(path) and os.path.normpath(path) == path and
+                any(os.path.commonpath((root, path)) == root and path != root for root in (self.asset_root, self.state_root)),
+                'account temporary path outside private roots')
+        require(not os.path.lexists(path), 'account temporary path already exists')
+        self._ancestors(os.path.dirname(path))
+        self.transaction_paths = tuple(sorted(set(self.transaction_paths) | {path}))
+
+    def revalidate_while_leased(self, target, temp=None, temp_snapshot=None):
+        require(target in self._inputs and (temp is None or temp in self.transaction_paths), 'account lease paths are not authorized')
+        require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
+        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        for path, expected in self._inputs.items():
+            if path != target:
+                require(self._file_snapshot(path) == expected, 'account immutable input changed: ' + path)
+        self._scan_assets()
+        if temp is not None:
+            require(self._file_snapshot(temp) == temp_snapshot, 'account replacement copy changed')
+
+    def acknowledge_replacement(self, path, digest):
+        require(path in self._inputs and path in self.transaction_paths, 'account replacement is not authorized')
+        require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
+        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        for other, expected in self._inputs.items():
+            if other != path:
+                require(self._file_snapshot(other) == expected, 'account immutable input changed: ' + other)
+        replacement = self._file_snapshot(path)
+        require(replacement[-1] == digest, 'account replacement checksum mismatch')
+        self._scan_assets()
+        self._inputs[path] = replacement
+
+    def add_immutable(self, path):
+        require(path in self.static_transaction_paths, 'account immutable path is not authorized')
+        self.revalidate()
+        value = self._file_snapshot(path)
+        if path in self._inputs:
+            require(self._inputs[path] == value, 'account immutable input changed: ' + path)
+        else:
+            self._inputs[path] = value
+            self.immutable_paths = tuple(sorted(set(self.immutable_paths) | {path}))
+            current = self._boundary_snapshot()
+            require(all(current.get(key) == value for key, value in self._boundaries.items()), 'account boundary changed')
+            self._boundaries = current
+
+    def acknowledge_removal(self, path, digest):
+        require(path in self._inputs and path in self.transaction_paths and self._inputs[path][-1] == digest,
+                'account cleanup target was not authorized')
+        require(not os.path.lexists(path), 'account cleanup target still exists')
+        del self._inputs[path]
+        self.revalidate()
+
+    def revalidate_unit(self, unit, systemd_scope, exec_start, fragment, dropins, unit_object, ancillary):
+        self.revalidate()
+        require(unit == self.unit and systemd_scope == 'user' and fragment == self.fragment and dropins == self.dropins and unit_object == self.unit_object and ancillary == self.ancillary and
+                exec_start_configuration(exec_start) == self.exec_start, 'account unit changed since plan')
+
+    def check_mutation(self, path):
+        require(path in self.transaction_paths, 'account transaction path not authorized: ' + str(path))
+        self.revalidate()
+        self._ancestors(os.path.dirname(path))
+        if os.path.lexists(path):
+            info = self._identity(path)
+            require(info.st_uid == self.uid and not (info.st_mode & 0o7022) and
+                    (stat.S_ISDIR(info.st_mode) or (stat.S_ISREG(info.st_mode) and info.st_nlink == 1)),
+                    'account transaction path unsafe: ' + path)
+
+
+class ExclusiveFileLease:
+    """Hold a Linux write lease while replacing or unlinking an old inode."""
+    def __init__(self, path, uid):
+        self.path, self.uid = path, uid
+        self.fd = None
+        self.broken = False
+        self.acquired = False
+        self.previous_handler = None
+
+    def _break(self, signum, frame):
+        self.broken = True
+
+    def __enter__(self):
+        require(sys.platform.startswith('linux') and hasattr(fcntl, 'F_SETLEASE') and hasattr(fcntl, 'F_GETLEASE'), 'account file leases unsupported')
+        try:
+            self.previous_handler = signal.signal(signal.SIGIO, self._break)
+            self.fd = os.open(self.path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK | os.O_CLOEXEC)
+            info = os.fstat(self.fd)
+            require(stat.S_ISREG(info.st_mode) and info.st_uid == self.uid and info.st_nlink == 1, 'account lease target unsafe')
+            fcntl.fcntl(self.fd, fcntl.F_SETLEASE, fcntl.F_WRLCK)
+            self.acquired = True
+            self.verify()
+            return self
+        except (OSError, ValueError) as error:
+            self.__exit__(None, None, None)
+            raise Refusal('account exclusive file lease unavailable') from error
+        except BaseException:
+            self.__exit__(None, None, None)
+            raise
+
+    def verify(self, *, renamed=False):
+        require(self.fd is not None and not self.broken, 'account file lease break requested')
+        try:
+            require(fcntl.fcntl(self.fd, fcntl.F_GETLEASE) == fcntl.F_WRLCK, 'account file lease lost')
+            if renamed:
+                return
+            opened, named = os.fstat(self.fd), os.lstat(self.path)
+            require(stat.S_ISREG(named.st_mode) and (opened.st_dev, opened.st_ino, opened.st_uid, opened.st_mode, opened.st_nlink) ==
+                    (named.st_dev, named.st_ino, named.st_uid, named.st_mode, named.st_nlink), 'account lease target changed')
+        except OSError as error:
+            raise Refusal('account file lease verification failed') from error
+
+    def digest(self):
+        self.verify()
+        digest = hashlib.sha256()
+        os.lseek(self.fd, 0, os.SEEK_SET)
+        while True:
+            block = os.read(self.fd, 1024 * 1024)
+            if not block:
+                break
+            digest.update(block)
+        self.verify()
+        return digest.hexdigest()
+
+    def __exit__(self, exc_type, exc, traceback):
+        try:
+            if self.fd is not None:
+                try:
+                    if self.acquired:
+                        fcntl.fcntl(self.fd, fcntl.F_SETLEASE, fcntl.F_UNLCK)
+                        self.acquired = False
+                finally:
+                    os.close(self.fd)
+                    self.fd = None
+        finally:
+            if self.previous_handler is not None:
+                signal.signal(signal.SIGIO, self.previous_handler)
+                self.previous_handler = None
+
+
+
+def _account_guard(guard):
+    require(isinstance(guard, AccountScope), 'account process inventory requires verified private scope')
+    guard.revalidate()
+
+
+def _process_account_identity(proc, info):
+    try:
+        with open(proc + '/status', encoding='ascii') as f:
+            rows = [line for line in f if line.startswith('Uid:')]
+        require(len(rows) == 1, 'process UID status unavailable')
+        values = rows[0].split()[1:]
+        require(len(values) == 4 and all(value.isdecimal() for value in values), 'invalid process UID status')
+        with open(proc + '/stat', encoding='ascii') as f:
+            fields = f.read().rsplit(')', 1)[1].split()
+        require(len(fields) > 19 and fields[19].isdecimal(), 'invalid process start time')
+        return (info.st_dev, info.st_ino, info.st_uid, tuple(int(value) for value in values), fields[19])
+    except (OSError, ValueError, IndexError) as error:
+        raise Refusal('cannot verify account process UID and start time') from error
+
+
+def _account_process_stable(proc, original):
+    try:
+        after = os.stat(proc)
+    except OSError as error:
+        raise Refusal('account process identity unavailable') from error
+    require(_process_account_identity(proc, after) == original, 'account process identity changed during inventory')
+
+
+def process_inventory(account_scope=None):
     """Inspect visible process identities without excluding other owners."""
+    if account_scope is not None:
+        _account_guard(account_scope)
     require_visible_proc()
     try:
         names = os.listdir('/proc')
@@ -143,7 +487,25 @@ def process_inventory():
         proc = '/proc/' + name
         try:
             before = os.stat(proc)
-            image = os.stat(proc + '/exe')
+            identity_before = _process_account_identity(proc, before) if account_scope is not None else None
+            foreign = identity_before is not None and account_scope.uid not in identity_before[3]
+            try:
+                image = os.stat(proc + '/exe')
+            except PermissionError:
+                if not foreign:
+                    raise
+                _account_process_stable(proc, identity_before)
+                continue
+            if foreign:
+                try:
+                    os.readlink(proc + '/exe')
+                    image_after = os.stat(proc + '/exe')
+                except PermissionError:
+                    _account_process_stable(proc, identity_before)
+                    continue
+                require((image.st_dev, image.st_ino) == (image_after.st_dev, image_after.st_ino), 'process executable changed during inventory')
+                _account_process_stable(proc, identity_before)
+                continue
             executable = os.readlink(proc + '/exe')
             require(not executable.endswith(' (deleted)'), 'process has deleted executable')
             identity = executable.casefold()
@@ -158,6 +520,8 @@ def process_inventory():
             after = os.stat(proc)
             require((image.st_dev, image.st_ino) == (image_after.st_dev, image_after.st_ino), 'process executable changed during inventory')
             require((before.st_dev, before.st_ino, before.st_uid) == (after.st_dev, after.st_ino, after.st_uid), 'process identity changed during inventory')
+            if identity_before is not None:
+                _account_process_stable(proc, identity_before)
         except FileNotFoundError:
             try:
                 with open(proc + '/stat', encoding='ascii') as f:
@@ -172,17 +536,20 @@ def process_inventory():
         except OSError as error:
             raise Refusal('cannot inspect every process executable or identity') from error
         if 'multica' in identity or executable.casefold().endswith('.appimage') or 'electron' in os.path.basename(executable).casefold():
-            result.append({'pid': int(name), 'uid': before.st_uid, 'exe': executable,
+            result.append({'pid': int(name), 'uid': before.st_uid if account_scope is None else account_scope.uid, 'exe': executable,
                            'device': image.st_dev, 'inode': image.st_ino, 'app': 'multica' in identity and ('.appimage' in identity or 'electron' in os.path.basename(executable).casefold() or os.path.basename(executable).casefold() in ('multica-desktop', '@multicadesktop') or '.app/' in identity)})
     return sorted(result, key=lambda item: item['pid'])
 
 
-def require_no_running_app():
-    require(not any(item['app'] for item in process_inventory()), 'desktop application running; update through the application')
+def require_no_running_app(account_scope=None):
+    processes = process_inventory() if account_scope is None else process_inventory(account_scope)
+    require(not any(item['app'] for item in processes), 'desktop application running; update through the application')
 
 
-def executable_users(executable):
-    """Find every visible process mapped to this inode, regardless of UID."""
+def executable_users(executable, account_scope=None):
+    """Find processes mapped to the inode within the verified scope."""
+    if account_scope is not None:
+        _account_guard(account_scope)
     require_visible_proc()
     target = os.stat(executable)
     users = []
@@ -196,9 +563,19 @@ def executable_users(executable):
         proc = '/proc/' + name
         try:
             before = os.stat(proc)
-            image = os.stat(proc + '/exe')
+            identity_before = _process_account_identity(proc, before) if account_scope is not None else None
+            foreign = identity_before is not None and account_scope.uid not in identity_before[3]
+            try:
+                image = os.stat(proc + '/exe')
+            except PermissionError:
+                if not foreign:
+                    raise
+                _account_process_stable(proc, identity_before)
+                continue
             after = os.stat(proc)
             require((before.st_dev, before.st_ino, before.st_uid) == (after.st_dev, after.st_ino, after.st_uid), 'process identity changed during inventory')
+            if identity_before is not None:
+                _account_process_stable(proc, identity_before)
         except FileNotFoundError:
             # Kernel threads and zombies have no executable. A live userspace
             # process with an inaccessible image is not safe to ignore.
@@ -219,8 +596,10 @@ def executable_users(executable):
     return sorted(users, key=lambda item: item['pid'])
 
 
-def require_exclusive_executable(executable, pid, uid):
-    users = executable_users(executable)
+def require_exclusive_executable(executable, pid, uid, account_scope=None):
+    if account_scope is not None:
+        require(isinstance(account_scope, AccountScope) and account_scope.uid == uid, 'account process owner mismatch')
+    users = executable_users(executable) if account_scope is None else executable_users(executable, account_scope)
     require(users == [{'pid': pid, 'uid': uid}], 'executable is shared or process inventory is ambiguous')
     return users
 
@@ -330,6 +709,9 @@ class Updater:
         scope = getattr(self.a, 'systemd_scope', 'user')
         require(scope in ('user', 'system'), 'invalid systemd scope')
         command = ['systemctl'] + (['--user'] if scope == 'user' else ['--system']) + list(args)
+        if getattr(self.a, 'inventory_scope', 'host') == 'account' or getattr(self.a, 'account_guard', None) is not None:
+            require(scope == 'user' and self.owner_uid == os.geteuid(), 'account user bus owner mismatch')
+            return SafeUserCommand(command, self.account_bus_environment())
         if scope == 'user' and os.geteuid() == 0:
             account = pwd.getpwuid(self.owner_uid)
             runtime = '/run/user/%d' % self.owner_uid
@@ -343,6 +725,59 @@ class Updater:
                            'XDG_RUNTIME_DIR': runtime, 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=' + bus}
             return ScopedSystemctl(command, self.owner_uid, account.pw_gid, environment)
         return command
+
+    def account_bus_environment(self):
+        runtime = '/run/user/%d' % self.owner_uid
+        path_clean(runtime, 'dir')
+        runtime_info = os.lstat(runtime)
+        bus = os.path.join(runtime, 'bus')
+        bus_info = os.lstat(bus)
+        require(runtime_info.st_uid == self.owner_uid and not (runtime_info.st_mode & 0o022), 'account user runtime owner or mode mismatch')
+        require(stat.S_ISSOCK(bus_info.st_mode) and bus_info.st_uid == self.owner_uid, 'account user bus socket owner or type mismatch')
+        return {'HOME': self.owner_home, 'PATH': '/usr/bin:/bin', 'LANG': 'C.UTF-8',
+                'XDG_RUNTIME_DIR': runtime, 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=' + bus}
+
+    def account_unit_property(self, name):
+        data = run(self.systemctl('show', self.a.unit, '--all', '--property=' + name)).decode('utf-8')
+        lines = data.splitlines()
+        require(len(lines) == 1 and lines[0].startswith(name + '='), 'account unit property unavailable: ' + name)
+        return lines[0][len(name) + 1:]
+
+    def account_unit_ancillary(self):
+        prefix = ['busctl', '--user', '--json=short']
+        destination = 'org.freedesktop.systemd1'
+        environment = self.account_bus_environment()
+        unit = json_cmd(SafeUserCommand(prefix + ['call', destination, '/org/freedesktop/systemd1',
+                                  'org.freedesktop.systemd1.Manager', 'GetUnit', 's', self.a.unit], environment))
+        require(isinstance(unit, dict) and unit.get('type') == 'o' and isinstance(unit.get('data'), list) and
+                len(unit['data']) == 1 and isinstance(unit['data'][0], str) and
+                re.fullmatch(r'/org/freedesktop/systemd1/unit/[A-Za-z0-9_]+', unit['data'][0]), 'account unit object unavailable')
+        object_path = unit['data'][0]
+        result = {}
+        for prop in ACCOUNT_UNIT_ANCILLARY:
+            value = json_cmd(SafeUserCommand(prefix + ['get-property', destination, object_path, 'org.freedesktop.systemd1.Service', prop], environment))
+            require(isinstance(value, dict) and value.get('type') == 'a(sasbttttuii)' and value.get('data') == [], 'account unit ancillary command unavailable or nonempty: ' + prop)
+            result[prop] = ''
+        return object_path, result
+
+    def account_check(self, path=None):
+        guard = getattr(self.a, 'account_guard', None)
+        if guard is None:
+            return
+        start = self.account_unit_property('ExecStart')
+        fragment = self.account_unit_property('FragmentPath')
+        dropins = self.account_unit_property('DropInPaths')
+        unit_object, ancillary = self.account_unit_ancillary()
+        guard.revalidate_unit(self.a.unit, self.a.systemd_scope, start, fragment, dropins, unit_object, ancillary)
+        if path is not None:
+            guard.check_mutation(path)
+
+    def exclusive_file(self, path, binary=False):
+        self.account_check(path)
+        if getattr(self.a, 'account_guard', None) is None:
+            return open(path, 'xb' if binary else 'x', **({} if binary else {'encoding': 'utf-8'}))
+        fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+        return os.fdopen(fd, 'wb' if binary else 'w', **({} if binary else {'encoding': 'utf-8'}))
 
     def unit_pid(self):
         state = run(self.systemctl('show', self.a.unit, '--property=ActiveState', '--value')).decode().strip()
@@ -496,13 +931,17 @@ class Updater:
 
     def remove_gate(self):
         self.own_gate()
+        self.account_check(os.path.join(self.gate_path, 'owner'))
         # Removing the directory commits the handoff: work can resume immediately.
         # Defer signals until this fact is recorded, even if the final fsync fails.
         previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
         try:
             os.unlink(os.path.join(self.gate_path, 'owner'))
+            self.account_check(self.gate_path)
             os.rmdir(self.gate_path)
             self.gate_released = True
+            if getattr(self.a, 'account_guard', None) is not None:
+                self.a.account_guard.note_removed_directory(self.gate_path)
             self.result['gate_released_at'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
             self.gate_inode = None
         finally:
@@ -535,6 +974,7 @@ class Updater:
                 current = self.runtimes()
                 if all(current[ws][rid] > last[ws][rid] for ws in last for rid in last[ws]):
                     last = current
+                    self.account_check(os.path.join(self.evidence, 'heartbeats.jsonl'))
                     with open(os.path.join(self.evidence, 'heartbeats.jsonl'), 'a', encoding='utf-8') as f:
                         json.dump({'version': target[0], 'commit': target[1], 'runtime_last_seen': {ws: {rid: ts.isoformat() for rid, ts in values.items()} for ws, values in current.items()}}, f)
                         f.write('\n')
@@ -559,6 +999,10 @@ class Updater:
         return last
 
     def replace(self, source, target):
+        guard = getattr(self.a, 'account_guard', None)
+        if guard is not None:
+            self.account_check(target)
+            return self.replace_account(source, target, guard)
         temp = target + '.update-' + self.owner
         try:
             if self.a.layout == 'launcher':
@@ -581,7 +1025,65 @@ class Updater:
             if os.path.exists(temp):
                 os.unlink(temp)
 
+    def replace_account(self, source, target, guard):
+        require(self.a.layout == 'binary', 'account replacement requires binary layout')
+        guard.check_mutation(target)
+        temp = target + '.update-' + self.owner
+        guard.authorize_temporary(temp)
+        expected_source = self.backup_hash if source == self.backup else self.a.sha256
+        expected_target = self.a.sha256 if source == self.backup else self.base['sha256']
+        require(sha(source) == expected_source, 'account replacement source changed')
+        original = os.lstat(target)
+        require(stat.S_ISREG(original.st_mode) and not (original.st_mode & 0o7000), 'account executable special mode unsupported')
+        created = committed = False
+        try:
+            with open(source, 'rb') as src:
+                try:
+                    require(not os.listxattr(src.fileno()), 'account executable extended attributes unsupported')
+                except OSError as error:
+                    raise Refusal('account executable attributes unavailable') from error
+                fd = os.open(temp, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC,
+                             stat.S_IMODE(original.st_mode))
+                created = True
+                with os.fdopen(fd, 'wb') as dst:
+                    require(os.fstat(dst.fileno()).st_gid == original.st_gid, 'account replacement group mismatch')
+                    os.fchmod(dst.fileno(), stat.S_IMODE(original.st_mode))
+                    shutil.copyfileobj(src, dst)
+                    dst.flush()
+                    os.fsync(dst.fileno())
+            require(sha(temp) == expected_source, 'account replacement copy checksum mismatch')
+            self.account_check(target)
+            guard.check_mutation(target)
+            temp_snapshot = guard._file_snapshot(temp)
+            with ExclusiveFileLease(target, self.owner_uid) as lease:
+                require(lease.digest() == expected_target, 'account lease target checksum changed')
+                leased = os.fstat(lease.fd)
+                require((leased.st_dev, leased.st_ino, leased.st_mode, leased.st_gid) ==
+                        (original.st_dev, original.st_ino, original.st_mode, original.st_gid), 'account replacement target changed')
+                try:
+                    require(not os.listxattr(lease.fd), 'account executable extended attributes unsupported')
+                except OSError as error:
+                    raise Refusal('account executable attributes unavailable') from error
+                guard.revalidate_while_leased(target, temp, temp_snapshot)
+                lease.verify()
+                os.replace(temp, target)
+                created = False
+                committed = True
+                self.changed = True
+                lease.verify(renamed=True)
+            guard.acknowledge_replacement(target, expected_source)
+            fsync_dir(os.path.dirname(target))
+        except BaseException:
+            if committed:
+                guard.acknowledge_replacement(target, expected_source)
+            raise
+        finally:
+            if created:
+                guard.check_mutation(temp)
+                os.unlink(temp)
+
     def safe_stop(self, *, first=False):
+        self.account_check()
         self.own_gate()
         state, pid = self.unit_pid()
         if state in ('inactive', 'failed') and pid == 0:
@@ -611,10 +1113,15 @@ class Updater:
         if first and getattr(self.a, 'legacy_bootstrap', False):
             self.inspect_legacy(self.health(), expected_pid=pid, idle=True)
         if first:
-            require_no_running_app()
+            guard = getattr(self.a, 'account_guard', None)
+            require_no_running_app() if guard is None else require_no_running_app(guard)
             path_info = os.stat(self.exe)
             require((path_info.st_dev, path_info.st_ino) == self.original_executable_identity, 'original executable path changed')
-            require_exclusive_executable(self.exe, pid, self.owner_uid)
+            if guard is None:
+                require_exclusive_executable(self.exe, pid, self.owner_uid)
+            else:
+                require_exclusive_executable(self.exe, pid, self.owner_uid, guard)
+                self.account_check()
         if first and getattr(self.a, 'legacy_bootstrap', False):
             self.legacy_stopped_group = self.a.legacy_baseline['control_group']
         if first:
@@ -641,6 +1148,7 @@ class Updater:
         if getattr(self.a, 'legacy_wrapper', None) and (getattr(self.a, 'legacy_bootstrap', False) or getattr(self.a, 'legacy_target', False)):
             self.check_legacy_entrypoint()
         try:
+            self.account_check()
             run(self.systemctl('start', self.a.unit), timeout=self.a.timeout)
         except Refusal:
             raise Refusal('rollback unit start failed')
@@ -739,12 +1247,16 @@ class Updater:
         self.baseline_heartbeats = self.runtimes()
         path_clean(os.path.dirname(self.a.evidence_dir), 'dir')
         require(os.path.isabs(self.a.evidence_dir) and os.path.normpath(self.a.evidence_dir) == self.a.evidence_dir, 'invalid evidence directory')
+        self.account_check(self.a.evidence_dir)
         os.mkdir(self.a.evidence_dir, 0o700)
         self.evidence = self.a.evidence_dir
-        with open(os.path.join(self.evidence, 'heartbeats.jsonl'), 'x', encoding='utf-8'):
+        if getattr(self.a, 'account_guard', None) is not None:
+            self.a.account_guard.note_created_directory(self.a.evidence_dir)
+        with self.exclusive_file(os.path.join(self.evidence, 'heartbeats.jsonl')):
             pass
         self.profile_unchanged()
         lockpath = self.gate_path + '.lock'
+        self.account_check(lockpath)
         try:
             lockfd = os.open(lockpath, os.O_CREAT | os.O_EXCL | os.O_RDWR | os.O_NOFOLLOW, 0o600)
             if self.owner_uid != os.geteuid():
@@ -760,13 +1272,16 @@ class Updater:
         previous_mask = signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGINT, signal.SIGTERM})
         try:
             self.profile_unchanged()
+            self.account_check(self.gate_path)
             os.mkdir(self.gate_path, 0o700)
             self.gate_created = True
+            if getattr(self.a, 'account_guard', None) is not None:
+                self.a.account_guard.note_created_directory(self.gate_path)
             if self.owner_uid != os.geteuid():
                 os.chown(self.gate_path, self.owner_uid, -1, follow_symlinks=False)
             st = os.lstat(self.gate_path)
             self.gate_inode = (st.st_dev, st.st_ino)
-            with open(os.path.join(self.gate_path, 'owner'), 'x', encoding='utf-8') as f:
+            with self.exclusive_file(os.path.join(self.gate_path, 'owner')) as f:
                 json.dump({'id': self.owner, 'pid': os.getpid()}, f)
                 f.flush()
                 os.fsync(f.fileno())
@@ -779,11 +1294,17 @@ class Updater:
         else:
             self.wait_ready(expected_pid=pid)
         self.backup = os.path.join(self.evidence, 'original-entrypoint')
-        with open(self.destination, 'rb') as src, open(self.backup, 'xb') as dst:
+        self.account_check()
+        with open(self.destination, 'rb') as src, self.exclusive_file(self.backup, binary=True) as dst:
+            if getattr(self.a, 'account_guard', None) is not None:
+                source_info = os.fstat(src.fileno())
+                require(not (source_info.st_mode & 0o7000), 'account backup source has special mode')
+                os.fchmod(dst.fileno(), stat.S_IMODE(source_info.st_mode))
             shutil.copyfileobj(src, dst)
             dst.flush()
             os.fsync(dst.fileno())
-        shutil.copystat(self.destination, self.backup, follow_symlinks=False)
+        if getattr(self.a, 'account_guard', None) is None:
+            shutil.copystat(self.destination, self.backup, follow_symlinks=False)
         with open(self.backup, 'rb') as finalized:
             os.fsync(finalized.fileno())
         self.backup_hash = sha(self.backup)
@@ -800,7 +1321,7 @@ class Updater:
             require(sha(wrapper_backup) == self.a.legacy_baseline['entrypoint']['sha256'], 'wrapper backup checksum mismatch')
             with open(wrapper_backup, 'rb') as finalized:
                 os.fsync(finalized.fileno())
-        with open(os.path.join(self.evidence, 'baseline.json'), 'x', encoding='utf-8') as f:
+        with self.exclusive_file(os.path.join(self.evidence, 'baseline.json')) as f:
             json.dump({'daemon': self.base, 'runtime_last_seen': {ws: {rid: ts.isoformat() for rid, ts in values.items()} for ws, values in self.baseline_heartbeats.items()}, 'backup_sha256': self.backup_hash}, f, indent=2)
             f.write('\n')
             f.flush()
@@ -814,14 +1335,19 @@ class Updater:
         self.safe_stop(first=True)
         path_info = os.stat(self.exe)
         require((path_info.st_dev, path_info.st_ino) == self.original_executable_identity, 'original executable path changed after stop')
-        require(not executable_users(self.exe), 'original executable remains in use after unit stop')
+        guard = getattr(self.a, 'account_guard', None)
+        users = executable_users(self.exe) if guard is None else executable_users(self.exe, guard)
+        require(not users, 'original executable remains in use after unit stop')
         path_info = os.stat(self.exe)
         require((path_info.st_dev, path_info.st_ino) == self.original_executable_identity, 'original executable path changed during inventory')
-        require_no_running_app()
-        self.changed = True
+        require_no_running_app() if guard is None else require_no_running_app(guard)
+        self.account_check()
+        if guard is None:
+            self.changed = True
         self.replace(self.a.staged, self.destination)
         if legacy and getattr(self.a, 'legacy_wrapper', None):
             self.check_legacy_entrypoint()
+        self.account_check()
         run(self.systemctl('start', self.a.unit), timeout=self.a.timeout)
         if legacy_target:
             restored = self.wait_legacy(target_sha=self.a.sha256)
@@ -928,13 +1454,13 @@ def perform_transaction(u):
                             recovery='Profile state changed; the old gate may not protect the daemon. Re-establish identity and a gate before any further stop or rollback.')
     if u.evidence:
         try:
-            with open(os.path.join(u.evidence, 'result.json'), 'x', encoding='utf-8') as f:
+            with u.exclusive_file(os.path.join(u.evidence, 'result.json')) as f:
                 json.dump(u.result, f, indent=2)
                 f.write('\n')
                 f.flush()
                 os.fsync(f.fileno())
             fsync_dir(u.evidence)
-        except OSError:
+        except (Refusal, OSError):
             u.result['evidence_error'] = 'could not write result evidence'
             code = 1
     return code
