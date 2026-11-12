@@ -333,12 +333,14 @@ App 會自動下載及驗證新版。
    | --- | --- |
    | 帳號與工具 | Linux `binary` 佈局，操作者 EUID 是原 owner UID；有 `systemctl` 和支援 JSON 的 `busctl`。 |
    | 私有範圍 | 受管 root 為 owner 的 `0700` 私有目錄，祖先安全；state、受管檔案、CLI、daemon 與 unit 均屬本人且同源。所有寫入、備份、回滾與清理均限本人範圍。 |
-   | 路徑與資產 | 使用經核對的實體私有 root；state 和 unit 的 `FragmentPath` 不得是符號連結。檔案 owner、類型或連結數未知，或發現 hardlink、未知資產時停止。 |
+   | 路徑與資產 | state 是本人 `0700` 實體目錄；標準 `~/.config/systemd/user/<unit>` 註冊符號連結可受支援，入口及 canonical target 均須完整核對並綁定證明。檔案 owner、類型或連結數未知，或發現 hardlink、未知資產時停止。 |
    | 原服務 | 使用精確的原 user unit，啟動參數與 profile 符合盤點，沒有額外啟停 helper 或 drop-in。 |
    | 程序 | 可信確認同 UID 的全部相關程序；owner 沒有 App、混裝、共享或未知目標。可讀取的其他 UID 程序使用同 inode 時拒絕。 |
 
    `account` 的 `cli`、`staged`、CA bundle、baseline manifest（如需）、`ledger` 及 `evidence_dir` 都必須位於同一個私有 `asset_root`。
    profile state 使用另一個獨立、屬於 owner 的 `0700` 實體目錄。
+   若使用延伸家目錄，私人清單的 `account_path_policy` 必須只含 `extended_home` 與 `sticky_parent`：指定 root-owned 父目錄須為 `1775` sticky，下一層既存目錄須屬原 owner UID；安全上層與受管後代不得有其他 UID 的有效寫入權。受檢路徑不接受非平凡 POSIX ACL 或 default ACL；只把 `ENODATA` 視為 ACL 不存在，讀取失敗或未知一律停止。asset root 與 profile state root 各須為本人 `0700`。
+   註冊連結的 lstat、readlink、owner、inode，以及 canonical target 各層 ACL、mode 與內容 hash 都須綁入計畫及 fingerprint，並在停止前、換檔前與交易中重驗；變動即停止，不能只用 realpath 忽略連結入口。
    原 unit 只接受 `daemon start --foreground`；指定 profile 時，在命令前使用 `--profile PROFILE`。
    不支援其他啟動選項。
    現有佈局不符合時，回報缺項並停止，不自行調整。

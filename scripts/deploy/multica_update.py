@@ -608,12 +608,11 @@ def build_plan(config, manifest, manifest_sha256, *, legacy_bootstrap=False, leg
                              os.path.join(profile_path, 'daemon.maintenance', 'owner'), *immutable]
         exec_start = u.account_unit_property('ExecStart')
         fragment = u.account_unit_property('FragmentPath')
-        require(not os.path.islink(fragment), 'account unit FragmentPath symlink is unsupported')
         dropins = u.account_unit_property('DropInPaths')
         unit_object, ancillary = u.account_unit_ancillary()
         account_guard = updater.AccountScope(uid, asset_root, profile_path, immutable, transaction_paths,
                                              config['unit'], config['systemd_scope'], exec_start, fragment, exe,
-                                             config['profile'], dropins, unit_object, ancillary)
+                                             config['profile'], dropins, unit_object, ancillary, config.get('account_path_policy'))
     executable_processes = (updater.require_exclusive_executable(exe, pid, uid) if account_guard is None else
                             updater.require_exclusive_executable(exe, pid, uid, account_guard))
     managed_paths = [exe, config['evidence_dir'], staged_binary]
@@ -776,7 +775,7 @@ def account_guard_from_evidence(evidence, config, pending_missing=None):
         guard = updater.AccountScope(config['owner_uid'], config['asset_root'], evidence['state_root'],
                                      list(evidence['immutable']), evidence['transaction_paths'], config['unit'],
                                      config['systemd_scope'], start, fragment, evidence['exec_start']['path'],
-                                     config['profile'], dropins, unit_object, ancillary)
+                                     config['profile'], dropins, unit_object, ancillary, config.get('account_path_policy'))
     except (KeyError, TypeError, UnicodeError) as error:
         raise updater.Refusal('invalid account scope evidence') from error
     updater.require(guard.evidence() == evidence, 'account scope evidence changed')

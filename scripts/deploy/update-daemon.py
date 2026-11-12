@@ -8,6 +8,7 @@ links installed beside their respective version binaries. Keep every backup.
 """
 import argparse
 import datetime
+import errno
 import fcntl
 import hashlib
 import json
@@ -147,11 +148,37 @@ class AccountScope:
     inspected. Callers must revalidate unit properties around systemd actions.
     """
     def __init__(self, uid, asset_root, state_root, immutable_paths, transaction_paths,
-                 unit, systemd_scope, exec_start, fragment, executable, profile, dropins, unit_object, ancillary):
+                 unit, systemd_scope, exec_start, fragment, executable, profile, dropins, unit_object, ancillary, account_path_policy=None):
         require(type(uid) is int and uid == os.geteuid(), 'account scope requires the target effective UID')
         require(systemd_scope == 'user', 'account scope requires a user unit')
         require(isinstance(unit, str) and re.fullmatch(r'[A-Za-z0-9_.:@-]+\.service', unit), 'account scope requires an exact unit')
         self.uid, self.asset_root, self.state_root = uid, asset_root, state_root
+        self.path_policy = account_path_policy
+        if self.path_policy is not None:
+            require(isinstance(self.path_policy, dict) and set(self.path_policy) == {'extended_home', 'sticky_parent'}, 'unknown account path policy')
+            extended, parent = self.path_policy['extended_home'], self.path_policy['sticky_parent']
+            require(all(isinstance(p, str) and os.path.isabs(p) and os.path.normpath(p) == p and p != '/' for p in (extended, parent)) and os.path.dirname(extended) == parent and os.path.commonpath((extended, asset_root)) == extended and asset_root != extended, 'invalid account path policy')
+        self.fragment = fragment
+        self.fragment_target = fragment
+        self.registration = None
+        self.registration_path = None
+        self.standard_registration_path = None
+        if self.path_policy is not None:
+            home = pwd.getpwuid(uid).pw_dir
+            standard_link = os.path.join(home, '.config', 'systemd', 'user', unit)
+            self.standard_registration_path = standard_link
+            require(os.path.islink(standard_link), 'account unit standard registration symlink required')
+            self.registration_path = standard_link
+        if os.path.islink(fragment):
+            require(self.registration_path == fragment, 'invalid account unit registration link')
+        if self.registration_path is not None:
+            info = os.lstat(self.registration_path)
+            require(info.st_uid == uid and stat.S_ISLNK(info.st_mode), 'account unit registration owner unsafe')
+            target = os.readlink(self.registration_path)
+            require(os.path.isabs(target) and os.path.normpath(target) == target and os.path.commonpath((extended, target)) == extended and target != extended, 'invalid account unit registration target')
+            require(fragment in (self.registration_path, target), 'account unit registration does not match fragment')
+            self.fragment_target = target
+            self.registration = self._registration_snapshot()
         self.unit = unit
         self.immutable_paths = tuple(sorted(set(immutable_paths)))
         transaction_paths = set(transaction_paths)
@@ -191,7 +218,7 @@ class AccountScope:
                 self._dynamic_directories[path] = self._fields(self._identity(path))[:5]
         self._boundaries = self._boundary_snapshot()
         self._inputs = {path: self._file_snapshot(path) for path in self.immutable_paths}
-        self._fragment = self._file_snapshot(fragment)
+        self._fragment = self._file_snapshot(self.fragment_target)
         self._scan_assets()
 
     def _identity(self, path):
@@ -207,6 +234,37 @@ class AccountScope:
         return [info.st_dev, info.st_ino, info.st_uid, info.st_gid,
                 stat.S_IMODE(info.st_mode), info.st_nlink]
 
+    def _acl_snapshot(self, path, info):
+        # Linux stores nontrivial access and default POSIX ACLs as xattrs.
+        # Refuse them all, including named entries, masks and default ACLs.
+        try:
+            for name in ('system.posix_acl_access', 'system.posix_acl_default'):
+                try:
+                    os.getxattr(path, name, follow_symlinks=False)
+                except OSError as error:
+                    if error.errno != errno.ENODATA:
+                        raise
+                else:
+                    raise Refusal('account ACL unsupported: ' + path)
+            after = os.lstat(path)
+        except OSError as error:
+            raise Refusal('account ACL inspection unavailable: ' + path) from error
+        require(self._fields(info) == self._fields(after) and info.st_ctime_ns == after.st_ctime_ns, 'account path changed during ACL inspection: ' + path)
+        return ['owner-group-other', stat.S_IMODE(info.st_mode) & 0o777]
+
+    def _registration_snapshot(self):
+        path = self.registration_path
+        self._ancestors(os.path.dirname(path))
+        try:
+            before = os.lstat(path)
+            target = os.readlink(path)
+            after = os.lstat(path)
+        except OSError as error:
+            raise Refusal('account unit registration unavailable') from error
+        require(stat.S_ISLNK(before.st_mode) and before.st_uid == self.uid and self._fields(before) == self._fields(after) and before.st_ctime_ns == after.st_ctime_ns and target == self.fragment_target, 'account unit registration changed')
+        require(os.readlink(path) == target, 'account unit registration changed')
+        return self._fields(before) + [before.st_ctime_ns, target]
+
     def _ancestors(self, path):
         result = {}
         current = '/'
@@ -215,13 +273,24 @@ class AccountScope:
                 current = os.path.join(current, part)
             info = self._identity(current)
             require(stat.S_ISDIR(info.st_mode), 'account ancestor is not a directory: ' + current)
-            require(info.st_uid in (0, self.uid) and not (info.st_mode & 0o022), 'account ancestor owner or permissions unsafe: ' + current)
-            result[current] = self._fields(info)[:5]
+            acl = self._acl_snapshot(current, info)
+            policy = self.path_policy
+            if policy is not None and current == policy['sticky_parent']:
+                require(info.st_uid == 0 and stat.S_IMODE(info.st_mode) == 0o1775, 'account sticky parent owner or permissions unsafe: ' + current)
+            elif policy is not None and current == policy['extended_home']:
+                require(info.st_uid == self.uid and not (info.st_mode & 0o7022), 'account extended home owner or permissions unsafe: ' + current)
+            else:
+                require(info.st_uid in (0, self.uid) and not (info.st_mode & 0o022), 'account ancestor owner or permissions unsafe: ' + current)
+            result[current] = self._fields(info)[:5] + [acl]
         return result
 
     def _boundary_snapshot(self):
         result = {}
-        paths = [self.asset_root, self.state_root, os.path.dirname(self.fragment)]
+        paths = [self.asset_root, self.state_root, os.path.dirname(self.fragment), os.path.dirname(self.fragment_target)]
+        if self.path_policy is not None:
+            paths.append(self.path_policy['extended_home'])
+        if self.registration_path is not None:
+            paths.append(os.path.dirname(self.registration_path))
         paths.extend(os.path.dirname(path) for path in self.immutable_paths)
         paths.extend(path for path in self.static_transaction_paths if os.path.lexists(path) and stat.S_ISDIR(self._identity(path).st_mode))
         for path in paths:
@@ -234,6 +303,7 @@ class AccountScope:
     def _file_snapshot(self, path):
         self._ancestors(os.path.dirname(path))
         info = self._identity(path)
+        self._acl_snapshot(path, info)
         require(stat.S_ISREG(info.st_mode) and info.st_uid == self.uid and info.st_nlink == 1 and not (info.st_mode & 0o7022), 'account file owner, type, permissions or links unsafe: ' + path)
         try:
             fd = os.open(path, os.O_RDONLY | os.O_NOFOLLOW)
@@ -260,6 +330,7 @@ class AccountScope:
             for name in directories + files:
                 path = os.path.join(base, name)
                 info = self._identity(path)
+                self._acl_snapshot(path, info)
                 require(info.st_uid == self.uid and not (info.st_mode & 0o7022), 'account asset owner or permissions unsafe: ' + path)
                 if stat.S_ISDIR(info.st_mode):
                     require(path in allowed or any(item.startswith(path + '/') for item in allowed), 'unknown account asset directory: ' + path)
@@ -271,16 +342,18 @@ class AccountScope:
                 'state_root': self.state_root, 'unit': self.unit, 'systemd_scope': 'user',
                 'exec_start': self.exec_start, 'profile': self.profile, 'argv': self.argv, 'dropins': self.dropins,
                 'unit_object': self.unit_object, 'ancillary': self.ancillary, 'fragment': self.fragment,
-                'fragment_identity': self._fragment, 'boundaries': self._boundaries,
+                'fragment_identity': self._fragment, 'fragment_target': self.fragment_target, 'registration_path': self.registration_path, 'registration': self.registration, 'account_path_policy': self.path_policy, 'boundaries': self._boundaries,
                 'immutable': self._inputs, 'transaction_paths': list(self.static_transaction_paths),
                 'dynamic_directories': self._dynamic_directories}
 
     def revalidate(self):
         require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
+        require((self.registration is not None and self._registration_snapshot() == self.registration) or
+                (self.registration is None and (self.standard_registration_path is None or not os.path.islink(self.standard_registration_path))), 'account unit registration changed')
         for path, expected in self._dynamic_directories.items():
             info = self._identity(path)
             require(stat.S_ISDIR(info.st_mode) and self._fields(info)[:5] == expected, 'account transaction directory changed: ' + path)
-        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        require(self._file_snapshot(self.fragment_target) == self._fragment, 'account unit fragment changed')
         for path, expected in self._inputs.items():
             require(self._file_snapshot(path) == expected, 'account immutable input changed: ' + path)
         self._scan_assets()
@@ -316,7 +389,9 @@ class AccountScope:
     def revalidate_while_leased(self, target, temp=None, temp_snapshot=None):
         require(target in self._inputs and (temp is None or temp in self.transaction_paths), 'account lease paths are not authorized')
         require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
-        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        require((self.registration is not None and self._registration_snapshot() == self.registration) or
+                (self.registration is None and (self.standard_registration_path is None or not os.path.islink(self.standard_registration_path))), 'account unit registration changed')
+        require(self._file_snapshot(self.fragment_target) == self._fragment, 'account unit fragment changed')
         for path, expected in self._inputs.items():
             if path != target:
                 require(self._file_snapshot(path) == expected, 'account immutable input changed: ' + path)
@@ -327,7 +402,9 @@ class AccountScope:
     def acknowledge_replacement(self, path, digest):
         require(path in self._inputs and path in self.transaction_paths, 'account replacement is not authorized')
         require(self._boundary_snapshot() == self._boundaries, 'account boundary changed')
-        require(self._file_snapshot(self.fragment) == self._fragment, 'account unit fragment changed')
+        require((self.registration is not None and self._registration_snapshot() == self.registration) or
+                (self.registration is None and (self.standard_registration_path is None or not os.path.islink(self.standard_registration_path))), 'account unit registration changed')
+        require(self._file_snapshot(self.fragment_target) == self._fragment, 'account unit fragment changed')
         for other, expected in self._inputs.items():
             if other != path:
                 require(self._file_snapshot(other) == expected, 'account immutable input changed: ' + other)
