@@ -22,6 +22,8 @@ single document; this directory is the tool entry point.
   without gates require a separately approved cold window. No real Mac or
   production service is exercised by the fixture tests.
 
+For the fixed-version Linux updater, see the [unified update contract](../../docs/unified-update.zh-tw.md) and the public agent guide template. Inventory defaults to full-host inspection. Explicit `inventory_scope=account` is limited to the original owner EUID, a private Linux binary layout and its exact user unit; it requires positive isolation proof before ignoring confirmed foreign-UID unreadable process images. It does not authorize shared or unknown targets. A symlinked state or unit FragmentPath, extra unit hooks or drop-ins are unsupported. After stopping the unit, replacement, rollback and cleanup require a revocable exclusive file lease; unsupported or lost leases stop the operation. See the contract for partial replacement recovery.
+
 The tool does not migrate live sockets or permit incompatible database changes.
 
 ## Desktop update credential check
@@ -44,10 +46,10 @@ arguments (replace the runtime and version with the approved update target):
 
 ```sh
 "$HOME/miniconda3/envs/hungyu/bin/python" scripts/deploy/desktop-quota-check.py \
-  --profile desktop-10.1.24.90-45671 \
-  --workspace 76194abc-bda7-4995-8b18-a90fe46d9dce \
-  --runtime 0699adbe-b52d-4f5f-a982-46f11a7df5c4 \
-  --expected-version 0.4.41-zh-tw.15
+  --profile "$PROFILE" \
+  --workspace "$WORKSPACE_ID" \
+  --runtime "$RUNTIME_ID" \
+  --expected-version "$EXPECTED_VERSION"
 ```
 
 For a single automated update/check invocation, append `--update-command`

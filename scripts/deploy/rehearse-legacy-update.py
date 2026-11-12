@@ -6,6 +6,7 @@ agent. Both binaries are copied before execution. The fixture server is a
 separate loopback process and every process launched here is reaped on exit.
 """
 import argparse
+import contextlib
 import datetime
 import hashlib
 import http.server
@@ -230,6 +231,10 @@ class FakeSystemd:
         self.fail_next_start = False
         self.children = []
         self.group = '/fixture/' + unit
+        self.account_scope = False
+        self.fragment = log.parent / 'fixture.service'
+        self.fragment.write_text('[Service]\nExecStart=fixture-owned\n', encoding='utf-8')
+        self.fragment.chmod(0o600)
 
     def alive(self):
         return self.proc is not None and self.proc.poll() is None
@@ -242,6 +247,8 @@ class FakeSystemd:
         args = [str(self.entry), '--fixture-invalid-start'] if bad_start else [str(self.entry), '--profile', self.profile,
                 'daemon', 'start', '--foreground', '--poll-interval', '200ms', '--heartbeat-interval', '400ms',
                 '--no-auto-update', '--no-auto-reload']
+        if self.account_scope and not bad_start:
+            args = [str(self.entry), '--profile', self.profile, 'daemon', 'start', '--foreground']
         out = open(self.log, 'ab', buffering=0)
         try:
             self.proc = subprocess.Popen(args, env=self.env, stdin=subprocess.DEVNULL, stdout=out, stderr=out,
@@ -282,6 +289,19 @@ class FakeSystemd:
             child.wait()
 
     def run(self, command, timeout=30):
+        if command and os.path.basename(command[0]) == 'busctl':
+            prefix = ['busctl', '--user', '--json=short']
+            unit_path = '/org/freedesktop/systemd1/unit/fixture_2eservice'
+            lookup = prefix + ['call', 'org.freedesktop.systemd1', '/org/freedesktop/systemd1',
+                               'org.freedesktop.systemd1.Manager', 'GetUnit', 's', self.unit]
+            if command == lookup:
+                return json.dumps({'type': 'o', 'data': [unit_path]}).encode()
+            property_prefix = prefix + ['get-property', 'org.freedesktop.systemd1', unit_path,
+                                        'org.freedesktop.systemd1.Service']
+            if (command[:-1] == property_prefix and command[-1] in
+                    ('ExecCondition', 'ExecStartPre', 'ExecStartPost', 'ExecStop', 'ExecStopPost', 'ExecReload')):
+                return json.dumps({'type': 'a(sasbttttuii)', 'data': []}).encode()
+            raise self.updater.Refusal('fixture refuses non-owned busctl query')
         if command[:2] not in (['systemctl', '--user'], ['systemctl', '--system']):
             return self.real_run(command, timeout=timeout)
         action = command[2]
@@ -300,9 +320,15 @@ class FakeSystemd:
         props = {'--property=ActiveState': 'active' if live else 'inactive',
                  '--property=MainPID': str(pid), '--property=KillMode': 'control-group',
                  '--property=ControlGroup': self.group if live else '',
+                 '--property=FragmentPath': str(self.fragment), '--property=DropInPaths': '',
                  '--property=ExecStart': '{ path=%s ; argv[]=%s --profile %s daemon start ; ignore_errors=no ; start_time=%s ; stop_time=%s ; pid=%s ; code=(null) ; status=0 }' %
                  (self.entry, self.entry, self.profile, pid, 0 if live else 1, pid)}
-        matches = [value for key, value in props.items() if key in command]
+        props.update({'--property=' + name: '' for name in
+                      ('ExecCondition', 'ExecStartPre', 'ExecStartPost', 'ExecStop', 'ExecStopPost', 'ExecReload')})
+        if self.account_scope:
+            props['--property=ExecStart'] = props['--property=ExecStart'].replace(' daemon start ;', ' daemon start --foreground ;')
+        matches = [(key.removeprefix('--property=') + '=' if '--all' in command and '--value' not in command else '') + value
+                   for key, value in props.items() if key in command]
         if len(matches) != 1:
             raise self.updater.Refusal('unsupported fixture systemctl property')
         return (matches[0] + '\n').encode()
@@ -382,16 +408,19 @@ def attested_task(conf, unit, task_id):
     return next((item for item in attestation.get('task_receipts', []) if item.get('task_id') == task_id), None)
 
 
-def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordinator, *, fail_start):
-    root.mkdir()
+def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordinator, *, fail_start, inventory_scope='host'):
+    root.mkdir(mode=0o700)
     home, assets = root / 'home', root / 'assets'
-    home.mkdir()
-    assets.mkdir()
+    home.mkdir(mode=0o700)
+    assets.mkdir(mode=0o700)
     bindir, agent = make_fixture_commands(root)
     env = fixture_env(home, root, bindir, agent)
     profile = 'fixture-' + ('failure' if fail_start else 'success')
     conf = home / '.multica' / 'profiles' / profile
-    conf.mkdir(parents=True)
+    conf.mkdir(mode=0o700, parents=True)
+    if inventory_scope == 'account':
+        for parent in (home / '.multica', home / '.multica' / 'profiles'):
+            parent.chmod(0o700)
     (conf / 'config.json').write_text(json.dumps({'server_url': fixture_url, 'token': 'fixture-dummy-token',
         'workspace_id': WS, 'workspaces_root': str(root / 'workspaces'),
         'disable_auto_update': True, 'disable_auto_reload': True}), encoding='utf-8')
@@ -412,12 +441,20 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
     subprocess.run(['/usr/bin/openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', str(key),
                     '-out', str(ca), '-days', '1', '-subj', '/CN=isolated-fixture-ca'], env=env,
                    stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, timeout=30, check=True)
+    if inventory_scope == 'account':
+        ca.chmod(0o644)
     entry = assets / 'entrypoint'
     entry.write_text('#!/bin/sh\n' + ''.join("export %s='%s'\n" % (name, ca) for name in
         ('MULTICA_CA_CERT_FILE', 'SSL_CERT_FILE', 'CURL_CA_BUNDLE')) + "exec '%s' \"$@\"\n" % current, encoding='utf-8')
     entry.chmod(0o755)
     before_stat, before_wrapper = entry.stat(), entry.read_bytes()
+    if inventory_scope == 'account':
+        entry.unlink()
+        entry = current
+        env.update(MULTICA_CA_CERT_FILE=str(ca), SSL_CERT_FILE=str(ca), CURL_CA_BUNDLE=str(ca),
+                   MULTICA_DAEMON_POLL_INTERVAL='200ms', MULTICA_DAEMON_HEARTBEAT_INTERVAL='400ms')
     unit = FakeSystemd('fixture.service', entry, profile, env, root / 'daemon.log', coordinator.updater)
+    unit.account_scope = inventory_scope == 'account'
     unit.real_run = coordinator.updater.run
     account = SimpleNamespace(pw_dir=str(home), pw_gid=os.getgid())
     actual_updater = coordinator.updater.Updater
@@ -431,12 +468,21 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
         def systemctl(self, *args):
             # This adapter talks only to FakeSystemd, never a real user bus.
             return ['systemctl', '--user'] + list(args)
+
+        def account_bus_environment(self):
+            # The fake service manager above owns both systemctl and busctl.
+            runtime = str(root / 'fixture-user-bus')
+            return {'HOME': str(home), 'PATH': env['PATH'], 'LANG': env['LANG'],
+                    'XDG_RUNTIME_DIR': runtime, 'DBUS_SESSION_BUS_ADDRESS': 'unix:path=' + runtime + '/bus'}
     config = {'owner_uid': os.geteuid(), 'profile': profile, 'unit': unit.unit, 'systemd_scope': 'user',
               'cli': str(observer), 'staged': str(staged), 'search_roots': [str(assets)],
               'ledger': str(root / 'ledger.json'), 'evidence_dir': str(assets / 'evidence'),
               'asset_root': str(assets), 'controller_machine_id_sha256': 'f' * 64,
               'legacy_wrapper': str(entry), 'ca_sha256': digest(ca),
               'observer_ca_cert_file': str(ca), 'observer_ca_sha256': digest(ca)}
+    if inventory_scope == 'account':
+        config.update(inventory_scope='account', ledger=str(assets / 'ledger.json'))
+        config.pop('legacy_wrapper')
     manifest = {'source': 'hyc5566/multica', 'platform': 'linux-amd64' if os.uname().machine == 'x86_64' else 'linux-arm64',
                 'version': ver, 'commit': commit, 'data_compatibility': 'multica-profile-v1',
                 'assets': [{'role': 'binary', 'url': 'https://github.com/hyc5566/multica/releases/download/v%s/fixture' % ver,
@@ -445,11 +491,12 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
     control = lambda action, body=None: request(fixture_url + '/control/' + action, body or {})
     control('reset')
     result = {'case': 'failed-start' if fail_start else 'success', 'fixture_server_pid': fixture_pid,
+              'inventory_scope': inventory_scope,
               'old_sha256': digest(current), 'candidate_sha256': digest(staged),
               'old_version_output': old_info, 'candidate_version_output': new_info,
-              'boundary': 'fixture API, fake systemctl/cgroup and fake agent; cross-UID process set is fixture-only, not a host inventory; not real Server or systemd'}
+              'boundary': 'fixture API, fake systemctl/user-bus/cgroup and fake agent; cross-UID process set is fixture-only, not a host inventory; account mode models ancestor permissions outside the lab root; not real Server or systemd'}
     try:
-        def fixture_process_inventory():
+        def fixture_process_inventory(account_scope=None):
             # The process namespace is a fixture boundary; only the launched
             # Go daemon's mapped image and owner come from the real host.
             if not unit.alive():
@@ -458,7 +505,7 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
             return [{'pid': unit.proc.pid, 'uid': os.stat('/proc/%d' % unit.proc.pid).st_uid,
                      'exe': str(current), 'device': image.st_dev, 'inode': image.st_ino, 'app': False}]
 
-        def fixture_executable_users(executable):
+        def fixture_executable_users(executable, account_scope=None):
             if not unit.alive():
                 return []
             image = os.stat('/proc/%d/exe' % unit.proc.pid)
@@ -466,15 +513,37 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
             if (image.st_dev, image.st_ino) != (target.st_dev, target.st_ino):
                 return []
             return [{'pid': unit.proc.pid, 'uid': os.stat('/proc/%d' % unit.proc.pid).st_uid}]
+
+        def fixture_ancestors(scope, path):
+            # Model a safe host namespace outside this private laboratory. All
+            # directories inside the laboratory retain real owner/mode checks.
+            result = {}
+            current = '/'
+            for part in ['', *path.strip('/').split('/')]:
+                if part:
+                    current = os.path.join(current, part)
+                info = scope._identity(current)
+                if os.path.commonpath((str(root), current)) == current and current != str(root):
+                    fields = scope._fields(info)[:5]
+                    fields[4] &= ~0o022
+                else:
+                    coordinator.updater.require(info.st_uid in (0, scope.uid) and not info.st_mode & 0o022,
+                                                'unsafe directory inside account laboratory: ' + current)
+                    fields = scope._fields(info)[:5]
+                result[current] = fields
+            return result
+
+        ancestor_model = (mock.patch.object(coordinator.updater.AccountScope, '_ancestors', fixture_ancestors)
+                          if inventory_scope == 'account' else contextlib.nullcontext())
         with mock.patch.dict(os.environ, env, clear=True), mock.patch.object(coordinator.pwd, 'getpwuid', return_value=account), \
              mock.patch.object(coordinator, 'target_machine_fingerprint', return_value='e' * 64), \
              mock.patch.object(coordinator, 'scan_roots', return_value=[]), mock.patch.object(coordinator, 'scan_programs', return_value=[]), \
-             mock.patch.object(coordinator, 'process_inventory', side_effect=lambda uid: fixture_process_inventory()), \
+             mock.patch.object(coordinator, 'process_inventory', side_effect=lambda uid, account_scope=None: fixture_process_inventory(account_scope)), \
              mock.patch.object(coordinator.updater, 'process_inventory', side_effect=fixture_process_inventory), \
              mock.patch.object(coordinator.updater, 'run', side_effect=unit.run), \
              mock.patch.object(coordinator.updater, 'cgroup_members', side_effect=unit.members), \
              mock.patch.object(coordinator.updater, 'executable_users', side_effect=fixture_executable_users), \
-             mock.patch.object(coordinator.updater, 'Updater', FastUpdater):
+             mock.patch.object(coordinator.updater, 'Updater', FastUpdater), ancestor_model:
             unit.start()
             before = wait_for(lambda: daemon_health(conf, unit), 'legacy daemon health')
             write_json(root / 'before-health.json', before)
@@ -498,7 +567,7 @@ def rehearse_case(root, old_binary, new_binary, fixture_url, fixture_pid, coordi
             write_json(root / 'after-health.json', after)
             if after.get('daemon_id') != before.get('daemon_id') or after.get('workspaces') != before.get('workspaces') or after.get('profile') != profile:
                 raise RuntimeError('daemon, workspace/runtime or profile identity changed')
-            if entry.read_bytes() != before_wrapper or (entry.stat().st_ino, entry.stat().st_uid, entry.stat().st_gid, entry.stat().st_mode) != (before_stat.st_ino, before_stat.st_uid, before_stat.st_gid, before_stat.st_mode):
+            if inventory_scope == 'host' and (entry.read_bytes() != before_wrapper or (entry.stat().st_ino, entry.stat().st_uid, entry.stat().st_gid, entry.stat().st_mode) != (before_stat.st_ino, before_stat.st_uid, before_stat.st_gid, before_stat.st_mode)):
                 raise RuntimeError('original wrapper bytes or metadata changed')
             if server()['pid'] != fixture_pid:
                 raise RuntimeError('fixture Server process changed')
@@ -687,6 +756,8 @@ def main(argv=None):
     parser.add_argument('--work-dir', type=Path, required=True, help='new absolute private laboratory directory')
     parser.add_argument('--self-test', action='store_true', help='exercise only the isolated fixture API, without binaries')
     parser.add_argument('--legacy-smoke', action='store_true', help='start only the old binary against the fixture API')
+    parser.add_argument('--inventory-scope', choices=('host', 'account'), default='host',
+                        help='exercise the chosen updater scope; account uses a synthetic safe ancestor namespace')
     args = parser.parse_args(argv)
     if args.self_test and args.legacy_smoke:
         parser.error('--self-test and --legacy-smoke are mutually exclusive')
@@ -720,8 +791,8 @@ def main(argv=None):
             if args.legacy_smoke:
                 summary.update(legacy_smoke(root / 'legacy-smoke', args.old_binary, fixture_url, fixture.pid, coordinator))
             else:
-                success = rehearse_case(root / 'success', args.old_binary, args.new_binary, fixture_url, fixture.pid, coordinator, fail_start=False)
-                failure = rehearse_case(root / 'failure', args.old_binary, args.new_binary, fixture_url, fixture.pid, coordinator, fail_start=True)
+                success = rehearse_case(root / 'success', args.old_binary, args.new_binary, fixture_url, fixture.pid, coordinator, fail_start=False, inventory_scope=args.inventory_scope)
+                failure = rehearse_case(root / 'failure', args.old_binary, args.new_binary, fixture_url, fixture.pid, coordinator, fail_start=True, inventory_scope=args.inventory_scope)
                 summary.update(status='passed', fixture_server_pid=fixture.pid, cases=[success, failure],
                                limitation='Isolated fake API and fake systemctl; not real Server, installed systemd or production evidence.')
         return 0
