@@ -240,27 +240,27 @@ test('repository entry points fetch the fixed release with verified HTTPS and fo
   } finally { rmSync(root, {recursive: true, force: true}); }
 });
 
-test('manifest.sh writes the release channel for one build', () => {
+test('manifest.sh refuses unverified legacy assets without publishing a channel', () => {
   const root = mkdtempSync(join(tmpdir(), 'multica-manifest-'));
   try {
     const release = join(root, 'release'); mkdirSync(release);
-    const version = '0.6.1-zh-tw.2', base = `https://s90.example:45671/downloads/${version}`;
+    const version = '0.8.2-zh-tw.1+up.250ecac';
+    const base = `https://10.1.24.90:45671/downloads/${version}`;
     writeFileSync(join(release, 'BUILD.txt'), `version=${version}\ncommit=${'a'.repeat(40)}\n`);
-    writeFileSync(join(release, 'install.sh'), `#!/usr/bin/env bash\nversion='${version}'\n`);
+    writeFileSync(join(release, 'install.sh'), '#!/usr/bin/env bash\n');
     const zip = join(root, `multica-desktop-${version}-mac-arm64.zip`);
-    writeFileSync(zip, 'zip-bytes');
+    writeFileSync(zip, 'unverified zip bytes');
     const script = new URL('./manifest.sh', import.meta.url).pathname;
-    const notes = 'https://github.com/hyc5566/multica/releases/tag/zh-tw-v0.6.1-zh-tw.2';
+    const notes = `https://github.com/hyc5566/multica/releases/tag/zh-tw-v${version}`;
+    // Valid publication needs the verified coordinator package and binary
+    // provenance. The Python release suite owns the real-binary happy path.
     const result = spawnSync('bash', [script, release, base, notes, zip], {encoding: 'utf8'});
-    assert.equal(result.status, 0, result.stderr);
-    const manifest = JSON.parse(readFileSync(join(release, 'latest.json'), 'utf8'));
-    const sha = (path) => createHash('sha256').update(readFileSync(path)).digest('hex');
-    assert.equal(manifest.version, version);
-    assert.equal(manifest.cli.install_url, `${base}/install.sh`);
-    assert.equal(manifest.cli.install_sha256, sha(join(release, 'install.sh')));
-    assert.deepEqual(manifest.desktop['darwin-arm64'], {url: `${base}/multica-desktop-${version}-mac-arm64.zip`, sha256: sha(zip), size: 9});
-    assert.equal(spawnSync('bash', [script, release, 'https://s90.example/downloads/0.6.1-zh-tw.3', notes]).status, 2);
-    writeFileSync(join(release, 'BUILD.txt'), `version=0.6.1-zh-tw.2-rc.1\ncommit=${'a'.repeat(40)}\n`);
-    assert.equal(spawnSync('bash', [script, release, base, notes]).status, 2, 'release candidates never enter the channel');
+    assert.notEqual(result.status, 0);
+    assert.match(result.stderr, /update-package.json/);
+    assert.equal(existsSync(join(release, 'latest.json')), false);
+    assert.notEqual(spawnSync('bash', [script, release, 'https://foreign.example/downloads/release', notes]).status, 0);
+    writeFileSync(join(release, 'BUILD.txt'), `version=0.8.2-zh-tw.1-rc.1+up.250ecac\ncommit=${'a'.repeat(40)}\n`);
+    assert.notEqual(spawnSync('bash', [script, release, base, notes]).status, 0);
+    assert.equal(existsSync(join(release, 'latest.json')), false);
   } finally { rmSync(root, {recursive: true, force: true}); }
 });
