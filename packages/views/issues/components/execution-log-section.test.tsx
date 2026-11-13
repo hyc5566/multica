@@ -691,6 +691,8 @@ describe("execution log header geometry", () => {
         quota_checkpoints: [quota("before", 15), quota("after", 17)],
       }),
     ]);
+    queryClient.setQueryData([...issueKeys.tasks("issue-1"), "history"],
+      queryClient.getQueryData(issueKeys.tasks("issue-1")));
     renderWithI18n(
       <QueryClientProvider client={queryClient}>
         <ExecutionLogSection issueId="issue-1" identifier="HYCLV-30" />

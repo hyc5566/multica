@@ -50,6 +50,7 @@ const descriptionSelectionAction = vi.hoisted(() => ({ current: undefined as { l
 // stable identity. A fresh `[]` per call would loop useSyncExternalStore.
 const emptyDraftAttachments = vi.hoisted(() => [] as unknown[]);
 const mockAddAnnotation = vi.hoisted(() => vi.fn((_key: string, _annotation: Record<string, unknown>) => "annotation-1"));
+const mockUpdateAnnotation = vi.hoisted(() => vi.fn());
 
 vi.mock("@multica/ui/hooks/use-mobile", () => ({
   useIsMobile: () => mockViewport.isMobile,
@@ -221,6 +222,7 @@ vi.mock("../../editor", async () => ({
       defaultValue,
       value: syncedValue,
       onUpdate,
+      ariaLabel,
       placeholder,
       flushPendingOnUnmount,
       onReady,
@@ -279,6 +281,7 @@ vi.mock("../../editor", async () => ({
     }));
     return (
       <textarea
+        aria-label={ariaLabel}
         value={editorValue}
         onChange={(e) => {
           valueRef.current = e.target.value;
@@ -457,6 +460,7 @@ vi.mock("@multica/core/issues/stores", async () => ({
         getDraft: () => undefined,
         getAnnotations: () => emptyDraftAttachments,
         addAnnotation: mockAddAnnotation,
+        updateAnnotation: mockUpdateAnnotation,
         getAttachments: () => emptyDraftAttachments,
         getUploads: () => emptyDraftAttachments,
         setDraft: () => {},
@@ -475,6 +479,7 @@ vi.mock("@multica/core/issues/stores", async () => ({
         getDraft: () => undefined,
         getAnnotations: () => emptyDraftAttachments,
         addAnnotation: mockAddAnnotation,
+        updateAnnotation: mockUpdateAnnotation,
         getAttachments: () => emptyDraftAttachments,
         getUploads: () => emptyDraftAttachments,
         setDraft: () => {},
@@ -3715,6 +3720,7 @@ describe("IssueDetail (shared)", () => {
     expect(mockAddAnnotation).toHaveBeenCalledWith("new:issue-1", expect.objectContaining({
       sourceCommentId: "description:issue-1", quote: "Unsaved quote", note: "Keep this question",
     }));
+    expect(mockUpdateAnnotation).toHaveBeenCalledWith("new:issue-1", "annotation-1", "Keep this question");
 
     renderedText.remove();
     fireEvent.click(screen.getByRole("button", { name: "Discard changes" }));
