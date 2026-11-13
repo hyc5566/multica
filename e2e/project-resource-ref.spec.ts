@@ -20,7 +20,8 @@ test("pins, edits and clears a repository's checkout ref", async ({ page }) => {
 
   // TitleEditor is a contenteditable, not an <input> with a placeholder attr.
   await page.getByRole("textbox", { name: /project title/i }).fill("Release line");
-  await page.getByRole("button", { name: /repos/i }).first().click();
+  await page.getByRole("button", { name: "More options", exact: true }).click();
+  await page.getByRole("menuitem", { name: /repos/i }).click();
   await page.getByPlaceholder(/github\.com\/owner\/repo/i).fill(REPO);
   await page.getByLabel(/starting branch/i).fill("release/2026-09");
   await page.getByRole("button", { name: /^add$/i }).click();
