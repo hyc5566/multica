@@ -93,6 +93,9 @@ export function currentWorkspaceTile(page: Page) {
 }
 
 export async function openAccountMenu(page: Page) {
+  // The Next.js development indicator can overlap this control in E2E.
+  // Make the overlay click-through without suppressing application error logging.
+  await page.addStyleTag({ content: "nextjs-portal { pointer-events: none !important; }" });
   const accountButton = appRail(page).getByRole("button", { name: "Account" });
   await expect(accountButton).toBeVisible({ timeout: 15000 });
   await accountButton.click();
