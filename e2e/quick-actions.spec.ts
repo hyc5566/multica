@@ -106,9 +106,10 @@ test("renders assistant quick actions and sends the hidden prompt", async ({
     );
 
     await page.setViewportSize({ width: 1440, height: 960 });
-    await page.goto(`/${workspace.slug}/chat?session=${sessionId}`, {
+    await page.goto(`/${workspace.slug}/chat`, {
       waitUntil: "domcontentloaded",
     });
+    await page.getByText("Plan a focused launch", { exact: true }).click();
 
     const primaryAction = page.getByRole("button", {
       name: "Draft the launch brief",
