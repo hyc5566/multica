@@ -18,6 +18,10 @@ func TestZhTWVersionComparison(t *testing.T) {
 		latest, current string
 		want            bool
 	}{
+		{"0.8.2-zh-tw.1+up.250ecac", "0.8.1-zh-tw.8", true},
+		{"0.8.2-zh-tw.2+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac", true},
+		{"0.8.2-zh-tw.1+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac", false},
+		{"0.8.2-zh-tw.2+up.invalid", "0.8.2-zh-tw.1+up.250ecac", false},
 		{"0.6.1-zh-tw.2", "0.6.1-zh-tw.1", true},
 		{"0.6.1-zh-tw.10", "0.6.1-zh-tw.9", true},
 		{"0.7.0-zh-tw.1", "0.6.9-zh-tw.12", true},

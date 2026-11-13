@@ -27,7 +27,7 @@ def load(name, filename):
 
 packager = load('package_unified_fixture', 'package-unified-update.py')
 finalizer = load('finalize_unified_fixture', 'finalize-unified-release.py')
-VERSION = '0.8.1-zh-tw.9'
+VERSION = '0.8.2-zh-tw.1+up.250ecac'
 COMMIT = 'a' * 40
 BASE = 'https://10.1.24.90:45671/downloads/' + VERSION
 

@@ -34,7 +34,7 @@ def build_identity(release):
         if not sep or key in fields:
             raise ValueError('invalid or duplicate BUILD.txt field')
         fields[key] = value
-    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+(?:-rc\.\d+)?', fields.get('version', '')):
+    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+(?:-rc\.\d+)?(?:\+up\.[0-9a-f]{7})?', fields.get('version', '')):
         raise ValueError('invalid BUILD.txt version')
     if not re.fullmatch(r'[0-9a-f]{40}', fields.get('commit', '')):
         raise ValueError('invalid BUILD.txt commit')
@@ -120,7 +120,7 @@ def emit_manifest(release, base, notes, app_zip=None):
     from urllib.parse import urlsplit
     release = Path(release)
     version, commit = build_identity(release)
-    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+', version):
+    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+(?:\+up\.[0-9a-f]{7})?', version):
         raise ValueError('channel requires a stable release')
     expected_base = 'https://10.1.24.90:45671/downloads/' + version
     note_url = urlsplit(notes)

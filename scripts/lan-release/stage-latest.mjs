@@ -13,7 +13,7 @@ if (!releaseArg || !outputArg || process.argv.length !== 4) {
 const release = resolve(releaseArg), output = resolve(outputArg);
 if (existsSync(output)) throw new Error(`Refusing to overwrite ${output}`);
 const manifest = JSON.parse(readFileSync(join(release, 'latest.json'), 'utf8'));
-if (!/^\d+\.\d+\.\d+-zh-tw\.\d+$/.test(manifest.version)) throw new Error('Not a stable release');
+if (!/^\d+\.\d+\.\d+-zh-tw\.\d+(?:\+up\.[0-9a-f]{7})?$/.test(manifest.version)) throw new Error('Not a stable release');
 if (manifest.source_id !== 'hyc5566/multica' || manifest.coordinated_update_protocol !== 1 ||
     Object.keys(manifest.desktop ?? {}).length !== 0) throw new Error('Release must isolate legacy App updaters');
 const app = manifest.coordinated_desktop?.['darwin-arm64'];
