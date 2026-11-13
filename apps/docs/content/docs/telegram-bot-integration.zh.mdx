@@ -15,7 +15,7 @@ Telegram 整合[由社群維護](/community-maintained)：隨每個版本釋出�
 
 ## 開始前
 
-- 連線操作需要工作區 owner 或 admin 許可權。
+- 連線操作需要工作區 owner 或 admin 權限。
 - API 伺服器必須能夠存取 `https://api.telegram.org`。
 - 你需要 @BotFather 簽發的 Bot token；它等同於密碼。
 
@@ -38,9 +38,9 @@ Telegram 整合[由社群維護](/community-maintained)：隨每個版本釋出�
 </Step>
 <Step>
 
-### 連線到Agent [#2-連線到Agent]
+### 連線到 Agent [#2-連線到 Agent]
 
-1. 在 Multica 開啟 **智慧體**，選擇目標智慧體並進入 **訊息渠道**。
+1. 在 Multica 開啟 **Agent**，選擇目標 Agent 並進入 **訊息渠道**。
 2. 點選 **新增訊息渠道**，再選擇 **Telegram**。
 3. 貼上 Bot token，然後點選 **連線**。
 
@@ -65,7 +65,7 @@ Multica 會即時請求 Telegram 驗證 Bot，檢查是否存在與長輪詢衝�
 
 ### 群組聊天與 forum topic
 
-把 Bot 加入群后，@ 它，或直接回復它發過的訊息。被接受的訊息會保留在持續的 Multica 對話中：普通群聊各自延續一段對話，forum 的每個 topic 分別隔離。
+把 Bot 加入群后，@ 它，或直接回覆它發過的訊息。被接受的訊息會保留在持續的 Multica 對話中：普通群聊各自延續一段對話，forum 的每個 topic 分別隔離。
 
 <Accordions type="multiple">
 <Accordion title="沒有發給 Bot 的群訊息" id="unaddressed-group-messages">
@@ -100,9 +100,9 @@ Multica 會即時請求 Telegram 驗證 Bot，檢查是否存在與長輪詢衝�
 
 ### 回覆與內容範圍
 
-Bot 透過傳送並編輯 Telegram 訊息來流式展示文字回覆，引用觸發訊息、保留 forum topic，並按 Telegram 長度限制自動分段。智慧體工作時，同一條訊息下方會列出它目前的步驟（如執行命令、讀取檔案）和已用時間：私聊顯示每一步的具體物件，群聊只顯示工作型別。可用 `MULTICA_TELEGRAM_TOOL_PROGRESS`（`off`、`summary`、`detail`）調整。
+Bot 透過傳送並編輯 Telegram 訊息來流式展示文字回覆，引用觸發訊息、保留 forum topic，並按 Telegram 長度限制自動分段。Agent 工作時，同一條訊息下方會列出它目前的步驟（如執行命令、讀取檔案）和已用時間：私聊顯示每一步的具體物件，群聊只顯示工作型別。可用 `MULTICA_TELEGRAM_TOOL_PROGRESS`（`off`、`summary`、`detail`）調整。
 
-圖片、檔案、影片、語音和音訊訊息會作為同一對話的附件交給Agent，caption 作為訊息正文；Agent生成的檔案會在回覆之後發回聊天。這兩個方向都需要服務端設定物件儲存（見下文自託管部分）。
+圖片、檔案、影片、語音和音訊訊息會作為同一對話的附件交給 Agent，caption 作為訊息正文；Agent 生成的檔案會在回覆之後發回聊天。這兩個方向都需要服務端設定物件儲存（見下文自託管部分）。
 
 <Accordions type="multiple">
 <Accordion title="最終回覆的投遞與排隊" id="reply-delivery">
@@ -112,20 +112,20 @@ Bot 透過傳送並編輯 Telegram 訊息來流式展示文字回覆，引用觸
 </Accordion>
 <Accordion title="圖片、檔案和其他媒體" id="media">
 
-回覆一條帶有圖片、檔案、影片、語音或音訊的訊息（私聊，或在群裡向 Bot 發出指令時，無論傳送者是誰），會把該訊息作為引用附在你的指令前，並把它的檔案一併交給Agent，這樣你可以指定之前的某張圖片或某段影片。
+回覆一條帶有圖片、檔案、影片、語音或音訊的訊息（私聊，或在群裡向 Bot 發出指令時，無論傳送者是誰），會把該訊息作為引用附在你的指令前，並把它的檔案一併交給 Agent，這樣你可以指定之前的某張圖片或某段影片。
 
-Telegram 只允許 Bot 下載 20 MB 以內的檔案；檔案無法獲取時（太大或下載失敗），Bot 會告訴你，Agent只會看到一個佔位符。
+Telegram 只允許 Bot 下載 20 MB 以內的檔案；檔案無法獲取時（太大或下載失敗），Bot 會告訴你，Agent 只會看到一個佔位符。
 
-Agent生成的檔案作為單獨的訊息發回聊天：10 MB 以內的圖片內聯顯示，其餘 50 MB 以內的檔案以檔案形式到達；無法確認送達時 Bot 會說明，檔案仍保留在 Multica 的回覆附件裡。
+Agent 生成的檔案作為單獨的訊息發回聊天：10 MB 以內的圖片內聯顯示，其餘 50 MB 以內的檔案以檔案形式到達；無法確認送達時 Bot 會說明，檔案仍保留在 Multica 的回覆附件裡。
 
-未設定物件儲存時，Bot 對媒體訊息回覆不支援提示，Agent也會被告知無法傳送檔案。貼紙、位置、投票等非檔案訊息在私聊中以及群裡明確 @ Bot 時會收到同樣的提示，群裡未 @ 的此類訊息保持靜默。
+未設定物件儲存時，Bot 對媒體訊息回覆不支援提示，Agent 也會被告知無法傳送檔案。貼紙、位置、投票等非檔案訊息在私聊中以及群裡明確 @ Bot 時會收到同樣的提示，群裡未 @ 的此類訊息保持靜默。
 
 </Accordion>
 </Accordions>
 
 ## 管理連線 [#管理與斷開]
 
-開啟 **設定 → 訊息渠道**，按平臺檢視已連線的智慧體。點選智慧體，進入其詳情頁的 **訊息渠道**。工作區 owner/admin 可以在這裡開啟 Bot 的管理選單，斷開連線。斷開會停止長輪詢和後續回覆，但保留 Multica 對話與審計記錄。
+開啟 **設定 → 訊息渠道**，按平臺檢視已連線的 Agent。點選 Agent，進入其詳情頁的 **訊息渠道**。工作區 owner/admin 可以在這裡開啟 Bot 的管理選單，斷開連線。斷開會停止長輪詢和後續回覆，但保留 Multica 對話與審計記錄。
 
 ## 自行託管設定
 
@@ -139,7 +139,7 @@ MULTICA_TELEGRAM_SECRET_KEY=<base64 编码的 32 字节密钥>
 
 繫結連結使用 `MULTICA_APP_URL`，未設定時回退到 `FRONTEND_ORIGIN`；產生的位址必須能被成員存取。伺服器網路或代理還必須允許 HTTPS 存取 `api.telegram.org`；Go 會讀取標準的 `HTTPS_PROXY` 和 `NO_PROXY` 環境變數。
 
-## 常見問題 [#故障排查]
+## 常見問題 [#故障排除]
 
 - **無法驗證 Bot**：先檢查伺服器網路和代理。只有 Telegram 明確拒絕 token 時才需要重新產生。
 - **webhook 衝突**：連線前移除這個 Bot 已有的 webhook；Telegram 不允許 webhook 與 `getUpdates` 同時使用。

@@ -14,7 +14,7 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 
 ## 連線 Bot
 
-智慧體所有者或工作區 owner/admin 可以把智慧體接入釘釘。一個智慧體對應一個釘釘 Bot。
+Agent 所有者或工作區 owner/admin 可以把 Agent 接入釘釘。一個 Agent 對應一個釘釘 Bot。
 
 <Steps>
 <Step>
@@ -29,7 +29,7 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 
 ### 給機器人授權 [#2-給機器人授權]
 
-預設已新增"機器人發訊息許可權"（`qyapi_robot_sendmsg`）。如需在 Multica 平臺顯示 Bot 名稱，需手動新增"釘群基礎資訊管理許可權"（`qyapi_chat_manage`）。
+預設已新增"機器人發訊息權限"（`qyapi_robot_sendmsg`）。如需在 Multica 平臺顯示 Bot 名稱，需手動新增"釘群基礎資訊管理權限"（`qyapi_chat_manage`）。
 
 </Step>
 <Step>
@@ -41,9 +41,9 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 </Step>
 <Step>
 
-### 把Agent接入釘釘 [#4-把Agent接入釘釘]
+### 把 Agent 接入釘釘 [#4-把 Agent 接入釘釘]
 
-1. 回到 Multica，開啟 **智慧體 → _你的智慧體_ → 訊息渠道**。
+1. 回到 Multica，開啟 **Agent → _你的 Agent_ → 訊息渠道**。
 2. 點選 **新增訊息渠道**，再選擇 **釘釘**。
 3. 填入 **AppKey** 和 **AppSecret** 後提交。
 
@@ -57,11 +57,11 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 </Step>
 </Steps>
 
-## 在釘釘中交代工作 [#在釘釘中給Agent交代工作]
+## 在釘釘中交代工作 [#在釘釘中給 Agent 交代工作]
 
 ### 私訊
 
-直接給 Bot 發訊息即可。Agent處理完成後，把結果回覆到私聊裡。
+直接給 Bot 發訊息即可。Agent 處理完成後，把結果回覆到私聊裡。
 
 ### 群組聊天
 
@@ -71,7 +71,7 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 
 私訊和群組聊天都支援圖文混排訊息，圖片支援 PNG、JPEG、GIF、WebP 和 BMP；每則訊息最多 4 張，每張不超過 10 MB。目前不支援檔案和語音訊息。
 
-群聊中的圖文混排訊息裡，@ Bot 產生的文字也會作為訊息內容發給Agent。要去掉其中的 Bot 名稱，需新增"釘群基礎資訊管理許可權"（`qyapi_chat_manage`）。
+群聊中的圖文混排訊息裡，@ Bot 產生的文字也會作為訊息內容發給 Agent。要去掉其中的 Bot 名稱，需新增"釘群基礎資訊管理權限"（`qyapi_chat_manage`）。
 
 ### 引用訊息繼續追問
 
@@ -79,13 +79,13 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 
 ### 訊息處理回饋
 
-Multica 收到釘釘訊息後，會嘗試在原訊息上新增釘釘的 `收到` 表情，表示訊息已交給Agent；Agent處理完成、回覆成功發到釘釘後，`收到` 換成 `Done`；任務被取消時，撤回 `收到` 表情。
+Multica 收到釘釘訊息後，會嘗試在原訊息上新增釘釘的 `收到` 表情，表示訊息已交給 Agent；Agent 處理完成、回覆成功發到釘釘後，`收到` 換成 `Done`；任務被取消時，撤回 `收到` 表情。
 
 表情回饋依賴釘釘介面，不保證即時更新。判斷結果時請結合 Bot 回覆和 Multica 中的執行記錄。
 
 ### 使用 `/issue` 建立任務
 
-傳送 `/issue <标题>` 或者 `/issue <标题>{换行}<详细描述>`，會建立一個新 Multica 任務，並自動指派給這個 Bot 繫結的Agent。同一條訊息裡的圖片會作為附件加到該任務中。和普通訊息不同，`/issue` 指令不會在 Multica 的[對話](/chat)中留下記錄。
+傳送 `/issue <标题>` 或者 `/issue <标题>{换行}<详细描述>`，會建立一個新 Multica 任務，並自動指派給這個 Bot 繫結的 Agent。同一條訊息裡的圖片會作為附件加到該任務中。和普通訊息不同，`/issue` 指令不會在 Multica 的[對話](/chat)中留下記錄。
 
 ### 使用 `/new` 新建 Chat
 
@@ -97,8 +97,8 @@ Multica 收到釘釘訊息後，會嘗試在原訊息上新增釘釘的 `收到`
 
 ## 管理連線
 
-- 在**智慧體 → _你的智慧體_ → 訊息渠道**頁面，智慧體所有者、工作區 owner/admin 可以在此連線釘釘，或者斷開連線。連線上釘釘後，這裡會顯示 Bot 名稱和已成功處理過訊息的釘群，以及 Bot 在釘群內的活躍狀態資料，有智慧體讀許可權的工作區成員都能看到這些資訊。最近 90 天沒有成功處理訊息的群會歸入**長期未活躍**，展開時再載入。
-- **設定 → 訊息渠道** 按平臺列出你有讀許可權的已連線智慧體。點選智慧體，進入其 **訊息渠道**，檢視 Bot 的群活動或管理連線。斷開後 Bot 停止接收訊息，安裝記錄仍會保留用於審計。工作區 owner/admin 還可以忘記某個群。忘記只會從列表中移除該群，不會刪除對話和訊息。如果已關聯釘釘帳號的工作區成員以後在該群再次 @ Bot，且 Multica 成功接收這條訊息，群會重新出現。
+- 在**Agent → _你的 Agent_ → 訊息渠道**頁面，Agent 所有者、工作區 owner/admin 可以在此連線釘釘，或者斷開連線。連線上釘釘後，這裡會顯示 Bot 名稱和已成功處理過訊息的釘群，以及 Bot 在釘群內的活躍狀態資料，有 Agent 讀權限的工作區成員都能看到這些資訊。最近 90 天沒有成功處理訊息的群會歸入**長期未活躍**，展開時再載入。
+- **設定 → 訊息渠道** 按平臺列出你有讀權限的已連線 Agent。點選 Agent，進入其 **訊息渠道**，檢視 Bot 的群活動或管理連線。斷開後 Bot 停止接收訊息，安裝記錄仍會保留用於審計。工作區 owner/admin 還可以忘記某個群。忘記只會從列表中移除該群，不會刪除對話和訊息。如果已關聯釘釘帳號的工作區成員以後在該群再次 @ Bot，且 Multica 成功接收這條訊息，群會重新出現。
 
 
 ## 自託管設定 [#自部署設定]
