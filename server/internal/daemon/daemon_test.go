@@ -5527,7 +5527,7 @@ func TestReportTaskResult_CompletedHitsCompleteEndpoint(t *testing.T) {
 	t.Cleanup(srv.Close)
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(context.Background(), "task-1", TaskResult{
+	d.reportTaskResult(context.Background(), "task-1", "", time.Time{}, TaskResult{
 		Status:     "completed",
 		Comment:    "all good",
 		BranchName: "agent/foo",
@@ -5599,7 +5599,7 @@ func TestReportTaskResult_CancelledParentStillReportsTerminalState(t *testing.T)
 			cancel()
 
 			d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-			d.reportTaskResult(ctx, "task-cancelled-parent", tc.result, slog.Default())
+			d.reportTaskResult(ctx, "task-cancelled-parent", "", time.Time{}, tc.result, slog.Default())
 
 			if got := calls.Load(); got != 1 {
 				t.Fatalf("terminal callback calls = %d, want 1", got)
@@ -5682,7 +5682,7 @@ func TestReportTaskResult_NonCompletedHitsFailEndpoint(t *testing.T) {
 			t.Cleanup(srv.Close)
 
 			d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-			d.reportTaskResult(context.Background(), "task-x", TaskResult{
+			d.reportTaskResult(context.Background(), "task-x", "", time.Time{}, TaskResult{
 				Status:             tc.status,
 				Comment:            tc.comment,
 				SessionID:          "ses-x",
@@ -5740,7 +5740,7 @@ func TestReportTaskResult_RetriesTransientCompleteThenSucceeds(t *testing.T) {
 	t.Cleanup(srv.Close)
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(context.Background(), "task-retry", TaskResult{
+	d.reportTaskResult(context.Background(), "task-retry", "", time.Time{}, TaskResult{
 		Status:  "completed",
 		Comment: "ok",
 	}, slog.Default())
@@ -5781,7 +5781,7 @@ func TestReportTaskResult_TransientCompleteExhaustedDoesNotFallback(t *testing.T
 	t.Cleanup(srv.Close)
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(context.Background(), "task-stuck", TaskResult{
+	d.reportTaskResult(context.Background(), "task-stuck", "", time.Time{}, TaskResult{
 		Status:  "completed",
 		Comment: "ok",
 	}, slog.Default())
@@ -5816,7 +5816,7 @@ func TestReportTaskResult_PermanentCompleteDoesNotReplaceOriginal(t *testing.T) 
 	t.Cleanup(srv.Close)
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(context.Background(), "task-bad", TaskResult{
+	d.reportTaskResult(context.Background(), "task-bad", "", time.Time{}, TaskResult{
 		Status:  "completed",
 		Comment: "ok",
 	}, slog.Default())
@@ -5851,7 +5851,7 @@ func TestReportTaskResult_CancelledParentStillPreservesPermanentCompletion(t *te
 	cancel()
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(ctx, "task-cancelled-fallback", TaskResult{
+	d.reportTaskResult(ctx, "task-cancelled-fallback", "", time.Time{}, TaskResult{
 		Status:  "completed",
 		Comment: "ok",
 	}, slog.Default())

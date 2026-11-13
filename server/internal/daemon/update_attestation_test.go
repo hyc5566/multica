@@ -102,10 +102,10 @@ func TestMaintenanceShutdownChecksIdentityAndDrain(t *testing.T) {
 func TestUpdateAttestationReceiptRequiresSuccessfulCompletion(t *testing.T) {
 	d := &Daemon{logger: slog.New(slog.NewTextHandler(io.Discard, nil))}
 	d.terminalReportSend = func(context.Context, terminalTaskReport, []time.Duration) error { return nil }
-	if !d.reportTaskResult(context.Background(), "task", TaskResult{Status: "completed"}, d.logger) {
+	if !d.reportTaskResult(context.Background(), "task", "", time.Time{}, TaskResult{Status: "completed"}, d.logger) {
 		t.Fatal("successful report not accepted")
 	}
-	if d.reportTaskResult(context.Background(), "task", TaskResult{Status: "failed"}, d.logger) {
+	if d.reportTaskResult(context.Background(), "task", "", time.Time{}, TaskResult{Status: "failed"}, d.logger) {
 		t.Fatal("failure treated as completion")
 	}
 	start := time.Now().UTC()

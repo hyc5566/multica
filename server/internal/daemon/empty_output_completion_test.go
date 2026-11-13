@@ -6,6 +6,7 @@ import (
 	"net/http/httptest"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/multica-ai/multica/server/pkg/agent"
 )
@@ -57,7 +58,7 @@ func TestReportTaskResult_CompletedWithEmptyOutputPostsEmptyOutput(t *testing.T)
 	t.Cleanup(srv.Close)
 
 	d := &Daemon{client: NewClient(srv.URL), logger: slog.Default()}
-	d.reportTaskResult(context.Background(), "task-empty", TaskResult{Status: "completed", Comment: ""}, slog.Default())
+	d.reportTaskResult(context.Background(), "task-empty", "", time.Time{}, TaskResult{Status: "completed", Comment: ""}, slog.Default())
 
 	rec.mu.Lock()
 	defer rec.mu.Unlock()
