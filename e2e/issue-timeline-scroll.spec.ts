@@ -164,7 +164,7 @@ test("scrolling up a virtualized long thread keeps the reading position steady",
     expect.soft(fromInbox.filter((s) => Math.abs(s) > 2), `Inbox landing shifts: ${fromInbox}`).toEqual([]);
 
     // 2. Open the issue normally, go to the end of the discussion, read upward.
-    await page.goto(`/${slug}/issues/${mixed.issue.id}`);
+    await page.goto(`/${slug}/issues/${mixed.issue.identifier}`);
     await expect(page.getByText("Long discussion root")).toBeVisible();
     const toEnd = () => page.evaluate(() => {
       const c = document.querySelector<HTMLElement>('[data-tab-scroll-root^="main:"]')!;
