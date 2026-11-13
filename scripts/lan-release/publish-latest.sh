@@ -24,7 +24,7 @@ verify_files() {
 }
 verify_files "$stage"
 version=$(sed -n 's/^version=//p' "$stage/BUILD.txt")
-printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+$' || exit 2
+printf '%s\n' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+(\+up\.[0-9a-f]{7})?$' || exit 2
 [ -d "$root/$version" ] || { echo 'Publish the immutable version first.' >&2; exit 2; }
 immutable="$root/$version"
 [ ! -L "$immutable" ] && [ ! -L "$root/latest" ] || { echo 'Release directories must not be symlinks.' >&2; exit 2; }

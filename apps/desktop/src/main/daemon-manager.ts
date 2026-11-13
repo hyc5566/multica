@@ -683,7 +683,7 @@ async function resolveCliBinary(): Promise<string | null> {
     }
 
     // A Taiwan release must use the CLI embedded in that same App bundle.
-    if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+    if (app.isPackaged && /-zh-tw\.\d+(?:\+up\.[0-9a-f]{7})?$/.test(app.getVersion())) {
       cachedCliBinary = null;
       cachedCliBinaryVersion = null;
       return null;
@@ -778,7 +778,7 @@ async function ensureRunningDaemonVersionMatches(): Promise<
   if (!active) return "not_running";
   const running = await fetchProfileHealth(active);
 
-  if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+  if (app.isPackaged && /-zh-tw\.\d+(?:\+up\.[0-9a-f]{7})?$/.test(app.getVersion())) {
     pendingVersionRestart = false;
     return running ? "ok" : "not_running";
   }
@@ -1252,7 +1252,7 @@ async function startDaemon(
   if (await pinnedBoundary(active)) return { success: false, error: "This daemon is managed independently." };
   const bin = await resolveCliBinary();
   if (!bin) return { success: false, error: "multica CLI is not installed" };
-  if (app.isPackaged && /-zh-tw\.\d+$/.test(app.getVersion())) {
+  if (app.isPackaged && /-zh-tw\.\d+(?:\+up\.[0-9a-f]{7})?$/.test(app.getVersion())) {
     try { await verifyCLIEntries(bin, bin, managedCliPath(), process.env.PATH ?? "", process.platform); }
     catch (error) { return { success: false, error: error instanceof Error ? error.message : String(error) }; }
   }

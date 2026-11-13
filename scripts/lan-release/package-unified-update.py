@@ -44,7 +44,7 @@ def shell_source(repo, version, commit):
 
 
 def package(repo, release, version, commit, base):
-    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+(?:-rc\.\d+)?', version):
+    if not re.fullmatch(r'\d+\.\d+\.\d+-zh-tw\.\d+(?:-rc\.\d+)?(?:\+up\.[0-9a-f]{7})?', version):
         raise ValueError('A fixed Taiwan release version is required')
     if not re.fullmatch(r'[0-9a-f]{40}', commit):
         raise ValueError('A full source commit is required')
