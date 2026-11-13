@@ -34,7 +34,9 @@ test.describe("Issue sidebar add property", () => {
     const title = `E2E add property overflow ${suffix}`;
     const issue = await api.createIssue(title);
     const slug = await loginAsDefault(page);
-    await page.goto(`/${slug}/issues/${issue.id}`, { waitUntil: "domcontentloaded" });
+    // UUID routes are replaced with the canonical identifier after loading;
+    // navigate there directly so that replacement cannot dismiss the popover.
+    await page.goto(`/${slug}/issues/${issue.identifier}`, { waitUntil: "domcontentloaded" });
     await waitForPageText(page, title);
 
     await page.locator("[data-right-sidebar-panel]").getByRole("button", { name: "Add property" }).click();
