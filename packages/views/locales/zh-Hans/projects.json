@@ -283,12 +283,12 @@
     "manager": "管理存取權限",
     "you": "你",
     "remove": "移除 {{name}}",
-    "failed": "无法保存访问权限。",
-    "load_failed": "无法加载项目成员。",
-    "publish_title": "将项目设为整个工作区可见？",
-    "publish_description": "工作区所有成员都将能查看这个项目及其中的任务、评论和附件。",
+    "failed": "無法儲存存取權限。",
+    "load_failed": "無法載入專案成員。",
+    "publish_title": "讓整個工作區都能看到專案？",
+    "publish_description": "工作區所有成員都將能查看這個專案及其中的任務、評論和附件。",
     "done": "完成",
-    "retry": "重试"
+    "retry": "重試"
   },
   "archive": {
     "badge": "已歸檔",
