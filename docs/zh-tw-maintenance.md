@@ -265,6 +265,43 @@ replaces the merge-based `zh-tw` history at
   has Git 2.34.1: those execenv tests fail there on pure upstream too, and a
   daemon using that Git cannot normalize resumed local worktrees.
 
+### November 13, 2026 integration candidate (HYC-92)
+
+The candidate builds on upstream `250ecacf4ab17a4bdaa7bde3a3cec2ed14ce15bb`
+(v0.8.2), with version `0.8.2-zh-tw.1+up.250ecac`. The preceding rebuild's
+actual upstream base is `a9434451e1c7c5a72798e0b65fdfb769a9249dab`; the
+range to the pinned upstream contains 246 commits. Replay the eight rebuilt
+Taiwan commits, then the 21 remaining non-merge changes through old head
+`21eb4d59b35ac31bf215b0fda6e745a34695ba01`. The Gemini quota endpoint fix
+`57a4c60a242604b81e582326cf58ba0b1fbc0f67` is already present in the rebuilt
+backend and must not be applied a second time. The four later old-line merge
+nodes have empty remerge diffs; their branch changes still need the replay.
+
+Keep the exact published Taiwan migration stems and contents 451–462. The
+ledger identifies full stems and the migration lint permits only their known
+upstream prefix collisions: renumbering an installed stem can rerun its SQL.
+Upstream adds migrations 617–656; 617 copies old allowlisted app data into the
+new agent-app table. Several down migrations delete new tables or columns, and
+652/656 restrict future Droid/Amp writes when downgraded. This is not a
+same-schema deployment: test fresh and upgrade paths, verify database and upload
+backups, and plan data restoration separately from application rollback.
+
+For release, pin the upstream commit and complete release-tag snapshot, then
+run `MULTICA_UPSTREAM_REF=<full-upstream-commit> node scripts/zh-tw-version.mjs
+--json` in the candidate checkout. The resolver derives the upstream tag and
+merge base from HEAD, checks the working-tree Desktop package version and the
+existing Taiwan release tags, and rejects mismatched `VERSION` or
+`MULTICA_BUILD_VERSION`. Equal-version rebuilds require the release tag to
+resolve to the same commit. Record the resolved version, HEAD, merge base and
+tag snapshot; coordinate concurrent release numbers. Make build/multica, LAN
+and Desktop entrypoints must use the same result. Validate macOS packaging and
+URL consumers for the `+up.<sha>` suffix on their target platforms.
+
+Candidate preparation and candidate-branch publication do not constitute
+acceptance or production deployment. The shared `zh-tw` replacement remains
+gated on review and the authorized expected remote OID; verify tests and
+release artifacts before any separately authorized service or data change.
+
 ### November 7, 2026 integration candidate (HYCLV-481)
 
 The candidate rebuilds the cumulative Taiwan layers from
