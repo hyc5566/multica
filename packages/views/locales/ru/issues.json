@@ -335,7 +335,10 @@
     "card_child_progress": "Прогресс подзадач",
     "card_pull_requests": "Pull request'ы",
     "show_sub_issues": "Показывать подзадачи",
-    "layout_options": "Настройки вида «{{layout}}»"
+    "layout_options": "Настройки вида «{{layout}}»",
+    "layout_section": "Макет",
+    "layout_compact": "Компактный",
+    "layout_default": "Обычный"
   },
   "view": {
     "tooltip_board": "Вид «Доска»",
@@ -618,7 +621,9 @@
     "thread_nav_show_replies_many": "Показать {{count}} ответов",
     "not_found_title": "Задача не найдена",
     "load_failed": "Не удалось загрузить задачу.",
-    "load_retry": "Повторить"
+    "load_retry": "Повторить",
+    "discard_changes": "Отменить изменения",
+    "save_changes": "Сохранить изменения"
   },
   "timeline": {
     "loading": "Загрузка...",
@@ -1059,7 +1064,33 @@
     "day_runs_many": "{{count}} запусков",
     "cumulative_aria_few": "Совокупная стоимость во времени: {{cost}} за {{count}} запуска",
     "cumulative_aria_many": "Совокупная стоимость во времени: {{cost}} за {{count}} запусков",
-    "credits_count": "Кредиты {{provider}}: {{credits}}"
+    "credits_count": "Кредиты {{provider}}: {{credits}}",
+    "quota_title": "Контрольные точки квоты провайдера",
+    "quota_attribution_note": "Данные аккаунта; на изменение могла повлиять параллельная работа.",
+    "quota_window": "Период",
+    "quota_before": "До",
+    "quota_after": "После",
+    "quota_delta": "Изменение",
+    "quota_observed": "Наблюдение",
+    "quota_reset": "Сброс",
+    "quota_state": "Состояние",
+    "quota_state_comparable": "Сопоставимо",
+    "quota_state_same_observation": "То же наблюдение",
+    "quota_state_reset_crossed": "Между наблюдениями произошёл сброс",
+    "quota_state_stale": "Устаревшие данные",
+    "quota_state_unavailable": "Провайдер недоступен",
+    "quota_state_missing": "Неполные данные",
+    "quota_requested_model": "Запрошенная модель",
+    "export_runs_csv": "Запуски CSV",
+    "export_quota_csv": "Квота CSV",
+    "quota_show_all_one": "Показать ещё {{count}} период",
+    "quota_show_all_few": "Показать ещё {{count}} периода",
+    "quota_show_all_many": "Показать ещё {{count}} периодов",
+    "quota_show_all_other": "Показать ещё {{count}} периода",
+    "quota_overlap_one": "{{count}} параллельный запуск",
+    "quota_overlap_few": "{{count}} параллельных запуска",
+    "quota_overlap_many": "{{count}} параллельных запусков",
+    "quota_overlap_other": "{{count}} параллельного запуска"
   },
   "terminate_dialog": {
     "title": "Остановить этот запуск?",

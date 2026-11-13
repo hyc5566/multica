@@ -176,7 +176,7 @@ describe("PreferencesTab — Language switcher", () => {
   });
 
   it.each([
-    { name: "简体中文", locale: "zh-Hans" },
+    { name: "繁體中文（台灣版）", locale: "zh-Hans" },
     { name: "繁體中文", locale: "zh-Hant" },
     { name: "Français", locale: "fr" },
     { name: "Español", locale: "es" },
@@ -200,7 +200,7 @@ describe("PreferencesTab — Language switcher", () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<PreferencesTab />, { wrapper: I18nWrapper });
 
-    await pickLanguage(user, "简体中文");
+    await pickLanguage(user, "繁體中文（台灣版）");
 
     // Local persist still happened so the reload below sees the new locale.
     expect(mockPersist).toHaveBeenCalledWith("zh-Hans");

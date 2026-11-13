@@ -1494,7 +1494,18 @@
       "downloading": "v{{version}} se está descargando en segundo plano: te avisaremos cuando esté lista para instalar.",
       "check_now": "Buscar ahora",
       "checking": "Comprobando…",
-      "description": "Controla las actualizaciones automáticas en segundo plano o busca una nueva versión manualmente."
+      "description": "Controla las actualizaciones automáticas en segundo plano o busca una nueva versión manualmente.",
+      "available": "Hay una actualización v{{version}} disponible.",
+      "progress": "Descargando actualización: {{percent}}%",
+      "ready": "La actualización v{{version}} está lista.",
+      "installing": "Instalando actualización...",
+      "unsupported": "Las actualizaciones automáticas no están disponibles para esta instalación.",
+      "status_failed": "No se pudo consultar el estado de la actualización.",
+      "restart_now": "Reiniciar ahora",
+      "later": "Más tarde",
+      "release_notes": "Notas de la versión",
+      "retry": "Reintentar",
+      "defer_explanation": "«Más tarde» aplaza la instalación durante esta sesión. Al iniciar de nuevo, la aplicación volverá a buscar y descargar la actualización; también puedes reiniciarla manualmente desde Configuración."
     },
     "daemon": {
       "title": "Daemon",
@@ -1572,7 +1583,9 @@
       "try_again": "Inténtalo de nuevo.",
       "description": "Configura cómo funciona el daemon local de agentes con la aplicación de escritorio.",
       "diagnostics_description": "Datos de identificación y conexión. Son útiles para informar de un error o investigar por qué no aparece un entorno de ejecución.",
-      "waiting_logs_description": "Las nuevas entradas aparecerán en tiempo real."
+      "waiting_logs_description": "Las nuevas entradas aparecerán en tiempo real.",
+      "pinned_managed": "Este daemon se administra de forma independiente.",
+      "pinned_incompatible": "El daemon independiente no es compatible con esta aplicación Desktop. Actualiza la aplicación o el daemon."
     }
   },
   "members": {

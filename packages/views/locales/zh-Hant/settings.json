@@ -1483,7 +1483,18 @@
       "downloading": "v{{version}} 正在後臺下載——準備好安裝時會通知你。",
       "check_now": "立即檢查",
       "checking": "檢查中...",
-      "description": "控制背景自動更新，或手動檢查新版本。"
+      "description": "控制背景自動更新，或手動檢查新版本。",
+      "available": "更新 v{{version}} 已可下載。",
+      "progress": "正在下載更新：{{percent}}%",
+      "ready": "更新 v{{version}} 已準備就緒。",
+      "installing": "正在安裝更新...",
+      "unsupported": "此安裝方式不支援自動更新。",
+      "status_failed": "無法讀取更新狀態。",
+      "restart_now": "立即重新啟動",
+      "later": "稍後",
+      "release_notes": "版本說明",
+      "retry": "重試",
+      "defer_explanation": "「稍後」會將安裝延至本次使用結束。下次啟動時，App 會重新檢查並下載；你也可以在設定中手動重新啟動。"
     },
     "daemon": {
       "title": "守護程序",
@@ -1557,7 +1568,9 @@
       "try_again": "請重試。",
       "waiting_logs_description": "新日誌會即時顯示在這裡。",
       "description": "設定本地 Agent 守護程序與桌面應用協同工作的方式。",
-      "diagnostics_description": "裝置標識與連線詳細資訊，可用於提交錯誤報告或診斷執行環境未顯示的問題。"
+      "diagnostics_description": "裝置標識與連線詳細資訊，可用於提交錯誤報告或診斷執行環境未顯示的問題。",
+      "pinned_managed": "此 daemon 由獨立程序管理。",
+      "pinned_incompatible": "獨立 daemon 與此桌面 App 不相容。請更新 App 或 daemon。"
     }
   },
   "members": {
