@@ -31,7 +31,7 @@ const (
 	zhTWInstallerTimeout      = 10 * time.Minute
 )
 
-var zhTWVersionPattern = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)$`)
+var zhTWVersionPattern = regexp.MustCompile(`^v?(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)(?:\+up\.[0-9a-f]{7})?$`)
 
 // ZhTWReleaseManifest is the channel document published next to each release.
 type ZhTWReleaseManifest struct {

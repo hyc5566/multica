@@ -14,6 +14,25 @@ type fixtureOps struct {
 	receipt bool
 }
 
+func TestVersionComparisonWithUpstreamMetadata(t *testing.T) {
+	for _, tc := range []struct {
+		next, previous string
+		want           int
+	}{
+		{"0.8.2-zh-tw.1+up.250ecac", "0.8.1-zh-tw.8", 1},
+		{"0.8.2-zh-tw.2+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac", 1},
+		{"0.8.2-zh-tw.1+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac", 0},
+	} {
+		got, err := compareVersion(tc.next, tc.previous)
+		if err != nil || got != tc.want {
+			t.Errorf("compareVersion(%q, %q) = %d, %v; want %d", tc.next, tc.previous, got, err, tc.want)
+		}
+	}
+	if _, err := compareVersion("0.8.2-zh-tw.2+up.invalid", "0.8.2-zh-tw.1+up.250ecac"); err == nil {
+		t.Fatal("malformed upstream metadata accepted")
+	}
+}
+
 func fixtureJournal(phase string) *Journal {
 	return &Journal{Phase: phase, OldVersion: "0.8.1-zh-tw.4", NewVersion: "0.8.1-zh-tw.5", DataCompatibility: "multica-profile-v1", OldDataCompatibility: "multica-profile-v1"}
 }

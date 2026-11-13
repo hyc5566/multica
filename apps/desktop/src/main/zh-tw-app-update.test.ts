@@ -43,6 +43,10 @@ const macAsset = { url: "https://s90.example/app.zip", sha256: sha.toUpperCase()
 
 describe("zh-tw app update channel", () => {
   it("compares only Taiwan release versions", () => {
+    expect(isNewerZhTWVersion("0.8.2-zh-tw.1+up.250ecac", "0.8.1-zh-tw.8")).toBe(true);
+    expect(isNewerZhTWVersion("0.8.2-zh-tw.2+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac")).toBe(true);
+    expect(isNewerZhTWVersion("0.8.2-zh-tw.1+up.abcdef0", "0.8.2-zh-tw.1+up.250ecac")).toBe(false);
+    expect(isNewerZhTWVersion("0.8.2-zh-tw.2+up.invalid", "0.8.2-zh-tw.1+up.250ecac")).toBe(false);
     expect(isNewerZhTWVersion("0.6.1-zh-tw.10", "0.6.1-zh-tw.9")).toBe(true);
     expect(isNewerZhTWVersion("0.7.0-zh-tw.1", "0.6.9-zh-tw.4")).toBe(true);
     expect(isNewerZhTWVersion("0.6.1-zh-tw.1", "0.6.1-zh-tw.1")).toBe(false);
