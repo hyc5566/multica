@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { StrictMode } from "react";
 import { render, screen, waitFor } from "@testing-library/react";
 import type { SupportedLocale } from "@multica/core/i18n";
 import { I18nProvider } from "@multica/core/i18n/react";
@@ -138,6 +139,21 @@ describe("CallbackPage", () => {
     mockLoginWithGoogle.mockResolvedValue(makeUser());
     mockListWorkspaces.mockResolvedValue([]);
     mockListMyInvitations.mockResolvedValue([]);
+  });
+
+  it("exchanges a single-use code once under StrictMode", async () => {
+    render(
+      <StrictMode>
+        <I18nProvider locale="en" resources={RESOURCES}>
+          <CallbackPage />
+        </I18nProvider>
+      </StrictMode>,
+    );
+
+    await waitFor(() => expect(mockLoginWithGoogle).toHaveBeenCalledTimes(1));
+    expect(mockLoginWithGoogle).toHaveBeenCalledWith(
+      "test-code", `${window.location.origin}/auth/callback`,
+    );
   });
 
   it("renders callback errors in the selected locale", async () => {
