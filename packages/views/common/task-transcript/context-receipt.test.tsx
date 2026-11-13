@@ -136,9 +136,9 @@ describe("ContextReceiptView", () => {
 
   it("renders in Chinese", () => {
     renderWithI18n(<ContextReceiptView receipt={receipt} />, { locale: "zh-Hans" });
-    expect(screen.getByText("上下文回执")).toBeTruthy();
+    expect(screen.getByText("上下文回執")).toBeTruthy();
     expect(screen.getByText("技能：pr-review")).toBeTruthy();
-    expect(screen.getAllByText("仅在 2.13.0 验证过").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("僅在 2.13.0 驗證過").length).toBeGreaterThan(0);
   });
 });
 

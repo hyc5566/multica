@@ -13,7 +13,8 @@
     "unread_other": "{{count}} непрочитанных чата",
     "default": "Спросить Multica",
     "unread_few": "{{count}} непрочитанных чата",
-    "unread_many": "{{count}} непрочитанных чатов"
+    "unread_many": "{{count}} непрочитанных чатов",
+    "move_hint": "Перетащите, чтобы переместить. В фокусе используйте стрелки; Home сбрасывает положение."
   },
   "bar": {
     "history": "История чатов",
@@ -117,7 +118,21 @@
     "tools_few": "{{count}} инструмента",
     "tools_many": "{{count}} инструментов",
     "process_steps_few": "{{count}} шага",
-    "process_steps_many": "{{count}} шагов"
+    "process_steps_many": "{{count}} шагов",
+    "quota_title": "Квота провайдера",
+    "quota_attribution_note": "Данные аккаунта; на изменение могли повлиять другие запуски.",
+    "quota_no_window": "Нет сопоставимого окна квоты (до: {{before}}, после: {{after}}).",
+    "quota_overlap": "С этими наблюдениями пересекались другие запуски: {{count}}.",
+    "usage_missing": "Расход токенов для этого запуска не записан.",
+    "token_count": "Токены: {{value}}",
+    "quota_state": {
+      "comparable": "Сопоставимо",
+      "same_observation": "То же наблюдение",
+      "reset_crossed": "Между наблюдениями произошёл сброс квоты",
+      "stale": "Устаревшие данные",
+      "unavailable": "Недоступно",
+      "missing": "Нет контрольной точки"
+    }
   },
   "session_history": {
     "untitled": "Без названия",
@@ -278,6 +293,12 @@
     "rename": "Переименовать чат",
     "archive": "Архивировать чат",
     "unarchive": "Разархивировать чат",
-    "delete": "Удалить чат"
+    "delete": "Удалить чат",
+    "quota_summary": "Сводка квоты сеанса",
+    "quota_summary_description": "Контрольные точки квоты провайдера для «{{title}}».",
+    "quota_empty": "Для этого сеанса контрольные точки квоты не записаны.",
+    "export_json": "JSON",
+    "export_csv": "CSV",
+    "run": "Запуск"
   }
 }
