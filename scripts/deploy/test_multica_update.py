@@ -909,7 +909,7 @@ class PreparationTests(unittest.TestCase):
                 u.process_inventory(42)
 
     def test_darwin_spotlight_running_bundle_and_symlinked_cli(self):
-        with tempfile.TemporaryDirectory() as root:
+        with tempfile.TemporaryDirectory(prefix='multica-inventory-parent-') as root:
             root = Path(root)
             search = root / 'search'
             search.mkdir()
@@ -940,6 +940,18 @@ class PreparationTests(unittest.TestCase):
                 self.assertEqual(result['cli_resolved'], str(binary))
                 self.assertEqual(result['applications'][0]['path'], str(app))
                 self.assertEqual(result['processes'], [{'pid': 111, 'exe': str(executable), 'bundle': str(app)}])
+                foreign = root / 'Unknown Multica.app' / 'Contents'
+                (foreign / 'MacOS').mkdir(parents=True)
+                (foreign / 'Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier': 'org.example.unknown'}))
+                foreign_exe = foreign / 'MacOS' / 'Unknown'
+                foreign_exe.write_bytes(b'fixture')
+                def foreign_process(args, **kwargs):
+                    if args[0] == '/usr/bin/mdfind':
+                        return run(args, **kwargs)
+                    output = ('111 ' + str(executable) + '\n333 ' + str(foreign_exe) + '\n').encode()
+                    return type('Result', (), {'returncode': 0, 'stdout': output, 'stderr': b''})()
+                with mock.patch.object(u.subprocess, 'run', side_effect=foreign_process):
+                    self.assertEqual(u.inspect_install(os.geteuid(), [str(search)], str(cli))['status'], 'mixed')
                 def process_only(args, **kwargs):
                     if args[0] == '/usr/bin/mdfind':
                         return type('Result', (), {'returncode': 0, 'stdout': b'', 'stderr': b''})()

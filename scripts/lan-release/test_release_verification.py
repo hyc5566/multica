@@ -97,6 +97,11 @@ class ReleaseVerification(unittest.TestCase):
             (repo / 'server' / 'migrations' / 'fixture.sql').write_text('-- fixture\n')
             for name in ('LICENSE', 'NOTICE'):
                 (repo / name).write_text('release fixture\n')
+            (repo / 'scripts').mkdir()
+            shutil.copyfile(REPO / 'scripts/zh-tw-version.mjs', repo / 'scripts/zh-tw-version.mjs')
+            desktop_package = repo / 'apps/desktop/package.json'
+            desktop_package.parent.mkdir(parents=True)
+            desktop_package.write_text(json.dumps({'version': '0.8.2'}))
             def run(args, **kwargs):
                 return subprocess.run(args, check=True, stdout=subprocess.PIPE,
                                       stderr=subprocess.PIPE, **kwargs)
@@ -104,20 +109,30 @@ class ReleaseVerification(unittest.TestCase):
             run(['git', '-C', str(repo), 'add', '.'])
             run(['git', '-C', str(repo), '-c', 'user.name=Release Fixture',
                  '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'fixture'])
+            run(['git', '-C', str(repo), 'tag', 'v0.8.2'])
+            run(['git', '-C', str(repo), 'branch', 'upstream'])
+            upstream = run(['git', '-C', str(repo), 'rev-parse', 'upstream']).stdout.decode().strip()
+            fixture_version = f'0.8.2-zh-tw.1+up.{upstream[:7]}'
+            desktop_package.write_text(json.dumps({'version': fixture_version}))
+            run(['git', '-C', str(repo), 'add', 'apps/desktop/package.json'])
+            run(['git', '-C', str(repo), '-c', 'user.name=Release Fixture',
+                 '-c', 'user.email=fixture@example.invalid', 'commit', '-m', 'candidate'])
             commit = run(['git', '-C', str(repo), 'rev-parse', 'HEAD']).stdout.decode().strip()
             certificate = root / 'public-ca.crt'
             run(['openssl', 'req', '-x509', '-newkey', 'rsa:2048', '-nodes',
                  '-keyout', str(root / 'fixture.key'), '-out', str(certificate),
                  '-days', '1', '-subj', '/CN=Release Test CA'])
             release = root / 'release'
-            env = dict(os.environ, GOTOOLCHAIN='local', GO111MODULE='off', CGO_ENABLED='0')
-            run(['bash', str(HERE / 'build.sh'), VERSION, str(release), BASE,
+            env = dict(os.environ, GOTOOLCHAIN='local', GO111MODULE='off', CGO_ENABLED='0', MULTICA_UPSTREAM_REF=upstream)
+            derived = run(['node', str(repo / 'scripts/zh-tw-version.mjs')], cwd=repo, env=env).stdout.decode().strip()
+            self.assertEqual(derived, fixture_version)
+            run(['bash', str(HERE / 'build.sh'), derived, str(release), 'https://example.test/downloads/' + derived,
                  str(certificate)], cwd=repo, env=env)
-            self.assertEqual(verifier.build_identity(release), (VERSION, commit))
+            self.assertEqual(verifier.build_identity(release), (derived, commit))
             for platform in self.binaries:
                 goos, arch = platform.split('-')
-                verifier.verify_binary(release / f'multica-{VERSION}-{platform}',
-                                       VERSION, commit, goos, arch)
+                verifier.verify_binary(release / f'multica-{derived}-{platform}',
+                                       derived, commit, goos, arch)
 
     def test_old_binary_refused_before_packaging(self):
         with tempfile.TemporaryDirectory() as root:
