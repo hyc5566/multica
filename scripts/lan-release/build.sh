@@ -7,10 +7,12 @@ version=${1:?Usage: build.sh VERSION OUTPUT_DIR HTTPS_DOWNLOAD_BASE VERIFIED_CA_
 out=${2:?Missing output directory}
 base_url=${3:?Missing immutable HTTPS download base}
 ca_file=${4:?Missing verified s90 public CA certificate path}
+derived=$(node "$repo/scripts/zh-tw-version.mjs")
+[[ "$version" == "$derived" ]] || { echo "Version does not match $derived" >&2; exit 2; }
 openssl x509 -in "$ca_file" -noout -checkend 0 >/dev/null
 if grep -q 'PRIVATE KEY' "$ca_file"; then echo 'CA input must not contain a private key.' >&2; exit 2; fi
-[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+(-rc\.[0-9]+)?$ ]] || exit 2
-[[ "$base_url" =~ ^https://[a-zA-Z0-9.:/-]+$ && "$base_url" != */ ]] || exit 2
+[[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+\+up\.[0-9a-f]{7}$ ]] || exit 2
+[[ "$base_url" =~ ^https://[a-zA-Z0-9.:-]+(/[a-zA-Z0-9.:/+_-]*)?$ && "$base_url" != */ ]] || exit 2
 [[ "$out" == /* && ! -e "$out" ]] || { echo 'Use a new absolute output directory.' >&2; exit 2; }
 [[ -z $(git status --porcelain) ]] || { echo 'Commit source changes before building.' >&2; exit 2; }
 commit=$(git rev-parse HEAD)

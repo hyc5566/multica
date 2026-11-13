@@ -1,7 +1,7 @@
 {
   "name": "@multica/desktop",
   "productName": "Multica",
-  "version": "0.8.2",
+  "version": "0.8.2-zh-tw.1+up.250ecac",
   "private": true,
   "description": "Multica Desktop \u2014 native desktop client for the Multica platform.",
   "homepage": "https://multica.ai",

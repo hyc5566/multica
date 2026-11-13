@@ -53,19 +53,12 @@ fi
 
 cd "$repo_dir"
 
-if [[ -z "$requested_version" ]]; then
-  base_tag=$(git describe --tags --match 'v[0-9]*' --abbrev=0 2>/dev/null || true)
-  if [[ -z "$base_tag" ]]; then
-    echo "error: no upstream vX.Y.Z tag found; pass desktop-version explicitly" >&2
-    exit 2
-  fi
-  requested_version="${base_tag#v}-zh-tw.1"
-fi
-
-if [[ ! "$requested_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+-zh-tw\.[0-9]+$ ]]; then
-  echo "error: desktop-version must look like 0.4.36-zh-tw.1" >&2
+derived=$(node "$repo_dir/scripts/zh-tw-version.mjs")
+if [[ -n "$requested_version" && "$requested_version" != "$derived" ]]; then
+  echo "error: requested version does not match $derived" >&2
   exit 2
 fi
+requested_version=$derived
 
 echo "Building Multica Desktop zh-TW $requested_version from $repo_dir"
 echo "pnpm=$(pnpm --version) node=$(node --version)"

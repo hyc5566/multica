@@ -1,10 +1,6 @@
 #!/usr/bin/env node
 // Wrapper around `electron-builder` that keeps the Desktop version in
-// lockstep with the CLI. Both are derived from `git describe --tags
-// --match 'v[0-9]*' --always --dirty` — the same source GoReleaser reads
-// for the CLI
-// binary via the `main.version` ldflag — so a single `vX.Y.Z` tag push
-// produces matching CLI and Desktop versions.
+// lockstep with the CLI using the shared Taiwan release version resolver.
 //
 // Builds the Electron bundles once, then for each requested target
 // (platform + arch) compiles the matching Go CLI into resources/bin/ and
@@ -26,6 +22,7 @@
 // tests cover version derivation both as a pure string transform and as the
 // real `git describe` invocation against a throwaway repo.
 
+import { releaseVersion } from "../../../scripts/zh-tw-version.mjs";
 import { execFileSync, spawnSync } from "node:child_process";
 import { realpathSync, rmSync } from "node:fs";
 import { delimiter, dirname, resolve } from "node:path";
@@ -356,6 +353,7 @@ export function builderArgsForTarget(
 }
 
 function main() {
+  const version = releaseVersion({ repo: resolve(desktopRoot, "../..") });
   const passthrough = stripLeadingSeparator(process.argv.slice(2));
   const parsed = parsePackageArgs(passthrough);
   const buildMatrix = resolveBuildMatrix(parsed);
@@ -405,15 +403,7 @@ function main() {
     process.exit(viteResult.status ?? 1);
   }
 
-  // Step 2: derive the version that should be written into the app.
-  const version = deriveVersion();
-  if (version) {
-    console.log(`[package] Desktop version → ${version} (from git describe)`);
-  } else {
-    console.warn(
-      "[package] could not derive version from git; falling back to package.json",
-    );
-  }
+  console.log(`[package] Desktop version → ${version}`);
 
   const disableMacNotarize = !process.env.APPLE_TEAM_ID;
   if (disableMacNotarize) {
