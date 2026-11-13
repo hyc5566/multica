@@ -593,3 +593,76 @@ func TestRunBatchPollerReleasesSlotAfterTerminalRetryExhaustion(t *testing.T) {
 		t.Fatalf("pending reports = %+v, want only exhausted task t1", items)
 	}
 }
+
+func TestTerminalReportReplayAttestsOriginalCompletion(t *testing.T) {
+	var status atomic.Value
+	status.Store("completed")
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !strings.HasSuffix(r.URL.Path, "/status") {
+			t.Errorf("unexpected request %s", r.URL.Path)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if status.Load().(string) == "unavailable" {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		_ = json.NewEncoder(w).Encode(map[string]string{"status": status.Load().(string)})
+	}))
+	defer server.Close()
+	cfg := Config{ServerBaseURL: server.URL, WorkspacesRoot: t.TempDir(), DaemonID: "receipt"}
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	before := New(cfg, logger)
+	before.terminalReportSend = func(context.Context, terminalTaskReport, []time.Duration) error { return errors.New("offline") }
+	completed := time.Date(2026, 11, 12, 1, 2, 3, 0, time.UTC)
+	report := terminalTaskReport{kind: terminalTaskReportComplete, taskID: "retry", runtimeID: "runtime", completedAt: completed}
+	if err := before.reportTerminalTask(context.Background(), report); err == nil {
+		t.Fatal("expected send failure")
+	}
+	if len(before.updateAttestation.snapshot(time.Time{}).TaskReceipts) != 0 {
+		t.Fatal("failed send produced receipt")
+	}
+
+	// A fresh daemon reads the existing v1 queue, preserving the original time.
+	after := New(cfg, logger)
+	after.terminalReportSend = func(context.Context, terminalTaskReport, []time.Duration) error { return nil }
+	if pending, delivered := after.replayPendingTerminalReports(context.Background()); pending != 0 || delivered != 1 {
+		t.Fatalf("replay = %d pending, %d delivered", pending, delivered)
+	}
+	receipts := after.updateAttestation.snapshot(time.Time{}).TaskReceipts
+	if len(receipts) != 1 || receipts[0].TaskID != "retry" || receipts[0].RuntimeID != "runtime" || !receipts[0].CompletedAt.Equal(completed) {
+		t.Fatalf("replayed receipt = %+v", receipts)
+	}
+
+	for _, state := range []string{"failed", "cancelled", "running", "unavailable"} {
+		status.Store(state)
+		r := report
+		r.taskID = "normalized-" + state
+		if err := after.reportTerminalTask(context.Background(), r); err != nil {
+			t.Fatal(err)
+		}
+	}
+	status.Store("completed")
+	failed := report
+	failed.kind = terminalTaskReportFail
+	failed.taskID = "failure"
+	if err := after.reportTerminalTask(context.Background(), failed); err != nil {
+		t.Fatal(err)
+	}
+	direct := report
+	direct.taskID = "direct"
+	if err := after.reportTerminalTask(context.Background(), direct); err != nil {
+		t.Fatal(err)
+	}
+	// Old v1 reports lack both metadata fields and remain readable without a receipt.
+	legacy := terminalTaskReport{kind: terminalTaskReportComplete, taskID: "legacy"}
+	if err := after.terminalReports.enqueue(legacy); err != nil {
+		t.Fatal(err)
+	}
+	if pending, delivered := after.replayPendingTerminalReports(context.Background()); pending != 0 || delivered != 1 {
+		t.Fatalf("legacy replay = %d/%d", pending, delivered)
+	}
+	if got := after.updateAttestation.snapshot(time.Time{}).TaskReceipts; len(got) != 2 || got[1].TaskID != "direct" || !got[1].CompletedAt.Equal(completed) {
+		t.Fatalf("unexpected receipts: %+v", got)
+	}
+}

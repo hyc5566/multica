@@ -86,6 +86,11 @@ func (s *updateAttestationState) recordReceipt(taskID, runtimeID string, complet
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	for _, receipt := range s.receipts {
+		if receipt.TaskID == taskID {
+			return
+		}
+	}
 	s.receipts = append(s.receipts, updateTaskReceipt{taskID, runtimeID, completed, time.Now().UTC()})
 	if len(s.receipts) > 32 {
 		s.receipts = append([]updateTaskReceipt(nil), s.receipts[len(s.receipts)-32:]...)

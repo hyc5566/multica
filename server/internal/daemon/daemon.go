@@ -271,6 +271,8 @@ const (
 type terminalTaskReport struct {
 	kind           terminalTaskReportKind
 	taskID         string
+	runtimeID      string
+	completedAt    time.Time
 	output         string
 	branchName     string
 	errorMessage   string
@@ -6098,16 +6100,7 @@ func (d *Daemon) handleTask(ctx context.Context, task Task, slot int) {
 	}
 
 	completedAt := time.Now().UTC()
-	if d.reportTaskResult(ctx, task.ID, result, taskLog) {
-		// A 200 completion response can also mean an already-cancelled task or
-		// a server-side failure normalization. Confirm the terminal status.
-		statusCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
-		status, statusErr := d.client.GetTaskStatus(statusCtx, task.ID)
-		cancel()
-		if statusErr == nil && status == "completed" {
-			d.updateAttestation.recordReceipt(task.ID, task.RuntimeID, completedAt)
-		}
-	}
+	d.reportTaskResult(ctx, task.ID, task.RuntimeID, completedAt, result, taskLog)
 
 	// Write GC metadata after the task finishes so the periodic GC loop
 	// can look up the parent record (issue / chat session / autopilot run /
@@ -6502,13 +6495,15 @@ func (d *Daemon) acquireLocalDirectoryLockIfNeeded(ctx context.Context, task Tas
 // the agent may have built a real session before getting stuck, and we want
 // the next chat turn to resume there rather than start over and "forget"
 // the conversation.
-func (d *Daemon) reportTaskResult(ctx context.Context, taskID string, result TaskResult, taskLog *slog.Logger) bool {
+func (d *Daemon) reportTaskResult(ctx context.Context, taskID, runtimeID string, completedAt time.Time, result TaskResult, taskLog *slog.Logger) bool {
 	switch result.Status {
 	case "completed":
 		taskLog.Info("task completed", "status", result.Status)
 		err := d.reportTerminalTask(ctx, terminalTaskReport{
 			kind:                  terminalTaskReportComplete,
 			taskID:                taskID,
+			runtimeID:             runtimeID,
+			completedAt:           completedAt.UTC(),
 			output:                result.Comment,
 			branchName:            result.BranchName,
 			sessionID:             result.SessionID,
@@ -6606,7 +6601,7 @@ func (d *Daemon) reportTerminalTask(parentCtx context.Context, report terminalTa
 
 	ctx, cancel := context.WithTimeout(context.WithoutCancel(parentCtx), terminalTaskReportTimeout)
 	defer cancel()
-	err := d.sendTerminalTaskReport(ctx, report, defaultTerminalRetrySchedule)
+	err := d.sendTerminalTaskReportWithReceipt(ctx, report, defaultTerminalRetrySchedule)
 	if err != nil {
 		quarantined := false
 		if persisted {
@@ -6652,6 +6647,23 @@ func (d *Daemon) terminalReportClock() time.Time {
 		return d.terminalReportNow()
 	}
 	return time.Now()
+}
+
+func (d *Daemon) sendTerminalTaskReportWithReceipt(ctx context.Context, report terminalTaskReport, schedule []time.Duration) error {
+	if err := d.sendTerminalTaskReport(ctx, report, schedule); err != nil {
+		return err
+	}
+	if report.kind != terminalTaskReportComplete || report.runtimeID == "" || report.completedAt.IsZero() || d.client == nil {
+		return nil
+	}
+	// The server can acknowledge an already-cancelled or normalized failure.
+	// Only a confirmed completed state is evidence for update acceptance.
+	statusCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+	defer cancel()
+	if status, err := d.client.GetTaskStatus(statusCtx, report.taskID); err == nil && status == "completed" {
+		d.updateAttestation.recordReceipt(report.taskID, report.runtimeID, report.completedAt)
+	}
+	return nil
 }
 
 func (d *Daemon) sendTerminalTaskReport(ctx context.Context, report terminalTaskReport, schedule []time.Duration) error {
