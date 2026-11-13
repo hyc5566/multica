@@ -55,7 +55,7 @@ export class TestApiClient {
   private seededIssueIds: string[] = [];
   private createdPropertyIds: string[] = [];
 
-  async login(email: string, name: string) {
+  async login(email: string, name: string, language = "en") {
     const client = new pg.Client(DATABASE_URL);
     await client.connect();
     try {
@@ -102,7 +102,7 @@ export class TestApiClient {
       // General-purpose fixtures use English; locale suites choose explicitly.
       await this.authedFetch("/api/me", {
         method: "PATCH",
-        body: JSON.stringify({ ...(name ? { name } : {}), language: "en" }),
+        body: JSON.stringify({ ...(name ? { name } : {}), language }),
       });
 
       await client.query("DELETE FROM verification_code WHERE email = $1", [email]);
