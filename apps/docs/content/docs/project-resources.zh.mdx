@@ -16,7 +16,7 @@ import { LocalDirModeDemo } from "@/components/demos/local-dir-mode-demo";
 | 資源 | 適用場景 | 執行位置 |
 |---|---|---|
 | **GitHub 儲存庫** | 團隊共享的程式碼庫，希望由執行時管理 checkout | 執行時管理的工作目錄 |
-| **本地目錄** | 已經存在的 checkout、很大的儲存庫，或需要直接檢視本地改動 | 指定電腦上的原資料夾或獨立 worktree |
+| **本機目錄** | 已經存在的 checkout、很大的儲存庫，或需要直接檢視本機改動 | 指定電腦上的原資料夾或獨立 worktree |
 
 ## 執行時如何使用資源
 
@@ -24,7 +24,7 @@ Agent 處理專案中的任務時，Multica 會將專案名稱、描述和資源
 
 工作區連結的儲存庫清單一定會包含在執行脈絡中。專案連結的儲存庫則會進一步指出這組工作使用的程式碼和預設 ref。
 
-本地目錄只對繫結它的守護程序有效。執行所在的守護程序有匹配的本地目錄時，智慧體按 `in_place` 模式在原目錄工作，或按 `worktree` 模式在其獨立 worktree 中工作；其他電腦仍使用專案中的 GitHub 儲存庫或工作區儲存庫。
+本機目錄只對繫結它的 daemon 有效。執行所在的 daemon 有匹配的本機目錄時，Agent 按 `in_place` 模式在原目錄工作，或按 `worktree` 模式在其獨立 worktree 中工作；其他電腦仍使用專案中的 GitHub 儲存庫或工作區儲存庫。
 
 ## 新增 GitHub 儲存庫
 
@@ -49,12 +49,12 @@ Agent 處理專案中的任務時，Multica 會將專案名稱、描述和資源
 <Steps>
 <Step>
 
-確認 Desktop 的本地daemon線上。
+確認 Desktop 的本機 daemon 線上。
 
 </Step>
 <Step>
 
-已有專案開啟 **資源 → 本地資料夾**，按下方步驟新增。建立專案時則使用 **本地資料夾** 分頁；所選資料夾和模式會隨專案一起儲存。
+已有專案開啟 **資源 → 本機資料夾**，按下方步驟新增。建立專案時則使用 **本機資料夾** 分頁；所選資料夾和模式會隨專案一起儲存。
 
 </Step>
 <Step>
@@ -76,7 +76,7 @@ Agent 處理專案中的任務時，Multica 會將專案名稱、描述和資源
 同一個專案在同一個常駐程式上最多隻能連結一個本機目錄。團隊成員可以在不同電腦上分別為同一專案連結各自的目錄。
 
 <Callout type="warning">
-在預設的 `in_place` 模式下，本地目錄不是隔離環境：Agent會直接看到並修改目前分支和未提交的檔案，Multica 也不會自動切換分支、stash、commit、push 或建立 PR。worktree 模式不一樣，見下面的[執行如何共享這個目錄](#執行如何共用這個目錄)。
+在預設的 `in_place` 模式下，本機目錄不是隔離環境：Agent 會直接看到並修改目前分支和未提交的檔案，Multica 也不會自動切換分支、stash、commit、push 或建立 PR。worktree 模式不一樣，見下面的[執行如何共享這個目錄](#執行如何共用這個目錄)。
 </Callout>
 
 <span id="task-如何共享这个目录" />
@@ -84,7 +84,7 @@ Agent 處理專案中的任務時，Multica 會將專案名稱、描述和資源
 
 ## 執行如何共用這個目錄
 
-本地目錄有兩種執行模式，按資源逐個設定。在資源面板裡可以直接切換，CLI 用 `--execution-mode`。Desktop 裡這兩種模式顯示為 **直接修改** 和 **並行執行**；API、CLI 和本頁其餘部分都使用識別符號。
+本機目錄有兩種執行模式，按資源逐個設定。在資源面板裡可以直接切換，CLI 用 `--execution-mode`。Desktop 裡這兩種模式顯示為 **直接修改** 和 **並行執行**；API、CLI 和本頁其餘部分都使用識別符號。
 
 <LocalDirModeDemo />
 
@@ -120,49 +120,49 @@ Agent 會看到什麼、你會取得什麼：
 
 分支按任務而不是按每次執行來分：`agent/<agent>/<issue>`（chat 則是 `agent/<agent>/chat-<session>`）。本次執行的**詳情**面板裡會顯示分支名（可直接複製），也可以用 `git branch` 找到它。用 `git log` / `git diff` review，然後自己決定 merge 還是 cherry-pick，Multica 不會替你合併。
 
-`<agent>` 由Agent名字得來：轉成小寫後只保留英文字母和數字，其餘字元換成 `-`，最長 30 個字元；名字裡沒有英文字母和數字時寫作 `agent`。所以"運營助手"處理 OPS-21 時，分支是 `agent/agent/ops-21`。`<issue>` 是小寫的任務編號。
+`<agent>` 由 Agent 名字得來：轉成小寫後只保留英文字母和數字，其餘字元換成 `-`，最長 30 個字元；名字裡沒有英文字母和數字時寫作 `agent`。所以"運營助手"處理 OPS-21 時，分支是 `agent/agent/ops-21`。`<issue>` 是小寫的任務編號。
 
-中途失敗的執行同樣會報告它的分支：Agent的提交都在上面，沒提交的部分按[不會靜默丟東西](#nothing-is-silently-lost)裡的方式保留。
+中途失敗的執行同樣會報告它的分支：Agent 的提交都在上面，沒提交的部分按[不會靜默丟東西](#nothing-is-silently-lost)裡的方式保留。
 
 </Accordion>
 <Accordion title="後續對話接著上一輪繼續" id="follow-ups-continue-the-branch">
 
-同一個任務的下一條留言會重新 check out 這個分支，Agent站在自己剛交付的成果上繼續做，不會從 `HEAD` 重新開始、把上一輪的改動落在另一個分支上。只有你在上一輪之後改動的部分會被重放上去，其餘部分分支裡已經有了。把分支 merge 掉之後，下一輪又會從你的 `HEAD` 重新開始。
+同一個任務的下一條留言會重新 check out 這個分支，Agent 站在自己剛交付的成果上繼續做，不會從 `HEAD` 重新開始、把上一輪的改動落在另一個分支上。只有你在上一輪之後改動的部分會被重放上去，其餘部分分支裡已經有了。把分支 merge 掉之後，下一輪又會從你的 `HEAD` 重新開始。
 
 同一個任務上有兩次執行重疊時，後一個會從前一個的成果分叉到 `agent/<agent>/<issue>-<task>`，因為 git 規定一個分支只能有一棵 worktree。
 
 </Accordion>
-<Accordion title="提交到本地 HEAD 的改動和未提交的改動分開處理" id="committed-head-changes-stay-separate">
+<Accordion title="提交到本機 HEAD 的變更和未提交的變更分開處理" id="committed-head-changes-stay-separate">
 
-兩輪之間在本地做的 pull 或提交不會重放到任務分支上，需要時把這些提交明確 merge 進去。上一輪記下了未提交的改動時，要在新的 `HEAD` 上比較這些改動，需要 Git 2.40 或更高版本。
+兩輪之間在本機做的 pull 或提交不會重放到任務分支上，需要時把這些提交明確 merge 進去。上一輪記下了未提交的改動時，要在新的 `HEAD` 上比較這些改動，需要 Git 2.40 或更高版本。
 
-這些舊改動和新的已提交基線衝突時，runtime會記一條警告，只對受影響的路徑改用目前 `HEAD`；其他草稿照常增量比較。所以把其中一份草稿完成並提交，不會阻塞之後的執行，也不會把你沒動過的草稿再次拿去和Agent的成果比較。你目前的改動和Agent的成果之間若有衝突，仍然交給Agent解決。
+這些舊改動和新的已提交基線衝突時，runtime會記一條警告，只對受影響的路徑改用目前 `HEAD`；其他草稿照常增量比較。所以把其中一份草稿完成並提交，不會阻塞之後的執行，也不會把你沒動過的草稿再次拿去和 Agent 的成果比較。你目前的改動和 Agent 的成果之間若有衝突，仍然交給 Agent 解決。
 
 </Accordion>
 <Accordion title="你的改動和Agent的成果衝突時，由Agent來解決" id="conflicts-are-resolved-by-the-agent">
 
-如果你重寫了Agent也重寫過的那幾行，git 無法判斷誰對，這一輪就會在一棵帶衝突的 worktree 上啟動，並被要求先把 merge 做完（在那棵 worktree 裡 `git status` 會列出未合併的檔案）。
+如果你重寫了 Agent 也重寫過的那幾行，git 無法判斷誰對，這一輪就會在一棵帶衝突的 worktree 上啟動，並被要求先把 merge 做完（在那棵 worktree 裡 `git status` 會列出未合併的檔案）。
 
 只要還有檔案沒合完，這一輪就什麼都不交付：執行失敗、worktree 保留，下一輪會再次把同樣的改動送上來，你的修改不會被悄悄丟掉。
 
 </Accordion>
 <Accordion title="只有 Multica 自己的分支才會被續接" id="only-multica-branches-resume">
 
-是否續接由歸屬記錄決定，跟分支名無關：記錄裡既寫了屬於哪個會話，也寫了這條分支當時停在哪個 commit。你自己建的、恰好叫 `agent/<agent>/<issue>` 的分支永遠不會被 check out、被追加提交，也不會被當成上一輪的成果讀取；已經不包含記錄中那個 commit 的分支同樣如此。所以把 Multica 的分支刪掉再自己建一條同名的，或者把它 force-move 到別的歷史上，都是安全的，執行會改用 `agent/<agent>/<issue>-<id>`。在已交付的分支上繼續提交則是正常用法，續接照常，你的提交下一輪就在那裡。
+是否續接由歸屬記錄決定，跟分支名無關：記錄裡既寫了屬於哪個工作階段，也寫了這條分支當時停在哪個 commit。你自己建的、恰好叫 `agent/<agent>/<issue>` 的分支永遠不會被 check out、被追加提交，也不會被當成上一輪的成果讀取；已經不包含記錄中那個 commit 的分支同樣如此。所以把 Multica 的分支刪掉再自己建一條同名的，或者把它 force-move 到別的歷史上，都是安全的，執行會改用 `agent/<agent>/<issue>-<id>`。在已交付的分支上繼續提交則是正常用法，續接照常，你的提交下一輪就在那裡。
 
-每條分支還會以一個屬於自己的 baseline commit 開頭，標記第一輪開始時的目錄狀態。後續正是靠這個 commit 辨認這條分支，`git diff <baseline>..<branch>` 也恰好就是Agent做的改動。
+每條分支還會以一個屬於自己的 baseline commit 開頭，標記第一輪開始時的目錄狀態。後續正是靠這個 commit 辨認這條分支，`git diff <baseline>..<branch>` 也恰好就是 Agent 做的改動。
 
 如果某一輪沒能記錄它的分支，比如中途失敗、記錄寫不進去，或者把 worktree reset 到了"把你的改動帶進分支的那個 commit"之前，這一輪會報失敗並保留 worktree，後續幾輪會另起一條分支，不去續接一條無法證明歸屬的分支。
 
 </Accordion>
 <Accordion title="不會靜默丟東西" id="nothing-is-silently-lost">
 
-Agent留下的未提交改動不會隨 worktree 一起刪除，執行中途失敗時同樣如此。它們去哪裡，取決於Agent這次執行有沒有自己提交：
+Agent 留下的未提交改動不會隨 worktree 一起刪除，執行中途失敗時同樣如此。它們去哪裡，取決於 Agent 這次執行有沒有自己提交：
 
-- **Agent沒有提交過：** 所有沒被 gitignore 的檔案都會提交到分支上。這次提交不會執行儲存庫的提交鉤子。
-- **Agent自己提交過：** 只交付它的提交。沒提交的部分（生成的產物、臨時檔案、沒提交的修改）存到隱藏 ref `refs/multica/leftovers/<branch>/<task>` 下，不進分支。每次執行開始時都會把這條規則告訴Agent，所以自己提交的Agent決定交付哪些內容。
+- **Agent 沒有提交過：** 所有沒被 gitignore 的檔案都會提交到分支上。這次提交不會執行儲存庫的提交鉤子。
+- **Agent 自己提交過：** 只交付它的提交。沒提交的部分（生成的產物、臨時檔案、沒提交的修改）存到隱藏 ref `refs/multica/leftovers/<branch>/<task>` 下，不進分支。每次執行開始時都會把這條規則告訴 Agent，所以自己提交的 Agent 決定交付哪些內容。
 
-例外：一開始要先和你的本地改動完成 merge 的執行（見[衝突處理](#conflicts-are-resolved-by-the-agent)）會提交它留下的全部內容，因為這些未提交的改動裡有你的修改。
+例外：一開始要先和你的本機改動完成 merge 的執行（見[衝突處理](#conflicts-are-resolved-by-the-agent)）會提交它留下的全部內容，因為這些未提交的改動裡有你的修改。
 
 想看某次執行存下了什麼，用 `git for-each-ref refs/multica/leftovers` 列出這些 ref，再用 `git show --stat <ref>` 檢視。`git restore --source=<ref> -- <path>` 可以把某個檔案取回到你的工作目錄。
 
@@ -176,7 +176,7 @@ Agent留下的未提交改動不會隨 worktree 一起刪除，執行中途失�
 </Accordion>
 <Accordion title="留在你倉庫裡的分支和隱藏 ref" id="what-stays-in-your-repo">
 
-worktree 位於runtime的工作區目錄內，會按[正常的清理週期](/daemon-runtimes#cleanup)回收。留在你儲存庫裡的有：分支；每條分支對應的一個隱藏 ref（在 `refs/multica/local-state/` 下），記錄這條分支歸誰所有、以及上次續接時你目錄裡的內容；以及Agent自己提交後又留下未提交改動的每次執行，各對應一個隱藏 ref（在 `refs/multica/leftovers/` 下）。
+worktree 位於runtime的工作區目錄內，會按[正常的清理週期](/daemon-runtimes#cleanup)回收。留在你儲存庫裡的有：分支；每條分支對應的一個隱藏 ref（在 `refs/multica/local-state/` 下），記錄這條分支歸誰所有、以及上次續接時你目錄裡的內容；以及 Agent 自己提交後又留下未提交改動的每次執行，各對應一個隱藏 ref（在 `refs/multica/leftovers/` 下）。
 
 隱藏 ref 不會出現在 `git branch` 裡，可以用 `git for-each-ref refs/multica` 檢視。Multica 刪除分支時會一併刪掉它；你自己刪掉的分支所對應的 ref，會在下一次該儲存庫上有執行開始時被清理。也可以用 `git for-each-ref --format='%(refname)' refs/multica | xargs -n1 git update-ref -d` 一次性清掉。
 

@@ -1,6 +1,6 @@
 ---
-title: 建立和設定Agent
-description: 選擇runtime，定義Agent的職責、能力、執行方式和 Access。
+title: 建立和設定 Agent
+description: 選擇runtime，定義 Agent 的職責、能力、執行方式和 Access。
 ---
 
 import { Callout } from "fumadocs-ui/components/callout";
@@ -11,7 +11,7 @@ import { CreateAgentDemo } from "@/components/demos/create-agent-demo";
 
 ## 建立流程
 
-在工作區的 **Agent** 頁面點 **新建Agent**，按三步完成：
+在工作區的 **Agent** 頁面點 **新建 Agent**，按三步完成：
 
 <Steps>
 <Step>
@@ -21,12 +21,12 @@ import { CreateAgentDemo } from "@/components/demos/create-agent-demo";
 </Step>
 <Step>
 
-**設定Agent。** 填寫名稱、描述、指令、skill、模型和存取許可權。不想從頭寫，可以點 **讓 AI 幫我寫**：目前草稿會交給 Agent Builder，它在對話裡追問關鍵資訊並補全設定。這個按鈕只在所選runtime線上、且不是雲端runtime時出現。對話期間，旁邊的設定草稿隨時可以直接修改。
+**設定 Agent。** 填寫名稱、描述、指令、skill、模型和存取權限。不想從頭寫，可以點 **讓 AI 幫我寫**：目前草稿會交給 Agent Builder，它在對話裡追問關鍵資訊並補全設定。這個按鈕只在所選runtime線上、且不是雲端runtime時出現。對話期間，旁邊的設定草稿隨時可以直接修改。
 
 </Step>
 <Step>
 
-**點選建立Agent。** 完成頁會顯示它執行在哪個runtime，並給出下一步入口：指派第一個任務、在任務裡 @ 它，或加入小隊。
+**點選建立 Agent。** 完成頁會顯示它執行在哪個runtime，並給出下一步入口：指派第一個任務、在任務裡 @ 它，或加入小隊。
 
 </Step>
 </Steps>
@@ -114,11 +114,11 @@ Access 決定哪些成員可以執行這個 Agent（指派任務、@提及或聊
 
 | 設定 | 說明 |
 |---|---|
-| **併發上限** | 同一名智慧體最多同時執行多少次執行，預設是 6；達到上限後繼續排隊。 |
-| **環境變數** | 在 AI 程式設計工具啟動時注入變數。 |
-| **自定義引數** | 逐項追加到 AI 程式設計工具的 CLI 引數中。 |
-| **MCP** | 為支援的 AI 程式設計工具設定 MCP server：可以單獨新增，也可以從工作區共享的 MCP Server 裡選用。 |
-| **訊息渠道** | 將智慧體連線到飛書、Slack、釘釘、企業微信或 Telegram 等聊天平臺。|
+| **併發上限** | 同一名 Agent 最多同時執行多少次執行，預設是 6；達到上限後繼續排隊。 |
+| **環境變數** | 在 AI 程式開發工具啟動時注入變數。 |
+| **自訂參數** | 逐項追加到 AI 程式開發工具的 CLI 參數中。 |
+| **MCP** | 為支援的 AI 程式開發工具設定 MCP server：可以單獨新增，也可以從工作區共享的 MCP Server 裡選用。 |
+| **訊息渠道** | 將 Agent 連線到飛書、Slack、釘釘、企業微信或 Telegram 等聊天平臺。|
 
 承載執行環境的常駐程式也有全域並行數上限（預設為 20）；實際上限取 Agent 和常駐程式兩者中較小的值。
 
@@ -126,7 +126,7 @@ Access 決定哪些成員可以執行這個 Agent（指派任務、@提及或聊
 
 ## 環境變數與憑證
 
-環境變數適合存放這名 Agent 執行時需要的有限許可權憑證，例如唯讀 API key 或單一 scope 的 token。
+環境變數適合存放這名 Agent 執行時需要的有限權限憑證，例如唯讀 API key 或單一 scope 的 token。
 
 <Callout type="warning">
 **`custom_env` 的值會以明文儲存在 Multica 伺服器資料庫中**，並非"只留在本機"的資料。agent list/get 介面不再回傳任何 env 值，只會回傳鍵的數量；只有工作區 `owner` 和 `admin` 可以解鎖和修改，每次讀取或修改都會留下稽核紀錄。執行中的 Agent 無法呼叫管理介面讀取其他 Agent 的變數。
@@ -136,31 +136,31 @@ Access 決定哪些成員可以執行這個 Agent（指派任務、@提及或聊
 
 `PATH`、`HOME` 和 `MULTICA_*` 等執行環境關鍵變數無法在此處覆寫。
 
-## 自訂引數和 MCP
+## 自訂參數和 MCP
 
-自訂引數會以陣列逐項傳給 AI 程式開發工具，不會經過 shell 展開。引數是否有效由該工具決定；已有獨立欄位的模型設定不必在此重複填寫。
+自訂參數會以陣列逐項傳給 AI 程式開發工具，不會經過 shell 展開。參數是否有效由該工具決定；已有獨立欄位的模型設定不必在此重複填寫。
 
-建立智慧體、修改自定義引數或更換執行時時，執行時介面卡保留的引數會被拒絕，錯誤資訊會指出衝突的引數。例如，Multica 使用 `--permission-mode bypassPermissions` 執行 Claude Code，在自定義引數裡設定 `--permission-mode dontAsk` 會被拒絕。已儲存的引數與目標執行時衝突時，可以同時傳入 `[]` 清空自定義引數，再完成更換。
+建立 Agent、修改自訂參數或更換執行時時，執行時介接器保留的參數會被拒絕，錯誤資訊會指出衝突的參數。例如，Multica 使用 `--permission-mode bypassPermissions` 執行 Claude Code，在自訂參數裡設定 `--permission-mode dontAsk` 會被拒絕。已儲存的參數與目標執行時衝突時，可以同時傳入 `[]` 清空自訂參數，再完成更換。
 
 <Callout type="warning">
-請勿將憑證或其他秘密資訊放入自訂引數。它們會保留在子程式的 argv 中，同一臺電腦上的其他程式可能透過 `ps` 或 `/proc` 讀取；請改用環境變數（`custom_env`）。常駐程式日誌會遮蔽引數值，但無法保護作業系統的程式清單。
+請勿將憑證或其他秘密資訊放入自訂參數。它們會保留在子程式的 argv 中，同一臺電腦上的其他程式可能透過 `ps` 或 `/proc` 讀取；請改用環境變數（`custom_env`）。常駐程式日誌會遮蔽參數值，但無法保護作業系統的程式清單。
 </Callout>
 
-MCP 設定可能包含 token，儲存與展示規則和環境變數相同。只有支援託管 MCP 設定的runtime會顯示這一項；不支援的工具不會因為儲存了設定就自動獲得 MCP 能力。Agent有 MCP 設定時，daemon還會合並runtime所在電腦上已設定的 MCP server，見[本機 MCP 設定](/daemon-runtimes#local-mcp)。
+MCP 設定可能包含 token，儲存與展示規則和環境變數相同。只有支援託管 MCP 設定的runtime會顯示這一項；不支援的工具不會因為儲存了設定就自動獲得 MCP 能力。Agent 有 MCP 設定時，daemon 還會合並runtime所在電腦上已設定的 MCP server，見[本機 MCP 設定](/daemon-runtimes#local-mcp)。
 
-Agent詳情頁的 **MCP** 分三組列出這名Agent能用的 MCP server：
+Agent 詳情頁的 **MCP** 分三組列出這名 Agent 能用的 MCP server：
 
 | 分組 | 來源 |
 |---|---|
-| **由 Multica 管理** | 只屬於這名Agent的 server。點選**新增 MCP Server**，用視覺化表單或 JSON 填寫 STDIO 啟動命令或 Streamable HTTP 地址。 |
+| **由 Multica 管理** | 只屬於這名 Agent 的 server。點選**新增 MCP Server**，用視覺化表單或 JSON 填寫 STDIO 啟動命令或 Streamable HTTP 地址。 |
 | **工作區 MCP Server** | 從工作區共享庫裡分配給它的 server，見下一節。 |
-| **從runtime繼承** | runtime所在電腦上 AI 開發工具自己的使用者設定，只讀。只有本地runtime線上時才能讀取。 |
+| **從runtime繼承** | runtime所在電腦上 AI 開發工具自己的使用者設定，只讀。只有本機runtime線上時才能讀取。 |
 
-名稱相同時，Agent自己的設定優先於工作區分配的 server，兩者又都優先於runtime裡的同名 server。被蓋住的一項會標上**已覆蓋**或**已由 Multica 覆蓋**。
+名稱相同時，Agent 自己的設定優先於工作區分配的 server，兩者又都優先於runtime裡的同名 server。被蓋住的一項會標上**已覆蓋**或**已由 Multica 覆蓋**。
 
 ### 工作區共享的 MCP Server
 
-同一個 MCP server 要給多名Agent用時，不必在每名Agent裡各填一遍地址和 token。工作區 `owner` 或 `admin` 在**設定 → MCP 伺服器**裡新增一次，再分給需要它的Agent。
+同一個 MCP server 要給多名 Agent 用時，不必在每名 Agent 裡各填一遍地址和 token。工作區 `owner` 或 `admin` 在**設定 → MCP 伺服器**裡新增一次，再分給需要它的 Agent。
 
 <Steps>
 <Step>
@@ -170,23 +170,23 @@ Agent詳情頁的 **MCP** 分三組列出這名Agent能用的 MCP server：
 </Step>
 <Step>
 
-新增後，這個 server 不屬於任何Agent。開啟要用它的Agent詳情頁的 **MCP**，在**工作區 MCP Server**一組點選**從工作區新增**，選中它。
+新增後，這個 server 不屬於任何 Agent。開啟要用它的 Agent 詳情頁的 **MCP**，在**工作區 MCP Server**一組點選**從工作區新增**，選中它。
 
 </Step>
 <Step>
 
-分配後，每名Agent各有一個開關，可以暫時關掉而不取消分配。改動從這名Agent的下一次執行起生效。
+分配後，每名 Agent 各有一個開關，可以暫時關掉而不取消分配。改動從這名 Agent 的下一次執行起生效。
 
 </Step>
 </Steps>
 
-**設定 → MCP 伺服器**的列表裡，每個 server 下方顯示"已分配給 N 個Agent"或"未分配給任何Agent"。使用時注意：
+**設定 → MCP 伺服器**的列表裡，每個 server 下方顯示"已分配給 N 個 Agent"或"未分配給任何 Agent"。使用時注意：
 
 - **設定只寫不讀**：儲存後，地址、命令、請求頭和環境變數的值不會再顯示給任何人，包括 owner。要改設定只能點**替換設定**，重新填寫一份完整設定；只改名稱不影響設定和已有分配。
-- **刪除影響所有Agent**：在設定裡刪除一個 server，會把它從所有分配過的Agent上一併移除，從各自的下一次執行起生效。只想讓某一名Agent不再用，在它的 **MCP** 裡關掉開關或移除即可。
-- **許可權**：普通成員能看到列表，但不能新增或修改。給Agent分配或移除 server，需要該Agent的 owner 或工作區 `owner`、`admin`。Agent在執行中透過 CLI 不能新增 server，也不能改分配。
+- **刪除影響所有 Agent**：在設定裡刪除一個 server，會把它從所有分配過的 Agent 上一併移除，從各自的下一次執行起生效。只想讓某一名 Agent 不再用，在它的 **MCP** 裡關掉開關或移除即可。
+- **權限**：普通成員能看到列表，但不能新增或修改。給 Agent 分配或移除 server，需要該 Agent 的 owner 或工作區 `owner`、`admin`。Agent 在執行中透過 CLI 不能新增 server，也不能改分配。
 
-用 CLI 也能完成同樣的操作。設定裡通常有 token，用檔案或 stdin 傳入，不要直接寫在命令列引數裡：
+用 CLI 也能完成同樣的操作。設定裡通常有 token，用檔案或 stdin 傳入，不要直接寫在命令列參數裡：
 
 ```bash
 multica workspace mcp add linear --server-config-file ./linear.json
@@ -196,9 +196,9 @@ multica agent mcp add <agent-id> <server-id>
 
 ## 複製 Agent
 
-複製會沿用名稱以外的大部分工作設定，包括指令、聊天開場建議、skill、自訂引數、頭像、並行數上限和 Access。模型、思考強度和服務層級也會一併複製；如果原本的執行環境無法使用，複本必須改用其他環境，這三項設定就會清空，需重新選擇。
+複製會沿用名稱以外的大部分工作設定，包括指令、聊天開場建議、skill、自訂參數、頭像、並行數上限和 Access。模型、思考強度和服務層級也會一併複製；如果原本的執行環境無法使用，複本必須改用其他環境，這三項設定就會清空，需重新選擇。
 
-環境變數的值、MCP 設定和工作區 MCP Server 的分配在任何情況下都不會複製，需要在新Agent中重新設定。
+環境變數的值、MCP 設定和工作區 MCP Server 的分配在任何情況下都不會複製，需要在新 Agent 中重新設定。
 
 ## 使用 CLI 建立
 
@@ -211,7 +211,7 @@ multica agent create \
  --conversation-starters '[{"label":"审查 PR","prompt":"审查当前最相关的未合并 Pull Request。"}]'
 ```
 
-命令列引數中的明文會保留在 shell 歷史；stdin 和許可權受限的檔案則不會。
+命令列參數中的明文會保留在 shell 歷史；stdin 和權限受限的檔案則不會。
 
 已有設定相近的 Agent 時，可以直接複製：
 
@@ -219,10 +219,10 @@ multica agent create \
 multica agent copy <agent-id>
 ```
 
-預設會複製到相同執行環境；加入 `--runtime-id` 可改用其他執行環境，但必須同時指定 `--model`。環境變數、MCP 設定和 `runtime_config` 永遠不會複製；執行環境繫結則會保留。完整引數請參閱[使用 CLI](/cli)。
+預設會複製到相同執行環境；加入 `--runtime-id` 可改用其他執行環境，但必須同時指定 `--model`。環境變數、MCP 設定和 `runtime_config` 永遠不會複製；執行環境繫結則會保留。完整參數請參閱[使用 CLI](/cli)。
 
 ## 接下來
 
 - [將任務指派給 Agent](/assigning-issues) — 用實際工作驗證設定。
 - [skill](/skills) — 建立、匯入和重複使用團隊方法。
-- [常駐程式與執行環境](/daemon-runtimes) — 排查上線狀態和執行位置。
+- [常駐程式與執行環境](/daemon-runtimes) — 排除上線狀態和執行位置。

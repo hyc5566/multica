@@ -19,7 +19,7 @@ Multica 不替代你在用的 AI 開發工具：runtime呼叫電腦上已經安�
 
 <ProviderPickerDemo />
 
-| 工具 | 檢測命令 | 會話恢復 | Multica 管理 MCP | 在 Multica 選模型 | Skill 注入位置 |
+| 工具 | 檢測命令 | 工作階段恢復 | Multica 管理 MCP | 在 Multica 選模型 | Skill 注入位置 |
 |---|---|---:|---:|---:|---|
 | Antigravity | `agy` | ✓ | — | ✓ | `.agents/skills/` |
 | Claude Code | `claude` | ✓ | ✓ | ✓ | `.claude/skills/` |
@@ -53,7 +53,7 @@ Multica 不替代你在用的 AI 開發工具：runtime呼叫電腦上已經安�
 | ZeroClaw | `zeroclaw` | ✓ | — | — | — |
 | ZCode | `zcode` / ZCode Desktop | ✓ | ✓ | ✓ | `.zcode/skills/` |
 
-"Multica 管理 MCP"指可以在Agent設定中填寫 MCP server，由 Multica 在執行前傳給對應工具。這一列只說明 Multica 能否代為設定，不說明工具自身有沒有別的 MCP 設定方式。
+"Multica 管理 MCP"指可以在 Agent 設定中填寫 MCP server，由 Multica 在執行前傳給對應工具。這一列只說明 Multica 能否代為設定，不說明工具自身有沒有別的 MCP 設定方式。
 
 "在 Multica 選模型"為 — 的工具，模型要在工具自己的設定裡選，見[模型來源](#模型來源)。
 
@@ -61,15 +61,15 @@ Multica 不替代你在用的 AI 開發工具：runtime呼叫電腦上已經安�
 
 Devin 透過本機 ACP 執行，支援 stdio MCP；只有 CLI 宣告支援時才會傳入 HTTP/SSE 設定。全域性 skill 依次從 `$XDG_CONFIG_HOME/devin/skills`（預設 `~/.config/devin/skills`，Windows 為 `%APPDATA%\devin\skills`）、舊版 `cognition/skills`、`~/.codeium/<channel>/skills`（依次為 `windsurf`、`windsurf-next`、`windsurf-insiders`）和 `~/.agents/skills` 匯入。同名 skill 在列表和匯入時都以前面的目錄為準。
 
-Devin 模型列表可能包含目前帳號無權使用的模型。可以選擇完整模型 ID、無歧義的會話模型名稱或目錄中的系列 slug/別名（如 `opus`），也可以留空使用 CLI 預設模型。Multica 會在傳送任務前確認實際模型，拒絕回退到其他系列；有歧義的名稱、任意截斷名稱或不可用的變體需要改選完整 ID，不會猜測匹配。用量按實際返回的模型歸屬；Adaptive 按返回的 Adaptive 路由 ID 記錄，不推測底層模型。
+Devin 模型列表可能包含目前帳號無權使用的模型。可以選擇完整模型 ID、無歧義的工作階段模型名稱或目錄中的系列 slug/別名（如 `opus`），也可以留空使用 CLI 預設模型。Multica 會在傳送任務前確認實際模型，拒絕回退到其他系列；有歧義的名稱、任意截斷名稱或不可用的變體需要改選完整 ID，不會猜測匹配。用量按實際返回的模型歸屬；Adaptive 按返回的 Adaptive 路由 ID 記錄，不推測底層模型。
 
-Devin 優先讀取 `WINDSURF_API_KEY`，否則使用 `devin auth login` 儲存的憑據；未知的 ACP 認證方式不會阻斷已儲存的登入。Multica 保留 Devin 設定的會話模式，不自動提升許可權。如果預設為 `plan`，請先在 Devin 中切換到可編輯模式，再派發需要修改檔案的任務。
+Devin 優先讀取 `WINDSURF_API_KEY`，否則使用 `devin auth login` 儲存的憑據；未知的 ACP 認證方式不會阻斷已儲存的登入。Multica 保留 Devin 設定的工作階段模式，不自動提升權限。如果預設為 `plan`，請先在 Devin 中切換到可編輯模式，再派發需要修改檔案的任務。
 
-建立Agent時，模型列表來自對應的runtime。有的工具給出固定的模型名稱，有的按本機設定、登入帳號和訂閱權益返回可用模型。
+建立 Agent 時，模型列表來自對應的runtime。有的工具給出固定的模型名稱，有的按本機設定、登入帳號和訂閱權益返回可用模型。
 
 未選擇模型時，Multica 會使用該工具的預設模型。清單為空時，請先確認執行環境線上且工具已登入，再重新整理模型清單。
 
-使用 Kiro CLI 時，建立和設定Agent頁面中的**思考**選項來自所選模型支援的 effort 檔位，選擇會應用到新建和恢復的會話。不選擇時沿用 Kiro 自身的 effort 設定。模型或 CLI 版本未返回 effort 選項時，不顯示該選擇器。
+使用 Kiro CLI 時，建立和設定 Agent 頁面中的**思考**選項來自所選模型支援的 effort 檔位，選擇會應用到新建和恢復的工作階段。不選擇時沿用 Kiro 自身的 effort 設定。模型或 CLI 版本未返回 effort 選項時，不顯示該選擇器。
 
 QwenPaw、MiniMax Code 和 ZeroClaw 例外：它們不接受在 Multica 側選擇的模型，選擇框不可用，顯示為"由runtime管理"，模型要在工具自身的設定裡選。它們的模型列表為空是正常的，不表示runtime離線。
 
@@ -81,27 +81,27 @@ DeepSeek Harness 的模型目錄由執行環境本身提供（`dsh --profile mul
 
 ## 工作階段恢復
 
-表格中標 ✓ 的工具支援在後續執行中繼續已有會話，前提是原會話還在，並且執行由能訪問它的runtime執行。MiniMax Code 0.1.2 尚未透過 ACP 宣告會話載入能力，因此後續執行會新建 MCode 會話。
+表格中標 ✓ 的工具支援在後續執行中繼續已有工作階段，前提是原工作階段還在，並且執行由能訪問它的runtime執行。MiniMax Code 0.1.2 尚未透過 ACP 宣告工作階段載入能力，因此後續執行會新建 MCode 工作階段。
 
-Multica 儲存工具返回的會話標識。下次在同一任務中繼續工作時，runtime先嚐試恢復這段會話，恢復不了就新建會話接著執行。Pi 儲存的是本地會話檔案路徑，所以更依賴原來的電腦和檔案。
+Multica 儲存工具返回的工作階段標識。下次在同一任務中繼續工作時，runtime先嚐試恢復這段工作階段，恢復不了就新建工作階段接著執行。Pi 儲存的是本機工作階段檔案路徑，所以更依賴原來的電腦和檔案。
 
 重試和工作階段恢復規則請見[執行](/tasks#手動重試)。
 
 ## MCP 設定
 
-Antigravity、GitHub Copilot CLI、DevEco Code、Muse Code 和 ZeroClaw 暫不讀取Agent中的 MCP 設定，建立Agent時不顯示這一項。
+Antigravity、GitHub Copilot CLI、DevEco Code、Muse Code 和 ZeroClaw 暫不讀取 Agent 中的 MCP 設定，建立 Agent 時不顯示這一項。
 
 Pi 需使用 0.99.0 或更新版本，才能接收受管理的 MCP 設定。舊版 Pi 仍可執行未設定 MCP 的 Agent。
 
 <Callout type="warning">
-MCP server 的命令、引數和環境變數會隨 Agent 設定儲存在伺服器端。請勿將不需共用的本機憑證直接寫入設定。
+MCP server 的命令、參數和環境變數會隨 Agent 設定儲存在伺服器端。請勿將不需共用的本機憑證直接寫入設定。
 </Callout>
 
-runtime所在電腦上已經設定的 MCP server，會在那臺電腦上和Agent的設定合併，見[本機 MCP 設定](/daemon-runtimes#local-mcp)。
+runtime所在電腦上已經設定的 MCP server，會在那臺電腦上和 Agent 的設定合併，見[本機 MCP 設定](/daemon-runtimes#local-mcp)。
 
 ## Skill 注入方式
 
-執行開始前，Multica 把Agent繫結的 skill 寫入上表對應的位置，工具用自己的原生機制發現它們。
+執行開始前，Multica 把 Agent 繫結的 skill 寫入上表對應的位置，工具用自己的原生機制發現它們。
 
 儲存庫裡原有的 skill 不會被覆蓋。名稱衝突時，Multica 給注入的副本換一個目錄名；執行結束後，只清理自己建立的檔案。
 
@@ -115,12 +115,12 @@ Codex、Hermes 和 OpenClaw 的處理稍有不同：
 
 ## 接下來
 
-- [建立和設定Agent](/agents-create) — 模型與思考強度設定。
+- [建立和設定 Agent](/agents-create) — 模型與思考強度設定。
 - [安裝 AI 開發工具](/install-agent-runtime) — 安裝與檢測步驟。
-- [daemon與runtime](/daemon-runtimes) — runtime註冊與併發。
+- [daemon 與runtime](/daemon-runtimes) — runtime註冊與併發。
 
 ## ZCode
 
-ZCode 使用原生 NDJSON `app-server` 協議，支援會話建立、續接、取消、模型發現、思考強度和 MCP。任務透過 yolo 模式執行，無需等待互動式工具審批。每個模型的思考檔位來自runtime目錄，建立Agent時會保留對應預設值。
+ZCode 使用原生 NDJSON `app-server` 協議，支援工作階段建立、續接、取消、模型發現、思考強度和 MCP。任務透過 yolo 模式執行，無需等待互動式工具審批。每個模型的思考檔位來自 runtime 目錄，建立 Agent 時會保留對應預設值。
 
-macOS 可自動發現 ZCode Desktop 內建的 CLI；需要本機已安裝 Node.js。Linux 也可自動發現 ZCode Desktop，在後臺執行內建 CLI，不開啟桌面視窗，無需額外安裝 Node.js 或手動設定環境變數。執行時讀取桌面端已啟用的 API-key/Coding Plan 連線，為目前程序生成獨佔臨時設定，退出後刪除，原設定不變。Start Plan 登入身份令牌不作為 API key 匯入，目前不支援這條帳號鑑權路徑。若模型列表為空，請先在桌面端設定一個可用的 API 連線。
+macOS 可自動發現 ZCode Desktop 內建的 CLI；需要本機已安裝 Node.js。Linux 也可自動發現 ZCode Desktop，在背景執行內建 CLI，不開啟桌面視窗，無需額外安裝 Node.js 或手動設定環境變數。runtime 讀取桌面版已啟用的 API-key/Coding Plan 連線，為目前程序生成獨佔臨時設定，退出後刪除，原設定不變。Start Plan 登入身份權杖不作為 API key 匯入，目前不支援這條帳號鑑權路徑。若模型列表為空，請先在桌面版設定一個可用的 API 連線。
