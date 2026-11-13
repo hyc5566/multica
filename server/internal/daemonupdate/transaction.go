@@ -7,7 +7,7 @@ import (
 	"strconv"
 )
 
-var releaseVersion = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)$`)
+var releaseVersion = regexp.MustCompile(`^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)(?:\+up\.[0-9a-f]{7})?$`)
 
 func compareVersion(next, previous string) (int, error) {
 	a, b := releaseVersion.FindStringSubmatch(next), releaseVersion.FindStringSubmatch(previous)

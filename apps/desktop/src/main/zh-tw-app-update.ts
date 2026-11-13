@@ -19,7 +19,7 @@ export { STARTUP_CHECK_DELAY_MS, CHECK_INTERVAL_MS } from "./zh-tw-update-contro
 export const DEFAULT_RELEASE_MANIFEST_URL = "https://10.1.24.90:45671/downloads/latest.json";
 const MAX_MANIFEST_BYTES = 64 * 1024;
 const MAX_APP_ZIP_BYTES = 1024 * 1024 * 1024;
-const ZH_TW_VERSION = /^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)$/;
+const ZH_TW_VERSION = /^(\d+)\.(\d+)\.(\d+)-zh-tw\.(\d+)(?:\+up\.[0-9a-f]{7})?$/;
 
 const httpsUrl = z.string().url().refine((value) => new URL(value).protocol === "https:", "https only");
 const desktopAssetSchema = z.object({
