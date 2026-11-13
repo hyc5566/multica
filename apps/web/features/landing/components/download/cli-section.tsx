@@ -6,11 +6,13 @@ import { copyText } from "@multica/ui/lib/clipboard";
 import { cn } from "@multica/ui/lib/utils";
 import { useLocale } from "../../i18n";
 import { Container, Eyebrow, focusRing } from "../../site/primitives";
+import type { CliAssets } from "../../utils/parse-release-assets";
+import { isGitHubInstallerUrl } from "../../utils/release-source";
 
 const SETUP_CMD = "multica setup";
 
 /** The Taiwan installer supports macOS and Linux. */
-export function CliSection({ installerUrl }: { installerUrl?: string }) {
+export function CliSection({ installerUrl, assets = {} }: { installerUrl?: string; assets?: CliAssets }) {
   const { t } = useLocale();
   const d = t.download.cli;
 
@@ -21,10 +23,19 @@ export function CliSection({ installerUrl }: { installerUrl?: string }) {
           <Eyebrow>CLI</Eyebrow>
           <h2 className="mt-3 font-site-display text-site-title text-site-ink text-balance">{d.title}</h2>
           <p className="mt-3 max-w-[30rem] text-site-body text-site-muted text-pretty">{d.sub}</p>
+          <ul className="mt-4 space-y-2">
+            {(Object.entries(assets) as [keyof CliAssets, string][]).map(([platform, href]) => (
+              <li key={platform}>
+                <a href={href} className={cn("text-site-small text-site-ink underline underline-offset-4", focusRing)}>
+                  {t.download.platforms[platform]} · CLI / daemon
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
         <div className="min-w-0 rounded-site-panel bg-site-inverse p-5 text-site-inverse-ink">
           <p className="font-site-mono text-[0.75rem] text-site-inverse-muted">{d.platformMacosLinux}</p>
-          {installerUrl && /^https:\/\/github\.com\/hyc5566\/multica\/releases\/download\/[a-zA-Z0-9._-]+\/install\.sh$/.test(installerUrl) ? (
+          {installerUrl && isGitHubInstallerUrl(installerUrl) ? (
             <CommandRow label={d.installLabel} cmd={`curl -fsSL '${installerUrl}' -o install.sh && bash install.sh --login`} />
           ) : (
             <p role="status" className="mt-4 text-site-inverse-muted">{t.download.allPlatforms.unavailable}</p>

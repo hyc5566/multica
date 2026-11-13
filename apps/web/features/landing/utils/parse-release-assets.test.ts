@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, expect, it } from "vitest";
-import { hasCompleteAssetSet, parseReleaseAssetSizes, parseReleaseAssets } from "./parse-release-assets";
+import { hasCompleteAssetSet, parseCliAssets, parseReleaseAssetSizes, parseReleaseAssets } from "./parse-release-assets";
 
 function asset(name: string) {
   return {
@@ -10,6 +10,23 @@ function asset(name: string) {
 }
 
 describe("parseReleaseAssets", () => {
+  it("keeps Mac arm64 and Linux amd64 CLI files in separate asset maps", () => {
+    const files = [
+      asset("multica-desktop-0.9.0-zh-tw.1+up.013be77-mac-arm64.zip"),
+      asset("multica-cli-daemon-0.9.0-zh-tw.1+up.013be77-linux-amd64.tar.gz"),
+      asset("checksums.txt"),
+      asset("latest-mac.yml"),
+      asset("source.tar.gz"),
+    ];
+    expect(parseReleaseAssets(files)).toEqual({ macArm64Zip: files[0]!.browser_download_url });
+    expect(parseCliAssets(files)).toEqual({ linuxX64: files[1]!.browser_download_url });
+  });
+
+  it("recognizes versioned upstream CLI archives without treating them as Apps", () => {
+    const files = [asset("multica-cli-0.9.0-darwin-arm64.tar.gz"), asset("multica-cli-0.9.0-windows-amd64.zip")];
+    expect(parseCliAssets(files)).toEqual({ macArm64: files[0]!.browser_download_url, winX64: files[1]!.browser_download_url });
+    expect(parseReleaseAssets(files)).toEqual({});
+  });
   it("keeps both Apple Silicon and Intel macOS installers", () => {
     const assets = parseReleaseAssets([
       asset("multica-desktop-0.4.2-mac-arm64.dmg"),

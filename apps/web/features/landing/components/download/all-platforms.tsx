@@ -7,8 +7,7 @@ import { osOf, platformOf, type PlatformKey } from "../../utils/download-target"
 import type { DownloadAssets, DownloadKey } from "../../utils/parse-release-assets";
 import { DownloadLink } from "./download-link";
 import { OSIcon } from "./os-icons";
-
-export const ALL_RELEASES_URL = "https://github.com/hyc5566/multica/releases";
+import { ALL_RELEASES_URL } from "../../utils/release-source";
 
 type FormatLabel = "formatDmg" | "formatZip" | "formatExe" | "formatAppImage" | "formatDeb" | "formatRpm";
 
@@ -38,11 +37,13 @@ export function AllPlatforms({
   assets,
   current,
   onStart,
+  releasesUrl = ALL_RELEASES_URL,
 }: {
   assets: DownloadAssets;
   /** The installer offered as this visitor's main download. */
   current?: DownloadKey;
   onStart?: (key: DownloadKey) => void;
+  releasesUrl?: string;
 }) {
   const { t } = useLocale();
   const d = t.download.allPlatforms;
@@ -58,7 +59,7 @@ export function AllPlatforms({
         <h2 id="all-platforms-title" className="text-site-small text-site-ink">
           {d.title}
         </h2>
-        <SiteTextLink href={ALL_RELEASES_URL} external className="text-site-small text-site-muted hover:text-site-ink">
+        <SiteTextLink href={releasesUrl} external className="text-site-small text-site-muted hover:text-site-ink">
           {d.allReleases}
         </SiteTextLink>
       </div>
