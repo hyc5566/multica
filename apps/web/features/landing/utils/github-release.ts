@@ -1,10 +1,13 @@
 import {
   parseReleaseAssets,
   parseReleaseAssetSizes,
+  parseCliAssets,
+  type CliAssets,
   type DownloadAssets,
   type DownloadSizes,
   type GitHubAsset,
 } from "./parse-release-assets";
+import { ALL_RELEASES_URL, releaseSource } from "./release-source";
 
 /**
  * Server-side fetcher for the latest downloadable Multica release,
@@ -12,9 +15,8 @@ import {
  * by the Next.js fetch cache for 5 minutes (Vercel ISR) so hitting
  * /download costs at most one GitHub API call per region per 5 minutes.
  *
- * Taiwan releases currently publish an Apple Silicon App and macOS/Linux
- * CLI assets. Choose the newest release with a Mac App instead of requiring
- * the upstream project's Windows and Linux Desktop artifacts.
+ * Choose the newest release with any supported App or CLI asset. Missing
+ * platforms stay unavailable; files from different releases are never mixed.
  *
  * On any failure (network, timeout, rate limit, malformed payload) returns a
  * `null`-shaped result and logs — the page degrades to a "version
@@ -28,11 +30,9 @@ export interface LatestRelease {
   assets: DownloadAssets;
   sizes: DownloadSizes;
   installerUrl?: string;
+  releasesUrl?: string;
+  cliAssets?: CliAssets;
 }
-
-// Five candidates tolerate several drafts or releases without a Mac App.
-const GITHUB_RELEASES_URL =
-  "https://api.github.com/repos/hyc5566/multica/releases?per_page=5";
 
 const REVALIDATE_SECONDS = 300;
 
@@ -51,6 +51,7 @@ interface GitHubReleasePayload {
 }
 
 export async function fetchLatestRelease(): Promise<LatestRelease> {
+  let releasesUrl = ALL_RELEASES_URL;
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
     "X-GitHub-Api-Version": "2022-11-28",
@@ -72,7 +73,9 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
     RELEASE_TIMEOUT_MS,
   );
   try {
-    const res = await fetch(GITHUB_RELEASES_URL, {
+    const source = releaseSource(process.env.MULTICA_DOWNLOAD_REPO);
+    releasesUrl = source.releasesUrl;
+    const res = await fetch(source.apiUrl, {
       next: { revalidate: REVALIDATE_SECONDS },
       headers,
       signal: controller.signal,
@@ -86,10 +89,11 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
     // today, but the endpoint returns them if that ever changes. A
     // prerelease shadowing a stable version on /download would be a
     // regression.
-    const stable = data.filter((r) => !r.prerelease && !r.draft && r.tag_name?.startsWith("zh-tw-v"));
+    const stable = data.filter((r) => !r.prerelease && !r.draft && r.tag_name &&
+      (!source.taiwanOnly || r.tag_name.startsWith("zh-tw-v")));
     const chosen = pickRelease(stable);
     if (!chosen) {
-      return emptyRelease();
+      return emptyRelease(releasesUrl);
     }
 
     return {
@@ -98,15 +102,17 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
       htmlUrl: chosen.release.html_url ?? null,
       assets: chosen.assets,
       sizes: parseReleaseAssetSizes(chosen.release.assets ?? []),
+      cliAssets: chosen.cliAssets,
+      releasesUrl,
       installerUrl: chosen.release.assets?.find((asset) =>
         asset.name === "install.sh" &&
         asset.browser_download_url ===
-          `https://github.com/hyc5566/multica/releases/download/${chosen.release.tag_name}/install.sh`,
+          `${releasesUrl}/download/${chosen.release.tag_name}/install.sh`,
       )?.browser_download_url,
     };
   } catch (err) {
     console.warn("[download] fetchLatestRelease failed:", err);
-    return emptyRelease();
+    return emptyRelease(releasesUrl);
   } finally {
     clearTimeout(timer);
   }
@@ -115,36 +121,30 @@ export async function fetchLatestRelease(): Promise<LatestRelease> {
 interface PickedRelease {
   release: GitHubReleasePayload;
   assets: DownloadAssets;
+  cliAssets: CliAssets;
 }
 
-/** Newest release with an Apple Silicon App, or the newest release overall. */
+/** A Linux-only release is as downloadable as a Mac-only one. */
 function pickRelease(
   candidates: GitHubReleasePayload[],
 ): PickedRelease | undefined {
   const parsed = candidates.map((release) => ({
     release,
     assets: parseReleaseAssets(release.assets ?? []),
+    cliAssets: parseCliAssets(release.assets ?? []),
   }));
 
-  const downloadable = parsed.find((c) => c.assets.macArm64Dmg || c.assets.macArm64Zip);
-  if (downloadable) {
-    if (downloadable !== parsed[0]) {
-      console.warn(
-        `[download] skipping ${parsed[0]?.release.tag_name ?? "latest release"}` +
-          ` — no Apple Silicon App; showing ${downloadable.release.tag_name}`,
-      );
-    }
-    return downloadable;
-  }
-  return parsed[0];
+  return parsed.find((c) => Object.keys(c.assets).length > 0 || Object.keys(c.cliAssets).length > 0) ?? parsed[0];
 }
 
-function emptyRelease(): LatestRelease {
+function emptyRelease(releasesUrl: string): LatestRelease {
   return {
     version: null,
     publishedAt: null,
     htmlUrl: null,
     assets: {},
     sizes: {},
+    cliAssets: {},
+    releasesUrl,
   };
 }

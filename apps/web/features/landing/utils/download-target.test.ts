@@ -36,6 +36,14 @@ describe("detectFromUserAgent", () => {
 });
 
 describe("resolvePrimary", () => {
+  it("offers a same-architecture Mac ZIP when no DMG exists", () => {
+    const assets = { macArm64Zip: "https://downloads.test/mac-arm64.zip" };
+    expect(resolvePrimary({ os: "mac", arch: "arm64", archConfident: true }, assets)).toEqual({
+      key: "macArm64Zip", href: assets.macArm64Zip,
+    });
+    expect(resolvePrimary({ os: "mac", arch: "x64", archConfident: true }, assets)).toBeNull();
+    expect(resolvePrimary({ os: "windows", arch: "x64", archConfident: true }, assets)).toBeNull();
+  });
   it("offers the installer for the detected platform", () => {
     expect(resolvePrimary(detectFromUserAgent(SAFARI_MAC), ASSETS)).toEqual({ key: "macArm64Dmg", href: ASSETS.macArm64Dmg });
     expect(resolvePrimary({ os: "mac", arch: "x64", archConfident: true }, ASSETS)?.key).toBe("macX64Dmg");

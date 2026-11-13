@@ -34,6 +34,24 @@ export interface DownloadAssets {
   linuxArm64Rpm?: string;
 }
 
+export type CliAssets = Partial<Record<"macArm64" | "macX64" | "linuxX64" | "linuxArm64" | "winX64" | "winArm64", string>>;
+
+/** CLI archives contain the daemon too; they are not Desktop installers. */
+export function parseCliAssets(raw: GitHubAsset[]): CliAssets {
+  const out: CliAssets = {};
+  for (const asset of raw) {
+    const match = /^multica-cli(?:-daemon)?-.+-(darwin|linux|windows)-(amd64|arm64)\.(tar\.gz|zip)$/.exec(asset.name);
+    if (!match) continue;
+    const [, os, arch, format] = match;
+    if ((os === "windows") !== (format === "zip")) continue;
+    const platform = os === "darwin" ? (arch === "arm64" ? "macArm64" : "macX64")
+      : os === "windows" ? (arch === "arm64" ? "winArm64" : "winX64")
+        : arch === "arm64" ? "linuxArm64" : "linuxX64";
+    out[platform] = asset.browser_download_url;
+  }
+  return out;
+}
+
 const DESKTOP_ARTIFACT_RE =
   /^multica-desktop-.+-(mac|windows|linux)-([a-z0-9_]+)\.(dmg|zip|exe|AppImage|deb|rpm)$/i;
 

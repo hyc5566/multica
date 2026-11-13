@@ -302,6 +302,36 @@ acceptance or production deployment. The shared `zh-tw` replacement remains
 gated on review and the authorized expected remote OID; verify tests and
 release artifacts before any separately authorized service or data change.
 
+### November 14, 2026 integration candidate (HYC-101)
+
+Pin upstream to `013be7700bb44fe835ded79b96bb07c0b13cdf19` (v0.9.0 plus
+three commits). Replay all 49 Taiwan commits from
+`250ecacf4ab17a4bdaa7bde3a3cec2ed14ce15bb..cacb97a74a6cc5f8cf17329730e7d4cff1ee3d2f`.
+Derive the package version with `deriveVersion` from
+`scripts/zh-tw-version.mjs`, then verify the strict CLI resolver with
+`MULTICA_UPSTREAM_REF=013be7700bb44fe835ded79b96bb07c0b13cdf19 node
+scripts/zh-tw-version.mjs --json`. The first candidate resolves to
+`0.9.0-zh-tw.1+up.013be77`; do not copy that value into a future release.
+Keep upstream's requester attribution, Amp configuration and Codex GC changes
+when resolving Taiwan copy; the removed `MULTICA_THEME_STORE` switch stays removed.
+This upstream range adds no migrations. Preserve the published Taiwan migration
+stems and use the existing backup/restore deployment procedure for later rollout.
+
+The web download page reads server-side `MULTICA_DOWNLOAD_REPO` at runtime
+(`owner/repo`, default `hyc5566/multica`). The default fork filters `zh-tw-v`
+tags; an overridden repository exposes its non-draft, non-prerelease releases.
+The newest release with any recognized App or CLI asset wins, even when it
+only has one platform. Never combine files from different releases or fill
+an API failure with the historical static mirror. All-releases and installer
+links follow the same configured repository; `GITHUB_TOKEN` remains server-only.
+
+Keep Mac ZIP-only download support and the separate CLI/daemon archive list.
+Recognized CLI filenames are `multica-cli[-daemon]-<version>-<os>-<arch>`
+(`darwin`/`linux` tar.gz or `windows` zip; `amd64`/`arm64`). Download entries
+come from the actual release asset list; no Windows, Intel Mac or Linux ARM
+file is implied by a Mac arm64 or Linux amd64 release. Full App-channel and
+GitHub Release publication remain separate authorization steps.
+
 ### November 7, 2026 integration candidate (HYCLV-481)
 
 The candidate rebuilds the cumulative Taiwan layers from

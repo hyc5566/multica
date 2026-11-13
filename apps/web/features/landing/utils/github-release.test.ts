@@ -57,10 +57,51 @@ function mockFetchWithReleases(releases: unknown[]) {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.unstubAllEnvs();
   vi.restoreAllMocks();
 });
 
 describe("fetchLatestRelease", () => {
+  it("uses an overridden repository for stable releases, installer and navigation", async () => {
+    vi.stubEnv("MULTICA_DOWNLOAD_REPO", "another-owner/multica");
+    const installerUrl = "https://github.com/another-owner/multica/releases/download/v0.9.0/install.sh";
+    const fetchMock = mockFetchWithReleases([
+      releasePayload({ tag: "v0.9.0", assets: [
+        ...macOnlyAssets("0.9.0"),
+        { name: "install.sh", browser_download_url: installerUrl },
+      ] }),
+    ]);
+    const result = await fetchLatestRelease();
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.github.com/repos/another-owner/multica/releases?per_page=5", expect.anything(),
+    );
+    expect(result.version).toBe("v0.9.0");
+    expect(result.releasesUrl).toBe("https://github.com/another-owner/multica/releases");
+    expect(result.installerUrl).toBe(installerUrl);
+  });
+
+  it("keeps a newer Linux-only release instead of substituting an older Mac App", async () => {
+    const name = "multica-cli-daemon-0.9.0-zh-tw.1+up.013be77-linux-amd64.tar.gz";
+    mockFetchWithReleases([
+      releasePayload({ tag: "zh-tw-v0.9.0-zh-tw.1", assets: [
+        { name, browser_download_url: `https://downloads.test/${name}` },
+      ] }),
+      releasePayload({ tag: "zh-tw-v0.8.2-zh-tw.1", assets: macOnlyAssets("0.8.2-zh-tw.1") }),
+    ]);
+    const result = await fetchLatestRelease();
+    expect(result.version).toBe("zh-tw-v0.9.0-zh-tw.1");
+    expect(result.assets).toEqual({});
+    expect(result.cliAssets).toEqual({ linuxX64: `https://downloads.test/${name}` });
+  });
+
+  it("rejects an invalid repository without requesting another origin", async () => {
+    vi.stubEnv("MULTICA_DOWNLOAD_REPO", "https://other.test/repo");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const fetchMock = mockFetchWithReleases([]);
+    expect((await fetchLatestRelease()).version).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
   it("uses the published Taiwan installer and Apple Silicon asset", async () => {
     const installerUrl = "https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.7/install.sh";
     const assets = [
@@ -187,6 +228,8 @@ describe("fetchLatestRelease", () => {
       htmlUrl: null,
       assets: {},
       sizes: {},
+      cliAssets: {},
+      releasesUrl: "https://github.com/hyc5566/multica/releases",
     });
     expect(warnSpy).toHaveBeenCalled();
   });

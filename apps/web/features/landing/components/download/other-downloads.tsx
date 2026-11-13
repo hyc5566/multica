@@ -22,7 +22,9 @@ const MENU_KEYS: PrimaryDownloadKey[] = ["macArm64Dmg", "macX64Dmg", "winX64Exe"
 
 const FORMAT: Record<PrimaryDownloadKey, string> = {
   macArm64Dmg: ".dmg",
+  macArm64Zip: ".zip",
   macX64Dmg: ".dmg",
+  macX64Zip: ".zip",
   winX64Exe: ".exe",
   winArm64Exe: ".exe",
   linuxAmd64AppImage: ".AppImage",

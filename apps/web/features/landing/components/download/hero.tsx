@@ -2,11 +2,12 @@
 
 import { useLocale } from "../../i18n";
 import { Container, Eyebrow, SiteTextLink, actionClassName } from "../../site/primitives";
-import { alternateKey, formatSize, osOf, resolvePrimary } from "../../utils/download-target";
+import { alternateKey, formatSize, osOf, primaryLabelKey, resolvePrimary } from "../../utils/download-target";
 import type { LatestRelease } from "../../utils/github-release";
 import type { DetectResult } from "../../utils/os-detect";
 import type { DownloadKey } from "../../utils/parse-release-assets";
-import { ALL_RELEASES_URL, AllPlatforms } from "./all-platforms";
+import { AllPlatforms } from "./all-platforms";
+import { ALL_RELEASES_URL } from "../../utils/release-source";
 import { DownloadLink } from "./download-link";
 import { OSIcon } from "./os-icons";
 
@@ -51,7 +52,7 @@ export function DownloadHero({
               className={actionClassName("primary", "lg")}
             >
               <OSIcon os={os} size={16} aria-hidden />
-              {d.primary[primary.key]}
+              {d.primary[primaryLabelKey(primary.key)]}
             </DownloadLink>
             {alternate && alternateHref ? (
               <DownloadLink
@@ -73,7 +74,7 @@ export function DownloadHero({
               {release.publishedAt ? <Dot>{d.released.replace("{date}", formatDate(release.publishedAt, locale))}</Dot> : null}
               <Dot>
                 <SiteTextLink
-                  href={release.htmlUrl ?? ALL_RELEASES_URL}
+                  href={release.htmlUrl ?? release.releasesUrl ?? ALL_RELEASES_URL}
                   external
                   className="text-site-ink underline decoration-site-line-strong underline-offset-4"
                 >
@@ -86,7 +87,7 @@ export function DownloadHero({
           )}
         </p>
       </div>
-      <AllPlatforms assets={release.assets} current={primary?.key} onStart={onStart} />
+      <AllPlatforms assets={release.assets} current={primary?.key} onStart={onStart} releasesUrl={release.releasesUrl} />
     </Container>
   );
 }
