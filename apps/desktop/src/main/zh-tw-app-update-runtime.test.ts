@@ -113,6 +113,22 @@ describe("Taiwan updater Electron integration", () => {
     expect(ctx.spawn).not.toHaveBeenCalled();
   });
 
+  it("claims a ready update quit before downstream daemon auto-stop runs", async () => {
+    ctx.coordinated.mockReturnValue(new Promise(() => {}));
+    await start();
+    await invoke("updater:check");
+    const stopDaemon = vi.fn();
+    ctx.events.set("before-quit", [
+      ...(ctx.events.get("before-quit") ?? []),
+      (event: { defaultPrevented: boolean }) => { if (!event.defaultPrevented) stopDaemon(); },
+    ]);
+    const event = { defaultPrevented: false, preventDefault: () => { event.defaultPrevented = true; } };
+    emit("before-quit", event);
+    expect(event.defaultPrevented).toBe(true);
+    expect(stopDaemon).not.toHaveBeenCalled();
+    expect(ctx.quit).not.toHaveBeenCalled();
+  });
+
   it("refuses an uncoordinated install without stopping the daemon or changing the bundle", async () => {
     await start();
     await invoke("updater:check");

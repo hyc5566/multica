@@ -43,19 +43,21 @@ const (
 // untouched and reported on every replay pass; downgrading must never delete a
 // payload merely because the older binary cannot decode it.
 type persistedTerminalTaskReport struct {
-	Version               int       `json:"version"`
-	CreatedAt             time.Time `json:"created_at"`
-	Kind                  string    `json:"kind"`
-	TaskID                string    `json:"task_id"`
-	Output                string    `json:"output,omitempty"`
-	BranchName            string    `json:"branch_name,omitempty"`
-	ErrorMessage          string    `json:"error,omitempty"`
-	SessionID             string    `json:"session_id,omitempty"`
-	WorkDir               string    `json:"work_dir,omitempty"`
-	DurableWorkDir        string    `json:"durable_work_dir,omitempty"`
-	FailureReason         string    `json:"failure_reason,omitempty"`
-	SessionRolloutMissing bool      `json:"session_rollout_missing,omitempty"`
-	RetiredSessionID      string    `json:"retired_session_id,omitempty"`
+	Version               int        `json:"version"`
+	CreatedAt             time.Time  `json:"created_at"`
+	Kind                  string     `json:"kind"`
+	TaskID                string     `json:"task_id"`
+	RuntimeID             string     `json:"runtime_id,omitempty"`
+	CompletedAt           *time.Time `json:"completed_at,omitempty"`
+	Output                string     `json:"output,omitempty"`
+	BranchName            string     `json:"branch_name,omitempty"`
+	ErrorMessage          string     `json:"error,omitempty"`
+	SessionID             string     `json:"session_id,omitempty"`
+	WorkDir               string     `json:"work_dir,omitempty"`
+	DurableWorkDir        string     `json:"durable_work_dir,omitempty"`
+	FailureReason         string     `json:"failure_reason,omitempty"`
+	SessionRolloutMissing bool       `json:"session_rollout_missing,omitempty"`
+	RetiredSessionID      string     `json:"retired_session_id,omitempty"`
 
 	PermanentRejectionCount   int        `json:"permanent_rejection_count,omitempty"`
 	FirstPermanentRejectionAt *time.Time `json:"first_permanent_rejection_at,omitempty"`
@@ -132,11 +134,18 @@ func persistedTerminalReport(report terminalTaskReport, createdAt time.Time) (pe
 	if err != nil {
 		return persistedTerminalTaskReport{}, err
 	}
+	var completedAt *time.Time
+	if !report.completedAt.IsZero() {
+		value := report.completedAt.UTC()
+		completedAt = &value
+	}
 	return persistedTerminalTaskReport{
 		Version:               terminalReportRecordVersion,
 		CreatedAt:             createdAt.UTC(),
 		Kind:                  kind,
 		TaskID:                report.taskID,
+		RuntimeID:             report.runtimeID,
+		CompletedAt:           completedAt,
 		Output:                report.output,
 		BranchName:            report.branchName,
 		ErrorMessage:          report.errorMessage,
@@ -165,9 +174,15 @@ func (record persistedTerminalTaskReport) terminalReport() (terminalTaskReport, 
 	default:
 		return terminalTaskReport{}, fmt.Errorf("unsupported terminal report kind %q", record.Kind)
 	}
+	var completedAt time.Time
+	if record.CompletedAt != nil {
+		completedAt = record.CompletedAt.UTC()
+	}
 	return terminalTaskReport{
 		kind:                  kind,
 		taskID:                record.TaskID,
+		runtimeID:             record.RuntimeID,
+		completedAt:           completedAt,
 		output:                record.Output,
 		branchName:            record.BranchName,
 		errorMessage:          record.ErrorMessage,
@@ -739,7 +754,7 @@ func (d *Daemon) replayPendingTerminalReports(ctx context.Context) (pending, del
 				if !ok {
 					continue
 				}
-				err := d.sendTerminalTaskReport(ctx, item.report, nil)
+				err := d.sendTerminalTaskReportWithReceipt(ctx, item.report, nil)
 				quarantined := false
 				if err == nil {
 					err = d.terminalReports.acknowledge(item)

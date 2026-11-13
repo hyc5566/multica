@@ -1054,14 +1054,14 @@ if (!gotTheLock) {
     // The Taiwan package follows the s90 channel and preserves active tasks.
     let releaseDaemonLifecycle!: () => void;
     const lifecycleBarrier = new Promise<void>((resolve) => { releaseDaemonLifecycle = resolve; });
-    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all(), lifecycleBarrier);
-    if (!process.argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) watchCoordinatedStartup(releaseDaemonLifecycle);
     setupZhTWAppUpdate({
       getMainWindow: () => mainWindows.mostRecent(),
       getApiBaseUrl: getTargetApiBaseUrl,
       preserveDaemonOnQuit: preserveDaemonOnNextQuit,
       withCoordinatedDaemon,
     });
+    setupDaemonManager(() => mainWindows.mostRecent(), () => mainWindows.all(), lifecycleBarrier);
+    if (!process.argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) watchCoordinatedStartup(releaseDaemonLifecycle);
     setupLocalDirectory(() => mainWindows.mostRecent());
     setupThemeFolder();
 
