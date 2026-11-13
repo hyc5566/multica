@@ -307,13 +307,22 @@ rewritten="$(bash -c 'source "$1"; database_url_with_name "$2" "$3"' _ \
 # parses — agents read it, so a stray log line in it is a broken contract.
 # ---------------------------------------------------------------------------
 write_manifest "probe-901" "$tmp_dir/checkout" 901
-mkdir -p "$tmp_dir/checkout"
+mkdir -p "$tmp_dir/checkout/server/bin"
+export DEV_ENV_TEST_CLI_MARKER="$tmp_dir/probe-cli-called"
+cat > "$tmp_dir/checkout/server/bin/multica" <<'EOF'
+#!/usr/bin/env bash
+[ "$*" = "daemon status --profile dev-dev-env-test-901 --output json" ] || exit 1
+printf 'called\n' >> "$DEV_ENV_TEST_CLI_MARKER"
+printf '{"status":"stopped"}\n'
+EOF
+chmod +x "$tmp_dir/checkout/server/bin/multica"
 
 dev_env list > "$out" 2>&1 || fail "list must succeed with one environment"
 require_contains "$out" "probe-901"
 require_contains "$out" "18981"
 
 dev_env status probe-901 --json > "$out" 2>&1 || fail "status --json must succeed"
+[ -s "$DEV_ENV_TEST_CLI_MARKER" ] || fail "status did not use the fixture CLI"
 node -e '
   const fs = require("fs");
   const payload = JSON.parse(fs.readFileSync(process.argv[1], "utf8"));

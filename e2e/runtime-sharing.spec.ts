@@ -19,7 +19,7 @@ test("runtime owner can save specific members and revoke their access", async ({
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto(`/${workspace.slug}/runtimes/${runtimeId}`);
     await page.getByRole("gridcell", { name: "Studio Mac Built-in" }).click();
-    await expect(page).toHaveURL(new RegExp(`/runtime/${runtimeId}$`));
+    await expect(page).toHaveURL(new RegExp(`/${workspace.slug}/runtimes/${runtimeId}$`));
     const scope = (name: string) => page.getByRole("button", { name, exact: true });
     const patched = () => page.waitForResponse((response) => response.url().endsWith(`/api/runtimes/${runtimeId}`) && response.request().method() === "PATCH");
     await expect(scope("Private")).toHaveAttribute("aria-pressed", "true");
