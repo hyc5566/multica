@@ -12,8 +12,8 @@ for (const scenario of [
   {
     name: "same account language",
     language: "zh-Hans",
-    htmlLang: "zh-CN",
-    continueLabel: "在 web 端继续",
+    htmlLang: "zh-TW",
+    continueLabel: "在 web 端繼續",
   },
 ]) {
   test(`Google callback keeps its single-use code while synchronizing ${scenario.name}`, async ({

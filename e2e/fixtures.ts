@@ -99,13 +99,11 @@ export class TestApiClient {
       this.token = data.token;
       this.email = email;
 
-      // Update user name if needed
-      if (name && data.user?.name !== name) {
-        await this.authedFetch("/api/me", {
-          method: "PATCH",
-          body: JSON.stringify({ name }),
-        });
-      }
+      // General-purpose fixtures use English; locale suites choose explicitly.
+      await this.authedFetch("/api/me", {
+        method: "PATCH",
+        body: JSON.stringify({ ...(name ? { name } : {}), language: "en" }),
+      });
 
       await client.query("DELETE FROM verification_code WHERE email = $1", [email]);
 
