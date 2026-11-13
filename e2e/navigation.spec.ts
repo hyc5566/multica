@@ -6,7 +6,8 @@ const ROUTE_CHANGE_TIMEOUT = 30000;
 test.describe("Navigation", () => {
   test.beforeEach(async ({ page }) => {
     await loginAsDefault(page);
-    await page.waitForLoadState("networkidle");
+    // loginAsDefault waits for the issue page's New Issue button. The app
+    // maintains background requests, so network idle is not a readiness signal.
   });
 
   test("rail navigation works", async ({ page }) => {
@@ -35,8 +36,9 @@ test.describe("Navigation", () => {
     await expect(page).toHaveURL(/\/settings/, { timeout: ROUTE_CHANGE_TIMEOUT });
     await waitForPageText(page, "Settings");
 
-    await expect(page.getByRole("tab", { name: "General" })).toBeVisible();
-    await expect(page.getByRole("tab", { name: "Members" })).toBeVisible();
+    const settings = page.getByRole("navigation", { name: "Settings" });
+    await expect(settings.getByRole("link", { name: "General" })).toBeVisible();
+    await expect(settings.getByRole("link", { name: "Members" })).toBeVisible();
   });
 
   test("agents page shows agent list", async ({ page }) => {
