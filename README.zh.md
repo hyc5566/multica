@@ -63,7 +63,7 @@ Multica 是原始碼可取得的團隊工作區。你可以像分派工作給同
 
 ## Multica 是什麼
 
-你手上已經同時開著 Claude Code、Codex，還有另外三個 Agent。每一個都關在自己的終端機分頁裡，會話
+你手上已經同時開著 Claude Code、Codex，還有另外三個 Agent。每一個都關在自己的終端機分頁裡，工作階段
 一關就什麼都不記得，同一段上下文你今天已經講到第四遍。結果是 Agent 越加越多，你越忙。
 
 Multica 把這些 Agent 和你的隊友放進同一個工作區。任務派給 Agent，它自己接手，在你自己的機器上跑，
@@ -103,8 +103,8 @@ diff，全都掛在同一個任務下——沒人需要重新捋一遍上下文�
 
 - **[你已經在用的Agent CLI](#支援的Agent-cli) →** Claude Code、Codex、Cursor、Copilot、Kimi、OpenCode 等等。
 - **[Agent也是隊友](https://multica.ai/docs/zh/agents) →** 起個名字、選個提供方、配臺執行時，它就上了看板，跟其他同事沒兩樣。
-- **[小隊](https://multica.ai/docs/zh/squads) →** 人和Agent混編成隊，leader 決定誰來接活。
-- **[Skills](https://multica.ai/docs/zh/skills) →** 解決過一次的問題沉澱下來，全團隊的Agent都能複用。
+- **[小隊](https://multica.ai/docs/zh/squads) →** 人和 Agent 混編成隊，leader 決定誰來接活。
+- **[Skills](https://multica.ai/docs/zh/skills) →** 解決過一次的問題沉澱下來，全團隊的 Agent 都能複用。
 - **[你自己的執行時](https://multica.ai/docs/zh/daemon-runtimes) →** 它們的"工位"就是你的機器——daemon跑在你的筆記本或雲主機上，程式碼不出門。
 
 ## 把活交出去
@@ -115,10 +115,10 @@ diff，全都掛在同一個任務下——沒人需要重新捋一遍上下文�
   <img src="docs/assets/readme/issue.webp" alt="交給Agent的任務：Frontend 開了 PR，請 Reviewer Agent來審，並把任務挪到了稽核中" width="100%">
 </p>
 
-- **[分配任務](https://multica.ai/docs/zh/assigning-issues) →** 像挑同事一樣挑個Agent當負責人，剩下的它自己來。
+- **[分配任務](https://multica.ai/docs/zh/assigning-issues) →** 像挑同事一樣挑個 Agent 當負責人，剩下的它自己來。
 - **[自動化](https://multica.ai/docs/zh/autopilots) →** 日報、巡檢、週報按 cron 自己跑，不用有人催。
 - **[聊天](https://multica.ai/docs/zh/chat) →** 直接問工作區，或者不建任務就把活派出去。
-- **[專案](https://multica.ai/docs/zh/projects) →** 把工作歸類，順手掛上Agent要用的儲存庫和檔案。
+- **[專案](https://multica.ai/docs/zh/projects) →** 把工作歸類，順手掛上 Agent 要用的儲存庫和檔案。
 
 ## 看得見，也管得住
 
@@ -130,22 +130,22 @@ diff，全都掛在同一個任務下——沒人需要重新捋一遍上下文�
 
 - **[執行日誌](https://multica.ai/docs/zh/tasks) →** 每次工具調用、命令和報錯都帶時間戳，可以完整回放。
 - **[執行中插話](https://multica.ai/docs/zh/providers#插話支援) →** Agent幹活時直接回復，訊息會進到當前這次執行，不用等下一次。目前支援 Claude Code、Codex、Cursor Agent、Grok、Hermes、Kiro、Pi 和 Antigravity。
-- **用量統計 →** 每次運行花了多少，按Agent、按任務都看得到。
+- **用量統計 →** 每次執行花了多少，按Agent、按任務都看得到。
 - **[人來驗收](https://multica.ai/docs/zh/issues) →** 活先進入稽核中，不直接進 main。上不上線你說了算。
 - **[收件匣](https://multica.ai/docs/zh/inbox) →** 只在Agent需要你拍板時提醒你，而不是每一步都來煩你。
-- **[重試與超時](https://multica.ai/docs/zh/tasks#失敗與自動重試) →** 失敗的執行會自己重試，或者停下來告訴你為什麼。
+- **[重試與逾時](https://multica.ai/docs/zh/tasks#失敗與自動重試) →** 失敗的執行會自己重試，或者停下來告訴你為什麼。
 
 ## 整套都歸你
 
 *你的機器、你的 Git 服務、你的規矩——還有一份把 Agent 也算進去的審計記錄。*
 
-- **[整套自托管](SELF_HOSTING.md) →** Docker Compose 或 Helm，裝在你自己的基礎設施上。
+- **[整套自行架設](SELF_HOSTING.md) →** Docker Compose 或 Helm，裝在你自己的基礎設施上。
 - **[你的 Git 服務](https://multica.ai/docs/zh/vcs-integration) →** GitHub、GitLab、Gitea、Forgejo，自建實例也行。
 - **[工作區](https://multica.ai/docs/zh/workspaces) →** 按團隊隔離Agent、任務和設置。
-- **[角色](https://multica.ai/docs/zh/members-roles)與[使用權限](https://multica.ai/docs/zh/agents#權限與-access) →** 向訪客分享指定項目，管理工作區角色，並設置誰能運行每個Agent。
+- **[角色](https://multica.ai/docs/zh/members-roles)與[使用權限](https://multica.ai/docs/zh/agents#權限與-access) →** 向訪客分享指定專案，管理工作區角色，並設置誰能執行每個Agent。
 - **[安全模型](https://multica.ai/docs/zh/security-model) →** Agent碰得到什麼，碰不到什麼。
-- **[Slack、飛書/Lark、釘釘、企業微信、Telegram、微信](https://multica.ai/docs/zh/channels) →** 在團隊本來就在聊天的地方，觸發和跟進Agent的工作。微信僅接收掃碼連線賬號的私聊訊息。飛書/Lark 目前只開放中國大陸飛書的新連線；釘釘、企業微信、Telegram 和微信由[社群維護](https://multica.ai/docs/zh/community-maintained)。
-- **Web、[桌面端](https://multica.ai/docs/zh/desktop-app)、[移動端](https://multica.ai/docs/zh/mobile-app) →** macOS、Windows、Linux、iPhone、iPad，開啟都是同一個工作區——iOS App 現在要自己從原始碼編譯安裝，還沒上 App Store。
+- **[Slack、飛書/Lark、釘釘、企業微信、Telegram、微信](https://multica.ai/docs/zh/channels) →** 在團隊本來就在聊天的地方，觸發和跟進Agent的工作。微信僅接收掃碼連線帳號的私聊訊息。飛書/Lark 目前只開放中國大陸飛書的新連線；釘釘、企業微信、Telegram 和微信由[社群維護](https://multica.ai/docs/zh/community-maintained)。
+- **Web、[桌面端](https://multica.ai/docs/zh/desktop-app)、[行動版](https://multica.ai/docs/zh/mobile-app) →** macOS、Windows、Linux、iPhone、iPad，打開都是同一個工作區——iOS App 現在要自己從源碼編譯安裝，還沒上 App Store。
 - **[CLI 與 API](https://multica.ai/docs/zh/cli) →** 界面上能點的，CLI 和 API 里都能調。Agent操作 Multica，用的就是你那套 CLI。
 
 ---
@@ -153,7 +153,7 @@ diff，全都掛在同一個任務下——沒人需要重新捋一遍上下文�
 ## 開始使用
 
 - **雲端**——直接在 **[multica.ai](https://multica.ai)** 註冊，不用開啟終端機。
-- **桌面端**——下載 **[Multica 桌面端](https://multica.ai/download)**（macOS / Windows / Linux）。開啟它，
+- **桌面版**——下載 **[Multica 桌面版](https://multica.ai/download)**（macOS / Windows / Linux）。開啟它，
   這臺電腦就自動成了一個執行時。
 - **自託管**——整套跑在你自己的基礎設施上，見下方。
 
@@ -191,13 +191,13 @@ Windows 上先設 `$env:MULTICA_MODE="with-server"`，再跑 PowerShell 安裝�
 
 </details>
 
-### 五分鐘跑通第一個智慧體
+### 五分鐘跑通第一個 Agent
 
-**1. 接入一臺電腦。** 所謂*runtime*，就是Agent幹活用的機器——你的筆記本，或者一臺雲主機。用桌面端，
-這一步是自動的：它會註冊好這臺電腦，順便檢測裝了哪些Agent CLI。用網頁版、或者想再接一臺機器，就
+**1. 接入一臺電腦。** 所謂*runtime*，就是 Agent 幹活用的機器——你的筆記本，或者一臺雲主機。用桌面版，
+這一步是自動的：它會註冊好這臺電腦，順便檢測裝了哪些 Agent CLI。用網頁版、或者想再接一臺機器，就
 開啟**團隊 → runtime**，點**新增runtime → 其他機器或伺服器**，把彈窗裡的兩條命令粘到那臺機器的終端機裡。
 
-**2. 建立Agent。** 開啟側邊欄的**團隊**，點 **+**（**新建Agent**）。選中剛接入的runtime，選一個提供方，
+**2. 建立 Agent。** 開啟側邊欄的**團隊**，點 **+**（**新建 Agent**）。選中剛接入的runtime，選一個提供方，
 起個名字——或者選**透過 AI 建立**，描述幾句，設定自動生成。這個名字就是它之後在看板和留言裡的身份。
 
 **2. 連線一臺電腦。** *執行環境*就是 Agent 工作的機器，例如筆電或雲端主機。使用桌面版時會自動註冊並偵測已安裝的 Agent CLI；使用網頁版或要再連線一臺機器時，請開啟側邊欄的**執行環境**，選擇**新增電腦**，並在目標機器的終端機執行畫面中的命令。
@@ -292,7 +292,7 @@ Multica 不自帶模型。它驅動的是你本來就裝好、登入好的那些
 | 層級 | 技術棧 |
 | --- | --- |
 | Web | Next.js 16 (App Router) |
-| 桌面端 | Electron，複用 Web 的 UI 包 |
+| 桌面版 | Electron，複用 Web 的 UI 包 |
 | 移動端 | Expo / React Native（iPhone 與 iPad） |
 | 後端 | Go (Chi router, sqlc, gorilla/websocket) |
 | 資料庫 | PostgreSQL 17（`pgcrypto` + `pg_trgm`） |
@@ -313,7 +313,7 @@ make dev
 `make dev` 會自己認出你在主 checkout 還是 worktree 裡，然後建立 env 檔案、裝依賴、初始化資料庫、
 跑遷移，最後把所有服務拉起來。
 
-完整的開發流程、worktree 支援、測試和問題排查見 [CONTRIBUTING.md](CONTRIBUTING.md)。
+完整的開發流程、worktree 支援、測試和問題排除見 [CONTRIBUTING.md](CONTRIBUTING.md)。
 iOS 客戶端在 [`apps/mobile/`](apps/mobile/)，怎麼編譯裝到自己的裝置上見它的
 [README](apps/mobile/README.md)。
 
