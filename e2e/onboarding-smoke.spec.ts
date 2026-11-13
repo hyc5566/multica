@@ -103,22 +103,22 @@ test("onboarding — zh-Hans renders Chinese labels", async ({ page, context, ba
     },
   ]);
   const api = new TestApiClient();
-  await api.login(`zh-${Date.now()}@localhost`, "中文用户");
+  await api.login(`zh-${Date.now()}@localhost`, "中文使用者", "zh-Hans");
   const token = api.getToken();
 
   await page.addInitScript((t) => localStorage.setItem("multica_token", t), token);
   await page.goto("/onboarding", { waitUntil: "domcontentloaded" });
-  await waitForPageText(page, "在 web 端继续");
+  await waitForPageText(page, "在 web 端繼續");
 
   // Click the CTA by name. `getByRole("button").first()` used to stand in for
   // it, but the welcome screen renders the pinned Log out button first in DOM
   // order — so this step was signing the user out and the assertions below
   // were waiting on a page that had already redirected to login.
-  await page.getByRole("button", { name: "在 web 端继续" }).click();
+  await page.getByRole("button", { name: "在 web 端繼續" }).click();
 
   // About-you screen — Chinese headline + both sub-questions.
-  await expect(page.getByText("简单介绍一下你自己。")).toBeVisible({ timeout: 10000 });
-  await expect(page.getByText("哪一项最符合你？")).toBeVisible();
+  await expect(page.getByText("簡單介紹一下你自己。")).toBeVisible({ timeout: 10000 });
+  await expect(page.getByText("哪一項最符合你？")).toBeVisible();
   await page.waitForTimeout(500);
   await page.screenshot({ path: `${SHOTS_DIR}/05-about-you-zh.png` });
 });
