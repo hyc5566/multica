@@ -1,9 +1,9 @@
 {
   "name": "@multica/desktop",
   "productName": "Multica",
-  "version": "0.9.0",
+  "version": "0.9.0-zh-tw.1+up.013be77",
   "private": true,
-  "description": "Multica Desktop \u2014 native desktop client for the Multica platform.",
+  "description": "Multica Desktop — native desktop client for the Multica platform.",
   "homepage": "https://multica.ai",
   "repository": {
     "type": "git",
