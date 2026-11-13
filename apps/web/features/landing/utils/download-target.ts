@@ -16,7 +16,7 @@ export type PlatformKey = "macArm64" | "macX64" | "winX64" | "winArm64" | "linux
 /** The installers a platform gets by default. */
 export type PrimaryDownloadKey = Extract<
   DownloadKey,
-  "macArm64Dmg" | "macX64Dmg" | "winX64Exe" | "winArm64Exe" | "linuxAmd64AppImage" | "linuxArm64AppImage"
+  "macArm64Dmg" | "macArm64Zip" | "macX64Dmg" | "macX64Zip" | "winX64Exe" | "winArm64Exe" | "linuxAmd64AppImage" | "linuxArm64AppImage"
 >;
 
 export const DOWNLOAD_KEYS = [
@@ -67,16 +67,23 @@ export function primaryKey(detected: DetectResult): PrimaryDownloadKey | null {
 
 /** A Mac's other-architecture build, offered when detection had to guess. */
 export function alternateKey(key: DownloadKey): "macArm64Dmg" | "macX64Dmg" | null {
-  if (key === "macArm64Dmg") return "macX64Dmg";
-  if (key === "macX64Dmg") return "macArm64Dmg";
+  if (key === "macArm64Dmg" || key === "macArm64Zip") return "macX64Dmg";
+  if (key === "macX64Dmg" || key === "macX64Zip") return "macArm64Dmg";
   return null;
 }
 
 /** The primary download for a platform, when the release has it. */
 export function resolvePrimary(detected: DetectResult, assets: DownloadAssets) {
-  const key = primaryKey(detected);
+  let key = primaryKey(detected);
+  if (key === "macArm64Dmg" && !assets[key] && assets.macArm64Zip) key = "macArm64Zip";
+  if (key === "macX64Dmg" && !assets[key] && assets.macX64Zip) key = "macX64Zip";
   const href = key ? assets[key] : undefined;
   return key && href ? { key, href } : null;
+}
+
+/** The same platform label applies to either Mac installer format. */
+export function primaryLabelKey(key: PrimaryDownloadKey) {
+  return key === "macArm64Zip" ? "macArm64Dmg" : key === "macX64Zip" ? "macX64Dmg" : key;
 }
 
 export function fileName(href: string): string {

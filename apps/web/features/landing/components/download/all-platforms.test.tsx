@@ -18,6 +18,13 @@ function row(arch: string) {
 }
 
 describe("AllPlatforms", () => {
+  it("uses the configured releases page and only links existing formats", () => {
+    render(<AllPlatforms assets={{ macArm64Zip: ASSETS.macArm64Zip }} releasesUrl="https://github.com/another-owner/multica/releases" />);
+    expect(screen.getByRole("link", { name: "All releases" })).toHaveAttribute("href", "https://github.com/another-owner/multica/releases");
+    expect(within(row("Apple Silicon")).getByRole("link", { name: ".zip" })).toHaveAttribute("href", ASSETS.macArm64Zip);
+    expect(within(row("Apple Silicon")).queryByRole("link", { name: ".dmg" })).toBeNull();
+    expect(within(row("Intel")).queryByRole("link")).toBeNull();
+  });
   it("lists Intel macOS downloads separately from Apple Silicon", () => {
     render(<AllPlatforms assets={ASSETS} />);
 
