@@ -18,7 +18,7 @@ import { constants } from "node:fs";
 import { execFileSync, execSync } from "node:child_process";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { deriveVersion } from "./package.mjs";
+import { releaseVersion } from "../../../scripts/zh-tw-version.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, "..", "..", "..");
@@ -102,8 +102,8 @@ async function exists(p) {
   }
 }
 
+const version = releaseVersion({ repo: repoRoot });
 if (hasGo()) {
-  const version = process.env.MULTICA_BUILD_VERSION || deriveVersion() || "dev";
   const commit = git("rev-parse", "--short", "HEAD") || "unknown";
   const buildCommit = git("rev-parse", "HEAD") || "unknown";
   const date = new Date().toISOString().replace(/\.\d+Z$/, "Z");
