@@ -63,11 +63,11 @@ describe("landing locale paths", () => {
   it("lists every language's URL with English as the default", () => {
     expect(landingAlternates("/", "https://www.multica.ai")).toEqual({
       en: "https://www.multica.ai/",
-      "zh-Hans": "https://www.multica.ai/zh",
+      "zh-TW": "https://www.multica.ai/zh",
       ko: "https://www.multica.ai/ko",
       ja: "https://www.multica.ai/ja",
       "x-default": "https://www.multica.ai/",
     });
-    expect(landingAlternates("/download")).toMatchObject({ "zh-Hans": "/zh/download", "x-default": "/download" });
+    expect(landingAlternates("/download")).toMatchObject({ "zh-TW": "/zh/download", "x-default": "/download" });
   });
 });
