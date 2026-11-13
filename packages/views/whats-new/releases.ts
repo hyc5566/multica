@@ -49,8 +49,8 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
             body: "In Settings → Appearance, click Manage next to Theme to browse and install community themes, or use Import theme for a .zip or folder. Switch themes any time from Theme in the account menu.",
           },
           "zh-Hans": {
-            title: "安装、导入或制作主题",
-            body: "在「设置 → 外观」里点「主题」旁的「管理」，浏览并安装社区主题；也可以用「导入主题」导入 .zip 文件或文件夹。之后随时在账户菜单的「主题」里切换。",
+            title: "安裝、匯入或製作主題",
+            body: "在「設定 → 外觀」裡點「主題」旁的「管理」，瀏覽並安裝社群主題；也可以用「匯入主題」匯入 .zip 檔案或資料夾。之後隨時在帳戶選單的「主題」裡切換。",
           },
           "zh-Hant": {
             title: "安裝、匯入或製作主題",
@@ -79,8 +79,8 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
             body: "Open an issue and use Start an environment under Environments in its sidebar. Each service's menu can view its logs, restart, or stop it, and desktop apps can be brought forward with Switch to window.",
           },
           "zh-Hans": {
-            title: "在任务侧栏里管理服务",
-            body: "打开一个任务，在侧栏「环境」里点「启动环境」。每个服务的菜单里可以查看日志、重启或停止；桌面应用可以用「切到窗口」切到前台。",
+            title: "在任務側欄裡管理服務",
+            body: "打開一個任務，在側欄「環境」裡點「啟動環境」。每個服務的選單裡可以查看日誌、重新啟動或停止；桌面應用程式可以用「切到視窗」切到前景。",
           },
           "zh-Hant": {
             title: "在任務側欄裡管理服務",
@@ -110,12 +110,12 @@ export const WHATS_NEW_RELEASES: WhatsNewRelease[] = [
             body: "In Chat, select text in an agent's reply and add a note. Saved notes wait in the message box and are sent with your next message, with or without more text.",
           },
           "zh-Hans": {
-            title: "批注智能体的聊天回复",
-            body: "在「聊天」里选中智能体回复中的文字并添加批注。保存的批注会留在输入框里，随下一条消息一起发送，也可以不另写文字直接发送。",
+            title: "批註 Agent的聊天回覆",
+            body: "在「聊天」裡選取 Agent回覆中的文字並新增批註。儲存的批註會留在輸入框裡，隨下一則訊息一起送出，也可以不另寫文字直接送出。",
           },
           "zh-Hant": {
-            title: "批註 AI 代理的聊天回覆",
-            body: "在「聊天」裡選取 AI 代理回覆中的文字並新增批註。儲存的批註會留在輸入框裡，隨下一則訊息一起送出，也可以不另寫文字直接送出。",
+            title: "批註 Agent的聊天回覆",
+            body: "在「聊天」裡選取 Agent回覆中的文字並新增批註。儲存的批註會留在輸入框裡，隨下一則訊息一起送出，也可以不另寫文字直接送出。",
           },
           ja: {
             title: "エージェントのチャット返信に注釈を付ける",

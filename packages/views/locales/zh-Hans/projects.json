@@ -216,3 +216,13 @@
     "no_members": "沒有相符的成員",
     "no_selected": "尚無專案成員",
     "admin_notice": "工作區 owner 和 admin 一律可以存取。",
+    "you": "你",
+    "remove": "移除{{name}}",
+    "failed": "無法儲存存取權限。",
+    "load_failed": "無法載入專案成員。",
+    "publish_title": "讓整個工作區都能看到專案？",
+    "publish_description": "工作區所有成員都將能查看這個專案及其中的任務、評論和附件。",
+    "done": "完成",
+    "retry": "重試"
+  }
+}
