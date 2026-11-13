@@ -21,7 +21,7 @@ export type LandingPathLocale = "en" | (typeof LANDING_PATH_PREFIXES)[LandingPat
 const PREFIX_FOR: Record<LandingPathLocale, string> = { en: "", "zh-Hans": "zh", ko: "ko", ja: "ja" };
 
 /** `hreflang` value (BCP 47) for each language's URL. */
-export const HREFLANG: Record<LandingPathLocale, string> = { en: "en", "zh-Hans": "zh-Hans", ko: "ko", ja: "ja" };
+export const HREFLANG: Record<LandingPathLocale, string> = { en: "en", "zh-Hans": "zh-TW", ko: "ko", ja: "ja" };
 
 /** First path segments served by `app/(landing)`, besides the root. */
 export const LANDING_ROUTES: ReadonlySet<string> = new Set([
