@@ -254,7 +254,7 @@ def _darwin_inspect(owner_uid, search_roots, cli_hint):
             bundles[actual] = actual_id
     cli_bundle = darwin_bundle_for_path(real_cli)
     cli_id = darwin_bundle_id(cli_bundle) if cli_bundle else None
-    if cli_bundle and ('multica' in cli_id.casefold() or 'multica' in cli_bundle.casefold()):
+    if cli_bundle and ('multica' in cli_id.casefold() or 'multica' in os.path.basename(cli_bundle).casefold()):
         bundles[cli_bundle] = cli_id
     output = darwin_command(['/bin/ps', '-U', str(owner_uid), '-o', 'pid=,comm='])
     processes = []
@@ -269,11 +269,11 @@ def _darwin_inspect(owner_uid, search_roots, cli_hint):
         bundle = darwin_bundle_for_path(resolved)
         if bundle:
             bundle_id = darwin_bundle_id(bundle)
-            if 'multica' in bundle_id.casefold() or 'multica' in bundle.casefold():
+            if 'multica' in bundle_id.casefold() or 'multica' in os.path.basename(bundle).casefold():
                 updater.path_clean(resolved, 'file')
                 bundles[bundle] = bundle_id
                 processes.append({'pid': pid, 'exe': resolved, 'bundle': bundle})
-        elif 'multica' in resolved.casefold():
+        elif resolved == real_cli or 'multica' in os.path.basename(resolved).casefold():
             updater.path_clean(resolved, 'file')
             processes.append({'pid': pid, 'exe': resolved, 'bundle': None})
     foreign = any(bundle_id != DARWIN_APPROVED_BUNDLE_ID for bundle_id in bundles.values())
