@@ -37,7 +37,7 @@ vi.mock("electron", () => ({
     getVersion: () => "0.7.0",
     getPreferredSystemLanguages: () => ["en"],
   },
-  BrowserWindow: class {},
+  BrowserWindow: class { static getAllWindows() { return []; } },
   ipcMain: {
     handle: (name: string, fn: IpcHandler) => ctx.ipc.set(name, fn),
     on: vi.fn(),
@@ -87,6 +87,7 @@ vi.mock("fs/promises", () => ({
   rm: vi.fn(),
   open: vi.fn(),
   stat: vi.fn(),
+  lstat: vi.fn(async () => { throw Object.assign(new Error("not found"), { code: "ENOENT" }); }),
 }));
 vi.mock("./daemon-port", () => ({
   probeProfileHealth: vi.fn(async () => ctx.health),

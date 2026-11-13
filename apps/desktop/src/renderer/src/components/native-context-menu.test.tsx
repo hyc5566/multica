@@ -86,9 +86,9 @@ describe("NativeContextMenu", () => {
     renderHost("zh-Hans");
     open(request({ isEditable: true, canPaste: true, canSelectAll: true }));
 
-    expect(await screen.findByRole("menuitem", { name: /粘贴/ })).toBeInTheDocument();
-    expect(screen.getByRole("menuitem", { name: /全选/ })).toBeInTheDocument();
-    expect(screen.queryByRole("menuitem", { name: /剪切/ })).toBeNull();
+    expect(await screen.findByRole("menuitem", { name: /貼上/ })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /全選/ })).toBeInTheDocument();
+    expect(screen.queryByRole("menuitem", { name: /剪下/ })).toBeNull();
     expect(screen.queryByRole("menuitem", { name: /复制/ })).toBeNull();
   });
 

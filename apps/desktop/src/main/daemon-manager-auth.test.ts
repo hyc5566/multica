@@ -61,9 +61,12 @@ vi.mock("./cli-bootstrap", () => ({
 }));
 
 import { desktopTokenRecord } from "./desktop-token";
-import { preserveDaemonOnNextQuit, requestDaemonTrustRefresh, setupDaemonManager } from "./daemon-manager";
-import { DaemonOperationGate } from "./daemon-recovery";
 import { profileConfigPath, profileUserIdPath } from "./daemon-profile";
+
+let setupDaemonManager: typeof import("./daemon-manager").setupDaemonManager;
+let preserveDaemonOnNextQuit: typeof import("./daemon-manager").preserveDaemonOnNextQuit;
+let requestDaemonTrustRefresh: typeof import("./daemon-manager").requestDaemonTrustRefresh;
+let DaemonOperationGate: typeof import("./daemon-recovery").DaemonOperationGate;
 
 const server = "https://multica.example.test";
 const profile = "desktop-multica.example.test";
@@ -89,6 +92,10 @@ function cachedToken() {
 
 describe("Desktop daemon token synchronization", () => {
   beforeEach(async () => {
+    vi.resetModules();
+    ({ setupDaemonManager, preserveDaemonOnNextQuit, requestDaemonTrustRefresh } = await import("./daemon-manager"));
+    ({ DaemonOperationGate } = await import("./daemon-recovery"));
+    vi.spyOn(globalThis, "setInterval").mockReturnValue(0 as unknown as ReturnType<typeof setInterval>);
     machine.home = "/test-home"; machine.host = "test-host";
     cliState.running = true; cliState.pid = 100; cliState.failStart = false; cliState.commands = [];
     files.clear();
@@ -105,6 +112,7 @@ describe("Desktop daemon token synchronization", () => {
     seedOwnership();
     await invoke("daemon:set-target-api-url", "");
     await invoke("daemon:set-target-api-url", server);
+    await invoke("daemon:retry-install");
     fetchMock.mockClear();
   });
   afterEach(() => {
@@ -218,19 +226,19 @@ describe("Desktop daemon token synchronization", () => {
   });
 
   it("skips daemon quit work for a cancelled update quit and releases preservation after cancellation", () => {
-    const registrations = vi.mocked(app.on).mock.calls as unknown as [string, (event: { defaultPrevented: boolean }) => void][];
+    const registrations = vi.mocked(app.on).mock.calls as unknown as [string, (event: { defaultPrevented: boolean; preventDefault: () => void }) => void][];
     const quit = registrations.filter(([name]) => name === "before-quit").at(-1)![1];
     vi.mocked(readFile).mockClear();
-    quit({ defaultPrevented: true });
+    quit({ defaultPrevented: true, preventDefault: vi.fn() });
     expect(readFile).not.toHaveBeenCalled();
     const releasePreservation = preserveDaemonOnNextQuit();
     try {
-      quit({ defaultPrevented: false });
+      quit({ defaultPrevented: false, preventDefault: vi.fn() });
       expect(readFile).not.toHaveBeenCalled();
     } finally {
       releasePreservation();
     }
-    quit({ defaultPrevented: false });
+    quit({ defaultPrevented: false, preventDefault: vi.fn() });
     expect(readFile).toHaveBeenCalledWith("/test-home/.multica/desktop_prefs.json", "utf-8");
   });
 
