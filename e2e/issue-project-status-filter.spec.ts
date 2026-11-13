@@ -34,10 +34,10 @@ test.describe("Issue filter: project status", () => {
 
   test.beforeEach(async ({ page }) => {
     api = await createTestApi();
-    const activeProject = await api.createProject(`pstatus active ${suffix}`, {
+    const activeProject = await api.createProject(`Active project ${suffix}`, {
       status: "in_progress",
     });
-    const plannedProject = await api.createProject(`pstatus planned ${suffix}`, {
+    const plannedProject = await api.createProject(`Planned project ${suffix}`, {
       status: "planned",
     });
     plannedProjectId = plannedProject.id;
@@ -71,10 +71,10 @@ test.describe("Issue filter: project status", () => {
     // issue is out too: with no project there is no status to match.
     await expect.poll(() => visibleIssueTitles(page, all)).toEqual([activeIssue]);
 
-    // The chip reports the dimension, and removing it restores the list.
-    const chipsBar = page.getByRole("main");
-    await expect(chipsBar.getByText("Project status")).toBeVisible();
-    await chipsBar.getByRole("button", { name: /Remove .*filter/ }).first().click();
+    // The filter summary reports the dimension; Reset restores the list.
+    await page.getByRole("button", { name: "1 filter", exact: true }).hover();
+    await expect(page.getByText("Project status", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: "Reset", exact: true }).click();
     await expect
       .poll(() => visibleIssueTitles(page, all))
       .toEqual([...all].sort());

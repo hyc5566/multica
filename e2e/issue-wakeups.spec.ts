@@ -42,7 +42,9 @@ test("members see the child-done system rule and create a wakeup", async ({ page
       localStorage.setItem("multica:chat:isOpen", "false");
     }, api.getToken());
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(`/${workspace.slug}/issues/${parent.id}`, { waitUntil: "domcontentloaded" });
+    // Open the canonical URL so its UUID-to-identifier replacement cannot
+    // unmount an in-progress wakeup form.
+    await page.goto(`/${workspace.slug}/issues/${parent.identifier}`, { waitUntil: "domcontentloaded" });
 
     const systemRule = page.getByRole("button", { name: /When stage 1's sub-issues all finish/ });
     await expect(systemRule).toBeVisible({ timeout: 45_000 });
@@ -117,7 +119,7 @@ test("a member waits for a condition the platform checks", async ({ page }) => {
       localStorage.setItem("multica:chat:isOpen", "false");
     }, api.getToken());
     await page.setViewportSize({ width: 1440, height: 1000 });
-    await page.goto(`/${workspace.slug}/issues/${issue.id}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/${workspace.slug}/issues/${issue.identifier}`, { waitUntil: "domcontentloaded" });
 
     await page.getByRole("button", { name: "New wakeup" }).click({ timeout: 45_000 });
     const form = page.getByRole("form", { name: "New wakeup" });
@@ -153,7 +155,7 @@ test("a member waits for a condition the platform checks", async ({ page }) => {
     await expect(page.getByText("When this issue moves to In Review · woke Condition Grok")).toBeVisible({ timeout: 20_000 });
 
     await page.goto(`/${workspace.slug}/autopilots?tab=wakeups`, { waitUntil: "domcontentloaded" });
-    await page.getByRole("button", { name: /^All/ }).click();
+    await expect(page.getByRole("heading", { name: "Waiting or executing" })).toBeVisible();
     const row = page.getByRole("row", { name: /Review the upload design/ });
     await expect(row).toContainText("When this issue moves to In Review");
     await expect(row).toContainText("1");

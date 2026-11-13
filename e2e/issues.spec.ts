@@ -95,10 +95,7 @@ test.describe("Issues", () => {
     await expect(page.getByText(oldTitle)).toBeHidden({ timeout: 10000 });
     await expect(page.getByText(updatedTodayTitle)).toBeHidden({ timeout: 10000 });
 
-    await page.getByRole("button", { name: /1 filter/i }).click();
-    const dateFilterItem = page.getByRole("menuitem", { name: /^Date\b/ });
-    await dateFilterItem.focus();
-    await page.keyboard.press("ArrowRight");
+    // Date presets keep the submenu open so its field can be refined.
     const updatedDateField = page.getByRole("menuitemradio", { name: "Updated" });
     await expect(updatedDateField).toBeVisible();
     await updatedDateField.press("Enter");

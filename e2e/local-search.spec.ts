@@ -6,19 +6,17 @@ import { createTestApi, loginAsDefault, openAccountMenu } from "./helpers";
 // (MUL-7754): results match server search, follow writes made elsewhere, and
 // no server search request is sent while typing.
 
-const SEARCH_PLACEHOLDER = "Type a command or search...";
-
 function isSearchIndexChanges(res: Response): boolean {
   return res.url().includes("/api/search-index/changes") && res.ok();
 }
 
 async function openSearch(page: Page) {
   await page.keyboard.press("ControlOrMeta+k");
-  await expect(page.getByPlaceholder(SEARCH_PLACEHOLDER)).toBeVisible();
+  await expect(page.getByRole("combobox", { name: "Command bar", exact: true })).toBeVisible();
 }
 
 async function search(page: Page, query: string) {
-  const input = page.getByPlaceholder(SEARCH_PLACEHOLDER);
+  const input = page.getByRole("combobox", { name: "Command bar", exact: true });
   await input.fill("");
   await input.fill(query);
 }
