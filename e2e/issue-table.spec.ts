@@ -26,6 +26,7 @@ type TableGroupsResponse = {
 
 type TableRowsResponse = {
   total: number;
+  branch_total: number;
   next_cursor: string | null;
   rows: Array<{
     issue: { id: string; title: string; status: string };
@@ -42,31 +43,29 @@ function tableBody(request: Request): TableRequestBody {
 }
 
 async function switchToTable(page: Page) {
-  const currentView = page.getByRole("button", { name: "Board", exact: true });
-  await expect(currentView).toBeVisible();
-  await currentView.click();
-  const tableOption = page.getByRole("menuitemradio", {
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  const tableOption = page.getByRole("button", {
     name: "Table",
     exact: true,
   });
   await tableOption.click();
-  await expect(
-    page.getByRole("button", { name: "Table", exact: true }),
-  ).toBeVisible();
+  await expect(tableOption).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("Escape");
   await expect(tableOption).toBeHidden();
 }
 
 async function groupByStatus(page: Page) {
-  await page.getByRole("button", { name: "Group", exact: true }).click();
-  const statusOption = page.getByRole("menuitemradio", {
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  const grouping = page.getByRole("combobox", { name: "Grouping", exact: true });
+  await grouping.click();
+  const statusOption = page.getByRole("option", {
     name: "Status",
     exact: true,
   });
   await statusOption.click();
-  await expect(
-    page.getByRole("button", { name: "Group: Status", exact: true }),
-  ).toBeVisible();
+  await expect(grouping).toContainText("Status");
   await expect(statusOption).toBeHidden();
+  await page.keyboard.press("Escape");
 }
 
 test.describe("Issue Table server grouping", () => {
@@ -148,7 +147,8 @@ test.describe("Issue Table server grouping", () => {
       .filter({ hasText: "Backlog" })
       .first();
     await expect(backlogGroup).toContainText("501");
-    await expect(page.getByText(/Loaded \d+ of 1001/)).toBeVisible();
+    await expect.poll(() => page.getByRole("table").getByRole("row").count()).toBeGreaterThan(3);
+    expect(await page.getByRole("table").getByRole("row").count()).toBeLessThan(155);
     await expect(
       page.getByText(/Grouping and hierarchy are paused/),
     ).toHaveCount(0);
@@ -236,7 +236,9 @@ test.describe("Issue Table server grouping", () => {
       (await todoChildrenResponse.json()) as TableRowsResponse;
     const doneRoot = (await doneRootResponse.json()) as TableRowsResponse;
 
-    expect(todoRoot.total).toBe(3);
+    // Grouped branches omit the query-wide count; /groups owns exact totals.
+    expect(todoRoot.total).toBe(0);
+    expect(todoRoot.branch_total).toBe(1);
     expect(todoRoot.rows).toEqual([
       expect.objectContaining({
         issue: expect.objectContaining({ id: parent.id, title: parentTitle }),
@@ -280,6 +282,10 @@ test.describe("Issue Table server grouping", () => {
     const moved = seeds.at(-1);
     if (!moved) throw new Error("Cursor fixture was not created");
     await reloadAppPage(page);
+    await page.getByRole("button", { name: "Display", exact: true }).click();
+    await page.getByRole("combobox", { name: "Ordering", exact: true }).click();
+    await page.getByRole("option", { name: "Manual", exact: true }).click();
+    await page.keyboard.press("Escape");
 
     const firstHeadPromise = page.waitForResponse((response) => {
       if (apiPath(response.request()) !== "/api/issues/table/rows") return false;
@@ -304,8 +310,10 @@ test.describe("Issue Table server grouping", () => {
     await tableScroller.evaluate((element) => {
       element.scrollTop = element.scrollHeight;
     });
-    await firstTailPromise;
-    await expect(page.getByText("Loaded 60 of 60", { exact: true })).toBeVisible();
+    const firstTail = (await (await firstTailPromise).json()) as TableRowsResponse;
+    expect(firstTail.rows).toHaveLength(10);
+    expect(firstTail.next_cursor).toBeNull();
+    await expect(page.getByText(seeds[seeds.length - 1]!.title, { exact: true })).toBeVisible();
 
     const postUpdateResponses: Array<{
       body: TableRequestBody;
@@ -365,7 +373,7 @@ test.describe("Issue Table server grouping", () => {
     ].map((row) => row.issue.id);
     expect(new Set(refreshedIds).size).toBe(60);
     expect(refreshedIds).toContain(moved.id);
-    await expect(page.getByText("Loaded 60 of 60", { exact: true })).toBeVisible();
+    await expect(page.getByText(seeds[seeds.length - 2]!.title, { exact: true })).toBeVisible();
     page.off("response", collectResponse);
   });
 
