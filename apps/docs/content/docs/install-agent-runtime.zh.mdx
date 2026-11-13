@@ -8,14 +8,14 @@ import { Step, Steps } from "fumadocs-ui/components/steps";
 import { Tab, Tabs } from "fumadocs-ui/components/tabs";
 import { Accordion, Accordions } from "fumadocs-ui/components/accordion";
 
-本地runtime由兩部分組成：Multica daemon，和它能呼叫的一款 AI 開發工具。只裝你準備用的那一款就行，不必全部安裝。
+本機runtime由兩部分組成：Multica daemon，和它能呼叫的一款 AI 開發工具。只裝你準備用的那一款就行，不必全部安裝。
 
 <Steps>
 <Step>
 
 ## 選擇一款工具 [#1-選擇一款工具]
 
-已經安裝並登入的工具不需要額外設定。各工具在模型、MCP、會話恢復和 skill 支援上有差異，見 [AI 開發工具對照](/providers)。
+已經安裝並登入的工具不需要額外設定。各工具在模型、MCP、工作階段恢復和 skill 支援上有差異，見 [AI 開發工具對照](/providers)。
 
 Multica 目前會偵測下列命令：
 
@@ -60,13 +60,13 @@ Multica 目前會偵測下列命令：
 
 ## 在本機完成登入 [#2-在本機完成登入]
 
-安裝後，先在終端機裡單獨啟動一次工具，按它自己的流程登入或設定模型服務。工具在終端機中完成不了請求，daemon呼叫它也會失敗。
+安裝後，先在終端機裡單獨啟動一次工具，按它自己的流程登入或設定模型服務。工具在終端機中完成不了請求，daemon 呼叫它也會失敗。
 
 如果安裝的是 DeepSeek Harness Desktop，而非 npm 套件，常駐程式也會尋找該 App 產生的 CLI shim。它位於 App 的使用者資料目錄：macOS 為 `~/Library/Application Support/DSH Desktop`，Windows 為 `%APPDATA%\DSH Desktop`。Windows 的這個路徑是漫遊應用程式資料目錄，不是安裝目錄：App 本身安裝在 Program Files 或 `%LOCALAPPDATA%\Programs`，而它使用的 CLI 與其他使用者狀態則放在同一處。路徑中的版本目錄名稱是自動產生的 ID，因此常駐程式會列舉目錄並優先使用最新的一份。不必另外將路徑加入 `PATH`，因為產生的 shim 會使用絕對路徑呼叫 App 隨附的執行環境。如果 DSH Desktop 安裝在非預設位置，請用 `MULTICA_DSH_PATH` 指向 shim。常駐程式只有在 `dsh --profile multica --probe` 成功後，才會註冊 DeepSeek Harness；若失敗，則會在 `/health` 回報缺少 profile。啟動常駐程式前，請設定 `DEEPSEEK_API_KEY`（或在 dsh 自身的設定中儲存）。
 
 各工具會在本機儲存登入憑證。Multica 不會取得 Claude、Codex、Cursor 或其他 CLI 的登入權杖。
 
-低於最低版本時，daemon不會註冊對應runtime：
+低於最低版本時，daemon 不會註冊對應runtime：
 
 | 工具 | 最低版本 |
 | --- | --- |
@@ -90,50 +90,50 @@ Multica 目前會偵測下列命令：
 <Accordions type="multiple">
 <Accordion title="Amp" id="amp">
 
-在守護程序所在機器按[官方說明](https://ampcode.com/docs/cli)安裝最新版 Amp CLI。Amp 支援 macOS、Linux 和 Windows 下的 WSL；Windows 使用者需在 WSL 中執行守護程序。按官方非互動執行說明，在守護程序或智慧體環境中設定訪問令牌 `AMP_API_KEY`。本介面卡不支援互動登入，僅儲存登入會話不足以啟動任務；不要把憑據寫入提示詞或自定義引數。
+在 daemon 所在機器按[官方說明](https://ampcode.com/docs/cli)安裝最新版 Amp CLI。Amp 支援 macOS、Linux 和 Windows 下的 WSL；Windows 使用者需在 WSL 中執行 daemon。按官方非互動執行說明，在 daemon 或 Agent 環境中設定存取權杖 `AMP_API_KEY`。本介接器不支援互動登入，僅儲存登入工作階段不足以啟動任務；不要把憑據寫入提示詞或自訂參數。
 
-發現執行時後，建立智慧體時選擇 Amp，再指派任務。`MULTICA_AMP_PATH` 可覆蓋可執行檔案路徑。模型欄位留空沿用 Amp 預設值，也可填寫 `high` 等 Amp **模式**；`MULTICA_AMP_MODEL` 設定守護程序預設模式，底層模型由 Amp 管理。`MULTICA_AMP_ARGS` 和智慧體自定義引數支援 `--settings-file`、`--features`、`--fast`、`--plugin-ready-timeout <秒数>`、`--timings`、`--visibility`、`--label` 和 `--no-archive-after-execute`。
+發現 runtime 後，建立 Agent 時選擇 Amp，再指派任務。`MULTICA_AMP_PATH` 可覆蓋可執行檔案路徑。模型欄位留空沿用 Amp 預設值，也可填寫 `high` 等 Amp **模式**；`MULTICA_AMP_MODEL` 設定 daemon 預設模式，底層模型由 Amp 管理。`MULTICA_AMP_ARGS` 和 Agent 自訂參數支援 `--settings-file`、`--features`、`--fast`、`--plugin-ready-timeout <秒数>`、`--timings`、`--visibility`、`--label` 和 `--no-archive-after-execute`。
 
-Multica 使用 `amp --execute --stream-json --executor local`，透過標準輸入傳入提示詞，僅使用已儲存的執行緒 ID 繼續會話。Amp 讀取 `AGENTS.md`，從 `.agents/skills/` 發現專案技能。MCP 需在 Amp 中設定；暫不支援 Multica 託管 MCP、執行中追加訊息、`max_turns`、orb 或遠端 runner，執行時長使用任務超時限制。協議、模式和執行位置覆蓋項會被過濾，額外提示詞、子命令和未驗證選項會在啟動前報錯。
+Multica 使用 `amp --execute --stream-json --executor local`，透過標準輸入傳入提示詞，僅使用已儲存的執行緒 ID 繼續工作階段。Amp 讀取 `AGENTS.md`，從 `.agents/skills/` 發現專案技能。MCP 需在 Amp 中設定；暫不支援 Multica 託管 MCP、執行中追加訊息、`max_turns`、orb 或遠端 runner，執行時間使用任務逾時限制。協議、模式和執行位置覆蓋項會被過濾，額外提示詞、子命令和未驗證選項會在啟動前報錯。
 
-未安裝、缺少 `AMP_API_KEY` 或啟動異常會立即報錯；認證失敗時更新執行環境中的訪問令牌。只有成功的終結 `result` 才會釋出最終答覆，正常退出或 assistant 的 `end_turn` 均不足以判定成功。收到終結結果後，Amp 有最多十秒完成清理；之後若由 Multica 終止程序，仍保留最終答覆並記錄警告，寬限期內觀測到的原生非零退出仍判為失敗。Amp 返回的許可權拒絕資訊會顯示為執行記錄中的警告；若無人值守任務中的已授權命令被拒絕，請檢查執行機器上 Amp 設定中的 `amp.permissions`。取消和超時會終止所屬本地程序樹，並保留已觀測的執行緒 ID。[Amp 後臺子智慧體](https://ampcode.com/docs/cli/streaming-json)可能在 CLI 退出後繼續執行，本介面卡無法遠端取消它們。需要嚴格取消時避免非同步子智慧體，並透過儲存的 Amp 執行緒檢查剩餘工作。
+未安裝、缺少 `AMP_API_KEY` 或啟動異常會立即報錯；認證失敗時更新執行環境中的存取權杖。只有成功的終結 `result` 才會釋出最終答覆，正常退出或 assistant 的 `end_turn` 均不足以判定成功。收到終結結果後，Amp 有最多十秒完成清理；之後若由 Multica 終止程序，仍保留最終答覆並記錄警告，寬限期內觀測到的原生非零退出仍判為失敗。Amp 返回的權限拒絕資訊會顯示為執行記錄中的警告；若無人值守任務中的已授權命令被拒絕，請檢查執行機器上 Amp 設定中的 `amp.permissions`。取消和逾時會終止所屬本機程序樹，並保留已觀測的執行緒 ID。[Amp 背景子 Agent](https://ampcode.com/docs/cli/streaming-json)可能在 CLI 退出後繼續執行，本介接器無法遠端取消它們。需要嚴格取消時避免非同步子 Agent，並透過儲存的 Amp 執行緒檢查剩餘工作。
 
 </Accordion>
 <Accordion title="Factory Droid" id="droid">
 
-按[官方說明](https://docs.factory.com/droid-exec/overview)安裝原生 Droid CLI，版本需為 1.8.0 或更新。支援 macOS、Windows 和使用 glibc 的 Linux，不支援 Alpine。執行 `droid` 登入，或在守護程序環境、智慧體的自定義環境中設定 `FACTORY_API_KEY`，不要把憑據寫進提示詞或自定義引數。
+按[官方說明](https://docs.factory.com/droid-exec/overview)安裝原生 Droid CLI，版本需為 1.8.0 或更新。支援 macOS、Windows 和使用 glibc 的 Linux，不支援 Alpine。執行 `droid` 登入，或在 daemon 環境、Agent 的自訂環境中設定 `FACTORY_API_KEY`，不要把憑據寫進提示詞或自訂參數。
 
-守護程序發現 `droid` 後，建立智慧體時選擇 Droid 執行時，再指派一個任務。執行過程顯示文字和工具輸出，完成後回傳最終結果。模型預設沿用 Droid 設定，也可在 Multica 手動填寫模型 ID。守護程序支援 `MULTICA_DROID_PATH`、`MULTICA_DROID_MODEL`、`MULTICA_DROID_ARGS`；推理強度可透過自定義引數 `--reasoning-effort high` 設定。
+daemon 發現 `droid` 後，建立 Agent 時選擇 Droid runtime，再指派一個任務。執行過程顯示文字和工具輸出，完成後回傳最終結果。模型預設沿用 Droid 設定，也可在 Multica 手動填寫模型 ID。daemon 支援 `MULTICA_DROID_PATH`、`MULTICA_DROID_MODEL`、`MULTICA_DROID_ARGS`；推理強度可透過自訂參數 `--reasoning-effort high` 設定。
 
-任務使用 `droid exec --output-format stream-json --auto high`，讀取 `AGENTS.md`，從 `.factory/skills/` 發現 skill。後續執行會在同一工作目錄傳入會話 ID。若繼續會話失敗，且 Droid 尚未確認會話或呼叫工具，Multica 可嘗試一次新會話；認證和網路錯誤會保留原會話，不會重試。
+任務使用 `droid exec --output-format stream-json --auto high`，讀取 `AGENTS.md`，從 `.factory/skills/` 發現 skill。後續執行會在同一工作目錄傳入工作階段 ID。若繼續工作階段失敗，且 Droid 尚未確認工作階段或呼叫工具，Multica 可嘗試一次新工作階段；認證和網路錯誤會保留原工作階段，不會重試。
 
-自定義引數還支援 Droid 的工具過濾、規劃模式設定、`--settings`、會話標籤和 `--disable-builtin-skills`。MCP、hooks、plugins、自定義 Droid 和 BYOK 模型需在 Droid 中設定，Multica 不管理這些設定。暫不支援 Mission 編排、執行中追加訊息或 `max_turns`；執行時長使用任務超時限制。自定義引數中的協議、工作目錄、模型、會話和 Mission 覆蓋項會被過濾；未知選項和額外的位置提示詞會在啟動前報錯。使用的 `stream-json` 輸出仍受支援，不涉及已棄用的 `stream-json` 輸入模式。
+自訂參數還支援 Droid 的工具過濾、規劃模式設定、`--settings`、工作階段標籤和 `--disable-builtin-skills`。MCP、hooks、plugins、自訂 Droid 和 BYOK 模型需在 Droid 中設定，Multica 不管理這些設定。暫不支援 Mission 編排、執行中追加訊息或 `max_turns`；執行時間使用任務逾時限制。自訂參數中的協議、工作目錄、模型、工作階段和 Mission 覆蓋項會被過濾；未知選項和額外的位置提示詞會在啟動前報錯。使用的 `stream-json` 輸出仍受支援，不涉及已棄用的 `stream-json` 輸入模式。
 
-使用 `--auto high` 時，Droid 的命令策略仍可能拒絕執行；失敗前已完成的檔案修改會保留。指派無人值守任務前，可按[官方許可權規則文件](https://docs.factory.com/autonomy-and-safety/permission-rules)檢查執行機器上的策略。
+使用 `--auto high` 時，Droid 的命令策略仍可能拒絕執行；失敗前已完成的檔案修改會保留。指派無人值守任務前，可按[官方權限規則文件](https://docs.factory.com/autonomy-and-safety/permission-rules)檢查執行機器上的策略。
 
-未發現執行時時，在守護程序所在機器安裝 Droid，或用 `MULTICA_DROID_PATH` 指向原生可執行檔案。認證失敗時重新登入或更新執行環境中的 API key。許可權、服務和協議錯誤會顯示為失敗；取消和超時會終止所屬程序樹並回傳對應狀態。沒有完成事件的正常退出也會判為失敗，中間說明文字不會作為最終結果釋出。
+找不到 runtime 時，在 daemon 所在機器安裝 Droid，或用 `MULTICA_DROID_PATH` 指向原生可執行檔案。認證失敗時重新登入或更新執行環境中的 API key。權限、服務和協議錯誤會顯示為失敗；取消和逾時會終止所屬程序樹並回傳對應狀態。沒有完成事件的正常退出也會判為失敗，中間說明文字不會作為最終結果釋出。
 
 </Accordion>
 <Accordion title="CodeArts" id="codearts">
 
-用 `codearts run --model provider/model "只回复 OK"` 驗證非互動模式，只驗證 TUI 不夠。目前 CodeArts CLI 可能允許自定義 provider 在 TUI 中工作，但 `run`、`models` 和 `serve` 仍要求設定 [`CODEARTS_CLI_AK` / `CODEARTS_CLI_SK`](https://support.huaweicloud.com/usermanual-cli/codeartsagent_cli_0026.html)。Multica 可以從 `~/.codeartsdoer/codearts_cli.json` 或 `.jsonc` 發現自定義模型，但每次執行都使用 `codearts run`，因此仍遵循該命令的授權要求。
+用 `codearts run --model provider/model "只回复 OK"` 驗證非互動模式，只驗證 TUI 不夠。目前 CodeArts CLI 可能允許自訂 provider 在 TUI 中工作，但 `run`、`models` 和 `serve` 仍要求設定 [`CODEARTS_CLI_AK` / `CODEARTS_CLI_SK`](https://support.huaweicloud.com/usermanual-cli/codeartsagent_cli_0026.html)。Multica 可以從 `~/.codeartsdoer/codearts_cli.json` 或 `.jsonc` 發現自訂模型，但每次執行都使用 `codearts run`，因此仍遵循該命令的授權要求。
 
 </Accordion>
 <Accordion title="DeepSeek Harness" id="deepseek-harness">
 
-先安裝 Node.js 20+ 並執行 `npm install -g @deepseek-ai/dsh`，再為它安裝 Multica runtime profile。這個 bundle 實現了 Multica 驅動的 `--stdio` 協議，單獨的 `dsh` 因此無法直接使用。啟動daemon前，設定 `DEEPSEEK_API_KEY`（或儲存在 dsh 自身的設定中）。
+先安裝 Node.js 20+ 並執行 `npm install -g @deepseek-ai/dsh`，再為它安裝 Multica runtime profile。這個 bundle 實現了 Multica 驅動的 `--stdio` 協議，單獨的 `dsh` 因此無法直接使用。啟動 daemon 前，設定 `DEEPSEEK_API_KEY`（或儲存在 dsh 自身的設定中）。
 
-**安裝 profile。** 把 `MULTICA_DSH_PROFILE_BUNDLE` 設為要安裝的 bundle，daemon會替你安裝；也可以自己執行 `dsh plugin --profile multica add <bundle>`。`<bundle>` 可以是 `dsh plugin` 接受的任意形式：npm 包名、目錄，或打包好的 tarball。Multica 自己的橋接實現在 [multica-ai/dsh-multica-runtime](https://github.com/multica-ai/dsh-multica-runtime)，目前還沒有釋出到公共 npm registry（[multica#6936](https://github.com/multica-ai/multica/issues/6936)）。現階段自託管團隊從該儲存庫自行構建，把變數指向構建產物目錄；執行daemon的機器和構建機器不是同一臺時，指向 `npm pack` 產出的 tarball。橋接釋出之後，直接填包名最省事。
+**安裝 profile。** 把 `MULTICA_DSH_PROFILE_BUNDLE` 設為要安裝的 bundle，daemon 會替你安裝；也可以自己執行 `dsh plugin --profile multica add <bundle>`。`<bundle>` 可以是 `dsh plugin` 接受的任意形式：npm 包名、目錄，或打包好的 tarball。Multica 自己的橋接實現在 [multica-ai/dsh-multica-runtime](https://github.com/multica-ai/dsh-multica-runtime)，目前還沒有釋出到公共 npm registry（[multica#6936](https://github.com/multica-ai/multica/issues/6936)）。現階段自託管團隊從該儲存庫自行構建，把變數指向構建產物目錄；執行 daemon 的機器和構建機器不是同一臺時，指向 `npm pack` 產出的 tarball。橋接釋出之後，直接填包名最省事。
 
 **遷移現有 profile。** 先備份 profile，按橋接儲存庫 README 構建與你的 DSH 版本相容的 bundle。手動安裝這個目錄或 tarball，再確認 `dsh.profile.bundles` 載入了 `@multica-ai/dsh-runtime`：有 `dsh-profile-multica` 時替換它；兩者都有時移除 `dsh-profile-multica`。只在依賴列表宣告包名不會載入runtime。`MULTICA_DSH_PROFILE_BUNDLE` 不會遷移現有橋接設定。完成後用 `dsh --profile multica --probe` 驗證。
 
 <Callout type="warning">
-優先使用你們自己釋出或構建的產物。這個值會在沒有二次確認的情況下裝進每一臺daemon宿主的 DSH 家目錄，填一個未經審查的第三方包，就是做了一次供應鏈決策。
+優先使用你們自己釋出或構建的產物。這個值會在沒有二次確認的情況下裝進每一臺 daemon 宿主的 DSH 家目錄，填一個未經審查的第三方包，就是做了一次供應鏈決策。
 </Callout>
 
-**DSH Desktop。** 裝的是 DeepSeek Harness Desktop 而不是 npm 包時，daemon也會去找這個應用生成的 CLI shim，位置在它自己的使用者級資料目錄下：macOS 是 `~/Library/Application Support/DSH Desktop`，Windows 是 `%APPDATA%\DSH Desktop`。Windows 上這是漫遊應用資料目錄，不是安裝目錄：應用本身裝在 Program Files 或 `%LOCALAPPDATA%\Programs`，它驅動的 CLI 則和其他使用者級狀態放在一起。這些路徑裡的版本層是生成的 id，daemon會逐個列舉，優先取最新的一份。PATH 上不需要別的東西，生成的 shim 會用絕對路徑呼叫應用自帶的runtime。DSH Desktop 裝在非預設位置時，用 `MULTICA_DSH_PATH` 指向那個 shim。
+**DSH Desktop。** 裝的是 DeepSeek Harness Desktop 而不是 npm 包時，daemon 也會去找這個應用生成的 CLI shim，位置在它自己的使用者級資料目錄下：macOS 是 `~/Library/Application Support/DSH Desktop`，Windows 是 `%APPDATA%\DSH Desktop`。Windows 上這是漫遊應用資料目錄，不是安裝目錄：應用本身裝在 Program Files 或 `%LOCALAPPDATA%\Programs`，它驅動的 CLI 則和其他使用者級狀態放在一起。這些路徑裡的版本層是生成的 id，daemon 會逐個列舉，優先取最新的一份。PATH 上不需要別的東西，生成的 shim 會用絕對路徑呼叫應用自帶的runtime。DSH Desktop 裝在非預設位置時，用 `MULTICA_DSH_PATH` 指向那個 shim。
 
-daemon只有在 `dsh --profile multica --probe` 成功後才註冊 DeepSeek Harness；失敗時會在 `/health` 報告缺少 profile。
+daemon 只有在 `dsh --profile multica --probe` 成功後才註冊 DeepSeek Harness；失敗時會在 `/health` 報告缺少 profile。
 
 </Accordion>
 <Accordion title="MiniMax Code" id="minimax-code">
@@ -143,7 +143,7 @@ daemon只有在 `dsh --profile multica --probe` 成功後才註冊 DeepSeek Harn
 </Accordion>
 <Accordion title="Muse Code" id="muse-code">
 
-Muse Code 需要 1.4.10 或更高版本。按[官方安裝和登入指南](https://dev.meta.ai/docs/muse-code)操作，並確認 `muse` 已加入 `PATH`。Multica 透過 MSP 獲取模型列表，支援繼續已有會話。
+Muse Code 需要 1.4.10 或更高版本。按[官方安裝和登入指南](https://dev.meta.ai/docs/muse-code)操作，並確認 `muse` 已加入 `PATH`。Multica 透過 MSP 獲取模型列表，支援繼續已有工作階段。
 
 </Accordion>
 <Accordion title="QwenPaw" id="qwenpaw">
@@ -153,7 +153,7 @@ Muse Code 需要 1.4.10 或更高版本。按[官方安裝和登入指南](https
 </Accordion>
 <Accordion title="Reasonix" id="reasonix">
 
-先執行 `reasonix setup`，設定預設的模型服務和模型，再啟動daemon。
+先執行 `reasonix setup`，設定預設的模型服務和模型，再啟動 daemon。
 
 </Accordion>
 </Accordions>
@@ -161,7 +161,7 @@ Muse Code 需要 1.4.10 或更高版本。按[官方安裝和登入指南](https
 </Step>
 <Step>
 
-## 確認daemon能夠找到命令 [#3-確認daemon能夠找到命令]
+## 確認 daemon 能夠找到命令 [#3-確認 daemon 能夠找到命令]
 
 把 `<command>` 換成表格中的命令，例如 `claude`、`codex` 或 `cursor-agent`。第一條命令返回可執行檔案路徑。
 
@@ -188,7 +188,7 @@ Get-Command <command>
 </Tab>
 </Tabs>
 
-終端機能找到工具，Desktop 或後臺daemon卻找不到，通常是兩者用的 `PATH` 不同。可以重啟應用，或透過對應的 `MULTICA_<PROVIDER>_PATH` 環境變數指定絕對路徑；完整設定見[環境變數](/environment-variables#daemon配置)。
+終端機能找到工具，Desktop 或背景 daemon 卻找不到，通常是兩者用的 `PATH` 不同。可以重啟應用，或透過對應的 `MULTICA_<PROVIDER>_PATH` 環境變數指定絕對路徑；完整設定見[環境變數](/environment-variables#daemon配置)。
 
 </Step>
 <Step>
@@ -198,13 +198,13 @@ Get-Command <command>
 <Tabs items={["CLI", "Desktop"]}>
 <Tab value="CLI">
 
-啟動daemon：
+啟動 daemon：
 
 ```bash
 multica daemon start
 ```
 
-daemon已經在runtime，安裝新工具後重新啟動：
+daemon 已經在runtime，安裝新工具後重新啟動：
 
 ```bash
 multica daemon restart
@@ -218,10 +218,10 @@ multica daemon restart
 </Tab>
 </Tabs>
 
-然後開啟 Multica 的**runtime**頁面，目標電腦下面會出現對應工具，並顯示為線上。之後建立或編輯Agent時，就可以選這條runtime。
+然後開啟 Multica 的**runtime**頁面，目標電腦下面會出現對應工具，並顯示為線上。之後建立或編輯 Agent 時，就可以選這條runtime。
 
 <Callout type="warning">
-daemon啟動時必須先檢測到至少一款內建支援的 CLI。自定義runtime設定在daemon啟動後才同步，所以在一臺空白機器上不能只靠它啟動。只有一個例外：daemon剛開始自行安裝 DSH runtime profile（`MULTICA_DSH_PROFILE_BUNDLE`）時，會在沒有任何runtime的情況下啟動，安裝完成後再註冊 DeepSeek Harness。否則，一臺只裝了需要該 profile 的 DSH 的機器永遠裝不完：daemon會在安裝結束前退出，把安裝程式一起帶走。
+daemon 啟動時必須先檢測到至少一款內建支援的 CLI。自訂runtime設定在 daemon 啟動後才同步，所以在一臺空白機器上不能只靠它啟動。只有一個例外：daemon 剛開始自行安裝 DSH runtime profile（`MULTICA_DSH_PROFILE_BUNDLE`）時，會在沒有任何runtime的情況下啟動，安裝完成後再註冊 DeepSeek Harness。否則，一臺只裝了需要該 profile 的 DSH 的機器永遠裝不完：daemon 會在安裝結束前退出，把安裝程式一起帶走。
 </Callout>
 
 </Step>
@@ -237,12 +237,12 @@ daemon啟動時必須先檢測到至少一款內建支援的 CLI。自定義runt
 4. 重新啟動常駐程式，讓它重新讀取目前環境。
 5. 回到**執行環境**頁面，確認電腦和工具都線上。
 
-工具顯示線上、執行卻仍然失敗時，開啟任務的執行記錄檢視 CLI 返回的具體錯誤，或繼續看[故障排查](/troubleshooting)。
+工具顯示線上、執行卻仍然失敗時，開啟任務的執行記錄檢視 CLI 返回的具體錯誤，或繼續看[故障排除](/troubleshooting)。
 
 ## 接下來
 
-- [建立和設定Agent](/agents-create) — 選擇剛剛連線的runtime。
-- [daemon與runtime](/daemon-runtimes) — 瞭解線上狀態、併發和自定義runtime。
+- [建立和設定 Agent](/agents-create) — 選擇剛剛連線的runtime。
+- [daemon 與runtime](/daemon-runtimes) — 瞭解線上狀態、併發和自訂runtime。
 - [AI 開發工具對照](/providers) — 比較各工具在 Multica 中的能力。
 
-ZCode Desktop 的 macOS 應用包可被自動發現，需要同時安裝 Node.js。Linux 下，守護程序透過 PATH 中的 `zcode` 或 `/opt/ZCode/zcode` 自動發現 ZCode Desktop，在後臺執行內建 CLI，不開啟桌面視窗，無需額外安裝 Node.js 或手動設定環境變數。請在桌面端啟用可用的 API 連線。模型與思考強度由 ZCode 原生目錄提供。詳見[執行時對照](/providers#zcode)。
+ZCode Desktop 的 macOS 應用包可被自動發現，需要同時安裝 Node.js。Linux 下，daemon 透過 PATH 中的 `zcode` 或 `/opt/ZCode/zcode` 自動發現 ZCode Desktop，在背景執行內建 CLI，不開啟桌面視窗，無需額外安裝 Node.js 或手動設定環境變數。請在桌面版啟用可用的 API 連線。模型與思考強度由 ZCode 原生目錄提供。詳見[runtime 對照](/providers#zcode)。

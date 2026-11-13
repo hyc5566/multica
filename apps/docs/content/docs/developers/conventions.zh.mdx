@@ -89,7 +89,7 @@ Web 和 Desktop 都有的邏輯，**必須**抽到共用套件。"少量重複"�
 - 在機器分組內：機器標題用 `machine.title`，子行用 `runtimeRowLabel(runtime, machine.title)`。
 - runtime 選擇器用 `buildRuntimeMachines` 按機器分組，不要自己拼扁平的原始名列表。
 
-原始 `runtime.name` 只允許用於內部識別——hostname 解析、分組、搜尋 haystack、協議 payload——絕不能進入 JSX 文字、i18n 引數、`<Select>` label 或視窗標題。
+原始 `runtime.name` 只允許用於內部識別——hostname 解析、分組、搜尋 haystack、協議 payload——絕不能進入 JSX 文字、i18n 參數、`<Select>` label 或視窗標題。
 
 ### Issue 編號
 
@@ -125,7 +125,7 @@ Multica 的產品名詞分兩類：
 | 實體 | en | zh-Hans | ja | ko | fr | es |
 | --- | --- | --- | --- | --- | --- | --- |
 | 提交出來的一件事（`issue`） | Issue | **任務** | **タスク** | **태스크** | **Tâche** | **Tarea** |
-| Agent的一次執行記錄（API / DB 中為 `task`） | **Run** | **執行** | **実行** | **실행** | **Exécution** | **Ejecución** |
+| Agent 的一次執行記錄（API / DB 中為 `task`） | **Run** | **執行** | **実行** | **실행** | **Exécution** | **Ejecución** |
 
 這兩個概念使用者都看得到，而且**不是一回事** —— 一個任務下面可以有多次執行。任何一種語言都不能把兩者寫成同一個詞。`Task` 不再是 Agent 單次執行的使用者側產品名，只保留為已經穩定的內部識別字。
 
@@ -162,7 +162,7 @@ Multica 的產品名詞分兩類：
 | Settings | **設定** |
 | Onboarding | **上手引導** |
 
-Agent 在簡體中文（`zh-Hans`）中譯為**Agent**，在繁體中文（`zh-Hant`）中譯為 **Agent**。AI 與相鄰中文之間保留一個空格，例如**新建 Agent**。原文已有 AI 時只保留一次，例如**讓 Agent幫我寫程式碼**。
+Agent 在簡體中文（`zh-Hans`）中譯為**Agent**，在繁體中文（`zh-Hant`）中譯為 **Agent**。AI 與相鄰中文之間保留一個空格，例如**新建 Agent**。原文已有 AI 時只保留一次，例如**讓 Agent 幫我寫程式碼**。
 
 ### 不翻 —— 品牌名 + 通用縮寫
 
@@ -171,9 +171,9 @@ Agent 在簡體中文（`zh-Hans`）中譯為**Agent**，在繁體中文（`zh-H
 | 品牌 | **Multica**、GitHub、Slack、Google、Anthropic、OpenAI、Claude、Codex、Cursor、Linear、Jira、Qoder、Qoder Cloud Agents |
 | 縮寫 | API、CLI、URL、SDK、OAuth、JWT、SSO、WebSocket、HTTP、JSON、YAML、SQL |
 
-使用者可見文案明確提及該產品時，使用 **Qoder Cloud Agents**。入口及可脫離頁面展示的提示應能獨立識別服務。上下文已明確服務時，欄位可用**遠端Agent**等通用名稱，與 Multica Agent區分。品牌拼寫保持一致，周邊文案按各語言自然表達。內部識別符號和外部技術名稱保持原樣，包括 **QCA Assistant**。
+使用者可見文案明確提及該產品時，使用 **Qoder Cloud Agents**。入口及可脫離頁面展示的提示應能獨立識別服務。上下文已明確服務時，欄位可用**遠端 Agent**等通用名稱，與 Multica Agent 區分。品牌拼寫保持一致，周邊文案按各語言自然表達。內部識別符號和外部技術名稱保持原樣，包括 **QCA Assistant**。
 
-首次說明憑據時寫 **Qoder 個人訪問令牌（PAT）**，後文統一為 **Qoder PAT**，並與 GitHub 儲存庫令牌區分。
+首次說明憑據時寫 **Qoder 個人存取權杖（PAT）**，後文統一為 **Qoder PAT**，並與 GitHub 儲存庫權杖區分。
 
 ### 完整翻譯 —— 通用 UI 詞
 
@@ -214,7 +214,7 @@ Agent 在簡體中文（`zh-Hans`）中譯為**Agent**，在繁體中文（`zh-H
 
 UI 裡顯示這些值時保持英文（必要時用 code-style 包起來）：
 
-- "你需要 owner 許可權"
+- "你需要 owner 權限"
 - "已切換到 in_progress"
 
 ### 片語組合規則
@@ -318,7 +318,7 @@ description 預設省略。新增前先問：**沒有這句話，使用者會誤
 
 - 同一事實只說一次，放在最相關的控制項旁，不在頁頭、分組、欄位、空狀態和對話方塊中反覆解釋。
 - 優先用準確的標籤或具體示例，避免用一段話講解顯然的操作。除非能消除實際歧義，不寫"建立一個開始使用""點選下方""之後可以修改"等通用提示。
-- 許可權、費用、不可撤銷後果、執行前提、輸入限制和錯誤恢復資訊應在相關狀態下直接可見，不藏進只能懸停檢視的說明中。
+- 權限、費用、不可撤銷後果、執行前提、輸入限制和錯誤恢復資訊應在相關狀態下直接可見，不藏進只能游標停留檢視的說明中。
 - 首次使用說明只在需要的位置展示；進階用法與診斷細節放入可明確開啟、支援鍵盤操作的說明中。
 - 保留輸入標籤、無障礙名稱和必要的描述關聯。不要把刪掉的重複的可見文案全部轉成螢幕閱讀器專用文字。
 - 同時檢查英文、各語言翻譯和行動版獨立文案。PR 評審檢查新增資訊、同一畫面上的重複資訊、顯示條件和保留的約束；字數只是複查訊號，不是自動刪除標準。

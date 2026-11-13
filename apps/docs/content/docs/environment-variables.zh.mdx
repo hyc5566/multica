@@ -38,7 +38,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 | `DATABASE_REPLICA_URL` | 空 | 可選的 PostgreSQL 唯讀複本資料庫連線位址；新連線會強制驗證唯讀狀態，業務仍需在程式碼中明確選擇最終一致性的讀取 |
 | `DATABASE_REPLICA_MAX_CONNS` | `10` | 單一 API 程式的最大複本資料庫連線數 |
 | `DATABASE_REPLICA_MIN_CONNS` | `0` | 單一 API 程式保留的最小複本資料庫連線數 |
-| `MULTICA_DATABASE_STARTUP_TIMEOUT` | `3m` | 容器啟動過程中，migration 與 API 共用的暫時性資料庫故障重試時長；設為 `0` 時每個階段只嘗試一次 |
+| `MULTICA_DATABASE_STARTUP_TIMEOUT` | `3m` | 容器啟動過程中，migration 與 API 共用的暫時性資料庫故障重試時間長度；設為 `0` 時每個階段只嘗試一次 |
 | `MULTICA_DATABASE_CONNECT_TIMEOUT` | `5s` | 啟動期間單次資料庫連線的備援逾時；pgx 原生 `connect_timeout`、`PGCONNECT_TIMEOUT` 或 service 設定優先 |
 | `PORT` | `8080` | API 監聽連線埠 |
 | `JWT_SECRET` | 正式環境必填 | 登入 JWT、部分簽章流程使用的金鑰；正式環境對空值或已知預留值拒絕啟動 |
@@ -68,7 +68,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 `MULTICA_DAEMON_SERVER_URL` 會由無需認證的 `/api/config` 介面回傳，使用者端可以讀取。請將它視為公開設定，切勿填入憑證、權杖或其他金鑰。
 </Callout>
 
-前端和 API 使用不同 host、且瀏覽器直接訪問 API 域時，必須設定 `COOKIE_DOMAIN`，否則瀏覽器讀不到 CSRF cookie——所有寫請求返回 `403 CSRF validation failed`，而讀請求一切正常。取值用能同時覆蓋兩個 host 的最窄父域（`.agent.example.com` 優於 `.example.com`）。它會把登入會話 cookie 擴散到該域下的所有 host，只有這些 host 都由同一可信主體運維時才可用。修改後需要在兩個 host 上清除舊 cookie 並重新登入。若採用[自託管快速上手](/self-host-quickstart#remote-access)的同源配方（瀏覽器只訪問 app 域），保持為空即可。不要填寫 IP 地址，瀏覽器會忽略帶 IP Domain 的 cookie。
+前端和 API 使用不同 host、且瀏覽器直接訪問 API 域時，必須設定 `COOKIE_DOMAIN`，否則瀏覽器讀不到 CSRF cookie——所有寫請求返回 `403 CSRF validation failed`，而讀請求一切正常。取值用能同時覆蓋兩個 host 的最窄父域（`.agent.example.com` 優於 `.example.com`）。它會把登入工作階段 cookie 擴散到該域下的所有 host，只有這些 host 都由同一可信主體運維時才可用。修改後需要在兩個 host 上清除舊 cookie 並重新登入。若採用[自託管快速上手](/self-host-quickstart#remote-access)的同源配方（瀏覽器只訪問 app 域），保持為空即可。不要填寫 IP 地址，瀏覽器會忽略帶 IP Domain 的 cookie。
 
 <Callout type="warning">
 自行託管部署需要設定 `FRONTEND_ORIGIN`。缺少它時，邀請連結、cookie 安全屬性和 WebSocket origin 驗證都可能與實際網域名稱不一致。
@@ -114,7 +114,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 | `ALLOWED_EMAILS` | 空 | 允許註冊的完整郵箱，逗號分隔 |
 | `ALLOWED_EMAIL_DOMAINS` | 空 | 允許註冊的郵箱域名，逗號分隔 |
 | `DISABLE_WORKSPACE_CREATION` | `false` | 禁止所有使用者新建工作區；沒有 owner/admin 例外 |
-| `WORKSPACE_CREATION_ALLOWED_EMAILS` | 空 | 允許新建工作區的完整郵箱地址，逗號分隔。設定後其他使用者新建會返回 403。`DISABLE_WORKSPACE_CREATION=true` 優先。不授予訪問其他工作區的許可權 |
+| `WORKSPACE_CREATION_ALLOWED_EMAILS` | 空 | 允許新建工作區的完整郵箱地址，逗號分隔。設定後其他使用者新建會返回 403。`DISABLE_WORKSPACE_CREATION=true` 優先。不授予訪問其他工作區的權限 |
 | `MULTICA_DEV_VERIFICATION_CODE` | 空 | 非 production 環境使用的固定 6 位測試驗證碼 |
 
 允許清單的準確判斷順序見[登入與註冊](/auth-setup#註冊範圍控制)。
@@ -125,7 +125,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 
 | 變數 | 預設值 | 說明 |
 |---|---|---|
-| `MULTICA_MAX_PREVIEW_SIZE` | `2MiB` | 文字和 HTML 線上預覽的正文大小上限，最大 `16MiB`。支援正整數字節數或 `KB`/`KiB`、`MB`/`MiB`（均按二進位制單位計算）。超過 `16MiB` 的有效值截斷為 `16MiB`，非法值回退到預設值。調大上限可能拖慢瀏覽器預覽，尤其是語法高亮和 Markdown 渲染。修改後需重啟 API；不改變上傳或下載限制。 |
+| `MULTICA_MAX_PREVIEW_SIZE` | `2MiB` | 文字和 HTML 線上預覽的正文大小上限，最大 `16MiB`。支援正整數字節數或 `KB`/`KiB`、`MB`/`MiB`（均按二進位檔單位計算）。超過 `16MiB` 的有效值截斷為 `16MiB`，非法值回退到預設值。調大上限可能拖慢瀏覽器預覽，尤其是語法高亮和 Markdown 渲染。修改後需重啟 API；不改變上傳或下載限制。 |
 
 ### S3 或相容儲存
 
@@ -199,7 +199,7 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 | 外掛 | `MULTICA_PLUGIN_SECRET_KEY` | base64 編碼的 32 位元組金鑰，用於加密已存 secret 和 surface 啟動 URL |
 | 外掛 | `MULTICA_PLUGIN_SURFACE_ORIGIN` | 路由到後端的獨立無 Cookie 瀏覽器 origin；必須不同於 app/API origin，並保留 `Host` |
 | 外掛 | `MULTICA_PLUGIN_API_URL` | 帶版本的外掛 Public API 完整 Base URL，例如 `https://plugin-api.example.com/v1`；未設定時使用 `MULTICA_PUBLIC_URL` + `/v1` |
-| 外掛 | `MULTICA_PLUGIN_DIR` | 開發時用於釋出本地外掛包的可選絕對目錄 |
+| 外掛 | `MULTICA_PLUGIN_DIR` | 開發時用於釋出本機外掛包的可選絕對目錄 |
 | 主題商店 | `MULTICA_THEME_REGISTRY_URL` | 改用其他儲存庫的 `index.json`，比如官方儲存庫的 fork；見 [主題與外觀](/themes#自托管) |
 
 不設定 `GITHUB_APP_ID` 和私鑰時，PR 仍會正常關聯、同步顯示，並在合併後改狀態，但卡片上不顯示 CI 與可合併狀態，"從 GitHub 選擇"儲存庫入口也會停用。
@@ -218,9 +218,9 @@ MULTICA_PUBLIC_URL=https://api.multica.example.com
 | `MULTICA_LLM_MAX_RETRIES` | `2` | 單次呼叫的重試上限；`0` 表示禁用重試，`1`–`5` 表示最多重試 N 次 |
 | `MULTICA_LLM_DISABLE_THINKING` | `false` | 在每個請求中附帶 `chat_template_kwargs: {"enable_thinking": false}`，供支援該欄位的閘道器關閉模型思考 |
 
-`MULTICA_LLM_MAX_RETRIES` 是重試策略的唯一設定源。不設定時使用預設的 2 次；設為 `0` 表示每次呼叫只發一個請求；設為 1–5 表示最多重試這麼多次。它是上限而不是配額：只有可重試的失敗才會消耗它，請求成功或呼叫方自身的超時都會讓呼叫提前結束。其它取值（負數、非數字、大於 5）會讓服務啟動失敗，不會被靜默糾正。上限是一個延遲預算：退避從 0.5s 開始翻倍，上限 8s，更大的預算會超出呼叫方自身的超時，把可重試的失敗變成超時失敗。重試覆蓋連線失敗以及 HTTP 408、409、429 和 5xx；其餘 4xx 直接返回。服務啟動時會以 `llm retry policy` 列印生效策略，其中不包含任何憑據。
+`MULTICA_LLM_MAX_RETRIES` 是重試策略的唯一設定源。不設定時使用預設的 2 次；設為 `0` 表示每次呼叫只發一個請求；設為 1–5 表示最多重試這麼多次。它是上限而不是配額：只有可重試的失敗才會消耗它，請求成功或呼叫方自身的逾時都會讓呼叫提前結束。其它取值（負數、非數字、大於 5）會讓服務啟動失敗，不會被靜默糾正。上限是一個延遲預算：退避從 0.5s 開始翻倍，上限 8s，更大的預算會超出呼叫方自身的逾時，把可重試的失敗變成逾時失敗。重試覆蓋連線失敗以及 HTTP 408、409、429 和 5xx；其餘 4xx 直接返回。服務啟動時會以 `llm retry policy` 列印生效策略，其中不包含任何憑據。
 
-`MULTICA_LLM_DISABLE_THINKING` 面向"模型會先跑一段推理（thinking）並吃掉輔助呼叫延遲預算"的閘道器。設為 `true`（或 `1`）時，服務端會在每個請求體中附帶 `chat_template_kwargs: {"enable_thinking": false}`；支援透傳該欄位的閘道器（vLLM/sglang 類部署、部分 GLM/Qwen 系的 LiteLLM 路由）會因此跳過思考階段。標準 OpenAI 端點會拒絕未知的請求體欄位，所以僅在上游接受時啟用。GPT-5.6 系模型和 GPT-6 Luna 在後續提問建議請求中已由服務端附帶 `reasoning_effort: none`。會話自動命名不傳送推理欄位；只有當所設定的上游接受 `chat_template_kwargs` 時，此項才會影響它。可接受的取值為 `true`/`false` 和 `1`/`0`（不區分大小寫）；其它取值會讓服務啟動失敗。啟動日誌會在重試策略旁列印生效狀態。
+`MULTICA_LLM_DISABLE_THINKING` 面向"模型會先跑一段推理（thinking）並吃掉輔助呼叫延遲預算"的閘道器。設為 `true`（或 `1`）時，服務端會在每個請求體中附帶 `chat_template_kwargs: {"enable_thinking": false}`；支援透傳該欄位的閘道器（vLLM/sglang 類部署、部分 GLM/Qwen 系的 LiteLLM 路由）會因此跳過思考階段。標準 OpenAI 端點會拒絕未知的請求體欄位，所以僅在上游接受時啟用。GPT-5.6 系模型和 GPT-6 Luna 在後續提問建議請求中已由服務端附帶 `reasoning_effort: none`。工作階段自動命名不傳送推理欄位；只有當所設定的上游接受 `chat_template_kwargs` 時，此項才會影響它。可接受的取值為 `true`/`false` 和 `1`/`0`（不區分大小寫）；其它取值會讓服務啟動失敗。啟動日誌會在重試策略旁列印生效狀態。
 
 有兩個功能會使用這一層，它們都會把聊天內容傳送到你設定的 endpoint：
 
@@ -245,50 +245,50 @@ API key 與 base URL 都為空時，這一層關閉，不會發出任何上游�
 | `MULTICA_DAEMON_POLL_INTERVAL` | `30s` | 沒有喚醒事件時的執行輪詢間隔 |
 | `MULTICA_DAEMON_WS_CLAIM_POLL_INTERVAL` | `3m` | 健康 WebSocket 下 claim 安全輪詢的上限，與 `MULTICA_DAEMON_POLL_INTERVAL` 獨立設定；向下抖動後預設實際為 `2m30s`–`2m45s`，舊 Server 或結果不確定的 claim 仍使用普通輪詢間隔 |
 | `MULTICA_DAEMON_HEARTBEAT_INTERVAL` | `15s` | 心跳間隔 |
-| `MULTICA_DAEMON_MAX_CONCURRENT_TASKS` | `20` | 單個daemon的併發執行上限 |
+| `MULTICA_DAEMON_MAX_CONCURRENT_TASKS` | `20` | 單個 daemon 的併發執行上限 |
 | `MULTICA_AGENT_TIMEOUT` | `0` | 單次執行的絕對時限；`0` 表示不設定 |
 | `MULTICA_AGENT_IDLE_WATCHDOG` | `2h` | 沒有輸出且沒有工具runtime的靜默上限；`0` 表示整套 watchdog 關閉 |
-| `MULTICA_AGENT_TOOL_WATCHDOG` | 同 `MULTICA_AGENT_IDLE_WATCHDOG` | 單個工具呼叫持續靜默的上限；只有希望工具比模型有更多餘量時才單獨設定，`0` 表示工具執行期間永不強制停止。Cursor 的後臺 shell 在它啟動的程式退出前一直算作執行中；到達這個上限時，daemon會停止這些程式，並給 Cursor 一段新的 watchdog 預算來產出終態結果。若程式歸屬或清理無法驗證，則回到普通的執行取消策略 |
+| `MULTICA_AGENT_TOOL_WATCHDOG` | 同 `MULTICA_AGENT_IDLE_WATCHDOG` | 單個工具呼叫持續靜默的上限；只有希望工具比模型有更多餘量時才單獨設定，`0` 表示工具執行期間永不強制停止。Cursor 的後臺 shell 在它啟動的程式退出前一直算作執行中；到達這個上限時，daemon 會停止這些程式，並給 Cursor 一段新的 watchdog 預算來產出終態結果。若程式歸屬或清理無法驗證，則回到普通的執行取消策略 |
 | `MULTICA_OPENCODE_IDLE_WATCHDOG` | `10m` | OpenCode 專用靜默閾值 |
 | `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` | 同 `MULTICA_AGENT_IDLE_WATCHDOG` | Codex 語義靜默閾值。Codex 自己的計時器看不到工具是否在執行，因此跟隨 idle / tool 預算中較大的那個，而不再單獨保留一個更短的上限 |
-| `MULTICA_CODEX_FIRST_TURN_TIMEOUT` | `0` | 顯式覆蓋 Codex 首輪無進展上限；`0` 保持預設值。實際首輪等待仍受 `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` 和總執行超時限制——需將 `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` 設為嚴格大於此值（並留出餘量），否則等待會被截斷至該值，且會跳過模型目錄啟動重試。設為相等還不夠：語義計時器先啟動，兩者相等時仍可能丟失該重試 |
+| `MULTICA_CODEX_FIRST_TURN_TIMEOUT` | `0` | 顯式覆蓋 Codex 首輪無進展上限；`0` 保持預設值。實際首輪等待仍受 `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` 和總執行逾時限制——需將 `MULTICA_CODEX_SEMANTIC_INACTIVITY_TIMEOUT` 設為嚴格大於此值（並留出餘量），否則等待會被截斷至該值，且會跳過模型目錄啟動重試。設為相等還不夠：語義計時器先啟動，兩者相等時仍可能丟失該重試 |
 | `MULTICA_CODEX_HANDSHAKE_TIMEOUT` | `30s`；`thread/start`、`thread/resume`：`60s` | Codex app-server 啟動握手上限；顯式設定後會統一覆蓋兩類預算 |
-| `MULTICA_CODEX_MEMORY` | 關閉 | 設為 `1`、`true`、`yes` 或 `on` 時，在daemon管理的 Codex 執行中保留 Codex 原生記憶；預設按執行關閉，見 [Codex 原生記憶與子Agent](/daemon-runtimes#codex-memory) |
-| `MULTICA_CODEX_MULTI_AGENT` | 關閉 | 取值同上，保留 Codex 原生子Agent。父執行緒結束時執行即判為結束，子Agent未交回的結果會丟失 |
+| `MULTICA_CODEX_MEMORY` | 關閉 | 設為 `1`、`true`、`yes` 或 `on` 時，在 daemon 管理的 Codex 執行中保留 Codex 原生記憶；預設按執行關閉，見 [Codex 原生記憶與子 Agent](/daemon-runtimes#codex-memory) |
+| `MULTICA_CODEX_MULTI_AGENT` | 關閉 | 取值同上，保留 Codex 原生子 Agent。父執行緒結束時執行即判為結束，子 Agent 未交回的結果會丟失 |
 | `MULTICA_CODEX_TURN_INTERRUPT_TIMEOUT` | `2s` | 任務取消後等待 Codex app-server 確認 `turn/interrupt` 併發出 `turn/completed` 的寬限期，以便在強制清理程式前保留最終 token 用量。主機異常緩慢時，可根據 daemon 日誌記錄的中斷延遲調整 |
 | `MULTICA_DAEMON_AUTO_UPDATE` | Cloud `true`；自託管 `false` | 是否自動檢查並更新 CLI |
 | `MULTICA_DAEMON_AUTO_UPDATE_INTERVAL` | `6h` | 檢查更新的間隔 |
-| `MULTICA_DAEMON_AUTO_RELOAD` | `true` | 是否在 `multica` 二進位制被帶外替換（`brew upgrade`、重新下載、本地構建）後重啟到新二進位制。與 `MULTICA_DAEMON_AUTO_UPDATE` 相互獨立 |
+| `MULTICA_DAEMON_AUTO_RELOAD` | `true` | 是否在 `multica` 二進位檔被帶外替換（`brew upgrade`、重新下載、本機構建）後重啟到新二進位檔。與 `MULTICA_DAEMON_AUTO_UPDATE` 相互獨立 |
 | `MULTICA_WORKSPACES_ROOT` | `~/multica_workspaces` | 執行工作目錄的根目錄 |
 | `MULTICA_AGENT_TEMP_BASE` | `/tmp`（Linux/macOS） | 僅適用於 Linux/macOS。每次執行的私有臨時目錄的父目錄；必須是現有、可寫的絕對路徑，無效值會使執行啟動失敗，不會回退到 `/tmp`。請選擇較短的路徑——子工具可能會在其中繫結 AF_UNIX socket；Linux 的 `sun_path` 上限為 108 位元組，macOS 為 104 位元組 |
 
-daemon注入Agent task 的內部上下文見 [Task runtime環境](/daemon-runtimes#task-runtime環境)。`MULTICA_REPO_CHECKOUT_MODE` 也屬於這類變數：daemon只在 Linux 和 Windows 的 Codex 執行中把它設為 `isolated`，不需要也無法手動設定。daemon自身環境裡的 `MULTICA_*` 變數不會傳進執行。
+daemon 注入 Agent task 的內部上下文見 [Task runtime環境](/daemon-runtimes#task-runtime環境)。`MULTICA_REPO_CHECKOUT_MODE` 也屬於這類變數：daemon 只在 Linux 和 Windows 的 Codex 執行中把它設為 `isolated`，不需要也無法手動設定。daemon 自身環境裡的 `MULTICA_*` 變數不會傳進執行。
 
-優先順序為命令列 flag → 環境變數 → `~/.multica/config.json` → 內建預設。watchdog 的行為見[daemon與runtime](/daemon-runtimes)。
+優先順序為命令列 flag → 環境變數 → `~/.multica/config.json` → 內建預設。watchdog 的行為見[daemon 與runtime](/daemon-runtimes)。
 
 ### 清理與保留 [#gc]
 
-daemon定期清理執行工作目錄、儲存庫快取、會話記錄和臨時目錄，各類資料的刪除條件見[清理與保留](/daemon-runtimes#cleanup)。時長接受 Go duration，另外支援 `d` 表示天（如 `14d`、`1d12h`）。
+daemon 定期清理執行工作目錄、儲存庫快取、工作階段記錄和臨時目錄，各類資料的刪除條件見[清理與保留](/daemon-runtimes#cleanup)。時間長度接受 Go duration，另外支援 `d` 表示天（如 `14d`、`1d12h`）。
 
 | 變數 | 預設值 | 說明 |
 |---|---|---|
 | `MULTICA_GC_ENABLED` | `true` | 設為 `false` 或 `0` 關閉整個清理迴圈 |
-| `MULTICA_GC_INTERVAL` | `2h` | 兩輪清理之間的間隔；守護程序啟動約 30 秒後先清理一次 |
-| `MULTICA_GC_TTL` | `24h` | 任務進入 `done` 或 `closed` 分類、或聊天會話歸檔後，再過多久刪除對應執行目錄 |
+| `MULTICA_GC_INTERVAL` | `2h` | 兩輪清理之間的間隔；daemon 啟動約 30 秒後先清理一次 |
+| `MULTICA_GC_TTL` | `24h` | 任務進入 `done` 或 `closed` 分類、或聊天工作階段歸檔後，再過多久刪除對應執行目錄 |
 | `MULTICA_GC_COMPLETED_TASK_TTL` | `14d` | 執行完成後多久刪除受管理的任務目錄；本機目錄執行只刪除 `codex-home`，保留 daemon 日誌、輸出和外部工作階段儲存，仍有本機工作階段記錄的 home 不刪除。`0` 表示關閉此到期清理 |
 | `MULTICA_GC_ORPHAN_TTL` | `72h` | 找不到歸屬的目錄多久沒有改動後刪除 |
-| `MULTICA_GC_ARTIFACT_TTL` | `12h` | 從執行結束到守護程序清理可重新生成內容的時間。下一行的目錄名規則適用於未關閉的任務，以及使用託管工作目錄的未歸檔聊天。守護程序管理的 Codex 快取也適用相同時長。設為 `0` 可保留這些快取 |
+| `MULTICA_GC_ARTIFACT_TTL` | `12h` | 從執行結束到 daemon 清理可重新生成內容的時間。下一行的目錄名規則適用於未關閉的任務，以及使用託管工作目錄的未歸檔聊天。daemon 管理的 Codex 快取也適用相同時間長度。設為 `0` 可保留這些快取 |
 | `MULTICA_GC_ARTIFACT_PATTERNS` | `node_modules,.next,.turbo` | 按目錄名匹配的可再生成內容，逗號分隔。設定後**替換**預設列表，要保留預設項就一併寫上；含 `/` 或 `\` 的項會被忽略 |
 | `MULTICA_GC_REPO_TTL` | `30d` | 不再被引用、也沒有 worktree 的裸儲存庫快取，多久沒有檢出後刪除；`0` 表示不刪 |
-| `MULTICA_GC_REPO_MAINTENANCE_ENABLED` | `true` | 刪掉過期的Agent 分支後，是否對儲存庫快取執行 `git reflog expire` 和 `git gc`；設為 `false` 只關掉這一步 |
-| `MULTICA_GC_CODEX_SESSION_TTL` | `14d` | Codex 會話記錄多久未使用後刪除；`0` 表示不刪 |
-| `MULTICA_GC_HERMES_SESSION_TTL` | `14d` | Hermes 會話記錄多久未使用後刪除；`0` 表示不刪 |
+| `MULTICA_GC_REPO_MAINTENANCE_ENABLED` | `true` | 刪掉過期的 Agent 分支後，是否對儲存庫快取執行 `git reflog expire` 和 `git gc`；設為 `false` 只關掉這一步 |
+| `MULTICA_GC_CODEX_SESSION_TTL` | `14d` | Codex 工作階段記錄多久未使用後刪除；`0` 表示不刪 |
+| `MULTICA_GC_HERMES_SESSION_TTL` | `14d` | Hermes 工作階段記錄多久未使用後刪除；`0` 表示不刪 |
 | `MULTICA_GC_HERMES_MEMORY_TTL` | `90d` | Hermes 記憶多久未使用後刪除；`0` 表示不刪 |
-| `MULTICA_GC_TASK_TEMP_LEGACY_TTL` | `0` | 只針對舊版守護程序留下、沒有執行鎖的臨時目錄：多久沒有改動後刪除。`0` 表示不刪。帶執行鎖的臨時目錄在執行結束後就會刪除，不受它影響 |
+| `MULTICA_GC_TASK_TEMP_LEGACY_TTL` | `0` | 只針對舊版 daemon 留下、沒有執行鎖的臨時目錄：多久沒有改動後刪除。`0` 表示不刪。帶執行鎖的臨時目錄在執行結束後就會刪除，不受它影響 |
 
-### daemon日誌 [#daemon-logs]
+### daemon 日誌 [#daemon-logs]
 
-daemon在後臺執行（不連著終端機）時，日誌寫入 `~/.multica/daemon.log`，命名 profile 為 `~/.multica/profiles/<name>/daemon.log`，並按大小輪轉，輪轉出的檔案用 gzip 壓縮。
+daemon 在後臺執行（不連著終端機）時，日誌寫入 `~/.multica/daemon.log`，命名 profile 為 `~/.multica/profiles/<name>/daemon.log`，並按大小輪轉，輪轉出的檔案用 gzip 壓縮。
 
 | 變數 | 預設值 | 說明 |
 |---|---|---|
@@ -298,9 +298,9 @@ daemon在後臺執行（不連著終端機）時，日誌寫入 `~/.multica/daem
 
 三個變數都要求正整數；`0`、負數或無法解析的值按預設值處理，不會變成"不限制"。保留數量和天數哪個先到就按哪個刪除。崩潰輸出寫在同目錄的 `daemon.err.log`，啟動時超過 5 MB 就改名為 `daemon.err.log.1`。
 
-### 各 AI 開發工具的路徑、模型與引數
+### 各 AI 開發工具的路徑、模型與參數
 
-每款內建工具都有路徑變數 `MULTICA_<前缀>_PATH`。設定後，daemon用這個路徑代替在 `PATH` 中查詢命令；路徑不存在時這款工具不會註冊，也不會退回 `PATH` 裡的同名命令。多數工具還有模型變數 `MULTICA_<前缀>_MODEL`：Agent沒有選擇模型時，用它作為這臺電腦的預設模型；兩者都為空時不傳模型，由工具自己決定。
+每款內建工具都有路徑變數 `MULTICA_<前缀>_PATH`。設定後，daemon 用這個路徑代替在 `PATH` 中查詢命令；路徑不存在時這款工具不會註冊，也不會退回 `PATH` 裡的同名命令。多數工具還有模型變數 `MULTICA_<前缀>_MODEL`：Agent 沒有選擇模型時，用它作為這臺電腦的預設模型；兩者都為空時不傳模型，由工具自己決定。
 
 <Accordions>
 <Accordion title="各工具的變數字首" id="tool-env-prefixes" value="tool-env-prefixes">
@@ -333,14 +333,14 @@ daemon在後臺執行（不連著終端機）時，日誌寫入 `~/.multica/daem
 | QwenPaw | `MULTICA_QWENPAW` | — |
 | Reasonix | `MULTICA_REASONIX` | ✓ |
 | Trae CLI | `MULTICA_TRAECLI` | ✓ |
-| ZeroClaw | `MULTICA_ZEROCLAW` | —（模型由 ZeroClaw 的Agent設定管理） |
+| ZeroClaw | `MULTICA_ZEROCLAW` | —（模型由 ZeroClaw 的 Agent 設定管理） |
 
 </Accordion>
 </Accordions>
 
 QwenPaw 和 MiniMax Code 沒有模型變數，因為 Multica 不會向它們傳模型，詳見 [AI 開發工具對比](/providers#模型來源)。DeepSeek Harness 另有 `MULTICA_DSH_PROFILE_BUNDLE` 和 `MULTICA_DSH_PLUGIN_PATH`，見下一節。
 
-全機預設引數 `MULTICA_<前缀>_ARGS` 目前支援 Claude Code、Codex、CodeBuddy、Qwen Code 和 QwenPaw 五款工具，對應變數是 `MULTICA_CLAUDE_ARGS`、`MULTICA_CODEX_ARGS`、`MULTICA_CODEBUDDY_ARGS`、`MULTICA_QWEN_ARGS` 和 `MULTICA_QWENPAW_ARGS`。例如：
+全機預設參數 `MULTICA_<前缀>_ARGS` 目前支援 Claude Code、Codex、CodeBuddy、Qwen Code 和 QwenPaw 五款工具，對應變數是 `MULTICA_CLAUDE_ARGS`、`MULTICA_CODEX_ARGS`、`MULTICA_CODEBUDDY_ARGS`、`MULTICA_QWEN_ARGS` 和 `MULTICA_QWENPAW_ARGS`。例如：
 
 ```dotenv
 MULTICA_CLAUDE_PATH=/opt/bin/claude
@@ -349,13 +349,13 @@ MULTICA_CLAUDE_ARGS=--max-turns 40
 
 ### DeepSeek Harness 的 profile 安裝
 
-`MULTICA_DSH_PROFILE_BUNDLE` 指定 `multica` profile 缺失時要安裝的 bundle，多個候選用逗號分隔、按序嘗試，每項可以是 npm 包名、目錄或打包好的 tarball。該變數預設不設定。Multica 驅動的 `--stdio` 協議正是由這個 profile 提供，所以不設定時不會改動 DSH 的安裝，daemon會報告缺少 profile，不會註冊一個不可用的runtime。
+`MULTICA_DSH_PROFILE_BUNDLE` 指定 `multica` profile 缺失時要安裝的 bundle，多個候選用逗號分隔、按序嘗試，每項可以是 npm 包名、目錄或打包好的 tarball。該變數預設不設定。Multica 驅動的 `--stdio` 協議正是由這個 profile 提供，所以不設定時不會改動 DSH 的安裝，daemon 會報告缺少 profile，不會註冊一個不可用的runtime。
 
-Multica 自己的橋接還沒有釋出到公共 npm registry，如何選取值見[安裝Agentruntime](/install-agent-runtime)。這裡填的東西會在沒有二次確認的情況下裝進每一臺daemon宿主的 DSH 家目錄，請當作供應鏈決策來對待。
+Multica 自己的橋接還沒有釋出到公共 npm registry，如何選取值見[安裝Agentruntime](/install-agent-runtime)。這裡填的東西會在沒有二次確認的情況下裝進每一臺 daemon 宿主的 DSH 家目錄，請當作供應鏈決策來對待。
 
-這項安裝被刻意限制了範圍：每個daemon生命週期最多執行一次，只在探測確認 profile 確實缺失時執行；失敗時會把包管理器自身的輸出記入日誌，且只有重啟daemon後才會重試。探測超時、或返回本daemon不支援的協議版本時，只做報告，絕不覆蓋安裝：daemon不會覆蓋一個明顯是刻意裝上去的 profile。排查時在daemon日誌中搜尋 `DSH runtime profile`；要撤銷安裝，刪除 `$DSH_HOME/profiles/multica`（預設 `~/.dsh/profiles/multica`）。
+這項安裝被刻意限制了範圍：每個 daemon 生命週期最多執行一次，只在探測確認 profile 確實缺失時執行；失敗時會把包管理器自身的輸出記入日誌，且只有重啟 daemon 後才會重試。探測逾時、或返回本 daemon 不支援的協議版本時，只做報告，絕不覆蓋安裝：daemon 不會覆蓋一個明顯是刻意裝上去的 profile。排除時在 daemon 日誌中搜尋 `DSH runtime profile`；要撤銷安裝，刪除 `$DSH_HOME/profiles/multica`（預設 `~/.dsh/profiles/multica`）。
 
-`MULTICA_DSH_PLUGIN_PATH` 用於覆蓋安裝時解析 pnpm 的目錄。`dsh plugin` 轉發到的那個 pnpm 由 DSH Desktop 放在它私有的 runtime-commands 目錄裡，macOS 和 Windows 都是如此，daemon會自動找到並加到 PATH 最前，較新版 Desktop 採用的帶版本號目錄結構也能找到。所以只有daemon找不到的安裝位置、或者你想讓安裝使用自己的 pnpm 時，才需要這個變數。一旦設定就完全取代自動查詢：目錄不存在時，安裝會退回使用daemon `PATH` 上的 pnpm，不會用內建的那個。Linux 上沒有 DSH Desktop，安裝始終使用 `PATH`。
+`MULTICA_DSH_PLUGIN_PATH` 用於覆蓋安裝時解析 pnpm 的目錄。`dsh plugin` 轉發到的那個 pnpm 由 DSH Desktop 放在它私有的 runtime-commands 目錄裡，macOS 和 Windows 都是如此，daemon 會自動找到並加到 PATH 最前，較新版 Desktop 採用的帶版本號目錄結構也能找到。所以只有 daemon 找不到的安裝位置、或者你想讓安裝使用自己的 pnpm 時，才需要這個變數。一旦設定就完全取代自動查詢：目錄不存在時，安裝會退回使用 daemon `PATH` 上的 pnpm，不會用內建的那個。Linux 上沒有 DSH Desktop，安裝始終使用 `PATH`。
 
 ### Cursor 後臺程式清理
 
@@ -387,13 +387,13 @@ multica config show
 | `ws_claim_poll_interval` | `3m` | 健康 WebSocket 下 claim 安全輪詢的上限，與 `poll_interval` 獨立設定；Daemon 會應用向下抖動 |
 | `heartbeat_interval` | `15s` | 心跳間隔 |
 | `agent_timeout` | 不限制 | 單次執行的絕對時限 |
-| `agent_idle_watchdog` | `2h` | 沒有工具執行時的靜默上限；`0s` 關閉守護程序的整套 watchdog，`agent_tool_watchdog` 也隨之失效 |
-| `agent_tool_watchdog` | 同 `agent_idle_watchdog` | 工具執行期間的靜默上限；`0s` 表示守護程序的 watchdog 不會因工具靜默而停止執行，此時執行只受 `agent_timeout` 限制，而它預設不限制 |
+| `agent_idle_watchdog` | `2h` | 沒有工具執行時的靜默上限；`0s` 關閉 daemon 的整套 watchdog，`agent_tool_watchdog` 也隨之失效 |
+| `agent_tool_watchdog` | 同 `agent_idle_watchdog` | 工具執行期間的靜默上限；`0s` 表示 daemon 的 watchdog 不會因工具靜默而停止執行，此時執行只受 `agent_timeout` 限制，而它預設不限制 |
 | `codex_semantic_inactivity_timeout` | 派生 | Codex 語義靜默閾值。未設定時取 idle 與 tool watchdog 預算中較大的那個；tool 預算為 `0` 時回落到 idle 預算；只有整套 watchdog 關閉時才保留 Codex 自己的 `10m` |
 | `codex_handshake_timeout` | `30s`；`thread/start`、`thread/resume`：`60s` | Codex app-server 啟動握手上限；顯式設定後會統一覆蓋兩類預算 |
-| `disable_auto_update` | 跟隨環境 | `true` 關閉自動更新；`false` 清除本地覆蓋，回到環境變數或預設 |
+| `disable_auto_update` | 跟隨環境 | `true` 關閉自動更新；`false` 清除本機覆蓋，回到環境變數或預設 |
 | `auto_update_check_interval` | `6h` | 檢查更新的間隔 |
-| `disable_auto_reload` | 跟隨環境 | `true` 讓守護程序不再跟隨磁碟上被替換的二進位制；`false` 清除本地覆蓋。與 `disable_auto_update` 分開解析 |
+| `disable_auto_reload` | 跟隨環境 | `true` 讓 daemon 不再跟隨磁碟上被替換的二進位檔；`false` 清除本機覆蓋。與 `disable_auto_update` 分開解析 |
 
 幾條取值規則：
 
@@ -413,12 +413,12 @@ multica config show
 | `METRICS_ADDR` | 空 | Prometheus metrics 監聽位址；空表示不啟動 |
 | `REALTIME_METRICS_TOKEN` | 空 | 保護 `/health/realtime` 的 bearer token |
 
-首方自託管遙測每天按 UTC 傳送一份部署級快照，固定且不可設定的地址為 `https://telemetry.multica.ai/v1/telemetry/events`。快照只包含正式釋出版本、工作區數/去重成員數/活躍Agent數/過去 24 小時活躍daemon數的分桶，過去 24 小時執行的開始、完成、失敗和取消總數，以及過去 1、7、28 個完整 UTC 日內登入後開啟過網頁端或桌面端的成員數、親自發起過Agent執行（分配、@、留言、聊天、手動執行或重跑；不含 autopilot 和Agent之間的委派）的成員數的分桶。成員只在本部署內計數，不會被識別。不會傳送名稱、郵箱或域名、IP、業務識別符號、主機或裝置資訊、程式碼儲存庫、模型或 plugin、prompt/output、留言或聊天、檔案路徑、token/費用、憑據、錯誤文字、stack 或日誌。此資料只用於瞭解自託管版本採用、部署規模區間、聚合使用量與成員活躍情況，不用於計費、授權、認證或安全決策。
+首方自託管遙測每天按 UTC 傳送一份部署級快照，固定且不可設定的地址為 `https://telemetry.multica.ai/v1/telemetry/events`。快照只包含正式釋出版本、工作區數/去重成員數/活躍 Agent 數/過去 24 小時活躍 daemon 數的分桶，過去 24 小時執行的開始、完成、失敗和取消總數，以及過去 1、7、28 個完整 UTC 日內登入後開啟過網頁端或桌面版的成員數、親自發起過 Agent 執行（分配、@、留言、聊天、手動執行或重跑；不含 autopilot 和 Agent 之間的委派）的成員數的分桶。成員只在本部署內計數，不會被識別。不會傳送名稱、郵箱或域名、IP、業務識別符號、主機或裝置資訊、程式碼儲存庫、模型或 plugin、prompt/output、留言或聊天、檔案路徑、token/費用、憑據、錯誤文字、stack 或日誌。此資料只用於瞭解自託管版本採用、部署規模區間、聚合使用量與成員活躍情況，不用於計費、授權、認證或安全決策。
 
 `DO_NOT_TRACK` 與 `ANALYTICS_DISABLED` 相互獨立：前者控制這份第一方匿名快照，後者控制可選的 PostHog 整合。
 
 ## 接下來
 
 - [登入與註冊](/auth-setup) — 登入方式與註冊限制。
-- [疑難排解](/troubleshooting) — 部署問題的症狀排查。
+- [疑難排解](/troubleshooting) — 部署問題的症狀排除。
 - [常駐程式與執行環境](/daemon-runtimes) — 常駐程式側的對應設定。

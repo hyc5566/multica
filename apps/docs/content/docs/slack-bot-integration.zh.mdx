@@ -6,7 +6,7 @@ description: 為 Agent 建立一個 Slack Bot，在私訊、頻道以及 /issue�
 import { Callout } from "fumadocs-ui/components/callout";
 import { Step, Steps } from "fumadocs-ui/components/steps";
 
-Multica 使用你自己的 Slack app。連線後，團隊成員可以私聊 Bot、在頻道里 @ 它，也可以用 `/issue` 建立任務、`/new` 新建 Multica Chat、`/clear` 重置目前 Chat 的Agent上下文。
+Multica 使用你自己的 Slack app。連線後，團隊成員可以私聊 Bot、在頻道里 @ 它，也可以用 `/issue` 建立任務、`/new` 新建 Multica Chat、`/clear` 重置目前 Chat 的 Agent 上下文。
 
 一個 Slack app 對應一個 Multica Agent。需要接入多個 Agent 時，為每個 Agent 分別建立 app。
 
@@ -75,7 +75,7 @@ settings:
   token_rotation_enabled: false
 ```
 
-建立前可以把兩個 `Multica` 改成 Agent 的名字。不要刪除 manifest 中的許可權或事件，否則私訊、頻道提及、回覆、`/issue`、`/new` 或 `/clear` 可能無法工作。
+建立前可以把兩個 `Multica` 改成 Agent 的名字。不要刪除 manifest 中的權限或事件，否則私訊、頻道提及、回覆、`/issue`、`/new` 或 `/clear` 可能無法工作。
 
 <Callout type="warning">
 Slack slash command 名稱在整個 workspace 中共用。如果其他已安裝 app 佔用了 `/new` 或 `/clear`，Slack 會在建立或更新 app 時拒絕衝突命令。可以先解決名稱衝突，也可以傳送訊息形式的 `@Multica /new [消息]` 或 `@Multica /clear [消息]`，繞過原生 slash command 攔截。
@@ -95,7 +95,7 @@ Bot 使用 Socket Mode 主動連線 Slack，不需要設定公網 Request URL �
 #### Bot token
 
 1. 在 Slack app 中開啟 **Install App**。
-2. 點選 **Install to Workspace** 並核准許可權。
+2. 點選 **Install to Workspace** 並核准權限。
 3. 複製 **Bot User OAuth Token**，它以 `xoxb-` 開頭。
 
 #### App-level token
@@ -108,9 +108,9 @@ Bot 使用 Socket Mode 主動連線 Slack，不需要設定公網 Request URL �
 </Step>
 <Step>
 
-### 連線到Agent [#3-連線到Agent]
+### 連線到 Agent [#3-連線到 Agent]
 
-1. 在 Multica 中開啟 **智慧體**，選擇要接入 Slack 的智慧體。
+1. 在 Multica 中開啟 **Agent**，選擇要接入 Slack 的 Agent。
 2. 進入 **訊息渠道**，點選 **新增訊息渠道**，再選擇 **Slack**。
 3. 填入 Bot token 和 App-level token。
 4. 點選 **連線**。
@@ -142,13 +142,13 @@ Multica 會驗證兩個 token 是否來自同一個 app。連線成功後，頁�
 
 先執行 `/invite @your-bot` 把 Bot 加入頻道，再傳送 `@your-bot 你的要求`。每個 thread 會形成獨立工作階段；追問時繼續在原 thread 中 @ Bot。
 
-Bot 只會回應明確 @ 它的頻道訊息。執行時，它會在許可權允許的範圍內讀取該 thread 的近期上下文。
+Bot 只會回應明確 @ 它的頻道訊息。執行時，它會在權限允許的範圍內讀取該 thread 的近期上下文。
 
 ### 傳送檔案
 
-在私聊裡，或者在 @ 提及 Bot 的頻道訊息裡直接帶上檔案。檔案會作為附件交給Agent，和訊息一起處理。
+在私聊裡，或者在 @ 提及 Bot 的頻道訊息裡直接帶上檔案。檔案會作為附件交給 Agent，和訊息一起處理。
 
-這需要 `files:read` 許可權；應用如果是在附件支援之前安裝的，見第 1 步的提示。單個檔案不超過 20 MiB，一條訊息最多帶 10 個。超出大小、仍在上傳，或者存放在 Slack 之外（比如 Google Drive、Dropbox 連結）的檔案會被跳過，訊息文字仍然會交給Agent。
+這需要 `files:read` 權限；應用如果是在附件支援之前安裝的，見第 1 步的提示。單個檔案不超過 20 MiB，一條訊息最多帶 10 個。超出大小、仍在上傳，或者存放在 Slack 之外（比如 Google Drive、Dropbox 連結）的檔案會被跳過，訊息文字仍然會交給 Agent。
 
 ### 用 `/issue` 建立任務
 
@@ -164,7 +164,7 @@ Bot 只會回應明確 @ 它的頻道訊息。執行時，它會在許可權允�
 
 在與 Bot 的私聊中，傳送 `/new` 會立即建立一個空的、可見的新 Chat；傳送 `/new <消息>` 會把訊息作為新 Chat 的第一輪。裸 `/new` 建立的 Chat 在收到第一條有效訊息前顯示為"新對話"，之後按首條訊息生成標題。
 
-舊 Chat 仍保留在 Multica 中，可以繼續從 Web、桌面端或移動端發訊息；切換到新 Chat 的只有 Slack 這條外部會話的後續訊息。
+舊 Chat 仍保留在 Multica 中，可以繼續從 Web、桌面版或移動端發訊息；切換到新 Chat 的只有 Slack 這條外部工作階段的後續訊息。
 
 在頻道或 thread 中，Slack 原生 slash command 的 payload 不包含目標 thread。請在目標 thread 裡傳送 `@Multica /new [消息]`。
 
@@ -176,7 +176,7 @@ Bot 只會回應明確 @ 它的頻道訊息。執行時，它會在許可權允�
 
 ## 管理連線
 
-開啟 **設定 → 訊息渠道**，按平臺檢視已連線的智慧體。點選智慧體，進入其詳情頁的 **訊息渠道**。工作區 owner/admin 可以在這裡開啟 Bot 的管理選單，斷開連線。
+開啟 **設定 → 訊息渠道**，按平臺檢視已連線的 Agent。點選 Agent，進入其詳情頁的 **訊息渠道**。工作區 owner/admin 可以在這裡開啟 Bot 的管理選單，斷開連線。
 
 中斷連線後，Socket Mode 連線會停止，Bot 不再接收新訊息。已有的對話和稽核記錄不會隨之刪除。
 
@@ -201,11 +201,11 @@ openssl rand -base64 32
 ## 常見問題
 
 - **連線時提示 token 無效**：檢查字首，並確認兩個 token 來自同一個 app。
-- **無法驗證 app**：確認 manifest 包含 `users:read`，更新許可權後重新安裝 app。
+- **無法驗證 app**：確認 manifest 包含 `users:read`，更新權限後重新安裝 app。
 - **私訊沒有入口**：確認 `app_home.messages_tab_enabled` 為 `true`。
 - **頻道裡沒有回覆**：確認 Bot 已被邀請進頻道，並在訊息中 @ 了它。
 - **`/issue`、`/new` 或 `/clear` 不存在**：確認 manifest 包含這三個 slash command 和 `commands` scope，隨後重新安裝 app。如果 Slack 提示 `/new` 或 `/clear` 已被佔用，請改用 `@Multica` 訊息形式，或先解決 workspace 級命令衝突。
-- **檔案沒有送達 Agent**：確認 manifest 裡包含 `files:read`，並且在新增該許可權後重新安裝過應用，同時確認檔案不超過 20 MiB。
+- **檔案沒有送達 Agent**：確認 manifest 裡包含 `files:read`，並且在新增該權限後重新安裝過應用，同時確認檔案不超過 20 MiB。
 - **Bot 不執行**：檢查 Agent 是否已封存，以及它使用的[執行環境](/daemon-runtimes)是否線上。
 
 ## 接下來
