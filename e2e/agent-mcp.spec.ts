@@ -2,35 +2,21 @@ import { test, expect, type Page } from "@playwright/test";
 import { TestApiClient } from "./fixtures";
 import { waitForPageText } from "./helpers";
 
-// Stage 3.2 (MUL-3870): the creator-only MCP tab on the agent detail page.
-//
-// Auth + workspace bootstrap go through the real backend (same as every other
-// spec), but the agent list and the Composio connection/catalog endpoints are
-// mocked at the network boundary so the test runs without a configured
-// COMPOSIO_API_KEY or a live runtime to bind an agent to. The PUT /api/agents
-// write is intercepted so we can assert the exact allowlist body the toggle
-// produces — the heart of the data contract — instead of depending on the
-// backend persisting it.
-
+// Exercise the current Agent Settings → Apps flow without a live provider.
+// Authentication and workspace creation use the real backend; only the
+// feature flag, membership role, agent, and Connected Apps APIs are mocked.
 const E2E_WORKER =
   process.env.TEST_PARALLEL_INDEX ?? process.env.TEST_WORKER_INDEX ?? "0";
 const E2E_RUN_ID =
   process.env.E2E_RUN_ID ?? `${Date.now().toString(36)}-${process.pid.toString(36)}`;
 const EMAIL = `e2e-mcp-${E2E_WORKER}-${E2E_RUN_ID}@multica.ai`;
 const NAME = "E2E MCP User";
-
 const AGENT_ID = "11111111-1111-4111-8111-111111111111";
 const OTHER_USER_ID = "99999999-9999-4999-8999-999999999999";
 
-interface SetupResult {
-  slug: string;
-  userId: string;
-}
+type Grant = { toolkit_slug: string; account_scope: "personal"; level: "write" };
 
-/** Log in via the real API, capture the authed user id, inject the token, and
- *  return the workspace slug + user id so the test can mock an agent owned
- *  (or not) by this exact user. */
-async function loginCapturingUser(page: Page): Promise<SetupResult> {
+async function loginCapturingUser(page: Page) {
   const api = new TestApiClient();
   const data = await api.login(EMAIL, NAME);
   const userId: string | undefined = data?.user?.id;
@@ -46,7 +32,7 @@ async function loginCapturingUser(page: Page): Promise<SetupResult> {
     localStorage.setItem("multica_token", t);
     localStorage.setItem("multica:chat:isOpen", "false");
   }, token);
-  return { slug: workspace.slug, userId };
+  return { slug: workspace.slug, workspaceId: workspace.id, userId };
 }
 
 function mockAgent(ownerId: string, workspaceId: string) {
@@ -62,6 +48,7 @@ function mockAgent(ownerId: string, workspaceId: string) {
     runtime_config: {},
     custom_args: [],
     visibility: "workspace",
+    permission_mode: "private",
     status: "idle",
     max_concurrent_tasks: 1,
     model: "",
@@ -71,123 +58,93 @@ function mockAgent(ownerId: string, workspaceId: string) {
     updated_at: "2026-06-30T00:00:00Z",
     archived_at: null,
     archived_by: null,
-    composio_toolkit_allowlist: [],
   };
 }
 
-/** Mock the Composio catalog + the current user's active connections (Notion +
- *  Slack), the agent list (owned by `ownerId`), and capture any PUT
- *  /api/agents/<id> body. Returns a getter for the last captured allowlist. */
-async function mockApis(page: Page, ownerId: string) {
-  const captured: { allowlist?: unknown } = {};
-
-  await page.route("**/api/integrations/composio/toolkits", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        { slug: "notion", name: "Notion", connectable: true },
-        { slug: "slack", name: "Slack", connectable: true },
-      ]),
-    }),
-  );
-
-  await page.route("**/api/integrations/composio/connections", (route) =>
-    route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify([
-        {
-          id: "conn-notion",
-          toolkit_slug: "notion",
-          status: "active",
-          connected_at: "2026-06-30T00:00:00Z",
-          last_used_at: null,
-        },
-        {
-          id: "conn-slack",
-          toolkit_slug: "slack",
-          status: "active",
-          connected_at: "2026-06-30T00:00:00Z",
-          last_used_at: null,
-        },
-      ]),
-    }),
-  );
-
-  // One handler for both the list (GET, query string) and the write
-  // (PUT /api/agents/<id>). Other agent sub-routes fall through.
+async function mockApis(
+  page: Page,
+  { ownerId, userId, workspaceId, role }: {
+    ownerId: string; userId: string; workspaceId: string; role: "member" | "admin";
+  },
+) {
+  let apps: Grant[] = [];
+  let captured: unknown;
+  await page.route("**/api/config", async (route) => {
+    const response = await route.fetch();
+    const config = await response.json();
+    await route.fulfill({ response, json: {
+      ...config,
+      feature_flags: { ...config.feature_flags, composio_mcp_apps: true },
+    } });
+  });
+  // Explicitly distinguish a member who owns the agent from a workspace admin
+  // editing someone else's agent. Preserve all other membership fields.
+  await page.route("**/api/workspaces/*/members", async (route) => {
+    const response = await route.fetch();
+    const members = await response.json();
+    await route.fulfill({ response, json: members.map((member: { user_id: string }) =>
+      member.user_id === userId ? { ...member, role } : member,
+    ) });
+  });
+  await page.route("**/api/apps/catalog", (route) => route.fulfill({
+    json: { catalog_mode: "all", apps: [
+      { slug: "notion", name: "Notion", curated: true },
+      { slug: "slack", name: "Slack", curated: true },
+    ] },
+  }));
+  await page.route("**/api/apps", (route) => route.fulfill({
+    json: {
+      catalog_mode: "all", can_manage: role === "admin", team: [],
+      personal: ["notion", "slack"].map((toolkit_slug) => ({
+        id: `conn-${toolkit_slug}`, toolkit_slug, status: "active",
+        connected_at: "2026-06-30T00:00:00Z", last_used_at: null,
+      })),
+      agent_apps: apps.map((app) => ({ ...app, agent_id: AGENT_ID })),
+    },
+  }));
+  await page.route(`**/api/agents/${AGENT_ID}/apps`, async (route) => {
+    if (route.request().method() === "PUT") {
+      captured = route.request().postDataJSON();
+      apps = (captured as { apps: Grant[] }).apps;
+    }
+    await route.fulfill({ json: { apps: apps.map((app) => ({ ...app, agent_id: AGENT_ID })) } });
+  });
   await page.route("**/api/agents**", (route) => {
-    const req = route.request();
-    const url = new URL(req.url());
-    const workspaceId = url.searchParams.get("workspace_id") ?? "ws-mock";
-
-    if (req.method() === "PUT" && url.pathname.endsWith(`/api/agents/${AGENT_ID}`)) {
-      const body = req.postDataJSON?.() ?? {};
-      captured.allowlist = body.composio_toolkit_allowlist;
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          ...mockAgent(ownerId, workspaceId),
-          composio_toolkit_allowlist: body.composio_toolkit_allowlist ?? [],
-        }),
-      });
+    const request = route.request();
+    const path = new URL(request.url()).pathname;
+    if (request.method() === "GET" && path.endsWith("/api/agents")) {
+      return route.fulfill({ json: [mockAgent(ownerId, workspaceId)] });
     }
-
-    if (req.method() === "GET" && url.pathname.endsWith("/api/agents")) {
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify([mockAgent(ownerId, workspaceId)]),
-      });
+    if (request.method() === "GET" && path.endsWith(`/api/agents/${AGENT_ID}`)) {
+      return route.fulfill({ json: mockAgent(ownerId, workspaceId) });
     }
-
     return route.fallback();
   });
-
-  return () => captured.allowlist;
+  return () => captured;
 }
 
-test.describe("Agent MCP tab (creator-only)", () => {
-  test("creator sees the MCP Apps tab and toggling a toolkit writes the allowlist", async ({
-    page,
-  }) => {
-    const { slug, userId } = await loginCapturingUser(page);
-    const getAllowlist = await mockApis(page, userId);
-
-    await page.goto(`/${slug}/agents/${AGENT_ID}`, {
-      waitUntil: "domcontentloaded",
+test.describe("Agent settings: connected apps", () => {
+  for (const scenario of [
+    { title: "agent owner can grant app access", owner: true, role: "member" as const },
+    { title: "workspace admin can grant access to another owner's agent", owner: false, role: "admin" as const },
+  ]) {
+    test(scenario.title, async ({ page }) => {
+      const { slug, userId, workspaceId } = await loginCapturingUser(page);
+      const getRequest = await mockApis(page, {
+        ownerId: scenario.owner ? userId : OTHER_USER_ID,
+        userId, workspaceId, role: scenario.role,
+      });
+      await page.goto(`/${slug}/agents/${AGENT_ID}`, { waitUntil: "domcontentloaded" });
+      await waitForPageText(page, "MCP Test Agent");
+      await page.getByRole("button", { name: "Settings", exact: true }).click();
+      const dialog = page.getByRole("dialog");
+      await dialog.getByRole("tab", { name: "Apps", exact: true }).click();
+      await expect(dialog.getByText("Notion", { exact: true })).toBeVisible();
+      await expect(dialog.getByText("Slack", { exact: true })).toBeVisible();
+      await dialog.getByRole("switch", { name: "Enable Notion" }).click();
+      await expect.poll(getRequest).toEqual({
+        apps: [{ toolkit_slug: "notion", account_scope: "personal", level: "write" }],
+      });
     });
-    await waitForPageText(page, "MCP Test Agent");
-
-    // The creator-only tab entry is present and opens the connection list.
-    const tab = page.getByRole("button", { name: "MCP Apps" });
-    await expect(tab).toBeVisible({ timeout: 15000 });
-    await tab.click();
-
-    await expect(page.getByText("Notion")).toBeVisible();
-    await expect(page.getByText("Slack")).toBeVisible();
-
-    // Allow Notion → the PUT body carries exactly ["notion"].
-    await page.getByLabel(/Allow Notion for this agent/i).click();
-    await expect.poll(() => getAllowlist()).toEqual(["notion"]);
-  });
-
-  test("a non-creator viewer does not see the MCP Apps tab", async ({ page }) => {
-    const { slug } = await loginCapturingUser(page);
-    // Agent owned by someone else → the creator gate hides the tab entry.
-    await mockApis(page, OTHER_USER_ID);
-
-    await page.goto(`/${slug}/agents/${AGENT_ID}`, {
-      waitUntil: "domcontentloaded",
-    });
-    await waitForPageText(page, "MCP Test Agent");
-
-    // Other tabs render, but the creator-only MCP Apps entry must not.
-    await expect(page.getByRole("button", { name: "Activity" })).toBeVisible({
-      timeout: 15000,
-    });
-    await expect(page.getByRole("button", { name: "MCP Apps" })).toHaveCount(0);
-  });
+  }
 });
