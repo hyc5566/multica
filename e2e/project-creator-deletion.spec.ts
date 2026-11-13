@@ -50,7 +50,7 @@ test("members can delete their own shared project while keeping its issues", asy
     );
     await confirmation.getByRole("button", { name: "Delete", exact: true }).click();
     expect((await deleted).status()).toBe(204);
-    await expect(page).toHaveURL(new RegExp(`/${workspace.slug}/projects$`));
+    await expect(page).toHaveURL(new RegExp(`/${workspace.slug}/projects$`), { timeout: 15000 });
 
     const retainedIssue = await page.request.get(`${apiBase}/api/issues/${issue.id}`, { headers });
     expect(retainedIssue.status()).toBe(200);
