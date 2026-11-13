@@ -31,7 +31,8 @@ test("native local audio survives capability renewal", async ({ page, baseURL },
     await expect.poll(() => audio.evaluate((el: HTMLAudioElement) => el.readyState)).toBeGreaterThan(0);
     const first = (await audio.getAttribute("src"))!;
     expect(first).toContain("/signed-download?");
-    const expires = Number(new URL(first).searchParams.get("exp"));
+    const firstUrl = new URL(first, page.url());
+    const expires = Number(firstUrl.searchParams.get("exp"));
     expect(expires * 1000 - Date.now()).toBeLessThanOrEqual(60000);
     await page.locator("body").click({ position: { x: 10, y: 100 } });
     await audio.evaluate(async (el: HTMLAudioElement) => { el.currentTime = 12; await el.play(); });
@@ -40,7 +41,7 @@ test("native local audio survives capability renewal", async ({ page, baseURL },
     await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
     expect(await audio.getAttribute("src")).toBe(first);
     expect(await audio.evaluate((el: HTMLAudioElement) => el.currentTime)).toBeGreaterThan(60);
-    expect((await fetch(first)).status).toBe(403);
+    expect((await fetch(firstUrl)).status).toBe(403);
     // A late native error renews on demand. The first metadata request fails
     // to cover bounded recovery from a transient network outage as well.
     let outage = true;
