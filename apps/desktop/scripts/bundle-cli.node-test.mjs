@@ -32,13 +32,20 @@ for (const [platform, arch, goos, goarch, foreignCaller] of [
         mkdirSync(scripts, { recursive: true });
         mkdirSync(bin);
         mkdirSync(join(root, "server"));
+        mkdirSync(join(root, "scripts"));
         mkdirSync(caller);
         for (const name of ["bundle-cli.mjs", "package.mjs"]) {
           copyFileSync(join(scriptDir, name), join(scripts, name));
         }
+        copyFileSync(join(scriptDir, "../../../scripts/zh-tw-version.mjs"), join(root, "scripts/zh-tw-version.mjs"));
+        writeFileSync(join(root, "apps/desktop/package.json"), JSON.stringify({version: "9.9.9-zh-tw.1+up.aaaaaaa"}));
         fakeExecutable(join(bin, "git"), `
-const args = process.argv.slice(2);
+let args = process.argv.slice(2);
+if (args[0] === "-C") args = args.slice(2);
 if (args[0] === "describe") console.log("v9.9.9");
+else if (args[0] === "merge-base") console.log(${JSON.stringify(fullRevision)});
+else if (args[0] === "tag") console.log("");
+else if (args[0] === "rev-parse" && args[1] === "--verify") console.log(${JSON.stringify(fullRevision)});
 else if (args.join(" ") === "rev-parse --short HEAD") console.log("abc1234");
 else if (args.join(" ") === "rev-parse HEAD") {
   if (process.env.TEST_MISSING_REVISION === "true") process.exit(1);
@@ -62,7 +69,7 @@ else if (args[0] === "build") {
         });
         const build = JSON.parse(readFileSync(record, "utf8"));
         const flags = build.args[build.args.indexOf("-ldflags") + 1].split(" ");
-        assert.ok(flags.includes("main.version=9.9.9"));
+        assert.ok(flags.includes("main.version=9.9.9-zh-tw.1+up.aaaaaaa"));
         assert.ok(flags.includes("main.commit=abc1234"));
         assert.ok(flags.includes(`main.buildCommit=${missingRevision ? "unknown" : fullRevision}`));
         assert.equal(build.goos, goos);
