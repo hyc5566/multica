@@ -32,9 +32,7 @@ function CallbackContent() {
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const [error, setError] = useState<CallbackError | null>(null);
   const [desktopToken, setDesktopToken] = useState<string | null>(null);
-  // Single-use OAuth codes must only be exchanged once even if React StrictMode
-  // re-invokes mount effects in development.
-  const exchangedCodeRef = useRef<string | null>(null);
+  const exchangedCodes = useRef(new Set<string>());
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -53,11 +51,6 @@ function CallbackContent() {
       setError({ kind: "missing_code" });
       return;
     }
-
-    if (exchangedCodeRef.current === code) {
-      return;
-    }
-    exchangedCodeRef.current = code;
 
     const state = searchParams.get("state") || "";
     const stateParts = state.split(",");
@@ -89,6 +82,11 @@ function CallbackContent() {
       setError({ kind: "invalid_cli_callback" });
       return;
     }
+
+    // OAuth codes are single-use. React StrictMode and effect re-runs must
+    // share the first exchange, while a different code can still be handled.
+    if (exchangedCodes.current.has(code)) return;
+    exchangedCodes.current.add(code);
 
     const redirectUri = `${window.location.origin}/auth/callback`;
 
