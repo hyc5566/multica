@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { sanitizeNextUrl, useAuthStore } from "@multica/core/auth";
@@ -32,6 +32,7 @@ function CallbackContent() {
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const [error, setError] = useState<CallbackError | null>(null);
   const [desktopToken, setDesktopToken] = useState<string | null>(null);
+  const exchangedCodes = useRef(new Set<string>());
 
   useEffect(() => {
     const code = searchParams.get("code");
@@ -81,6 +82,11 @@ function CallbackContent() {
       setError({ kind: "invalid_cli_callback" });
       return;
     }
+
+    // OAuth codes are single-use. React StrictMode and effect re-runs must
+    // share the first exchange, while a different code can still be handled.
+    if (exchangedCodes.current.has(code)) return;
+    exchangedCodes.current.add(code);
 
     const redirectUri = `${window.location.origin}/auth/callback`;
 
