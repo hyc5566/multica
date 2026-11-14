@@ -360,7 +360,7 @@ export function DaemonVisual() {
       <div className="flex flex-col gap-2 px-4 py-3 text-caption">
         <p className="flex justify-between gap-3">
           <span className="text-muted-foreground">Profile</span>
-          <span className="truncate font-mono text-[11px]">desktop-multica.ai</span>
+          <span className="truncate font-mono text-[11px]">selfhost</span>
         </p>
         <p className="flex justify-between gap-3">
           <span className="text-muted-foreground">CLI</span>

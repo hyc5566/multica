@@ -1,4 +1,4 @@
-import { githubUrl, discordUrl } from "../components/shared";
+import { githubUrl } from "../components/shared";
 import type { LandingDict } from "./types";
 import { zhSiteCopy } from "./site-zh";
 
@@ -78,7 +78,7 @@ export function createZhDict(): LandingDict {
       contacts: [
         { label: "商業授權與合作", linkLabel: "聯絡業務", href: "/contact-sales" },
         { label: "授權規則", linkLabel: "授權說明", href: "/licensing" },
-        { label: "社群與支援", linkLabel: "Discord", href: discordUrl },
+        { label: "社群與支援", linkLabel: "GitHub", href: githubUrl },
         { label: "原始碼與問題回報", linkLabel: "GitHub", href: githubUrl },
       ],
     },
@@ -87,7 +87,7 @@ export function createZhDict(): LandingDict {
   licensing: {
     title: "授權說明",
     intro: [
-      "Multica 採用 [Multica License](https://github.com/multica-ai/multica/blob/main/LICENSE) 釋出：在 Apache License 2.0 的基礎上附加了幾項條件。原始碼公開，在你自己的組織內部使用 Multica 是免費的，包括為整個團隊自行架設。",
+      "Multica 採用 [Multica License](https://github.com/hyc5566/multica/blob/zh-tw/LICENSE) 釋出：在 Apache License 2.0 的基礎上附加了幾項條件。原始碼公開，在你自己的組織內部使用 Multica 是免費的，包括為整個團隊自行架設。",
       "最主要的附加條件針對代管使用：把 Multica 提供給組織外部的人使用，需要商業授權。這一頁用大家最常問的問題，說明這條線畫在哪裡。這是一份通俗說明，不構成法律意見；如與 LICENSE 原文不一致，以 LICENSE 為準。",
     ],
     rule: {
@@ -148,7 +148,7 @@ export function createZhDict(): LandingDict {
         heading: "其他條件",
         bullets: [
           "品牌：除非獲得我們的書面品牌豁免，請保留 Multica 介面中顯示的 Multica Logo、產品名稱以及版權和署名資訊。",
-          "署名：如果你只基於 Multica 的後端、守護程式或 CLI 構建產品、不使用 Multica 介面，需要保留版權和 NOTICE 資訊，並在面向使用者的檔案中註明產品基於 Multica 構建，附上 [GitHub 儲存庫](https://github.com/multica-ai/multica)連結。",
+          "署名：如果你只基於 Multica 的後端、守護程式或 CLI 構建產品、不使用 Multica 介面，需要保留版權和 NOTICE 資訊，並在面向使用者的檔案中註明產品基於 Multica 構建，附上 [GitHub 儲存庫](https://github.com/hyc5566/multica)連結。",
           "Fork：公開釋出 fork 的原始碼不算代管服務，不需要商業授權。但任何用這個 fork 營運代管服務的人，都需要各自獲得商業授權。",
           "商業授權和品牌豁免是兩項獨立的授權，獲得其中一項不代表獲得另一項。",
         ],
@@ -156,7 +156,7 @@ export function createZhDict(): LandingDict {
       {
         heading: "取得商業授權",
         paragraphs: [
-          "透過[聯絡業務](/contact-sales)告訴我們你的使用場景，我們會在三個工作日內回覆。不確定自己的情況是否需要授權？可以在 [Discord](" + discordUrl + ") 上問我們，也可以透過同一個表單諮詢。",
+          "透過[聯絡業務](/contact-sales)告訴我們你的使用場景，我們會在三個工作日內回覆。不確定自己的情況是否需要授權？可以在 [GitHub Issues](https://github.com/hyc5566/multica/issues) 上問我們，也可以透過同一個表單諮詢。",
         ],
       },
     ],
@@ -239,13 +239,13 @@ export function createZhDict(): LandingDict {
       {
         heading: "資訊的保留期限",
         paragraphs: [
-          "帳戶資訊和工作區內容會在你的帳戶或工作區存在期間一直保留。工作區所有者刪除工作區後，其中的任務、留言等內容會從 Multica Cloud 中移除，但用於恢復的備份在之後一段時間內仍可能包含副本。如需從我們的檔案儲存中清除已刪除工作區裡上傳的檔案，請發郵件至 [support@multica.ai](mailto:support@multica.ai)。帳單記錄按會計和稅務規定要求的期限保留；產品分析資料、崩潰報告、聯絡業務表單和意見回饋，會在為你提供支援和改進 Multica 所需的期間內保留。你可以要求我們刪除聯絡業務表單和意見回饋。",
+          "帳戶資訊和工作區內容會在你的帳戶或工作區存在期間一直保留。工作區所有者刪除工作區後，其中的任務、留言等內容會從 Multica Cloud 中移除，但用於恢復的備份在之後一段時間內仍可能包含副本。如需從我們的檔案儲存中清除已刪除工作區裡上傳的檔案，請至 [GitHub Issues](https://github.com/hyc5566/multica/issues) 提出請求。帳單記錄按會計和稅務規定要求的期限保留；產品分析資料、崩潰報告、聯絡業務表單和意見回饋，會在為你提供支援和改進 Multica 所需的期間內保留。你可以要求我們刪除聯絡業務表單和意見回饋。",
         ],
       },
       {
         heading: "你的選擇和權利",
         paragraphs: [
-          "根據你所在地的法律，你可能有權存取、更正、刪除或匯出你的個人資訊，反對或限制某些處理，撤回你已給出的同意（例如接收行銷資訊的同意），以及向當地的資料保護機構投訴。你可以隨時在 Multica 中更新個人資料，也可以在設定中刪除你擁有的工作區。其他請求（包括刪除帳戶），請發郵件至 [support@multica.ai](mailto:support@multica.ai)，我們會在 30 天內回覆。",
+          "根據你所在地的法律，你可能有權存取、更正、刪除或匯出你的個人資訊，反對或限制某些處理，撤回你已給出的同意（例如接收行銷資訊的同意），以及向當地的資料保護機構投訴。你可以隨時在 Multica 中更新個人資料，也可以在設定中刪除你擁有的工作區。其他請求（包括刪除帳戶），請至 [GitHub Issues](https://github.com/hyc5566/multica/issues) 提出請求，我們會在 30 天內回覆。",
         ],
       },
       {
@@ -269,7 +269,7 @@ export function createZhDict(): LandingDict {
       {
         heading: "聯絡我們",
         paragraphs: [
-          "Multica 由 Index Labs (Hong Kong) Limited 營運，並由其負責你的個人資訊。如有隱私相關的問題或請求，請發郵件至 [support@multica.ai](mailto:support@multica.ai)。",
+          "Multica 由 Index Labs (Hong Kong) Limited 營運，並由其負責你的個人資訊。如有隱私相關的問題或請求，請至 [GitHub Issues](https://github.com/hyc5566/multica/issues) 提出請求。",
         ],
       },
     ],

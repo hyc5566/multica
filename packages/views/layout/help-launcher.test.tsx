@@ -127,14 +127,14 @@ describe("HelpLauncher", () => {
   it("links to the download page on web", () => {
     render(<HelpLauncher />);
     const link = screen.getByRole("link", { name: /Desktop app/ });
-    expect(link).toHaveAttribute("href", "https://multica.ai/download");
+    expect(link).toHaveAttribute("href", "/download");
   });
 
   it.each([
-    ["en", "https://multica.ai/docs"],
-    ["zh-Hans", "https://multica.ai/docs/zh"],
-    ["zh-Hant", "https://multica.ai/docs/zh-Hant"],
-    ["fr", "https://multica.ai/docs/fr"],
+    ["en", "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs"],
+    ["zh-Hans", "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs"],
+    ["zh-Hant", "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs"],
+    ["fr", "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs"],
   ])("links Docs to the %s docs", (language, href) => {
     i18nState.language = language;
     render(<HelpLauncher />);
@@ -157,7 +157,7 @@ describe("HelpLauncher", () => {
   it("links to the GitHub repo and retires the star prompt on click", () => {
     render(<HelpLauncher />);
     const link = screen.getByRole("link", { name: /Star on GitHub/ });
-    expect(link).toHaveAttribute("href", "https://github.com/multica-ai/multica");
+    expect(link).toHaveAttribute("href", "https://github.com/hyc5566/multica");
     fireEvent.click(link);
     expect(markStarPromptStarred).toHaveBeenCalledTimes(1);
   });

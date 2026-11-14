@@ -1,4 +1,4 @@
-import { githubUrl, discordUrl } from "../components/shared";
+import { githubUrl } from "../components/shared";
 import { createEnDict } from "./en";
 import type { LandingDict } from "./types";
 import { jaSiteCopy } from "./site-ja";
@@ -3473,7 +3473,7 @@ export function createJaDict(): LandingDict {
         contacts: [
           { label: "商用ライセンス・営業", linkLabel: "営業に相談", href: "/contact-sales" },
           { label: "ライセンスの考え方", linkLabel: "ライセンス FAQ", href: "/licensing" },
-          { label: "コミュニティ・サポート", linkLabel: "Discord", href: discordUrl },
+          { label: "コミュニティ・サポート", linkLabel: "GitHub", href: githubUrl },
           { label: "ソースコード・Issue", linkLabel: "GitHub", href: githubUrl },
         ],
       },
@@ -3481,7 +3481,7 @@ export function createJaDict(): LandingDict {
     licensing: {
       title: "ライセンス",
       intro: [
-        "Multica は [Multica License](https://github.com/multica-ai/multica/blob/main/LICENSE) のもとで公開されています。Apache License 2.0 に、いくつかの追加条件を加えたライセンスです。ソースコードは公開されており、自社の組織内で Multica を使うのは無料です。チーム全体のためにセルフホストする場合も同様です。",
+        "Multica は [Multica License](https://github.com/hyc5566/multica/blob/zh-tw/LICENSE) のもとで公開されています。Apache License 2.0 に、いくつかの追加条件を加えたライセンスです。ソースコードは公開されており、自社の組織内で Multica を使うのは無料です。チーム全体のためにセルフホストする場合も同様です。",
         "主な追加条件は、ホスティングでの利用に関するものです。組織外の人に Multica を提供するには、商用ライセンスが必要です。このページでは、よくいただく質問をもとに、その線引きを説明します。これはわかりやすさを優先した案内であり、法的助言ではありません。LICENSE 本文と内容が異なる場合は、LICENSE が優先されます。",
       ],
       rule: {
@@ -3542,7 +3542,7 @@ export function createJaDict(): LandingDict {
           heading: "そのほかの条件",
           bullets: [
             "ブランド: 書面によるブランド表示の免除を受けていない限り、Multica のインターフェースに表示される Multica のロゴ、製品名、著作権・帰属表示を削除・変更しないでください。",
-            "帰属表示: Multica のインターフェースを使わずに、バックエンド、デーモン、CLI の上に製品を構築する場合は、著作権表示と NOTICE の内容を残し、ユーザー向けドキュメントに Multica をベースにしていることを [GitHub リポジトリ](https://github.com/multica-ai/multica)へのリンクとともに明記してください。",
+            "帰属表示: Multica のインターフェースを使わずに、バックエンド、デーモン、CLI の上に製品を構築する場合は、著作権表示と NOTICE の内容を残し、ユーザー向けドキュメントに Multica をベースにしていることを [GitHub リポジトリ](https://github.com/hyc5566/multica)へのリンクとともに明記してください。",
             "フォーク: フォークのソースコードを公開すること自体はホスティングサービスではなく、商用ライセンスは不要です。ただし、そのフォークでホスティングサービスを運営する人は、それぞれ商用ライセンスが必要です。",
             "商用ライセンスとブランド表示の免除は別々の許諾です。一方を得ても、もう一方は含まれません。",
           ],
@@ -3550,7 +3550,7 @@ export function createJaDict(): LandingDict {
         {
           heading: "商用ライセンスの取得",
           paragraphs: [
-            "[営業に相談](/contact-sales)からユースケースをお知らせください。3営業日以内にご連絡します。ライセンスが必要かどうかわからない場合は、[Discord](" + discordUrl + ") または同じフォームからお気軽にお尋ねください。",
+            "[営業に相談](/contact-sales)からユースケースをお知らせください。3営業日以内にご連絡します。ライセンスが必要かどうかわからない場合は、[GitHub Issues](https://github.com/hyc5566/multica/issues) または同じフォームからお気軽にお尋ねください。",
           ],
         },
       ],
@@ -3632,13 +3632,13 @@ export function createJaDict(): LandingDict {
         {
           heading: "保存期間",
           paragraphs: [
-            "アカウント情報とワークスペースのコンテンツは、アカウントやワークスペースが存在する間保存します。ワークスペースのオーナーがワークスペースを削除すると、そのタスクやコメントなどのコンテンツは Multica Cloud から削除されます。ただし、復旧用のバックアップには、削除後もしばらくの間コピーが残ることがあります。削除したワークスペースにアップロードされたファイルをファイルストレージから消去したい場合は、[support@multica.ai](mailto:support@multica.ai) までご連絡ください。請求記録は会計・税務上必要な期間保存し、製品分析データ、クラッシュレポート、営業へのお問い合わせ、フィードバックは、サポートと製品改善に必要な期間保存します。お問い合わせとフィードバックは、ご依頼があれば削除します。",
+            "アカウント情報とワークスペースのコンテンツは、アカウントやワークスペースが存在する間保存します。ワークスペースのオーナーがワークスペースを削除すると、そのタスクやコメントなどのコンテンツは Multica Cloud から削除されます。ただし、復旧用のバックアップには、削除後もしばらくの間コピーが残ることがあります。削除したワークスペースにアップロードされたファイルをファイルストレージから消去したい場合は、[GitHub Issues](https://github.com/hyc5566/multica/issues) までご連絡ください。請求記録は会計・税務上必要な期間保存し、製品分析データ、クラッシュレポート、営業へのお問い合わせ、フィードバックは、サポートと製品改善に必要な期間保存します。お問い合わせとフィードバックは、ご依頼があれば削除します。",
           ],
         },
         {
           heading: "お客様の選択と権利",
           paragraphs: [
-            "お住まいの地域の法令によっては、個人情報へのアクセス、訂正、削除、書き出しを求める権利、特定の処理に異議を唱えたり制限したりする権利、すでに与えた同意(マーケティング情報の受信など)を撤回する権利、そして地域のデータ保護当局に苦情を申し立てる権利がある場合があります。プロフィールは Multica 内でいつでも更新でき、オーナーであるワークスペースは設定から削除できます。アカウントの削除など、そのほかのご依頼は [support@multica.ai](mailto:support@multica.ai) までメールでご連絡ください。30日以内に回答します。",
+            "お住まいの地域の法令によっては、個人情報へのアクセス、訂正、削除、書き出しを求める権利、特定の処理に異議を唱えたり制限したりする権利、すでに与えた同意(マーケティング情報の受信など)を撤回する権利、そして地域のデータ保護当局に苦情を申し立てる権利がある場合があります。プロフィールは Multica 内でいつでも更新でき、オーナーであるワークスペースは設定から削除できます。アカウントの削除など、そのほかのご依頼は [GitHub Issues](https://github.com/hyc5566/multica/issues) までメールでご連絡ください。30日以内に回答します。",
           ],
         },
         {
@@ -3662,7 +3662,7 @@ export function createJaDict(): LandingDict {
         {
           heading: "お問い合わせ",
           paragraphs: [
-            "Multica は Index Labs (Hong Kong) Limited が運営しており、同社がお客様の個人情報について責任を負います。プライバシーに関するご質問やご依頼は、[support@multica.ai](mailto:support@multica.ai) までメールでご連絡ください。",
+            "Multica は Index Labs (Hong Kong) Limited が運営しており、同社がお客様の個人情報について責任を負います。プライバシーに関するご質問やご依頼は、[GitHub Issues](https://github.com/hyc5566/multica/issues) までメールでご連絡ください。",
           ],
         },
       ],

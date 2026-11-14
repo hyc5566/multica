@@ -99,7 +99,6 @@ import { storeThemeState, storeThemesOptions } from "@multica/core/appearance/th
 import { useConfigStore } from "@multica/core/config";
 import { useLocale, useT } from "../../i18n";
 import { SegmentedToggle } from "../../common/segmented-toggle";
-import { docsLocalePrefix } from "../../common/docs-locale";
 import { openExternal } from "../../platform/open-external";
 import { themeFolderAPI } from "../../platform/theme-folder";
 import { ThemesButton, useStoreThemeInstall } from "./themes-dialog";
@@ -446,8 +445,8 @@ function useThemeImport(): ThemeImport {
   return { chooseZip: () => zipRef.current?.click(), chooseFolder: () => folderRef.current?.click(), element };
 }
 
-function themeGuideUrl(language: string): string {
-  return `https://multica.ai/docs${docsLocalePrefix(language)}/developers/themes`;
+function themeGuideUrl(_language: string): string {
+  return "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs";
 }
 
 function downloadFile(data: Uint8Array<ArrayBuffer>, name: string, type: string) {

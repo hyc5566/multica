@@ -276,7 +276,7 @@ describe("RuntimeProfilesDialog", () => {
       screen.getByRole("link", { name: "View setup guide" }),
     ).toHaveAttribute(
       "href",
-      "https://multica.ai/docs/daemon-runtimes#custom-runtime-profiles",
+      "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs",
     );
     expect(screen.getByText("Step 1 of 2")).toBeInTheDocument();
     expect(

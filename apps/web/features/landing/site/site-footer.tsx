@@ -6,14 +6,7 @@ import { Globe } from "@multica/ui/icons";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@multica/ui/components/ui/select";
 import { cn } from "@multica/ui/lib/utils";
 import { docsHrefForLocale, localeLabels, locales, useLocale, type Locale } from "../i18n";
-import {
-  DiscordMark,
-  GitHubMark,
-  XMark,
-  discordUrl,
-  githubUrl,
-  twitterUrl,
-} from "../components/shared";
+import { GitHubMark, githubUrl } from "../components/shared";
 import { MulticaWordmark } from "@multica/ui/components/common/multica-wordmark";
 import { FooterWordmark } from "./footer-wordmark";
 import { Container, SiteTextLink, focusRing } from "./primitives";
@@ -21,8 +14,6 @@ import { buildFooterGroups } from "./sitemap";
 
 const SOCIAL_LINKS = [
   { label: "GitHub", href: githubUrl, Mark: GitHubMark },
-  { label: "Discord", href: discordUrl, Mark: DiscordMark },
-  { label: "X", href: twitterUrl, Mark: XMark },
 ];
 
 const LANGUAGE_ITEMS: { value: Locale; label: string }[] = locales.map((value) => ({ value, label: localeLabels[value] }));

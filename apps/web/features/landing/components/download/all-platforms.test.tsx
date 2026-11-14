@@ -18,27 +18,16 @@ function row(arch: string) {
 }
 
 describe("AllPlatforms", () => {
-  it("uses the configured releases page and only links existing formats", () => {
-    render(<AllPlatforms assets={{ macArm64Zip: ASSETS.macArm64Zip }} releasesUrl="https://github.com/another-owner/multica/releases" />);
-    expect(screen.getByRole("link", { name: "All releases" })).toHaveAttribute("href", "https://github.com/another-owner/multica/releases");
+  it("only shows published Apple Silicon formats even when other platforms are present", () => {
+    render(<AllPlatforms assets={{ ...ASSETS, winX64Exe: "https://downloads.test/windows.exe", linuxAmd64Deb: "https://downloads.test/linux.deb" }} />);
+    expect(within(row("Apple Silicon")).getByRole("link", { name: ".dmg" })).toHaveAttribute("href", ASSETS.macArm64Dmg);
     expect(within(row("Apple Silicon")).getByRole("link", { name: ".zip" })).toHaveAttribute("href", ASSETS.macArm64Zip);
-    expect(within(row("Apple Silicon")).queryByRole("link", { name: ".dmg" })).toBeNull();
-    expect(within(row("Intel")).queryByRole("link")).toBeNull();
+    expect(screen.queryByText("Intel")).toBeNull();
+    expect(screen.queryByText("Windows")).toBeNull();
+    expect(screen.queryByText("Linux")).toBeNull();
   });
-  it("lists Intel macOS downloads separately from Apple Silicon", () => {
-    render(<AllPlatforms assets={ASSETS} />);
-
-    const intel = within(row("Intel"));
-    expect(intel.getByRole("link", { name: ".dmg" })).toHaveAttribute("href", ASSETS.macX64Dmg);
-    expect(intel.getByRole("link", { name: ".zip" })).toHaveAttribute("href", ASSETS.macX64Zip);
-  });
-
-  it("marks the visitor's platform and disables formats the release lacks", () => {
-    render(<AllPlatforms assets={ASSETS} current="macArm64Dmg" />);
-
-    expect(within(row("Apple Silicon")).getByText("This computer")).toBeInTheDocument();
-    expect(within(row("Intel")).queryByText("This computer")).toBeNull();
-    const windows = screen.getAllByText("Windows")[0]!.closest("li")!;
-    expect(within(windows).queryByRole("link")).toBeNull();
+  it("omits formats that are not published", () => {
+    render(<AllPlatforms assets={{ macArm64Zip: ASSETS.macArm64Zip }} />);
+    expect(within(row("Apple Silicon")).queryByText(".dmg")).toBeNull();
   });
 });

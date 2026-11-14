@@ -14,7 +14,6 @@ import {
 } from "@multica/ui/icons";
 import { Button, buttonVariants } from "@multica/ui/components/ui/button";
 import { cn } from "@multica/ui/lib/utils";
-import { docsLocalePrefix } from "../common/docs-locale";
 import { useLocale, useT } from "../i18n";
 
 export type FeatureDocsSlug =
@@ -26,8 +25,8 @@ export type FeatureDocsSlug =
   | "daemon-runtimes"
   | "issue-wakeups";
 
-export function featureDocsHref(slug: FeatureDocsSlug, language?: string): string {
-  return `https://multica.ai/docs${docsLocalePrefix(language)}/${slug}`;
+export function featureDocsHref(_slug: FeatureDocsSlug, _language?: string): string {
+  return "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs";
 }
 
 interface FeatureIntroProps {

@@ -41,7 +41,7 @@ That gives you the project-management layer first. Once a runtime is connected, 
 
 ## Install your first agent runtime
 
-Full guide: https://multica.ai/docs/install-agent-runtime
+Full guide: https://10.1.24.90:45671/downloads/selfhost/guideline.md
 
 For English users, the fastest first path is Codex:
 
@@ -83,7 +83,7 @@ Agent 需要先連上執行環境才能執行工作。執行環境還沒準備�
 
 ## 安裝第一個 Agent 執行環境
 
-完整文件:https://multica.ai/docs/install-agent-runtime
+完整文件:https://10.1.24.90:45671/downloads/selfhost/guideline.md
 
 中文使用者建議先裝 Kimi Code CLI（舊版 Kimi CLI 已停止維護）。
 
@@ -127,7 +127,7 @@ runtime이 준비되기 전에는 다음을 해볼 수 있습니다:
 
 ## 첫 agent runtime 설치하기
 
-전체 가이드: https://multica.ai/docs/install-agent-runtime
+전체 가이드: https://10.1.24.90:45671/downloads/selfhost/guideline.md
 
 한국어 사용자는 Codex로 시작하는 것이 가장 빠릅니다:
 
@@ -169,7 +169,7 @@ runtime が準備できる前に、次のことを試せます:
 
 ## 最初の agent runtime をインストールする
 
-詳しいガイド: https://multica.ai/docs/install-agent-runtime
+詳しいガイド: https://10.1.24.90:45671/downloads/selfhost/guideline.md
 
 日本語ユーザーには、Codex で始めるのが最も速い経路です:
 

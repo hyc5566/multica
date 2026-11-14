@@ -29,7 +29,7 @@ import {
 
 /*
  * Mockups for the Multica Cloud page: agents that run on cloud agent services
- * connected as runtimes. The hero is the Runtimes page open at multica.ai,
+ * connected as runtimes. The hero is the Runtimes page open at 10.1.24.90:45671,
  * with an issue a cloud agent is working floating over it. Strings follow the
  * product's own copy; data is fictional.
  */
@@ -242,7 +242,7 @@ export function CloudScene() {
     <>
       <div className="relative aspect-[440/440] sm:hidden">
         <ZoomCanvas {...SCENE_NARROW}>
-          <BrowserWindow path="multica.ai/acme/runtimes" className="top-6 left-6 -right-10 -bottom-10">
+          <BrowserWindow path="10.1.24.90:45671/acme/runtimes" className="top-6 left-6 -right-10 -bottom-10">
             <AppWindow className="inset-0 rounded-none border-0 shadow-none" active="team" bleed={40}>
               <RuntimesPage compact />
             </AppWindow>
@@ -252,7 +252,7 @@ export function CloudScene() {
       </div>
       <div className="relative hidden aspect-[1100/600] sm:block">
         <ZoomCanvas {...SCENE}>
-          <BrowserWindow path="multica.ai/acme/runtimes" className="top-10 right-[19%] -bottom-12 left-[7%]">
+          <BrowserWindow path="10.1.24.90:45671/acme/runtimes" className="top-10 right-[19%] -bottom-12 left-[7%]">
             <AppWindow className="inset-0 rounded-none border-0 shadow-none" active="team" bleed={48}>
               <RuntimesPage />
             </AppWindow>

@@ -161,7 +161,7 @@ describe("agent messaging channels", () => {
         await screen.findByRole("menuitem", { name: "Troubleshooting" }),
       );
       expect(state.open).toHaveBeenCalledWith(
-        "https://multica.ai/docs/lark-bot-integration",
+        "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs",
       );
     },
   );

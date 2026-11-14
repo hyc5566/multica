@@ -52,6 +52,22 @@ const nextConfig: NextConfig = {
       { pathname: "/usecases/**", search: "" },
     ],
   },
+  async headers() {
+    return [
+      {
+        source: "/downloads/selfhost/:path*",
+        headers: [{ key: "Cache-Control", value: "no-store" }],
+      },
+      {
+        source: "/downloads/selfhost/guideline.md",
+        headers: [{ key: "Content-Type", value: "text/markdown; charset=utf-8" }],
+      },
+      {
+        source: "/downloads/selfhost/install.sh",
+        headers: [{ key: "Content-Type", value: "text/plain; charset=utf-8" }],
+      },
+    ];
+  },
   async rewrites() {
     return {
       // Run before file-system routes so /docs isn't shadowed by the

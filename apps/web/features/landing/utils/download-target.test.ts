@@ -36,33 +36,22 @@ describe("detectFromUserAgent", () => {
 });
 
 describe("resolvePrimary", () => {
-  it("offers a same-architecture Mac ZIP when no DMG exists", () => {
-    const assets = { macArm64Zip: "https://downloads.test/mac-arm64.zip" };
-    expect(resolvePrimary({ os: "mac", arch: "arm64", archConfident: true }, assets)).toEqual({
-      key: "macArm64Zip", href: assets.macArm64Zip,
-    });
-    expect(resolvePrimary({ os: "mac", arch: "x64", archConfident: true }, assets)).toBeNull();
-    expect(resolvePrimary({ os: "windows", arch: "x64", archConfident: true }, assets)).toBeNull();
-  });
-  it("offers the installer for the detected platform", () => {
-    expect(resolvePrimary(detectFromUserAgent(SAFARI_MAC), ASSETS)).toEqual({ key: "macArm64Dmg", href: ASSETS.macArm64Dmg });
-    expect(resolvePrimary({ os: "mac", arch: "x64", archConfident: true }, ASSETS)?.key).toBe("macX64Dmg");
-    expect(resolvePrimary(detectFromUserAgent(FIREFOX_LINUX_ARM), ASSETS)?.key).toBe("linuxArm64AppImage");
-  });
-
-  it("offers nothing to phones, unknown systems or a release without the file", () => {
-    expect(resolvePrimary(detectFromUserAgent(IPHONE), ASSETS)).toBeNull();
-    expect(resolvePrimary(detectFromUserAgent(""), ASSETS)).toBeNull();
-    expect(resolvePrimary(detectFromUserAgent(CHROME_WINDOWS), {})).toBeNull();
+  it("offers Apple Silicon on every visitor platform, with ZIP fallback", () => {
+    for (const ua of [SAFARI_MAC, CHROME_WINDOWS, FIREFOX_LINUX_ARM, IPHONE, ""]) {
+      expect(resolvePrimary(detectFromUserAgent(ua), ASSETS)?.key).toBe("macArm64Dmg");
+      expect(resolvePrimary(detectFromUserAgent(ua), { macArm64Zip: "zip" })?.key).toBe("macArm64Zip");
+    }
+    expect(resolvePrimary(detectFromUserAgent(CHROME_WINDOWS), { winX64Exe: "exe" })).toBeNull();
   });
 });
 
 describe("download keys", () => {
-  it("validates the started param and maps keys to platform rows", () => {
-    expect(isDownloadKey("linuxAmd64Deb")).toBe(true);
+  it("rejects other platforms for the started page", () => {
+    expect(isDownloadKey("macArm64Dmg")).toBe(true);
+    expect(isDownloadKey("macArm64Zip")).toBe(true);
+    expect(isDownloadKey("linuxAmd64Deb")).toBe(false);
     expect(isDownloadKey("../etc")).toBe(false);
     expect(platformOf("linuxAmd64Deb")).toBe("linuxX64");
-    expect(alternateKey("macArm64Dmg")).toBe("macX64Dmg");
     expect(alternateKey("winX64Exe")).toBeNull();
   });
 });

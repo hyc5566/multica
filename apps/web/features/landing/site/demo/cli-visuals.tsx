@@ -65,10 +65,10 @@ function Cursor() {
 function SetupSession({ compact }: { compact?: boolean }) {
   return (
     <>
-      <Cmd>multica setup</Cmd>
-      <p>Configured for Multica Cloud (https://multica.ai).</p>
-      <p>{"  server_url: https://api.multica.ai"}</p>
-      <p>{"  app_url:    https://multica.ai"}</p>
+      <Cmd>multica login</Cmd>
+      <p>Configured for self-hosted Multica (https://10.1.24.90:45671).</p>
+      <p>{"  server_url: https://10.1.24.90:45671"}</p>
+      <p>{"  app_url:    https://10.1.24.90:45671"}</p>
       <Gap />
       <p>Opening browser to authenticate...</p>
       <p>Authenticated as Leo Park (leo@acme.dev)</p>

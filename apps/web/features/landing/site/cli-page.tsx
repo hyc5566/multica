@@ -15,17 +15,15 @@ export function CliPage() {
         <Install />
         <Commands />
         <AgentDriven />
-        <CtaBand title="Connect your first computer" lead="Install the CLI, run multica setup, and assign an issue to an agent on that machine." />
+        <CtaBand title="Connect your first computer" lead="Install the CLI, run multica login, and assign an issue to an agent on that machine." />
       </div>
     </SitePage>
   );
 }
 
-const SKILL_URL = "https://github.com/multica-ai/multica-cli";
-
 function useCliDocsHref() {
   const { locale } = useLocale();
-  return `${docsHrefForLocale(locale)}/cli`;
+  return docsHrefForLocale(locale);
 }
 
 function Hero() {
@@ -48,7 +46,7 @@ function Hero() {
         </>
       }
       frost="cli"
-      label="A terminal on build-01 runs multica setup: it signs Leo Park in, starts the daemon, and multica daemon status reports Claude Code, Codex, and OpenCode. Beside it, build-01 appears on the Runtimes page as a new machine."
+      label="A terminal on build-01 signs Leo Park in, and multica daemon status reports Claude Code, Codex, and OpenCode. Beside it, build-01 appears on the Runtimes page as a new machine."
     >
       <CliScene />
     </SurfaceHero>
@@ -58,23 +56,13 @@ function Hero() {
 const INSTALL: { title: string; body: string; code: CodeVariant[] }[] = [
   {
     title: "Install it",
-    body: "One line in a terminal on macOS and Linux, or in PowerShell on Windows. Homebrew works too.",
-    code: [
-      { label: "macOS / Linux", code: "curl -fsSL https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh | bash" },
-      { label: "Windows", code: "irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex" },
-      { label: "Homebrew", code: "brew install multica-ai/tap/multica" },
-    ],
+    body: "Standalone installation supports Linux x64. Machines with the App installed are managed by the App. For Windows and CA setup, see the guide.",
+    code: [{ label: "Linux x64", code: "curl -fsSL https://10.1.24.90:45671/downloads/selfhost/install.sh -o install.sh && bash install.sh" }],
   },
   {
     title: "Connect the computer",
-    body: "Setup saves the server, signs you in through the browser, and starts the daemon. Running your own Multica? Give it your server’s addresses.",
-    code: [
-      { label: "Multica Cloud", code: "multica setup" },
-      {
-        label: "Self-hosted",
-        code: "multica setup self-host \\\n  --server-url https://api.example.com \\\n  --app-url https://app.example.com",
-      },
-    ],
+    body: "Sign in to connect this computer.",
+    code: [{ label: "Terminal", code: "multica login" }],
   },
   {
     title: "Check it’s running",
@@ -88,6 +76,7 @@ function Install() {
     <Section id="install" className="scroll-mt-site-header">
       <Container>
         <SectionHeader title="A runtime in three commands" />
+        <a href="https://10.1.24.90:45671/downloads/selfhost/guideline.md" className="underline">guideline.md</a>
         <ol className="mt-site-block flex flex-col">
           {INSTALL.map((step, index) => (
             <li
@@ -180,10 +169,6 @@ function AgentDriven() {
               "Acts with your login and permissions, nothing more",
             ]}
           />
-          <ActionLink href={SKILL_URL} tone="ghost" className="mt-6 -ml-3">
-            Get the CLI skill
-            <ArrowUpRight className="size-4" aria-hidden />
-          </ActionLink>
         </div>
       </Container>
     </Section>

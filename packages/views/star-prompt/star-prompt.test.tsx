@@ -137,7 +137,7 @@ describe("StarPrompt", () => {
     expect(await screen.findByText("Lambda has completed 4 issues")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Star Multica on GitHub" })).toHaveAttribute(
       "href",
-      "https://github.com/multica-ai/multica",
+      "https://github.com/hyc5566/multica",
     );
     expect(listIssues).toHaveBeenCalledWith(
       expect.objectContaining({

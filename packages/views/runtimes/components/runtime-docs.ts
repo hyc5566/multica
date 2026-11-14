@@ -1,28 +1,9 @@
-import {
-  docsLocalePrefix,
-  isTraditionalChinese,
-} from "../../common/docs-locale";
+const DOCS_URL = "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs";
 
-export function daemonRuntimesDocsHref(language?: string): string {
-  return `https://multica.ai/docs${docsLocalePrefix(language)}/daemon-runtimes`;
+export function daemonRuntimesDocsHref(_language?: string): string {
+  return DOCS_URL;
 }
 
-export function customRuntimeDocsHref(language?: string): string {
-  const base = daemonRuntimesDocsHref(language);
-  if (isTraditionalChinese(language)) {
-    return `${base}#${encodeURIComponent("自定義執行時配置")}`;
-  }
-  if (language?.startsWith("zh")) {
-    return `${base}#${encodeURIComponent("自定义运行时配置")}`;
-  }
-  if (language?.startsWith("ja")) {
-    return `${base}#${encodeURIComponent("カスタムランタイムプロファイル")}`;
-  }
-  if (language?.startsWith("ko")) {
-    return `${base}#${encodeURIComponent("사용자-지정-런타임-프로필")}`;
-  }
-  if (language?.startsWith("fr")) {
-    return `${base}#${encodeURIComponent("profils-de-runtime-personnalisés")}`;
-  }
-  return `${base}#custom-runtime-profiles`;
+export function customRuntimeDocsHref(_language?: string): string {
+  return DOCS_URL;
 }

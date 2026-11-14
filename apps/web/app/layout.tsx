@@ -83,7 +83,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.multica.ai"),
+  metadataBase: new URL("https://10.1.24.90:45671"),
   title: {
     default: SITE_TITLE,
     template: TITLE_TEMPLATE,

@@ -1,4 +1,4 @@
-import { githubUrl, discordUrl } from "../components/shared";
+import { githubUrl } from "../components/shared";
 import { createEnDict } from "./en";
 import type { LandingDict } from "./types";
 import { koSiteCopy } from "./site-ko";
@@ -3494,7 +3494,7 @@ export function createKoDict(): LandingDict {
         contacts: [
           { label: "상용 라이선스 및 영업", linkLabel: "영업팀 문의", href: "/contact-sales" },
           { label: "라이선스 안내", linkLabel: "라이선스 FAQ", href: "/licensing" },
-          { label: "커뮤니티 및 지원", linkLabel: "Discord", href: discordUrl },
+          { label: "커뮤니티 및 지원", linkLabel: "GitHub", href: githubUrl },
           { label: "소스 코드 및 이슈", linkLabel: "GitHub", href: githubUrl },
         ],
       },
@@ -3502,7 +3502,7 @@ export function createKoDict(): LandingDict {
     licensing: {
       title: "라이선스",
       intro: [
-        "Multica는 [Multica License](https://github.com/multica-ai/multica/blob/main/LICENSE)로 배포됩니다. Apache License 2.0에 몇 가지 추가 조건을 더한 라이선스입니다. 소스 코드는 공개되어 있으며, 조직 내부에서 Multica를 사용하는 것은 무료입니다. 팀 전체를 위해 셀프 호스팅하는 경우도 마찬가지입니다.",
+        "Multica는 [Multica License](https://github.com/hyc5566/multica/blob/zh-tw/LICENSE)로 배포됩니다. Apache License 2.0에 몇 가지 추가 조건을 더한 라이선스입니다. 소스 코드는 공개되어 있으며, 조직 내부에서 Multica를 사용하는 것은 무료입니다. 팀 전체를 위해 셀프 호스팅하는 경우도 마찬가지입니다.",
         "가장 중요한 추가 조건은 호스팅 방식의 이용에 관한 것입니다. 조직 외부 사람들에게 Multica를 제공하려면 상용 라이선스가 필요합니다. 이 페이지에서는 자주 받는 질문을 바탕으로 그 기준을 설명합니다. 이해를 돕기 위한 안내일 뿐 법률 자문이 아니며, LICENSE 원문과 다른 부분이 있다면 LICENSE가 우선합니다.",
       ],
       rule: {
@@ -3563,7 +3563,7 @@ export function createKoDict(): LandingDict {
           heading: "기타 조건",
           bullets: [
             "브랜딩: 서면으로 브랜딩 면제를 받지 않았다면, Multica 인터페이스에 표시되는 Multica 로고, 제품명, 저작권 및 출처 표시를 제거하거나 변경하지 마세요.",
-            "출처 표시: Multica 인터페이스 없이 백엔드, 데몬, CLI를 기반으로 제품을 만든다면 저작권 및 NOTICE 정보를 유지하고, 사용자용 문서에 Multica를 기반으로 만들었다는 사실을 [GitHub 저장소](https://github.com/multica-ai/multica) 링크와 함께 밝혀 주세요.",
+            "출처 표시: Multica 인터페이스 없이 백엔드, 데몬, CLI를 기반으로 제품을 만든다면 저작권 및 NOTICE 정보를 유지하고, 사용자용 문서에 Multica를 기반으로 만들었다는 사실을 [GitHub 저장소](https://github.com/hyc5566/multica) 링크와 함께 밝혀 주세요.",
             "포크: 포크의 소스 코드를 공개하는 것 자체는 호스팅 서비스가 아니므로 상용 라이선스가 필요하지 않습니다. 다만 그 포크로 호스팅 서비스를 운영하는 사람은 각자 상용 라이선스를 받아야 합니다.",
             "상용 라이선스와 브랜딩 면제는 별개의 허가입니다. 하나를 받았다고 다른 하나가 포함되지는 않습니다.",
           ],
@@ -3571,7 +3571,7 @@ export function createKoDict(): LandingDict {
         {
           heading: "상용 라이선스 받기",
           paragraphs: [
-            "[영업팀 문의](/contact-sales)로 사용 사례를 알려 주시면 영업일 기준 3일 이내에 답변드립니다. 라이선스가 필요한지 잘 모르겠다면 [Discord](" + discordUrl + ")나 같은 양식으로 편하게 물어보세요.",
+            "[영업팀 문의](/contact-sales)로 사용 사례를 알려 주시면 영업일 기준 3일 이내에 답변드립니다. 라이선스가 필요한지 잘 모르겠다면 [GitHub Issues](https://github.com/hyc5566/multica/issues)나 같은 양식으로 편하게 물어보세요.",
           ],
         },
       ],
@@ -3653,13 +3653,13 @@ export function createKoDict(): LandingDict {
         {
           heading: "보관 기간",
           paragraphs: [
-            "계정 정보와 워크스페이스 콘텐츠는 계정이나 워크스페이스가 존재하는 동안 보관합니다. 워크스페이스 소유자가 워크스페이스를 삭제하면 태스크, 댓글 등 그 안의 콘텐츠는 Multica Cloud에서 제거됩니다. 다만 복구용 백업에는 삭제 후 일정 기간 사본이 남아 있을 수 있습니다. 삭제된 워크스페이스에 업로드된 파일을 파일 저장소에서 지우고 싶다면 [support@multica.ai](mailto:support@multica.ai)로 이메일을 보내 주세요. 결제 기록은 회계 및 세무 규정이 요구하는 기간 동안 보관하고, 제품 분석 데이터, 충돌 보고서, 영업팀 문의, 피드백은 지원과 제품 개선에 필요한 기간 동안 보관합니다. 문의와 피드백은 요청하시면 삭제합니다.",
+            "계정 정보와 워크스페이스 콘텐츠는 계정이나 워크스페이스가 존재하는 동안 보관합니다. 워크스페이스 소유자가 워크스페이스를 삭제하면 태스크, 댓글 등 그 안의 콘텐츠는 Multica Cloud에서 제거됩니다. 다만 복구용 백업에는 삭제 후 일정 기간 사본이 남아 있을 수 있습니다. 삭제된 워크스페이스에 업로드된 파일을 파일 저장소에서 지우고 싶다면 [GitHub Issues](https://github.com/hyc5566/multica/issues)로 이메일을 보내 주세요. 결제 기록은 회계 및 세무 규정이 요구하는 기간 동안 보관하고, 제품 분석 데이터, 충돌 보고서, 영업팀 문의, 피드백은 지원과 제품 개선에 필요한 기간 동안 보관합니다. 문의와 피드백은 요청하시면 삭제합니다.",
           ],
         },
         {
           heading: "여러분의 선택과 권리",
           paragraphs: [
-            "거주 지역의 법령에 따라 여러분은 개인정보의 열람, 정정, 삭제, 내보내기를 요청하고, 특정 처리에 반대하거나 이를 제한하고, 이미 한 동의(예: 마케팅 정보 수신 동의)를 철회하고, 해당 지역의 개인정보 보호 감독기관에 불만을 제기할 권리가 있을 수 있습니다. 프로필은 Multica에서 언제든지 수정할 수 있고, 소유한 워크스페이스는 설정에서 삭제할 수 있습니다. 계정 삭제 등 그 밖의 요청은 [support@multica.ai](mailto:support@multica.ai)로 이메일을 보내 주세요. 30일 이내에 답변드립니다.",
+            "거주 지역의 법령에 따라 여러분은 개인정보의 열람, 정정, 삭제, 내보내기를 요청하고, 특정 처리에 반대하거나 이를 제한하고, 이미 한 동의(예: 마케팅 정보 수신 동의)를 철회하고, 해당 지역의 개인정보 보호 감독기관에 불만을 제기할 권리가 있을 수 있습니다. 프로필은 Multica에서 언제든지 수정할 수 있고, 소유한 워크스페이스는 설정에서 삭제할 수 있습니다. 계정 삭제 등 그 밖의 요청은 [GitHub Issues](https://github.com/hyc5566/multica/issues)로 이메일을 보내 주세요. 30일 이내에 답변드립니다.",
           ],
         },
         {
@@ -3683,7 +3683,7 @@ export function createKoDict(): LandingDict {
         {
           heading: "문의하기",
           paragraphs: [
-            "Multica는 Index Labs (Hong Kong) Limited가 운영하며, 여러분의 개인정보에 대한 책임을 집니다. 개인정보 관련 질문이나 요청은 [support@multica.ai](mailto:support@multica.ai)로 이메일을 보내 주세요.",
+            "Multica는 Index Labs (Hong Kong) Limited가 운영하며, 여러분의 개인정보에 대한 책임을 집니다. 개인정보 관련 질문이나 요청은 [GitHub Issues](https://github.com/hyc5566/multica/issues)로 이메일을 보내 주세요.",
           ],
         },
       ],

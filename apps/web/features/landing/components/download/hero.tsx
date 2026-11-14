@@ -2,7 +2,7 @@
 
 import { useLocale } from "../../i18n";
 import { Container, Eyebrow, SiteTextLink, actionClassName } from "../../site/primitives";
-import { alternateKey, formatSize, osOf, primaryLabelKey, resolvePrimary } from "../../utils/download-target";
+import { formatSize, osOf, primaryLabelKey, resolvePrimary } from "../../utils/download-target";
 import type { LatestRelease } from "../../utils/github-release";
 import type { DetectResult } from "../../utils/os-detect";
 import type { DownloadKey } from "../../utils/parse-release-assets";
@@ -29,11 +29,8 @@ export function DownloadHero({
   const d = t.download.hero;
   const primary = resolvePrimary(detected, release.assets);
   const os = primary ? osOf(primary.key) : null;
-  // Only a guessed architecture needs the other one offered beside it.
-  const alternate = primary && !detected.archConfident ? alternateKey(primary.key) : null;
-  const alternateHref = alternate ? release.assets[alternate] : undefined;
   const size = primary ? release.sizes[primary.key] : undefined;
-  const lead = detected.os === "mobile" ? d.mobileNote : primary ? d.lead : d.leadOther;
+  const lead = primary ? d.lead : (locale === "zh-Hans" || locale === "zh-Hant" ? "目前提供 macOS Apple Silicon 桌面版。" : "The desktop app is available for macOS Apple Silicon.");
 
   return (
     <Container className="grid gap-10 pt-site-hero pb-site-section lg:grid-cols-2 lg:items-center lg:gap-16">
@@ -54,16 +51,6 @@ export function DownloadHero({
               <OSIcon os={os} size={16} aria-hidden />
               {d.primary[primaryLabelKey(primary.key)]}
             </DownloadLink>
-            {alternate && alternateHref ? (
-              <DownloadLink
-                downloadKey={alternate}
-                href={alternateHref}
-                onStart={onStart}
-                className={actionClassName("secondary", "lg")}
-              >
-                {d.alternate[alternate]}
-              </DownloadLink>
-            ) : null}
           </div>
         ) : null}
         <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-site-small text-site-muted">
@@ -87,7 +74,7 @@ export function DownloadHero({
           )}
         </p>
       </div>
-      <AllPlatforms assets={release.assets} current={primary?.key} onStart={onStart} releasesUrl={release.releasesUrl} />
+      <AllPlatforms assets={release.assets} current={detected.os === "mac" && detected.arch === "arm64" && detected.archConfident ? primary?.key : undefined} onStart={onStart} releasesUrl={release.releasesUrl} />
     </Container>
   );
 }

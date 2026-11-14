@@ -7,13 +7,12 @@ import { cn } from "@multica/ui/lib/utils";
 import { useLocale } from "../../i18n";
 import { Container, Eyebrow, focusRing } from "../../site/primitives";
 import type { CliAssets } from "../../utils/parse-release-assets";
-import { isGitHubInstallerUrl } from "../../utils/release-source";
+import { CLI_INSTALL_COMMANDS, SELFHOST_GUIDELINE_URL } from "@multica/views/common/cli-install-command";
 
-const SETUP_CMD = "multica setup";
+const SETUP_CMD = "multica login";
 
-/** The Taiwan installer supports macOS and Linux. */
-export function CliSection({ installerUrl, assets = {} }: { installerUrl?: string; assets?: CliAssets }) {
-  const { t } = useLocale();
+export function CliSection({ assets = {} }: { assets?: CliAssets }) {
+  const { t, locale } = useLocale();
   const d = t.download.cli;
 
   return (
@@ -22,7 +21,8 @@ export function CliSection({ installerUrl, assets = {} }: { installerUrl?: strin
         <div>
           <Eyebrow>CLI</Eyebrow>
           <h2 className="mt-3 font-site-display text-site-title text-site-ink text-balance">{d.title}</h2>
-          <p className="mt-3 max-w-[30rem] text-site-body text-site-muted text-pretty">{d.sub}</p>
+          <p className="mt-3 max-w-[30rem] text-site-body text-site-muted text-pretty">{(locale === "zh-Hans" || locale === "zh-Hant") ? "獨立安裝目前僅支援 Linux x64。使用 App 的機器由 App 管理；Windows 請參考指南。" : "Standalone installation supports Linux x64. The App manages machines with the App installed; see the guide for Windows."}</p>
+          <a href={SELFHOST_GUIDELINE_URL} className="mt-4 inline-block text-site-small text-site-ink underline underline-offset-4">guideline.md</a>
           <ul className="mt-4 space-y-2">
             {(Object.entries(assets) as [keyof CliAssets, string][]).map(([platform, href]) => (
               <li key={platform}>
@@ -34,13 +34,9 @@ export function CliSection({ installerUrl, assets = {} }: { installerUrl?: strin
           </ul>
         </div>
         <div className="min-w-0 rounded-site-panel bg-site-inverse p-5 text-site-inverse-ink">
-          <p className="font-site-mono text-[0.75rem] text-site-inverse-muted">{d.platformMacosLinux}</p>
-          {installerUrl && isGitHubInstallerUrl(installerUrl) ? (
-            <CommandRow label={d.installLabel} cmd={`curl -fsSL '${installerUrl}' -o install.sh && bash install.sh --login`} />
-          ) : (
-            <p role="status" className="mt-4 text-site-inverse-muted">{t.download.allPlatforms.unavailable}</p>
-          )}
-          <CommandRow label={d.startLabel} cmd={SETUP_CMD} />
+          <p className="font-site-mono text-[0.75rem] text-site-inverse-muted">Linux x64</p>
+          <CommandRow label={d.installLabel} cmd={CLI_INSTALL_COMMANDS.macosLinux} />
+          <CommandRow label={(locale === "zh-Hans" || locale === "zh-Hant") ? "登入" : "Sign in"} cmd={SETUP_CMD} />
         </div>
       </Container>
     </section>

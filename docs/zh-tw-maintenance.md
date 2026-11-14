@@ -325,6 +325,24 @@ only has one platform. Never combine files from different releases or fill
 an API failure with the historical static mirror. All-releases and installer
 links follow the same configured repository; `GITHUB_TOKEN` remains server-only.
 
+The self-hosted web UI offers only the Apple Silicon Mac App (DMG or ZIP)
+and retains the actual CLI/daemon archive list. The bootstrap command uses
+`https://10.1.24.90:45671/downloads/selfhost/install.sh`, deployed from
+`scripts/install-selfhost.sh`. It installs the checksum-pinned Linux amd64
+CLI into a new prefix only; it never replaces an existing launcher, config,
+or daemon and does not publish to the App update channel. The CLI remains at
+its own published version when a Web-only build receives a newer version.
+
+Deploy `docs/selfhost-guideline.md` as `selfhost/guideline.md` in the existing
+Web public downloads directory bind, together with `selfhost/install.sh` and
+the verified public `selfhost/s90-ca.crt`. The exact files are served by Web,
+not the Caddy `/downloads/latest/*` or versioned asset routes. The fixed
+guideline URL can be updated atomically in that directory without rebuilding
+Web; preserve a backup and compare the HTTP response hash. Web sends
+`Cache-Control: no-store` and Markdown's UTF-8 content type. Existing App
+channel assets and `latest.json` are independent and remain untouched.
+The guideline's update procedure does not authorize any machine update.
+
 Keep Mac ZIP-only download support and the separate CLI/daemon archive list.
 Recognized CLI filenames are `multica-cli[-daemon]-<version>-<os>-<arch>`
 (`darwin`/`linux` tar.gz or `windows` zip; `amd64`/`arm64`). Download entries
