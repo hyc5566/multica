@@ -32,7 +32,7 @@ const AI_CRAWLERS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://www.multica.ai";
+  const baseUrl = "https://10.1.24.90:45671";
 
   return {
     rules: [

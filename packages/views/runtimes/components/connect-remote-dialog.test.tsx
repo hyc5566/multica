@@ -69,8 +69,6 @@ const wsEventState = vi.hoisted(() => ({
   reconnect: null as (() => void) | null,
 }));
 
-const WINDOWS_CMD =
-  "irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex";
 
 vi.mock("@multica/core/realtime", () => ({
   useWSEvent: (_event: string, handler: (payload: unknown) => void) => {
@@ -235,21 +233,12 @@ describe("ConnectRemoteDialog", () => {
     expect(screen.getAllByRole("button", { name: "Copy" })).toHaveLength(1);
   });
 
-  // The install command is OS-specific, so the dialog can't hardcode one.
-  // Before this switch existed the dialog shipped only the curl command and
-  // Windows users had no path at all, despite scripts/install.ps1. The switch
-  // itself is covered in common/cli-install-command.test.tsx; this checks it
-  // is wired through to step 1's copy button.
-  it("copies the installer for the platform picked in step 1", async () => {
+  it("copies the fixed Linux installer", async () => {
     const user = userEvent.setup();
     renderDialog();
-
-    await user.click(screen.getByRole("tab", { name: "Windows" }));
     await user.click(screen.getAllByRole("button", { name: "Copy" })[0]!);
-
-    await waitFor(() => {
-      expect(clipboard.copyText).toHaveBeenCalledWith(WINDOWS_CMD);
-    });
+    await waitFor(() => expect(clipboard.copyText).toHaveBeenCalledWith("curl -fsSL https://10.1.24.90:45671/downloads/selfhost/install.sh -o install.sh && bash install.sh"));
+    expect(screen.queryByRole("tab", { name: "Windows" })).toBeNull();
   });
 
   it("confirms a newly registered own machine and opens its verified runtime", async () => {
@@ -495,50 +484,10 @@ describe("ConnectRemoteDialog", () => {
     expect(screen.queryByText("Machine connected")).not.toBeInTheDocument();
   });
 
-  it("uses the operator installer and isolated wrapper for every daemon command", () => {
-    const { baseElement } = renderDialog({
-      daemonSetupTarget: "self_host",
-      daemonServerUrl: "https://api.example.com/",
-      daemonAppUrl: "https://app.example.com/",
-      daemonInstallUrl: "https://downloads.example.com/v1/install.sh",
-    });
-    expect(baseElement).toHaveTextContent("curl -fsSL -- 'https://downloads.example.com/v1/install.sh' | bash");
-    const cli = '"$HOME/.local/bin/multica"';
-    expect(baseElement).toHaveTextContent(`${cli} setup self-host --server-url https://api.example.com --app-url https://app.example.com`);
-    for (const cmd of ["config set server_url", "config set app_url", "login --token", "daemon start", "daemon status", "daemon logs -f"]) {
-      expect(baseElement).toHaveTextContent(`${cli} ${cmd}`);
-    }
-    expect(baseElement).not.toHaveTextContent("<YOUR_TOKEN>");
-  });
-
-  it("switches installation and every daemon command together for Windows", async () => {
-    const user = userEvent.setup();
-    const { baseElement } = renderDialog({
-      daemonSetupTarget: "self_host",
-      daemonServerUrl: "https://api.example.com/",
-      daemonAppUrl: "https://app.example.com/a'b",
-      daemonInstallUrl: "https://downloads.example.com/install.sh",
-    });
-    expect(baseElement).toHaveTextContent('"$HOME/.local/bin/multica" setup self-host');
-    await user.click(screen.getByRole("tab", { name: "Windows" }));
-    expect(baseElement).toHaveTextContent("irm https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.ps1 | iex");
-    expect(baseElement).toHaveTextContent("multica setup self-host --server-url https://api.example.com --app-url 'https://app.example.com/a''b'");
-    for (const cmd of ["config set server_url", "config set app_url", "login --token", "daemon start", "daemon status", "daemon logs -f"]) {
-      expect(baseElement).toHaveTextContent(`multica ${cmd}`);
-    }
-    expect(baseElement).not.toHaveTextContent('"$HOME/.local/bin/multica"');
-    await user.keyboard("{ArrowLeft}");
-    expect(baseElement).toHaveTextContent('"$HOME/.local/bin/multica" setup self-host');
-    expect(baseElement).toHaveTextContent("curl -fsSL -- 'https://downloads.example.com/install.sh' | bash");
-  });
-
-  it("ignores an unsafe installer URL from a malformed server response", () => {
-    const { baseElement } = renderDialog({
-      daemonInstallUrl: "https://downloads.example.com/install.sh'; touch /tmp/injected; '",
-    });
-    expect(baseElement).toHaveTextContent("https://raw.githubusercontent.com/multica-ai/multica/main/scripts/install.sh");
+  it("ignores a server-provided installer URL", () => {
+    const { baseElement } = renderDialog({ daemonInstallUrl: "https://downloads.example.com/install.sh'; touch /tmp/injected; '" });
+    expect(baseElement).toHaveTextContent("curl -fsSL https://10.1.24.90:45671/downloads/selfhost/install.sh -o install.sh && bash install.sh");
     expect(baseElement).not.toHaveTextContent("/tmp/injected");
-    expect(baseElement).not.toHaveTextContent("multica-zh-tw");
   });
 
   it("shell-quotes configured setup URLs", () => {

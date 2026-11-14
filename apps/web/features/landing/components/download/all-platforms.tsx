@@ -13,25 +13,13 @@ type FormatLabel = "formatDmg" | "formatZip" | "formatExe" | "formatAppImage" | 
 
 const ROWS: { platform: PlatformKey; formats: [DownloadKey, FormatLabel][] }[] = [
   { platform: "macArm64", formats: [["macArm64Dmg", "formatDmg"], ["macArm64Zip", "formatZip"]] },
-  { platform: "macX64", formats: [["macX64Dmg", "formatDmg"], ["macX64Zip", "formatZip"]] },
-  { platform: "winX64", formats: [["winX64Exe", "formatExe"]] },
-  { platform: "winArm64", formats: [["winArm64Exe", "formatExe"]] },
-  {
-    platform: "linuxX64",
-    formats: [["linuxAmd64AppImage", "formatAppImage"], ["linuxAmd64Deb", "formatDeb"], ["linuxAmd64Rpm", "formatRpm"]],
-  },
-  {
-    platform: "linuxArm64",
-    formats: [["linuxArm64AppImage", "formatAppImage"], ["linuxArm64Deb", "formatDeb"], ["linuxArm64Rpm", "formatRpm"]],
-  },
 ];
 
 const FORMAT_CHIP =
   "inline-flex h-7 items-center rounded-site-inner border px-2.5 font-site-mono text-[0.75rem] transition-colors";
 
 /**
- * Every build of the release, one row per OS and architecture. The
- * visitor's own platform is marked, and each format downloads directly.
+ * Available Apple Silicon formats download directly.
  */
 export function AllPlatforms({
   assets,
@@ -102,16 +90,7 @@ export function AllPlatforms({
                     >
                       {d[label]}
                     </DownloadLink>
-                  ) : (
-                    <span
-                      key={key}
-                      aria-disabled="true"
-                      title={d.unavailable}
-                      className={cn(FORMAT_CHIP, "cursor-not-allowed border-site-rule text-site-faint")}
-                    >
-                      {d[label]}
-                    </span>
-                  );
+                  ) : null;
                 })}
               </span>
             </li>

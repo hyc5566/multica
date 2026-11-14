@@ -17,7 +17,6 @@ import {
 import { Input } from "@multica/ui/components/ui/input";
 import { Label } from "@multica/ui/components/ui/label";
 import { useT } from "../../i18n";
-import { docsLocalePrefix } from "../../common/docs-locale";
 import { openExternal } from "../../platform";
 import { IntegrationChannelIcon } from "./integration-channel-icon";
 import {
@@ -82,7 +81,7 @@ function ChannelConnectSteps({
   onClose: () => void;
   onBusyChange: (busy: boolean) => void;
 }) {
-  const { t, i18n } = useT("settings");
+  const { t } = useT("settings");
   const { wsId, queries, connections, isAdmin, canManage, available } =
     useMessagingChannels();
   const [agentId, setAgentId] = useState(initialAgent?.id ?? "");
@@ -107,9 +106,7 @@ function ChannelConnectSteps({
     setAuthorizing(true);
   };
   const openGuide = () =>
-    openExternal(
-      `https://multica.ai/docs${docsLocalePrefix(i18n.language)}/${channel}-bot-integration`,
-    );
+    openExternal("https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs");
   const scanWecom =
     channel === "wecom" &&
     queries.wecom.data?.scan_install_supported === true &&

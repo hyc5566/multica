@@ -2,7 +2,7 @@ import { parseInlineLinks } from "./components/inline-links";
 import { discordUrl, githubUrl, twitterUrl } from "./components/shared";
 import type { LandingDict } from "./i18n/types";
 
-export const SITE_ORIGIN = "https://www.multica.ai";
+export const SITE_ORIGIN = "https://10.1.24.90:45671";
 
 /** Organization and product facts shared by every marketing page. */
 export const siteJsonLd = {
@@ -12,7 +12,7 @@ export const siteJsonLd = {
       "@type": "Organization",
       name: "Multica",
       url: SITE_ORIGIN,
-      sameAs: [githubUrl, twitterUrl, discordUrl],
+      sameAs: ["https://github.com/hyc5566/multica"],
     },
     {
       "@type": "SoftwareApplication",

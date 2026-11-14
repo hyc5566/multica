@@ -67,7 +67,7 @@ const HIGHLIGHTS: { title: string; body: string; points: string[]; visual: Compo
       "Updates with the app, so the CLI never falls behind",
     ],
     visual: DaemonVisual,
-    label: "Desktop’s Daemon settings: running on the desktop-multica.ai profile, CLI managed by Desktop, with Claude Code, Codex, and Cursor detected and ready.",
+    label: "Desktop’s Daemon settings: running on the selfhost profile, CLI managed by Desktop, with Claude Code, Codex, and Cursor detected and ready.",
   },
   {
     title: "A window for every workspace",

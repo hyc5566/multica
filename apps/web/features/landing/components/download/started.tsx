@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { ArrowUpRight, Check, Star } from "@multica/ui/icons";
 import { cn } from "@multica/ui/lib/utils";
 import { useLocale } from "../../i18n";
@@ -9,7 +9,7 @@ import { ActionLink, Container, Eyebrow, actionClassName, focusRing } from "../.
 import { fileName, formatSize } from "../../utils/download-target";
 import { formatStarCount, useGithubStars } from "../../utils/use-github-stars";
 import type { DownloadKey } from "../../utils/parse-release-assets";
-import { DiscordMark, GitHubMark, XMark, discordUrl, githubUrl, twitterUrl } from "../shared";
+import { GitHubMark, githubUrl } from "../shared";
 
 const AGENTS = ["Claude Code", "Codex", "OpenCode"] as const;
 
@@ -141,7 +141,7 @@ export function DownloadStarted({
             <div className="relative">
               <p className="flex items-center gap-2 font-site-mono text-[0.8125rem] text-site-ink-secondary">
                 <GitHubMark className="size-4 text-site-ink" />
-                multica-ai/multica
+                hyc5566/multica
               </p>
               <h2 className="mt-4 font-site-display text-site-title text-site-ink text-balance">{d.community.githubTitle}</h2>
               <p className="mt-2 max-w-[28rem] text-site-small text-site-muted text-pretty">{d.community.githubBody}</p>
@@ -157,47 +157,8 @@ export function DownloadStarted({
               {d.community.star}
             </ActionLink>
           </div>
-          <div className="grid gap-4">
-            <CommunityRow
-              icon={DiscordMark}
-              title={d.community.discordTitle}
-              body={d.community.discordBody}
-              href={discordUrl}
-              action={d.community.join}
-            />
-            <CommunityRow icon={XMark} title={d.community.xTitle} body={d.community.xBody} href={twitterUrl} action={d.community.follow} />
-          </div>
         </div>
       </Container>
     </>
-  );
-}
-
-function CommunityRow({
-  icon: Icon,
-  title,
-  body,
-  href,
-  action,
-}: {
-  icon: ComponentType<{ className?: string }>;
-  title: string;
-  body: string;
-  href: string;
-  action: string;
-}) {
-  return (
-    <div className="grid grid-cols-[2.25rem_1fr_auto] items-center gap-4 rounded-site-panel border border-site-line bg-site-surface p-5">
-      <span className="flex size-9 items-center justify-center rounded-site-card bg-site-sunken text-site-ink">
-        <Icon className="size-[18px]" />
-      </span>
-      <div className="min-w-0">
-        <h2 className="text-site-body text-site-ink">{title}</h2>
-        <p className="mt-0.5 text-site-small text-site-muted text-pretty">{body}</p>
-      </div>
-      <ActionLink href={href} tone="secondary">
-        {action}
-      </ActionLink>
-    </div>
   );
 }

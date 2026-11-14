@@ -18,7 +18,7 @@ import { DownloadLink } from "./download-link";
 import { OSIcon, OS_NAMES } from "./os-icons";
 
 /** One installer per platform, in menu order. ARM builds and other formats live on /download. */
-const MENU_KEYS: PrimaryDownloadKey[] = ["macArm64Dmg", "macX64Dmg", "winX64Exe", "linuxAmd64AppImage"];
+const MENU_KEYS: PrimaryDownloadKey[] = ["macArm64Dmg", "macArm64Zip"];
 
 const FORMAT: Record<PrimaryDownloadKey, string> = {
   macArm64Dmg: ".dmg",

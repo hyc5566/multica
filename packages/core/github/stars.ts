@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/react-query";
 
-export const MULTICA_GITHUB_REPO = "multica-ai/multica";
+export const MULTICA_GITHUB_REPO = "hyc5566/multica";
 export const MULTICA_GITHUB_URL = `https://github.com/${MULTICA_GITHUB_REPO}`;
 
 /**
