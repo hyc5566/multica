@@ -31,7 +31,6 @@ import {
   type ConditionRowDraft,
   type EventFilterDraft,
 } from "./webhook-event-filter-draft";
-import { isTraditionalChinese } from "../../common/docs-locale";
 
 interface WebhookEventFilterSectionProps {
   drafts: EventFilterDraft[];
@@ -54,18 +53,12 @@ export function WebhookEventFilterSection({
   onChange,
   showErrors,
 }: WebhookEventFilterSectionProps) {
-  const { t, i18n } = useT("autopilots");
+  const { t } = useT("autopilots");
   const idPrefix = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const payloadSupported = useConfigStore((state) => state.webhookPayloadConditionsSupported);
   const { errors } = resolveEventFilterDrafts(drafts);
-  const docsHref = isTraditionalChinese(i18n.language)
-    ? `https://multica.ai/docs/zh-Hant/autopilots#${encodeURIComponent("事件過濾")}`
-    : i18n.language?.startsWith("zh")
-      ? `https://multica.ai/docs/zh/autopilots#${encodeURIComponent("事件过滤")}`
-      : i18n.language?.startsWith("fr")
-        ? `https://multica.ai/docs/fr/autopilots#${encodeURIComponent("filtres-dévénements")}`
-        : "https://multica.ai/docs/autopilots#event-filters";
+  const docsHref = "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs";
 
   // A blocked save lands the user on the first field that blocked it.
   useEffect(() => {

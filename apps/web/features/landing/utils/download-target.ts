@@ -35,7 +35,7 @@ export const DOWNLOAD_KEYS = [
 ] as const satisfies readonly DownloadKey[];
 
 export function isDownloadKey(value: unknown): value is DownloadKey {
-  return typeof value === "string" && (DOWNLOAD_KEYS as readonly string[]).includes(value);
+  return value === "macArm64Dmg" || value === "macArm64Zip";
 }
 
 export function osOf(key: DownloadKey): DesktopOS {
@@ -73,12 +73,10 @@ export function alternateKey(key: DownloadKey): "macArm64Dmg" | "macX64Dmg" | nu
 }
 
 /** The primary download for a platform, when the release has it. */
-export function resolvePrimary(detected: DetectResult, assets: DownloadAssets) {
-  let key = primaryKey(detected);
-  if (key === "macArm64Dmg" && !assets[key] && assets.macArm64Zip) key = "macArm64Zip";
-  if (key === "macX64Dmg" && !assets[key] && assets.macX64Zip) key = "macX64Zip";
-  const href = key ? assets[key] : undefined;
-  return key && href ? { key, href } : null;
+export function resolvePrimary(_detected: DetectResult, assets: DownloadAssets) {
+  const key: PrimaryDownloadKey = assets.macArm64Dmg ? "macArm64Dmg" : "macArm64Zip";
+  const href = assets[key];
+  return href ? { key, href } : null;
 }
 
 /** The same platform label applies to either Mac installer format. */

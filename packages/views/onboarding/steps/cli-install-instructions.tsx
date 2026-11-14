@@ -89,13 +89,7 @@ export function CliInstallInstructions() {
           {t(($) => $.cli_install.intro)}
         </p>
         <Step n={1} label={t(($) => $.cli_install.step1_label)}>
-          <CliInstallCommand
-            labels={{
-              group: t(($) => $.cli_install.platform_group),
-              macosLinux: t(($) => $.cli_install.platform_macos_linux),
-              windows: t(($) => $.cli_install.platform_windows),
-            }}
-          >
+          <CliInstallCommand>
             {(cmd) => <CommandRow cmd={cmd} />}
           </CliInstallCommand>
         </Step>

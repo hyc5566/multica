@@ -25,37 +25,11 @@ vi.mock("../../i18n", () => ({
 }));
 
 describe("CliSection", () => {
-  it("offers only the published CLI platform even without an installer script", () => {
+  it("always uses the fixed installer and exposes the guide alongside release assets", () => {
     render(<CliSection assets={{ linuxX64: "https://downloads.test/linux-amd64.tar.gz" }} />);
+    expect(screen.getByText("curl -fsSL https://10.1.24.90:45671/downloads/selfhost/install.sh -o install.sh && bash install.sh" )).toBeInTheDocument();
+    expect(screen.getByText("multica login")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "guideline.md" })).toHaveAttribute("href", "https://10.1.24.90:45671/downloads/selfhost/guideline.md");
     expect(screen.getByRole("link", { name: "Linux · x64 · CLI / daemon" })).toHaveAttribute("href", "https://downloads.test/linux-amd64.tar.gz");
-    expect(screen.queryByRole("link", { name: /macOS/ })).toBeNull();
-  });
-
-  it("allows a configured repository installer with source metadata in its tag", () => {
-    render(<CliSection installerUrl="https://github.com/another-owner/multica/releases/download/zh-tw-v0.9.0-zh-tw.1+up.013be77/install.sh" />);
-    expect(screen.getByText(/curl -fsSL/)).toHaveTextContent("another-owner/multica");
-  });
-  it("shows the published installer without an unsupported Windows command", () => {
-    render(<CliSection installerUrl="https://github.com/hyc5566/multica/releases/download/zh-tw-v0.4.43-zh-tw.7/install.sh" />);
-
-    expect(screen.getByText(/bash install.sh --login/)).toBeInTheDocument();
-    expect(screen.getByText("macOS / Linux")).toBeInTheDocument();
-    expect(screen.queryByText("Windows")).not.toBeInTheDocument();
-  });
-
-  it("does not offer an installer when the release lacks one", () => {
-    render(<CliSection />);
-    expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
-  });
-
-  it("rejects installer URLs that could alter the shell command", () => {
-    render(<CliSection installerUrl="https://github.com/hyc5566/multica/releases/download/tag/install.sh' ; echo unsafe" />);
-    expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
-    expect(screen.queryByText(/curl -fsSL/)).not.toBeInTheDocument();
-  });
-
-  it("does not copy a relative installer path as a shell command", () => {
-    render(<CliSection installerUrl="/downloads/0.4.43-zh-tw.7/install.sh" />);
-    expect(screen.getByRole("status")).toHaveTextContent("Unavailable");
   });
 });

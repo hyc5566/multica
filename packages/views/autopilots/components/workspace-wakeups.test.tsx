@@ -411,7 +411,7 @@ it("introduces wakeups when the workspace has none yet", async () => {
   const intro = await screen.findByRole("region", { name: "Bring agents back at the right moment" });
   expect(within(intro).getByRole("link", { name: /Read the docs/ })).toHaveAttribute(
     "href",
-    "https://multica.ai/docs/issue-wakeups",
+    "https://github.com/hyc5566/multica/tree/zh-tw/apps/docs/content/docs",
   );
   await user.click(within(intro).getByRole("button", { name: "New wakeup" }));
   expect(await screen.findByRole("dialog", { name: "Pick issue" })).toBeVisible();

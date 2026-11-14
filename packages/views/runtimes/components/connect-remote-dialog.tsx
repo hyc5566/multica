@@ -34,9 +34,7 @@ import {
   UI_MOTION_DURATION,
 } from "@multica/ui/lib/motion";
 import { cn } from "@multica/ui/lib/utils";
-import { CLI_INSTALL_COMMANDS, CliInstallCommand, type CliInstallPlatform } from "../../common/cli-install-command";
-import { operatorInstallCommand } from "@multica/core/runtimes";
-import { useConfigStore } from "@multica/core/config";
+import { CliInstallCommand } from "../../common/cli-install-command";
 import { DaemonSetupNotice } from "../../common/daemon-setup-notice";
 import { useNavigation } from "../../navigation";
 import { useT } from "../../i18n";
@@ -275,13 +273,7 @@ function CommandStep({
 
 function InstructionsStep({ onClose }: { onClose: () => void }) {
   const { t } = useT("runtimes");
-  const [platform, setPlatform] = useState<CliInstallPlatform>("macosLinux");
-  const installUrl = useConfigStore((s) => s.daemonInstallUrl);
-  const installCmd = operatorInstallCommand(installUrl);
-  const commands = useDaemonSetupCommands(
-    platform === "macosLinux" && installCmd ? '"$HOME/.local/bin/multica"' : "multica",
-    platform === "windows" ? "powershell" : "posix",
-  );
+  const commands = useDaemonSetupCommands("multica", "posix");
   return (
     <>
       <DialogHeader className="px-6 pt-6 pb-2">
@@ -295,21 +287,11 @@ function InstructionsStep({ onClose }: { onClose: () => void }) {
 
       <div className="min-h-0 flex-1 overflow-y-auto px-6 py-4">
         <div className="space-y-4">
-          {/* Step 1 owns the platform switch: the install command differs by
-              OS, so the user picks instead of us guessing. Step 2's
-              `multica setup` is platform-independent. */}
           <CommandStep n={1} label={t(($) => $.connect.step1_label)}>
-            <CliInstallCommand
-              onPlatformChange={setPlatform}
-              labels={{
-                group: t(($) => $.connect.platform_group),
-                macosLinux: t(($) => $.connect.platform_macos_linux),
-                windows: t(($) => $.connect.platform_windows),
-              }}
-            >
+            <CliInstallCommand>
               {(cmd) => (
                 <CommandRow
-                  cmd={cmd === CLI_INSTALL_COMMANDS.macosLinux ? installCmd ?? cmd : cmd}
+                  cmd={cmd}
                   copyAria={t(($) => $.connect.copy_aria)}
                 />
               )}
