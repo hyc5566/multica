@@ -4,6 +4,21 @@
 `https://10.1.24.90:45671/downloads/selfhost/guideline.md`。
 本指南是操作說明；實際換版須有目標機、版本、停機窗口及回復方案的核准。
 
+## 操作前與出錯時先更新文件
+
+每次安裝、更新或排查錯誤前，先從固定網址重新下載本指南，讀完最新版再操作。
+不要沿用先前下載的副本、舊訊息中的安裝指令或已移除的入口。
+
+```sh
+curl --fail --show-error --location --proto '=https' --proto-redir '=https' \
+  -H 'Cache-Control: no-cache' \
+  https://10.1.24.90:45671/downloads/selfhost/guideline.md -o guideline.md
+```
+
+需要額外 CA 時，在上例加上 `--cacert /已核對的公開CA檔`。
+下載失敗就保留錯誤並聯絡管理員；先確認能取得最新文件，再繼續安裝或更新。
+目前可用的 App、CLI 與安裝入口以[下載頁](https://10.1.24.90:45671/download)為準。
+
 ## 新機安裝
 
 目前獨立 CLI 成品為 **Linux x64**，版本 `0.9.0-zh-tw.1+up.013be77`，來源提交
