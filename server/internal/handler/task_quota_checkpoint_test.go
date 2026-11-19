@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"testing"
 
 	db "github.com/multica-ai/multica/server/pkg/db/generated"
@@ -62,13 +63,17 @@ func TestAnnotateTaskQuotaWindowsMarksSharedAccountWindows(t *testing.T) {
 }
 
 func TestSelectAntigravityTaskQuotaProviderPools(t *testing.T) {
-	for _, tc := range []struct{ model, pool string }{
-		{"gemini-3.8-flash-high", "gemini"},
-		{"claude-opus-4-6-thinking", "3p"},
-		{"gpt-oss-120b-medium", "3p"},
-		{"custom-model", ""},
-		{"default", ""},
-		{"", ""},
+	for _, tc := range []struct {
+		model string
+		want  []string
+	}{
+		{"gemini-3.8-flash-high", []string{"gemini-5h", "gemini-weekly"}},
+		{"gemini-4-argon-high", []string{"gemini-argon-wtu-weekly"}},
+		{"claude-opus-4-6-thinking", []string{"3p-5h", "3p-weekly"}},
+		{"gpt-oss-120b-medium", []string{"3p-5h", "3p-weekly"}},
+		{"custom-model", nil},
+		{"default", nil},
+		{"", nil},
 	} {
 		t.Run(tc.model, func(t *testing.T) {
 			snapshot := ProviderUsageSnapshot{Windows: []ProviderUsageWindow{
@@ -76,11 +81,12 @@ func TestSelectAntigravityTaskQuotaProviderPools(t *testing.T) {
 				{ID: "gemini-weekly", Label: "weekly"},
 				{ID: "3p-5h", Label: "5h"},
 				{ID: "3p-weekly", Label: "weekly"},
+				{ID: "gemini-argon-wtu-weekly", Label: "weekly"},
 			}}
 			annotateTaskQuotaWindows(&snapshot, "antigravity", tc.model)
 			for _, window := range snapshot.Windows {
 				wantMatch := "unknown"
-				if tc.pool != "" && (window.ID == tc.pool+"-5h" || window.ID == tc.pool+"-weekly") {
+				if slices.Contains(tc.want, window.ID) {
 					wantMatch = "shared"
 				}
 				if window.Scope != "provider" || window.ModelMatch != wantMatch {
@@ -88,19 +94,15 @@ func TestSelectAntigravityTaskQuotaProviderPools(t *testing.T) {
 				}
 			}
 			selectTaskQuotaWindows(&snapshot, "antigravity", tc.model)
-			if tc.pool == "" {
-				if len(snapshot.Windows) != 0 {
-					t.Fatalf("unknown model must not select a pool: %+v", snapshot.Windows)
-				}
-				return
-			}
-			if len(snapshot.Windows) != 2 || snapshot.Windows[0].ID != tc.pool+"-5h" || snapshot.Windows[1].ID != tc.pool+"-weekly" {
-				t.Fatalf("expected both %s windows: %+v", tc.pool, snapshot.Windows)
-			}
+			got := []string{}
 			for _, window := range snapshot.Windows {
+				got = append(got, window.ID)
 				if window.Scope != "provider" || window.ModelMatch != "shared" || window.Label == "" {
 					t.Fatalf("selected pool metadata = %+v", window)
 				}
+			}
+			if !slices.Equal(got, tc.want) {
+				t.Fatalf("selected windows = %v, want %v", got, tc.want)
 			}
 		})
 	}

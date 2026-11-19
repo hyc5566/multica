@@ -386,7 +386,7 @@ func selectTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requested
 	pool := antigravityTaskQuotaPool(model)
 	selected := []ProviderUsageWindow{}
 	for _, w := range snapshot.Windows {
-		if pool != "" && (w.ID == pool+"-5h" || w.ID == pool+"-weekly") {
+		if pool != "" && antigravityWindowPool(w.ID) == pool {
 			w.Scope, w.ModelMatch = "provider", "shared"
 			selected = append(selected, w)
 		}
@@ -428,10 +428,27 @@ func selectTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, requested
 
 func antigravityTaskQuotaPool(model string) string {
 	switch {
+	case strings.HasPrefix(model, "gemini-") && strings.Contains(model, "-argon"):
+		return "gemini-argon"
 	case strings.HasPrefix(model, "gemini-"):
 		return "gemini"
 	case strings.HasPrefix(model, "claude-"), strings.HasPrefix(model, "gpt-"):
 		return "3p"
+	default:
+		return ""
+	}
+}
+
+// antigravityWindowPool maps a quota-summary bucket ID to its shared pool.
+// Argon has its own weekly-only group whose bucket IDs are not fixed.
+func antigravityWindowPool(id string) string {
+	switch {
+	case id == "gemini-5h", id == "gemini-weekly":
+		return "gemini"
+	case id == "3p-5h", id == "3p-weekly":
+		return "3p"
+	case strings.HasPrefix(id, "gemini-argon-"):
+		return "gemini-argon"
 	default:
 		return ""
 	}
@@ -446,10 +463,9 @@ func annotateTaskQuotaWindows(snapshot *ProviderUsageSnapshot, provider, request
 		case "claude":
 			window.Scope, window.ModelMatch = "account", "shared"
 		case "antigravity":
-			switch window.ID {
-			case "gemini-5h", "gemini-weekly", "3p-5h", "3p-weekly":
+			if pool := antigravityWindowPool(window.ID); pool != "" {
 				window.Scope, window.ModelMatch = "provider", "unknown"
-				if pool := antigravityTaskQuotaPool(requestedModel); pool != "" && strings.HasPrefix(window.ID, pool+"-") {
+				if antigravityTaskQuotaPool(requestedModel) == pool {
 					window.ModelMatch = "shared"
 				}
 				continue

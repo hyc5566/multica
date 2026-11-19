@@ -5,8 +5,18 @@ import type { RuntimeProviderUsageWindow } from "@multica/core/types";
 export function antigravityQuotaPool(id: string) {
   if (id === "gemini-5h" || id === "gemini-weekly") return "google";
   if (id === "3p-5h" || id === "3p-weekly") return "other";
+  // Argon has its own weekly-only group, separate from the Gemini pool.
+  if (id.startsWith("gemini-argon-")) return "argon";
   return undefined;
 }
+
+function antigravityModelPool(modelKey: string) {
+  if (modelKey.startsWith("gemini-")) return modelKey.includes("-argon") ? "argon" : "google";
+  if (/^(claude-|gpt-)/.test(modelKey)) return "other";
+  return undefined;
+}
+
+const poolOrder = { google: 0, argon: 1, other: 2 } as const;
 
 export function prioritizeAntigravityWindows(
   windows: RuntimeProviderUsageWindow[],
@@ -14,9 +24,7 @@ export function prioritizeAntigravityWindows(
 ) {
   const modelKey = model?.trim().toLowerCase() ?? "";
   const exact = windows.some((row) => row.id.toLowerCase() === modelKey && !antigravityQuotaPool(row.id));
-  const currentPool = !exact && modelKey.startsWith("gemini-")
-    ? "google"
-    : !exact && /^(claude-|gpt-)/.test(modelKey) ? "other" : undefined;
+  const currentPool = exact ? undefined : antigravityModelPool(modelKey);
   const rows = [...windows];
   for (const [id, group, duration] of [
     ["gemini-5h", "Gemini Models", 300],
@@ -35,7 +43,7 @@ export function prioritizeAntigravityWindows(
       current: pool ? pool === currentPool : modelKey !== "" && window.id.toLowerCase() === modelKey,
       displayLabel: window.group || window.id,
       index,
-      order: pool === "google" ? 0 : pool === "other" ? 1 : 2,
+      order: pool ? poolOrder[pool] : 3,
     };
   }).sort((a, b) =>
     Number(b.current) - Number(a.current) || a.order - b.order ||

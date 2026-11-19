@@ -1478,6 +1478,8 @@ export interface RuntimeProviderUsageWindow {
   /** Provider timestamp preserved as RFC3339 by the backend. */
   resets_at?: string;
   unit: string;
+  /** Provider-published members of the window's shared quota group. */
+  models?: string[];
   /** Task-report annotation; absent on generic runtime snapshots. */
   scope?: "account" | "provider" | "model";
   /** Exact is emitted only for a provider-stable model identifier. */
