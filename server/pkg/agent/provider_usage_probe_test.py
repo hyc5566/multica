@@ -210,6 +210,36 @@ class ProviderUsageNormalizerTests(unittest.TestCase):
         # A weekly reset one hour away is still weekly, not a five-hour guess.
         self.assertEqual(rows[1]["resets_at"], "2026-08-31T11:00:00Z")
 
+    def test_antigravity_lists_group_models_and_keeps_weekly_only_groups(self) -> None:
+        result = probe.normalize_antigravity({"groups": [
+            {"displayName": "Gemini Models",
+             "description": "Models within this group: Gemini 4 Neon, Gemini 3.8 Flash",
+             "buckets": [
+                 {"bucketId": "gemini-weekly", "window": "weekly", "remainingFraction": 0.9},
+                 {"bucketId": "gemini-5h", "window": "5h", "remainingFraction": 1},
+             ]},
+            {"displayName": "Claude and GPT models",
+             "description": "Models within this group: Claude Opus 5.5, GPT-OSS 120B",
+             "buckets": [
+                 {"bucketId": "3p-weekly", "window": "weekly", "remainingFraction": 1},
+                 {"bucketId": "3p-5h", "window": "5h", "remainingFraction": 1},
+             ]},
+            {"displayName": "Gemini 4 Argon",
+             "description": "For paid Pro plans, Argon quota is separate.",
+             "buckets": [
+                 {"bucketId": "gemini-argon-wtu-weekly", "window": "weekly", "remainingFraction": 0.5},
+             ]},
+        ]}, OBSERVED_AT)
+        self.assertEqual(result["status"], "available")
+        rows = {row["id"]: row for row in result["windows"]}
+        self.assertEqual(rows["gemini-5h"]["models"], ["Gemini 4 Neon", "Gemini 3.8 Flash"])
+        self.assertEqual(rows["3p-weekly"]["models"], ["Claude Opus 5.5", "GPT-OSS 120B"])
+        # A plan note is not a model list.
+        self.assertNotIn("models", rows["gemini-argon-wtu-weekly"])
+        self.assertEqual(rows["gemini-argon-wtu-weekly"]["group"], "Gemini 4 Argon")
+        self.assertEqual(rows["gemini-argon-wtu-weekly"]["window_duration_mins"], 10080)
+        self.assertEqual(rows["gemini-argon-wtu-weekly"]["used_percent"], 50)
+
     def test_antigravity_missing_invalid_disabled_or_amount_never_becomes_percentage(self) -> None:
         invalid = [{"remainingFraction": v} for v in
                    (None, "0.5", True, -0.1, 1.1, float("nan"), float("inf"))]
@@ -497,9 +527,10 @@ class ProviderFetchTests(unittest.TestCase):
                     run.assert_not_called()
 
     def test_antigravity_uses_direct_quota_summary_endpoint(self) -> None:
-        # The daily backend omits Gemini windows for real subscriber accounts.
+        # agy only talks to the daily backend; the production host never sees
+        # agy's consumption.
         self.assertEqual(probe.ANTIGRAVITY_USAGE_URL,
-                         "https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary")
+                         "https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary")
         limiter = mock.Mock()
         with (
             mock.patch.object(probe, "antigravity_token", return_value="test-token"),
@@ -516,6 +547,9 @@ class ProviderFetchTests(unittest.TestCase):
         self.assertEqual(args, (probe.ANTIGRAVITY_USAGE_URL,))
         self.assertEqual(kwargs["method"], "POST")
         self.assertEqual(kwargs["headers"]["Authorization"], "Bearer test-token")
+        # Google omits the Gemini groups for a generic IDE identity.
+        self.assertRegex(kwargs["headers"]["User-Agent"],
+                         r"^antigravity/cli/[0-9.]+ \(aidev_client; os_type=(darwin|linux|windows); arch=[a-z0-9_]+; auth_method=consumer\)$")
         self.assertEqual(kwargs["body"], {})
         self.assertEqual(result["windows"][0]["remaining_percent"], 80)
         self.assertEqual(result["status"], "partial")

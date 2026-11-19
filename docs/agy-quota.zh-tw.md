@@ -24,6 +24,8 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 
 `https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary`
 
+> 現行規則見下方「2026-11-19：agy CLI 身分與 daily 端點」，本段為歷史紀錄。
+
 以上端點已於 HYCLV-363 修正為正式環境。2026-10-19 由 s90 透過既有 SSH、
 以 Python 直接探測 m2：同一憑證查舊 `daily-cloudcode-pa.googleapis.com` 只有
 第三方池，查正式 `cloudcode-pa.googleapis.com` 則取得完整四窗；在 daily 請求
@@ -42,6 +44,25 @@ POST 下列 endpoint、body `{}`，得到 HTTP 200 與以下分組。未執行�
 `resetTime` 為 RFC3339；窗口只依明確的 `window`，不根據倒數時間判斷。
 群組有自己的 buckets；也支援 schema 定義的頂層 buckets。各 bucket 保留獨立 ID，
 不合計、平均、取第一個模型或依相同比例去重。重複 ID／無法辨識結構會回報錯誤。
+
+## 2026-11-19：agy CLI 身分與 daily 端點
+
+0.8.1 重建時 probe 退回通用 `antigravity/0.0.0` User-Agent 與正式主機，所有 agy runtime
+只拿到 Claude／GPT 池，快照長期 partial，頁面上 Gemini 兩格只剩占位。當日由 s90 透過既有
+SSH，在 mycc 與 m5 以當地登入憑證直接 POST（未執行模型、未保存原始回應或憑證）查證：
+
+- 決定是否回傳 Gemini 群組的是 User-Agent，不是主機：通用身分在兩台主機都只有 `3p-*`；
+  agy CLI 身分 `antigravity/cli/<版本> (aidev_client; os_type=…; arch=…; auth_method=consumer)`
+  在兩台主機都回傳完整群組。
+- agy 1.5.12 只呼叫 `daily-cloudcode-pa`（m5 近期日誌一萬三千餘次，正式主機零次）。
+  daily 的 `gemini-weekly` 有實際用量與固定重置時間；正式主機同帳號顯示未使用、重置時間隨查詢時間滾動。
+  因此改回 daily 主機加 CLI 身分（與 `49b4c9d510` 相同結論）。
+- 新增 `Gemini 4 Argon` 群組，只有 `gemini-argon-wtu-weekly` 一個每週窗口，與 Gemini 池分開計算。
+- 群組 description 為 `Models within this group: A, B` 時，probe 轉成窗口的 `models` 清單，
+  頁面在每張卡片列出共用該額度的模型；其他 description（例如 Argon 的方案說明）不當成模型清單。
+
+模型對應：`gemini-*-argon*` → Argon 池，其餘 `gemini-*` → Gemini 池，`claude-*`／`gpt-*` → 第三方池。
+Task quota 依此只選取所用模型所屬池的窗口。
 
 ## 顯示與缺值規則
 

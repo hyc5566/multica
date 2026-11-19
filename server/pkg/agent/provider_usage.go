@@ -37,6 +37,8 @@ type ProviderUsageWindow struct {
 	WindowDurationMins *int64     `json:"window_duration_mins,omitempty"`
 	ResetsAt           *time.Time `json:"resets_at,omitempty"`
 	Unit               string     `json:"unit"`
+	// Models lists the provider-published members of a shared quota group.
+	Models []string `json:"models,omitempty"`
 }
 
 const providerUsageProbeMaxOutput = 2 * 1024 * 1024
