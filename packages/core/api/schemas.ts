@@ -4375,6 +4375,7 @@ const RuntimeProviderUsageWindowSchema = z.object({
   window_duration_mins: z.number().int().positive().optional(),
   resets_at: z.string().optional(),
   unit: z.string().default("percent"),
+  models: z.array(z.string()).optional().catch(undefined),
   scope: z.enum(["account", "provider", "model"]).optional(),
   model_match: z.enum(["exact", "shared", "unknown"]).optional(),
 }).loose();

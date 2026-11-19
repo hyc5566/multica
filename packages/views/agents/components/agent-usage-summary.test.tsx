@@ -246,6 +246,24 @@ describe("AgentUsageSummary Antigravity", () => {
     expect(document.querySelector('[data-provider-quota-scroll]')).toHaveClass("overflow-x-auto");
     expect(mocks.start).not.toHaveBeenCalled();
   });
+  it("lists each shared pool's models and gives Argon its own weekly limit", async () => {
+    const gemini = ["Gemini 4 Neon", "Gemini 3.8 Flash"];
+    snapshot = { ...snapshot, provider: "antigravity", windows: [
+      { ...codexWindows[0]!, id: "gemini-5h", group: "Gemini Models", models: gemini, used_percent: 1, remaining_percent: 99 },
+      { ...codexWindows[1]!, id: "gemini-weekly", group: "Gemini Models", models: gemini, used_percent: 10, remaining_percent: 90 },
+      { ...codexWindows[0]!, id: "3p-5h", group: "Claude and GPT models", models: ["Claude Opus 5.5"], used_percent: 0, remaining_percent: 100 },
+      { ...codexWindows[1]!, id: "3p-weekly", group: "Claude and GPT models", models: ["Claude Opus 5.5"], used_percent: 0, remaining_percent: 100 },
+      { ...codexWindows[1]!, id: "gemini-argon-wtu-weekly", group: "Gemini 4 Argon", used_percent: 40, remaining_percent: 60 },
+    ] };
+    mountSummary("antigravity", "gemini-4-argon-high");
+    await screen.findByText("40% used");
+    expect(screen.getAllByText("Gemini 4 Neon, Gemini 3.8 Flash")).toHaveLength(2);
+    expect(screen.getAllByText("Claude Opus 5.5")).toHaveLength(2);
+    const current = document.querySelectorAll('[data-current-model-usage="true"]');
+    expect(current).toHaveLength(1);
+    expect(current[0]).toHaveTextContent("Gemini 4 Argon");
+    expect(current[0]?.querySelector("[data-quota-models]")).toBeNull();
+  });
   it("shows unavailable and expired windows without inventing percentages", async () => {
     snapshot = { ...snapshot, provider: "antigravity", status: "partial", windows: [
       { ...codexWindows[0]!, id: "gemini-5h", group: "Gemini Models", resets_at: "2020-01-01T00:00:00Z" },
