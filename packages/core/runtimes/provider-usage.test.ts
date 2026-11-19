@@ -116,6 +116,16 @@ describe("provider usage cooldown contract", () => {
       expect(RuntimeProviderUsageSchema.safeParse({ ...snapshot, refresh_available_at: deadline }).success).toBe(false);
     }
   });
+  it("keeps quota group models and drops a malformed list without rejecting the window", () => {
+    const window = { id: "gemini-5h", label: "5h", unit: "percent" };
+    const parsed = RuntimeProviderUsageSchema.parse({ ...snapshot, windows: [
+      { ...window, models: ["Gemini 4 Neon", "Gemini 3.8 Flash"] },
+      { ...window, id: "gemini-weekly", models: "Gemini 4 Neon" },
+    ] });
+    expect(parsed.windows?.[0]?.models).toEqual(["Gemini 4 Neon", "Gemini 3.8 Flash"]);
+    expect(parsed.windows?.[1]?.id).toBe("gemini-weekly");
+    expect(parsed.windows?.[1]?.models).toBeUndefined();
+  });
   it("returns a shared cooldown with the retained snapshot without polling", async () => {
     const limited = { ...snapshot, refresh_available_at: "2026-09-10T05:01:00Z", last_error_code: "rate_limited" };
     initiateProviderUsage.mockResolvedValue({ status: "completed", provider_usage: limited });

@@ -21,6 +21,16 @@ describe("Antigravity quota pools", () => {
     expect(rows.map((r) => r.window.id)).toEqual(["gemini-5h", "gemini-weekly", "3p-5h", "3p-weekly"]);
     expect(rows.map((r) => r.current)).toEqual([true, true, false, false]);
   });
+  it("treats Argon as its own weekly-only pool", () => {
+    const argon: RuntimeProviderUsageWindow = { id: "gemini-argon-wtu-weekly", group: "Gemini 4 Argon", label: "Weekly", window_duration_mins: 10080, used_percent: 5, unit: "percent" };
+    const rows = prioritizeAntigravityWindows([...windows, argon], "gemini-4-argon-high");
+    expect(rows.map((r) => r.window.id)).toEqual(["gemini-argon-wtu-weekly", "gemini-5h", "gemini-weekly", "3p-5h", "3p-weekly"]);
+    expect(rows.map((r) => r.current)).toEqual([true, false, false, false, false]);
+    expect(rows[0]!.displayLabel).toBe("Gemini 4 Argon");
+    const flash = prioritizeAntigravityWindows([...windows, argon], "gemini-3.8-flash-high");
+    expect(flash.map((r) => r.window.id)).toEqual(["gemini-5h", "gemini-weekly", "gemini-argon-wtu-weekly", "3p-5h", "3p-weekly"]);
+    expect(flash.map((r) => r.current)).toEqual([true, true, false, false, false]);
+  });
   it("keeps missing windows unknown and never borrows another pool's percentage", () => {
     const rows = prioritizeAntigravityWindows([windows[3]!], "gemini-pro");
     expect(rows).toHaveLength(4);

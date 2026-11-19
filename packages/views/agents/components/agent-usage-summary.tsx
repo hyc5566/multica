@@ -311,6 +311,15 @@ function QuotaWindow({
           {displayLabel}
         </p>
       ) : null}
+      {grouped && window.models?.length ? (
+        <p
+          data-quota-models
+          className="line-clamp-2 break-words text-[10px] leading-4 text-muted-foreground"
+          title={window.models.join(", ")}
+        >
+          {window.models.join(", ")}
+        </p>
+      ) : null}
       <div className="flex min-w-0 items-center gap-1.5">
         <p
           className="min-w-0 flex-1 truncate text-[11px] text-muted-foreground"
