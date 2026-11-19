@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 )
 
@@ -88,6 +89,33 @@ func TestParseProviderUsageProbeAcceptsQuotaWindows(t *testing.T) {
 		t.Fatal(err)
 	}
 	if len(got.Windows) != 1 || got.Windows[0].UsedPercent == nil || *got.Windows[0].UsedPercent != 23.5 {
+		t.Fatalf("quota snapshot = %+v", got)
+	}
+}
+
+func TestParseProviderUsageProbeKeepsQuotaGroupModels(t *testing.T) {
+	t.Parallel()
+	raw := []byte(`{
+		"provider":"antigravity",
+		"status":"available",
+		"source":"official",
+		"observed_at":"2026-08-31T10:00:00Z",
+		"windows":[{
+			"id":"gemini-5h",
+			"group":"Gemini Models",
+			"label":"Five Hour Limit Remaining",
+			"used_percent":10,
+			"remaining_percent":90,
+			"window_duration_mins":300,
+			"unit":"percent",
+			"models":["Gemini 4 Neon","Gemini 3.8 Flash"]
+		}]
+	}`)
+	got, err := parseProviderUsageProbe(raw, "antigravity")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(got.Windows) != 1 || strings.Join(got.Windows[0].Models, ",") != "Gemini 4 Neon,Gemini 3.8 Flash" {
 		t.Fatalf("quota snapshot = %+v", got)
 	}
 }

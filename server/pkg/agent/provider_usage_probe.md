@@ -9,7 +9,7 @@ Supported providers:
 | Provider | Local credential | Direct endpoint |
 |---|---|---|
 | Claude Code | `~/.claude/.credentials.json` (or `CLAUDE_CONFIG_DIR`), then macOS Keychain `Claude Code-credentials` | `https://api.anthropic.com/api/oauth/usage` |
-| Antigravity | macOS Keychain or `~/.gemini/...` OAuth files | `https://cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary` |
+| Antigravity | macOS Keychain or `~/.gemini/...` OAuth files | `https://daily-cloudcode-pa.googleapis.com/v1internal:retrieveUserQuotaSummary` |
 | Codex | `~/.codex/auth.json` (or `CODEX_HOME`) | `https://chatgpt.com/backend-api/wham/usage` |
 
 These endpoints are provider-owned client backends rather than a stable public
@@ -17,16 +17,21 @@ quota API contract. Schema changes fail closed with a credential-free error;
 the probe never substitutes a local usage cache and labels it fresh.
 
 Antigravity uses explicit quota-summary groups/buckets: Google `gemini-5h` /
-`gemini-weekly`, and the shared Claude/GPT pool `3p-5h` / `3p-weekly`.
+`gemini-weekly`, the shared Claude/GPT pool `3p-5h` / `3p-weekly`, and the
+weekly-only Argon group (`gemini-argon-*`). A group's
+`Models within this group: ...` description becomes the window's `models`
+list; any other description is a plan note and is dropped.
 `remainingFraction` is remaining, not used; `window` identifies the period.
 Disabled, missing, invalid or amount-based values never become percentages.
 Do not infer periods from reset timestamps or fill a missing window with 100%.
 See [source evidence and rebuild rules](../../../docs/agy-quota.zh-tw.md).
 
-Use the production `cloudcode-pa.googleapis.com` host. The `daily-` backend can
-return HTTP 200 with only third-party windows while omitting Gemini quotas for
-the same credential. An authenticated partial response is not evidence that the
-account lacks Gemini quota. Do not merge responses from the two environments.
+Send the agy CLI User-Agent (`antigravity/cli/<version> (aidev_client; ...)`)
+to the `daily-cloudcode-pa.googleapis.com` host. Google omits every Gemini
+group for a generic IDE identity on either host, returning only the 3p group.
+agy itself only calls the daily host, so the production host's summary never
+reflects agy's consumption. An authenticated partial response is not evidence
+that the account lacks Gemini quota. Do not merge responses from the two hosts.
 
 ## Standalone use
 
