@@ -114,6 +114,8 @@ type ProviderUsageWindow struct {
 	WindowDurationMins *int64     `json:"window_duration_mins,omitempty"`
 	ResetsAt           *time.Time `json:"resets_at,omitempty"`
 	Unit               string     `json:"unit"`
+	// Models lists the provider-published members of a shared quota group.
+	Models []string `json:"models,omitempty"`
 	// Scope and ModelMatch are response-only annotations added when a window is
 	// attached to a task. They are not trusted provider payload fields and are
 	// omitted from generic runtime snapshots.

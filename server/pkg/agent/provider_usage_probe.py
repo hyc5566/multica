@@ -10,6 +10,7 @@ import json
 import math
 import os
 import pathlib
+import platform
 import re
 import ssl
 import subprocess
@@ -22,10 +23,15 @@ from typing import Any, Dict, Iterator, List, Mapping, Optional
 
 
 CLAUDE_USAGE_URL = "https://api.anthropic.com/api/oauth/usage"
+# agy sends every request to the daily backend, so only its summary reflects
+# agy's own consumption. The service omits Gemini groups unless the caller
+# identifies as the agy CLI; a generic IDE identity yields only the 3p group.
 ANTIGRAVITY_USAGE_URL = (
-    "https://cloudcode-pa.googleapis.com/"
+    "https://daily-cloudcode-pa.googleapis.com/"
     "v1internal:retrieveUserQuotaSummary"
 )
+ANTIGRAVITY_CLI_VERSION = "1.5.12"
+ANTIGRAVITY_GROUP_MODELS_PREFIX = "Models within this group:"
 CODEX_USAGE_URL = "https://chatgpt.com/backend-api/wham/usage"
 
 MAX_RESPONSE_BYTES = 2 * 1024 * 1024
@@ -99,6 +105,7 @@ def window(
     remaining_percent: Optional[float] = None,
     duration_minutes: Optional[int] = None,
     resets_at: Any = None,
+    models: Optional[List[str]] = None,
 ) -> Dict[str, Any]:
     result: Dict[str, Any] = {
         "id": window_id,
@@ -106,6 +113,8 @@ def window(
         "label": label,
         "unit": "percent",
     }
+    if models:
+        result["models"] = models
     if used_percent is not None:
         result["used_percent"] = clamp_percent(used_percent)
     if remaining_percent is not None:
@@ -194,6 +203,7 @@ def normalize_antigravity(
             raise ProbeFailure("error", "Google returned an invalid quota group.")
         group_name = group.get("displayName")
         group_name = group_name.strip() if isinstance(group_name, str) else ""
+        group_models = antigravity_group_models(group.get("description"))
         for bucket in group["buckets"]:
             if not isinstance(bucket, Mapping):
                 raise ProbeFailure("error", "Google returned an invalid quota bucket.")
@@ -222,6 +232,7 @@ def normalize_antigravity(
                 remaining_percent=remaining,
                 duration_minutes=duration,
                 resets_at=bucket.get("resetTime"),
+                models=group_models,
             ))
     if not windows:
         raise ProbeFailure("error", "Google returned no quota summary buckets.")
@@ -230,6 +241,28 @@ def normalize_antigravity(
         "used_percent" in item and "window_duration_mins" in item for item in windows
     )
     return snapshot("antigravity", windows, observed_at, status="available" if complete else "partial")
+
+
+def antigravity_group_models(description: Any) -> List[str]:
+    # Only the explicit member list is a model list; other group descriptions
+    # are plan notes and must not be presented as model names.
+    if not isinstance(description, str):
+        return []
+    text = description.strip()
+    if not text.startswith(ANTIGRAVITY_GROUP_MODELS_PREFIX):
+        return []
+    names = [name.strip() for name in text[len(ANTIGRAVITY_GROUP_MODELS_PREFIX):].split(",")]
+    return [name for name in names if name][:32]
+
+
+def antigravity_user_agent() -> str:
+    os_type = {"darwin": "darwin", "win32": "windows"}.get(sys.platform, "linux")
+    machine = platform.machine().lower()
+    arch = {"x86_64": "amd64", "aarch64": "arm64"}.get(machine, machine or "amd64")
+    return (
+        f"antigravity/cli/{ANTIGRAVITY_CLI_VERSION} "
+        f"(aidev_client; os_type={os_type}; arch={arch}; auth_method=consumer)"
+    )
 
 
 def append_codex_windows(
@@ -742,7 +775,7 @@ def fetch_antigravity(
         headers={
             "Authorization": "Bearer " + token,
             "Content-Type": "application/json",
-            "User-Agent": "antigravity/0.0.0 darwin/arm64",
+            "User-Agent": antigravity_user_agent(),
             "Client-Metadata": json.dumps(
                 {
                     "ideType": "IDE_UNSPECIFIED",
