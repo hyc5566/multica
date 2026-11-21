@@ -44,7 +44,7 @@
     "unsubscribe_archive": "取消訂閱並歸檔"
   },
   "list": {
-    "loading_selection": "正在載入通知…",
+    "loading_selection": "正在載入通知...",
     "empty": "目前沒有通知",
     "mark_done_tooltip": "標為已完成",
     "archive_tooltip": "歸檔",
@@ -183,7 +183,7 @@
   },
   "snooze": {
     "action": "延後",
-    "menu_title": "延後到…",
+    "menu_title": "延後到...",
     "unsnooze": "現在回來",
     "change_time": "修改時間",
     "hours_1": "1 小時",
@@ -191,7 +191,7 @@
     "days_1": "1 天",
     "days_3": "3 天",
     "weeks_1": "1 週",
-    "pick_time": "選擇日期和時間…",
+    "pick_time": "選擇日期和時間...",
     "picker_title": "選擇日期和時間",
     "picker_back": "返回",
     "picker_time": "時間",

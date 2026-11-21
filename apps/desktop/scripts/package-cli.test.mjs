@@ -23,6 +23,12 @@ beforeEach(() => {
   for (const script of ["bundle-cli.mjs", "package.mjs"]) {
     copyFileSync(fileURLToPath(new URL(script, import.meta.url)), join(scripts, script));
   }
+  const releaseScripts = join(root, "scripts");
+  mkdirSync(releaseScripts);
+  // Keep version derivation out of this fixture's Git-free packaging harness.
+  writeFileSync(join(releaseScripts, "zh-tw-version.mjs"),
+    'export const releaseVersion = () => "0.11.1-zh-tw.1+up.1234567";\n');
+
   // Record staging without loading the native engine or fetching packages.
   writeFileSync(join(scripts, "bundle-voice-engine.mjs"), `
     import { appendFileSync } from "node:fs";

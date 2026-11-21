@@ -11,7 +11,7 @@ import (
 func TestSetupPreservesSettingsAndScopesCredentials(t *testing.T) {
 	for _, changed := range []bool{false, true} {
 		t.Run(map[bool]string{false: "same server", true: "different server"}[changed], func(t *testing.T) {
-			t.Setenv("HOME", t.TempDir())
+			redirectTestHome(t, t.TempDir())
 			old := cli.CLIConfig{ServerURL: "https://old.example", Token: "mul_fixture", WorkspaceID: "workspace", WorkspacesRoot: "/tasks", DeviceName: "v6", MaxConcurrentTasks: 2}
 			if err := cli.SaveCLIConfigForProfile(old, "v6"); err != nil {
 				t.Fatal(err)
@@ -20,14 +20,17 @@ func TestSetupPreservesSettingsAndScopesCredentials(t *testing.T) {
 			if changed {
 				target = "https://new.example"
 			}
-			if _, err := persistSelfHostConfigIfReachable(target, "https://app.example", "v6", func(string) serverProbeResult { return serverProbeResult{healthy: true} }); err != nil {
+			if _, err := persistSelfHostConfigIfReachable(target, "https://app.example", "v6", old, func(string) serverProbeResult { return serverProbeResult{healthy: true} }); err != nil {
 				t.Fatal(err)
 			}
 			got, err := cli.LoadCLIConfigForProfile("v6")
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got.WorkspacesRoot != old.WorkspacesRoot || got.DeviceName != old.DeviceName || got.MaxConcurrentTasks != 2 {
+			if changed && (got.WorkspacesRoot != "" || got.DeviceName != "" || got.MaxConcurrentTasks != 0) {
+				t.Fatal("different backend inherited the local profile")
+			}
+			if !changed && (got.WorkspacesRoot != old.WorkspacesRoot || got.DeviceName != old.DeviceName || got.MaxConcurrentTasks != 2) {
 				t.Fatal("local settings lost")
 			}
 			if changed && (got.Token != "" || got.WorkspaceID != "") {
@@ -79,7 +82,7 @@ func TestValidateSetupToken(t *testing.T) {
 func TestAuthStatusDistinguishesServerFailureFromRejectedToken(t *testing.T) {
 	for _, status := range []int{401, 403, 500} {
 		t.Run(http.StatusText(status), func(t *testing.T) {
-			t.Setenv("HOME", t.TempDir())
+			redirectTestHome(t, t.TempDir())
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) { w.WriteHeader(status) }))
 			defer server.Close()
 			t.Setenv("MULTICA_SERVER_URL", server.URL)

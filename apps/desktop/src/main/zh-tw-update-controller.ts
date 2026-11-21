@@ -1,4 +1,4 @@
-import type { ManualUpdateCheckResult, UpdaterPreferences, UpdaterStatus } from "../shared/updater-types";
+import type { ZhTWManualUpdateCheckResult, UpdaterPreferences, UpdaterStatus } from "../shared/updater-types";
 import type { AppUpdate, ReleaseManifest } from "./zh-tw-app-update";
 
 export const STARTUP_CHECK_DELAY_MS = 30_000;
@@ -27,7 +27,7 @@ export function createZhTWUpdateController(runtime: ZhTWUpdateRuntime) {
     ...(runtime.unsupportedReason ? { error: runtime.unsupportedReason } : {}),
   };
   let staged: { path: string; update: AppUpdate } | null = null;
-  let flight: Promise<ManualUpdateCheckResult> | null = null;
+  let flight: Promise<ZhTWManualUpdateCheckResult> | null = null;
   let abort: AbortController | null = null;
   let manualFlight = false;
   let startupTimer: ReturnType<typeof setTimeout> | null = null;
@@ -64,7 +64,7 @@ export function createZhTWUpdateController(runtime: ZhTWUpdateRuntime) {
   const automaticInstallAllowed = () => pendingPreferenceWrites === 0 && preferences.automaticUpdates && !status.deferred;
   const canAutoInstall = () => automaticInstallAllowed() && status.phase === "ready";
 
-  async function check(manual = true): Promise<ManualUpdateCheckResult> {
+  async function check(manual = true): Promise<ZhTWManualUpdateCheckResult> {
     await ready;
     if (status.phase === "pending") return { ok: false, error: status.message ?? "更新尚待驗收。" };
     if (runtime.unsupportedReason) return { ok: false, error: runtime.unsupportedReason };
@@ -82,7 +82,7 @@ export function createZhTWUpdateController(runtime: ZhTWUpdateRuntime) {
     const signal = abort.signal;
     manualFlight = manual;
     publish({ phase: "checking", currentVersion: runtime.currentVersion });
-    flight = Promise.resolve().then(async (): Promise<ManualUpdateCheckResult> => {
+    flight = Promise.resolve().then(async (): Promise<ZhTWManualUpdateCheckResult> => {
       try {
         const manifest = await runtime.fetchManifest(signal);
         signal.throwIfAborted();

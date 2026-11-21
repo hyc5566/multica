@@ -88,7 +88,7 @@
     "toast_failed": "操作失敗",
     "create_will_start": "建立後 {{name}} 會立即開始工作。",
     "create_will_start_squad": "建立後 {{name}} 的隊長會評估並開始安排任務。",
-    "create_parked": "已指派——在 backlog 中不會開始工作。"
+    "create_parked": "已指派，待規劃的任務暫時不會開始執行。"
   },
   "create_squad": {
     "title": "建立小隊",
@@ -184,7 +184,7 @@
     "toast_duplicate_view": "檢視已有任務",
     "autopilot_quota_limit": {
       "title": "該工作區的自動化執行次數已達到上限",
-      "checking_description": "正在查詢該工作區可用的帳單操作…",
+      "checking_description": "正在查詢該工作區可用的帳單操作...",
       "upgrade_description": "升級到 Pro 可提高每月上限並恢復自動化執行，也可以等待額度重置。",
       "portal_description": "開啟帳單門戶管理該工作區的訂閱，以恢復自動化執行。",
       "contact_description": "請聯絡工作區所有者或管理員升級方案，或等待額度重置。",

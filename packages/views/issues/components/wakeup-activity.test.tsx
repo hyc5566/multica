@@ -34,7 +34,7 @@ describe("wakeup timeline entries", () => {
     const { t, text } = helpers();
     const read = (e: TimelineEntry) => formatWakeupActivity(e, t, text, getActorName);
     expect(read(entry("wakeup_created", { wakeup: reply }, { actor_type: "agent", actor_id: "a" }))).toBe(
-      "新增了喚醒：當此任務有新留言時（由 Jiayuan 觸發） · 喚醒 Emacs",
+      "新增了喚醒：當此任務有新留言時（由 Jiayuan 觸發）喚醒 Emacs",
     );
     expect(read(entry("wakeup_triggered", { wakeup: { ...reply, condition: { type: "pull_request", event: "checks_finished" } } }))).toBe(
       "當關聯 PR 的 CI 結束時，喚醒了 Emacs",
@@ -55,7 +55,7 @@ describe("wakeup timeline entries", () => {
       "3 個子任務已全部結束，併入了 Emacs 待開始的執行",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 2, total: 1, outcome: "none" }))).toBe(
-      "第 2 階段的 1 個子任務已全部結束",
+      "第 2 階段的子任務已結束",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 1, total: 2, target_type: "agent", target_id: "a", outcome: "acknowledged" }))).toBe(
       "第 1 階段的 2 個子任務已全部結束，Emacs 正在處理，未重複喚醒",

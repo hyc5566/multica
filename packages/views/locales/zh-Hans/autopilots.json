@@ -123,7 +123,7 @@
     "description": "你新增的成員可以編輯、執行並管理這個自動化的觸發器和 webhook。",
     "current_label": "已授權",
     "add": "新增成員",
-    "search_placeholder": "搜尋成員…",
+    "search_placeholder": "搜尋成員...",
     "no_results": "未找到成員",
     "remove_tooltip": "移除存取權限",
     "empty": "還沒有授權任何人。",
@@ -332,7 +332,7 @@
     "subscribers_hint": "每次跑出來的任務預設訂閱",
     "subscribers_empty": "目前沒有訂閱者——新增成員後，每次觸發都會通知到他",
     "subscribers_add": "新增訂閱者",
-    "subscribers_search_placeholder": "按名稱搜尋成員……",
+    "subscribers_search_placeholder": "按名稱搜尋成員...",
     "subscribers_no_results": "沒有符合的成員",
     "subscribers_remove_tooltip": "移除",
     "section_schedule": "時間表",
@@ -378,8 +378,8 @@
     "event_filter_condition_value_placeholder": "例如 main",
     "event_filter_condition_values_placeholder": "main, release",
     "event_filter_condition_ignore_case": "忽略大小寫",
-    "schedule_multiple_notice": "該自動化有 {{count}} 條時間表。關閉此對話框，在下方「觸發器」中逐條編輯。",
-    "webhook_multiple_notice": "該自動化有多個 Webhook。關閉此彈窗，在下方「觸發器」中逐條編輯。",
+    "schedule_multiple_notice": "該自動化有 {{count}} 條時間表。關閉此對話框，在下方\"觸發器\"中逐條編輯。",
+    "webhook_multiple_notice": "該自動化有多個 Webhook。關閉此彈窗，在下方\"觸發器\"中逐條編輯。",
     "webhook_edit_filters": "編輯過濾",
     "webhook_filters_saved_separately": "事件篩選條件會立即儲存——在此點擊取消不會復原這些變更。",
     "schedule_empty": "還沒有時間表——這個自動化只在手動觸發時執行。",
@@ -513,9 +513,9 @@
       "warning": "此操作無法撤銷。",
       "cancel": "取消",
       "confirm": "永久刪除",
-      "deleting": "刪除中…",
+      "deleting": "刪除中...",
       "title_multiple": "刪除 {{count}} 個自動化任務？",
-      "description_single": "將永久刪除「{{name}}」及其執行歷史。"
+      "description_single": "將永久刪除\"{{name}}\"及其執行歷史。"
     }
   },
   "wakeups": {
@@ -535,13 +535,13 @@
     "select_row": "選擇 {{issue}}，{{agent}}",
     "select_page": "選擇所有已開啟的喚醒",
     "load_error": "無法載入喚醒",
-    "loading": "正在載入喚醒…",
+    "loading": "正在載入喚醒...",
     "disable_selected": "關閉所選",
     "confirm_title": "關閉 {{count}} 個喚醒？",
     "confirm_body": "後續喚醒將停止。仍在排隊且尚未開始的執行將被取消。已在進行中的執行會繼續，你可在執行日誌中手動停止。",
     "cancel": "取消",
     "confirm": "關閉",
-    "disabling": "正在關閉…",
+    "disabling": "正在關閉...",
     "batch_result": "已關閉 {{succeeded}} 項，失敗 {{failed}} 項。",
     "scopes": {
       "active": "等待中或執行中",
@@ -567,7 +567,7 @@
     "fires_once": "觸發一次",
     "assignee_target": "負責人 · {{name}}",
     "no_target": "沒有 Agent 負責人",
-    "banner_other": "{{count}} 條喚醒已自動暫停：{{issue}}「{{condition}}」——{{reason}}",
+    "banner_other": "{{count}} 條喚醒已自動暫停：{{issue}}\"{{condition}}\"——{{reason}}",
     "banner_view": "查看",
     "create": "新增喚醒",
     "create_pick_issue": "選擇要新增喚醒的任務",
@@ -582,7 +582,7 @@
         },
         "time": {
           "title": "或者定個時間",
-          "description": "單次喚醒適合「明天下午再查看」；定期喚醒適合每天例行檢查。"
+          "description": "單次喚醒適合\"明天下午再查看\"；定期喚醒適合每天例行檢查。"
         },
         "ends": {
           "title": "任務結束就停",
@@ -608,7 +608,7 @@
       "builtin": "內建指令",
       "instruction_invalid": "指令最多 4,000 位元組。",
       "save": "儲存",
-      "saving": "儲存中…",
+      "saving": "儲存中...",
       "save_error": "無法儲存預設值。",
       "customized_other": "{{count}} 個進行中的任務使用了自己的設定，不跟隨此預設值。",
       "admin_only": "只有所有者和管理員可以修改預設值。",
@@ -616,7 +616,7 @@
       "edit_instruction": "編輯預設指令",
       "view_instruction": "查看預設指令"
     },
-    "banner_single": "1 條喚醒已自動暫停：{{issue}}「{{condition}}」——{{reason}}"
+    "banner_single": "1 條喚醒已自動暫停：{{issue}}\"{{condition}}\"——{{reason}}"
   },
   "intro": {
     "label": "自動化",

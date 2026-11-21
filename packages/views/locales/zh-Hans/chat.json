@@ -32,8 +32,8 @@
     "placeholder_archived_agent": "該 Agent 已歸檔",
     "placeholder_runtime_required": "繫結執行環境後繼續",
     "placeholder_access_revoked": "你已沒有執行該 Agent 的權限",
-    "placeholder_named": "給 {{name}} 發訊息…",
-    "placeholder_default": "輸入訊息…",
+    "placeholder_named": "給 {{name}} 發訊息...",
+    "placeholder_default": "輸入訊息...",
     "send_tooltip": "傳送",
     "queue_send_tooltip": "排隊傳送",
     "stop_tooltip": "停止",
@@ -83,7 +83,7 @@
       "skill_bundle_unavailable": "沒能下載到 Agent 的 skill，這次回覆沒有啟動。通常是網路連線問題，請重試。",
       "runtime_cli_timeout": "本機 OpenClaw CLI 在回應前逾時。請檢查本機 OpenClaw CLI 設定，或調高 MULTICA_OPENCLAW_CLI_TIMEOUT 後再重試。",
       "environment_prepare_failed": "執行 Agent 的那臺機器沒能把這次執行準備好，任務沒有啟動。下方的原始錯誤會說明是哪一步失敗——常見的是磁碟空間、權限、目錄仍被佔用，或本地設定讀不出來。與 Agent 和模型廠商無關。",
-      "local_directory_missing": "這個專案關聯的本地資料夾在執行 AI 代理的那臺機器上已不存在，任務沒有啟動。恢復這個資料夾後再試；如果要換一個資料夾，需要在那臺機器的桌面端開啟專案的「資源 → 本地資料夾」重新關聯，瀏覽器裡無法選擇資料夾。",
+      "local_directory_missing": "這個專案關聯的本地資料夾在執行 AI 代理的那臺機器上已不存在，任務沒有啟動。恢復這個資料夾後再試；如果要換一個資料夾，需要在那臺機器的桌面端開啟專案的\"資源 → 本地資料夾\"重新關聯，瀏覽器裡無法選擇資料夾。",
       "provider_network": "與模型服務的連線中斷，回覆沒能完成。檢查網路後重試。",
       "provider_auth_or_access": "服務商拒絕了該 AI 代理的憑證或存取權限。請檢查 API Key 或帳號狀態——可能已過期或權限已失效。",
       "provider_quota_limit": "Agent 的模型帳號額度已用盡。儲值或更換帳號後再試。",
@@ -100,7 +100,7 @@
     "copy_action": "複製",
     "copied_toast": "已複製",
     "copy_failed_toast": "複製失敗",
-    "loading_older": "正在載入更早的訊息…",
+    "loading_older": "正在載入更早的訊息...",
     "quick_actions_heading": "後續提問",
     "quick_actions_aria": "後續提問建議",
     "quick_actions_regenerate": "重新生成建議",
@@ -258,7 +258,7 @@
     }
   },
   "list": {
-    "typing": "正在輸入…",
+    "typing": "正在輸入...",
     "failed": "傳送失敗",
     "you_prefix": "你：",
     "no_messages": "還沒有訊息",
@@ -283,7 +283,7 @@
     "archive": "歸檔會話",
     "unarchive": "取消歸檔",
     "quota_summary": "會話額度摘要",
-    "quota_summary_description": "「{{title}}」的 Provider 額度 checkpoint。",
+    "quota_summary_description": "\"{{title}}\"的 Provider 額度 checkpoint。",
     "quota_empty": "此會話沒有 Provider 額度 checkpoint。",
     "export_json": "JSON",
     "export_csv": "CSV",
@@ -313,7 +313,7 @@
     },
     "report": {
       "waiting": "等待回報",
-      "running": "正在回報…",
+      "running": "正在回報...",
       "failed": "回報失敗"
     },
     "failure": {

@@ -59,7 +59,7 @@
     "copy_failed": "無法複製全文",
     "more_actions": "更多操作",
     "preview": "預覽",
-    "preview_loading": "載入預覽中…",
+    "preview_loading": "載入預覽中...",
     "preview_failed": "預覽載入失敗",
     "preview_too_large": "檔案太大，無法線上預覽，請下載檢視。",
     "preview_unsupported": "該檔案型別暫不支援預覽。",
@@ -115,8 +115,8 @@
     "group_cancelled": "已取消"
   },
   "slash_command": {
-    "no_skills_configured": "目前沒有設定的技能",
-    "no_results": "沒有符合的技能",
+    "no_skills_configured": "目前沒有設定的skill",
+    "no_results": "沒有符合的skill",
     "commands": {
       "note": "新增備註——不觸發任何 Agent"
     }
@@ -147,10 +147,10 @@
   },
   "upload": {
     "failed": "{{filename}} 上傳失敗：{{reason}}",
-    "in_progress": "上傳中…",
+    "in_progress": "上傳中...",
     "interrupted": "上傳已中斷——檔案未儲存。請重新新增。",
     "remove": "移除",
-    "uploading_label": "正在上傳 {{filename}}…",
+    "uploading_label": "正在上傳 {{filename}}...",
     "failed_label": "{{filename}} 上傳失敗"
   },
   "title_editor": {
@@ -159,7 +159,7 @@
   "mermaid": {
     "diagram_label": "Mermaid 圖表",
     "render_error": "無法渲染 Mermaid 圖。",
-    "rendering": "渲染中…",
+    "rendering": "渲染中...",
     "viewer_title": "圖表",
     "canvas_label": "圖表畫布,拖動可平移,滾動可縮放。",
     "open_viewer": "開啟圖表檢視器",
@@ -194,8 +194,8 @@
     "send": "傳送",
     "retry": "重試",
     "dismiss": "關閉",
-    "requesting": "正在等待麥克風…",
-    "transcribing": "正在轉寫…",
+    "requesting": "正在等待麥克風...",
+    "transcribing": "正在轉寫...",
     "release_to_insert": "放開插入",
     "recording": "錄音中",
     "errors": {

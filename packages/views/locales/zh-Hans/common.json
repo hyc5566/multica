@@ -13,8 +13,8 @@
     "failed": "頭像上傳失敗",
     "upload_image": "上傳圖片",
     "emoji_label": "表情",
-    "more_emojis": "更多表情…",
-    "emoji_loading": "載入中…",
+    "more_emojis": "更多表情...",
+    "emoji_loading": "載入中...",
     "text_icon": "文字圖示"
   },
   "avatar_crop": {
@@ -26,8 +26,8 @@
     "reset": "重置",
     "cancel": "取消",
     "apply": "儲存",
-    "uploading": "上傳中…",
-    "loading": "載入中…",
+    "uploading": "上傳中...",
+    "loading": "載入中...",
     "load_failed": "圖片載入失敗"
   },
   "text_avatar": {
@@ -75,7 +75,7 @@
   },
   "slack_bind": {
     "page_title": "關聯 Slack 帳號",
-    "redeeming": "正在關聯帳號…",
+    "redeeming": "正在關聯帳號...",
     "needs_auth_description": "登入以將你的 Slack 帳號連線至你的 Multica 帳號。",
     "sign_in": "登入",
     "done_title": "帳號已關聯",
@@ -90,7 +90,7 @@
   },
   "dingtalk_bind": {
     "page_title": "關聯釘釘帳號",
-    "redeeming": "正在關聯帳號…",
+    "redeeming": "正在關聯帳號...",
     "needs_auth_description": "登入以將你的釘釘帳號連線至你的 Multica 帳號。",
     "sign_in": "登入",
     "done_title": "帳號已關聯",
@@ -105,7 +105,7 @@
   },
   "telegram_bind": {
     "page_title": "繫結你的 Telegram 帳號",
-    "redeeming": "正在繫結…",
+    "redeeming": "正在繫結...",
     "needs_auth_description": "登入以將你的 Telegram 帳號連線至你的 Multica 帳號。",
     "sign_in": "登入",
     "done_title": "帳號已關聯",
@@ -124,7 +124,7 @@
   },
   "wecom_bind": {
     "page_title": "綁定企業微信帳號",
-    "redeeming": "正在關聯帳號…",
+    "redeeming": "正在關聯帳號...",
     "needs_auth_description": "登入以將你的企業微信帳號連線至你的 Multica 帳號。",
     "sign_in": "登入",
     "done_title": "帳號已關聯",

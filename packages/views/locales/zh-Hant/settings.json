@@ -1229,9 +1229,7 @@
     "inbound_pending": "已綁定，等待訊息驗證",
     "inbound_verified": "訊息接收已驗證",
     "inbound_pending_hint": "請在飛書/Lark 中傳送訊息給此機器人以驗證接收。若未收到，請檢查長連線模式、im.message.receive_v1 事件訂閱，以及應用程式發布和審核狀態。既有綁定可能尚無驗證紀錄。",
-    "inbound_verified_hint": "本次綁定已收到有效訊息；這不代表持續連線、AI 代理執行成功或回覆成功。",
-    "install_scan_hint_lark": "Lark → 掃一掃 → 授權新 PersonalAgent。",
-    "install_scan_hint_feishu": "飛書 → 掃一掃 → 授權新 PersonalAgent。"
+    "inbound_verified_hint": "本次綁定已收到有效訊息；這不代表持續連線、AI 代理執行成功或回覆成功。"
   },
   "slack": {
     "section_title": "Slack",
@@ -1790,7 +1788,6 @@
     "messaging_title": "訊息頻道",
     "apps_title": "我的應用程式連線",
     "vcs_hint": "連線 GitLab、Gitea 或 Forgejo。",
-    "apps_hint": "透過 Composio 授權 Agent 使用應用程式。",
     "code_title": "程式碼與儲存庫",
     "back": "所有整合",
     "apps_scope": "這些應用程式連線屬於你的帳號。工作區的訊息頻道連線在上方管理。",
@@ -2194,8 +2191,5 @@
     "cancel": "取消",
     "toast_joined": "已加入 {{title}}",
     "toast_failed": "加入專案失敗。"
-  },
-  "composio": {
-    "section_title": "Composio"
   }
 }

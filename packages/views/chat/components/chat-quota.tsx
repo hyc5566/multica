@@ -205,7 +205,7 @@ export function ChatSessionQuotaButton({
         <Gauge className="size-4" />
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="!max-w-2xl !w-[calc(100vw-2rem)]">
+        <DialogContent className="!max-w-2xl !w-[calc(100%-2rem)]">
           <DialogHeader>
             <DialogTitle>{t(($) => $.header.quota_summary)}</DialogTitle>
             <DialogDescription>

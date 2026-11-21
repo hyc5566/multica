@@ -200,7 +200,7 @@ describe("failureReasonLabel", () => {
       "Project's local folder no longer exists",
     );
     expect(failureReasonLabel("local_directory_missing", fixedT("zh-Hans"))).toBe(
-      "项目的本地文件夹已不存在",
+      "專案的本地資料夾已不存在",
     );
   });
 

@@ -31,3 +31,7 @@ export type ManualUpdateCheckResult =
       downloadState: UpdaterDownloadState;
     }
   | { ok: false; error: string; reason: UpdaterFailureReason };
+
+export type ZhTWManualUpdateCheckResult =
+  | { ok: true; currentVersion: string; latestVersion: string; available: boolean }
+  | { ok: false; error: string };

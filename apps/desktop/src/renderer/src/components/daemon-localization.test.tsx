@@ -58,7 +58,7 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
 
     expect(
       await screen.findByText(
-        "開啟桌面端時自動啟動守護程序。",
+        "開啟 Multica 桌面端時自動啟動本機守護程序",
       ),
     ).toBeInTheDocument();
     const command = await screen.findByText("multica daemon stop");
@@ -82,7 +82,7 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
     expect(startDaemonWithSession).toHaveBeenCalledOnce();
   });
 
-  it("renders repeated log messages with corner quotes", async () => {
+  it("renders repeated log messages with straight double quotes", async () => {
     installDaemonAPI({ state: "running" });
     renderInTaiwanChinese(
       <DaemonPanel
@@ -99,7 +99,7 @@ describe("Desktop daemon localization with real zh-Hans resources", () => {
     });
 
     expect(
-      await screen.findByText('另有 1 條「poll complete」——點選展開'),
+      await screen.findByText('另有 1 條"poll complete"——點選展開'),
     ).toBeInTheDocument();
   });
 });

@@ -54,7 +54,7 @@ describe("filterBlockMenuItems", () => {
     expect(kinds(filterBlockMenuItems(BLOCK_MENU_ITEMS, "表格", zhLabel))).toEqual([
       "table",
     ]);
-    expect(kinds(filterBlockMenuItems(BLOCK_MENU_ITEMS, "dmk", zhLabel))).toEqual([
+    expect(kinds(filterBlockMenuItems(BLOCK_MENU_ITEMS, "csmqk", zhLabel))).toEqual([
       "codeBlock",
     ]);
   });
