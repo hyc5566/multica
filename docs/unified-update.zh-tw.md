@@ -148,7 +148,7 @@ ledger 記錄本次實際交易的 current 及 previous。
 4. 執行 `scripts/lan-release/manifest.sh`。
 5. 執行 `scripts/lan-release/finalize-unified-release.py`，再執行 `stage-latest.mjs`。
 6. 核對產生的 HTML、操作指引、腳本、manifest 及 SHA-256。
-7. 取得首相對候選及適用實機證據的放行。
+7. 取得左丞相對候選及適用實機證據的放行。
 8. 同次發布文件、腳本、checksum 及最後的 latest 頻道。
 
 `publish-latest.sh` 預設只預覽。

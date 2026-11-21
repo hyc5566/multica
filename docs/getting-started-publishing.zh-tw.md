@@ -2,7 +2,7 @@
 
 最新發布契約見 [配套更新維護](unified-update.zh-tw.md)。新頻道使用 `coordinated_desktop` 並把舊 `desktop` 留空，避免舊 App 執行不協調的 swap。先以 `package-unified-update.py` 產生單檔腳本及固定 manifest，再產生頻道、HTML 和操作指引。
 
-配套更新發布會生成 `agent-update-guide.md`，與頁面、腳本、checksum 及 latest 頻道同次發布。Caddy 精確路由來源是 `scripts/lan-release/Caddyfile.update-snippet`；套用前核對現場，validate 通過才可 reload。必須保留現有 TLS、代理路由及 bind mount inode。`.md` 回應要帶 `text/markdown; charset=utf-8`。實際發布仍須適用實機驗證及首相放行。
+配套更新發布會生成 `agent-update-guide.md`，與頁面、腳本、checksum 及 latest 頻道同次發布。Caddy 精確路由來源是 `scripts/lan-release/Caddyfile.update-snippet`；套用前核對現場，validate 通過才可 reload。必須保留現有 TLS、代理路由及 bind mount inode。`.md` 回應要帶 `text/markdown; charset=utf-8`。實際發布仍須適用實機驗證及左丞相放行。
 
 ## s90 現行下載與指南入口
 
@@ -71,9 +71,9 @@ Linux 使用原精確 systemd user 或 system unit。
 
 ### 發布
 
-1. 交候選、差異、完整 manifest 與隔離演練證據給首相。
+1. 交候選、差異、完整 manifest 與隔離演練證據給左丞相。
 2. 完成 Linux 腳本及一台 App 的整組換版與回滾實機驗證。
-3. 取得首相放行。通過條件：適用門檻全部通過，原範圍核准不重問。
+3. 取得左丞相放行。通過條件：適用門檻全部通過，原範圍核准不重問。
 4. 核對正式路由及持久卷。通過條件：沒有其他部署衝突，回滾副本可用。
 5. 將已驗證的固定版資產放入不可變版本目錄。
 6. 執行 `sh scripts/lan-release/publish-latest.sh NEW_STAGE RELEASES_ROOT` 預覽。
