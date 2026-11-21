@@ -33,7 +33,7 @@ interface DashboardLayoutProps {
  */
 export function AppShellCard({ children }: { children: ReactNode }) {
   return (
-    <main data-mc="page" className="relative flex min-h-0 min-w-0 flex-1 flex-row overflow-hidden bg-page-canvas md:mt-2 md:mr-2 md:rounded-page md:shadow-[var(--page-shadow,var(--surface-shadow))] md:ring-1 md:ring-page-border">
+    <main data-mc="page" className="workspace-canvas md:workspace-canvas-frame md:mt-2 md:mr-2">
       <SpacePanel />
       <div className="relative flex min-w-0 flex-1 flex-col overflow-hidden">{children}</div>
     </main>
