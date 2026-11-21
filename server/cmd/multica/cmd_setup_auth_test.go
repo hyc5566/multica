@@ -87,12 +87,16 @@ func TestAuthStatusDistinguishesServerFailureFromRejectedToken(t *testing.T) {
 			defer server.Close()
 			t.Setenv("MULTICA_SERVER_URL", server.URL)
 			t.Setenv("MULTICA_TOKEN", "mul_fixture")
-			err := runAuthStatus(testCmd(), nil)
-			if err == nil {
-				t.Fatal("failed verification must return failure")
+			stderr := captureStderr(t)
+			defer stderr.restore()
+			if err := runAuthStatus(testCmd(), nil); err != nil {
+				t.Fatal(err)
 			}
-			if strings.Contains(err.Error(), "invalid or expired") != (status == 401) {
-				t.Fatalf("misleading error: %v", err)
+			out := stderr.read()
+			isRejected := status == http.StatusUnauthorized
+			if strings.Contains(out, "invalid or expired") != isRejected ||
+				strings.Contains(out, "Could not verify the token") == isRejected {
+				t.Fatalf("misleading verification output: %q", out)
 			}
 		})
 	}
