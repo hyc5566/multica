@@ -105,9 +105,8 @@ function MainTopBar({ railMounted }: { railMounted: boolean }) {
   );
 }
 
-// The content card: the space panel and the tab content share one surface,
-// split by a single hairline. It hugs the rail; without one (compact, or no
-// workspace yet) it mirrors the fixed mr-2 so it sits centred in the frame.
+// The workspace canvas fills a narrow window like the web dashboard and
+// sits beside the rail in wider windows. The startup screen has its own frame.
 function MainCanvas({
   children,
   railMounted,
@@ -117,7 +116,6 @@ function MainCanvas({
   railMounted: boolean;
   showWorkspaceLoading: boolean;
 }) {
-  const { isCompact } = useSidebar();
   const { t } = useT("layout");
   const loadingLabel = t(($) => $.workspace_loader.loading_workspace);
 
@@ -126,11 +124,10 @@ function MainCanvas({
       data-slot="main-canvas"
       data-mc="page"
       className={cn(
-        "relative mr-2 flex min-h-0 flex-1 flex-row overflow-hidden rounded-page bg-page-canvas shadow-[var(--page-shadow,var(--surface-shadow))] ring-1 ring-page-border",
-        railMounted && !isCompact ? "ml-0" : "ml-2",
-        // In a workspace the bottom bar takes the place of the bottom margin
-        // from `md` up.
-        railMounted ? "mb-2 md:mb-0" : "mb-2",
+        "workspace-canvas",
+        railMounted
+          ? "md:workspace-canvas-frame md:mr-2"
+          : "workspace-canvas-frame mx-2 mb-2",
       )}
     >
       {railMounted && <SpacePanel />}

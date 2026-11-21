@@ -8,6 +8,15 @@
  * set from the active locale. */
 @custom-variant cjk (&:is(:lang(zh), :lang(ja), :lang(ko)));
 
+/* The workspace content uses the same surface in the browser and desktop app. */
+@utility workspace-canvas {
+  @apply relative flex min-h-0 min-w-0 flex-1 flex-row overflow-hidden bg-page-canvas;
+}
+
+@utility workspace-canvas-frame {
+  @apply rounded-page shadow-[var(--page-shadow,var(--surface-shadow))] ring-1 ring-page-border;
+}
+
 /* Below `md` the chat launcher overlays the dashboard's bottom-right corner on
  * every workspace page, so anything that runs to that corner has to stop short
  * of it. From `md` up quick chat is in the bottom bar and the clearance is
