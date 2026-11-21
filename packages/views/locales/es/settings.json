@@ -1348,9 +1348,7 @@
     "inbound_pending": "Vinculado: pendiente de verificar la recepción de mensajes",
     "inbound_verified": "Recepción de mensajes verificada",
     "inbound_pending_hint": "Envía un mensaje a este bot en Feishu/Lark para verificar la recepción. Si no llega, comprueba el modo de conexión persistente, la suscripción im.message.receive_v1 y la publicación o aprobación de la app. Puede que las vinculaciones existentes aún no tengan una verificación registrada.",
-    "inbound_verified_hint": "Esta vinculación ha recibido un mensaje válido. Esto no confirma la conectividad continua, la ejecución del agente ni las respuestas.",
-    "install_scan_hint_feishu": "Feishu → Escanear → autoriza el nuevo PersonalAgent.",
-    "install_scan_hint_lark": "Lark → Escanear → autoriza el nuevo PersonalAgent."
+    "inbound_verified_hint": "Esta vinculación ha recibido un mensaje válido. Esto no confirma la conectividad continua, la ejecución del agente ni las respuestas."
   },
   "slack": {
     "section_title": "Slack",
@@ -1919,7 +1917,6 @@
     "apps_scope": "Estas conexiones de aplicaciones pertenecen a tu cuenta. Las conexiones de canales del espacio de trabajo se gestionan arriba.",
     "github_hint": "Conecta GitHub y configura la vinculación de solicitudes de extracción.",
     "vcs_hint": "Conecta GitLab, Gitea o Forgejo.",
-    "apps_hint": "Autoriza aplicaciones para tus agentes mediante Composio.",
     "back": "Todas las integraciones",
     "channel_hint": "Conversa con agentes y crea tareas desde {{channel}}."
   },
@@ -2478,8 +2475,5 @@
     "cancel": "Cancelar",
     "toast_joined": "Te uniste a {{title}}",
     "toast_failed": "No se pudo unir al proyecto."
-  },
-  "composio": {
-    "section_title": "Composio"
   }
 }

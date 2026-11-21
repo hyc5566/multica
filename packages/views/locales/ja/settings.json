@@ -1262,7 +1262,7 @@
   },
   "lark": {
     "section_title": "Lark",
-    "page_description": "各 Multica エージェントを Lark (飞书) PersonalAgent ボットに接続します。メンバーはボットに DM したり、グループで @ メンションしたり、/issue と入力して新しい Multica タスクを起こすことができます。",
+    "page_description": "Lark でエージェントと対話し、/issue でタスクを作成できます。",
     "not_enabled_title": "Lark 連携が有効化されていません",
     "not_enabled_description_prefix": "Lark ボットの設置を有効化するにはサーバーに",
     "not_enabled_description_suffix": "を設定してください。",
@@ -1338,9 +1338,7 @@
     "inbound_pending": "連携済み・メッセージ確認待ち",
     "inbound_verified": "メッセージ受信確認済み",
     "inbound_pending_hint": "Feishu/Lark でこのボットにメッセージを送り、受信を確認してください。届かない場合は長時間接続、im.message.receive_v1 の購読、アプリの公開・承認状態を確認してください。既存の連携には確認記録がない場合があります。",
-    "inbound_verified_hint": "今回の連携で有効なメッセージを受信しました。継続的な接続、エージェントの実行、返信の成功を保証するものではありません。",
-    "install_scan_hint_feishu": "Feishu → スキャン → 新しい PersonalAgent を承認してください。",
-    "install_scan_hint_lark": "Lark → スキャン → 新しい PersonalAgent を承認してください。"
+    "inbound_verified_hint": "今回の連携で有効なメッセージを受信しました。継続的な接続、エージェントの実行、返信の成功を保証するものではありません。"
   },
   "slack": {
     "section_title": "Slack",
@@ -1657,7 +1655,6 @@
       "check_failed": "アップデートの確認に失敗しました。再試行してください。",
       "download_failed": "更新のダウンロードに失敗しました。現在のバージョンを使い続け、再試行できます。",
       "download_ready": "v{{version}} をインストールできます。",
-      "retry": "再試行",
       "banner_dismiss": "閉じる",
       "banner_title": "アップデートの準備ができました",
       "banner_body": "v{{version}} は次回の起動時に適用されます。",
@@ -1904,7 +1901,6 @@
     "apps_scope": "これらのアプリ接続はあなたのアカウントに属します。ワークスペースのチャネル接続は上で管理します。",
     "github_hint": "GitHub を接続し、プルリクエストの関連付けを設定します。",
     "vcs_hint": "GitLab、Gitea、Forgejo を接続します。",
-    "apps_hint": "Composio 経由でエージェント用のアプリを認可します。",
     "back": "すべての連携",
     "channel_hint": "{{channel}} でエージェントと会話し、タスクを作成します。"
   },
@@ -2456,8 +2452,5 @@
     "cancel": "キャンセル",
     "toast_joined": "{{title}} に参加しました",
     "toast_failed": "プロジェクトに参加できませんでした。"
-  },
-  "composio": {
-    "section_title": "Composio"
   }
 }

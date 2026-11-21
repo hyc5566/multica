@@ -134,7 +134,7 @@
     "type_to_find_people": "輸入以搜尋成員和 Agent"
   },
   "delegate": {
-    "row": "交給 AI 代理：「{{prompt}}」",
+    "row": "交給 AI 代理：\"{{prompt}}\"",
     "hint": "透過 AI 代理建立"
   },
   "best": {

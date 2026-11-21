@@ -9,8 +9,7 @@ import type {
   IssueWindowRequest,
 } from "../shared/issue-window";
 import type {
-  ManualUpdateCheckResult,
-  UpdaterDownloadState,
+  ZhTWManualUpdateCheckResult,
   UpdaterPreferences,
   UpdaterStatus,
 } from "../shared/updater-types";
@@ -256,8 +255,6 @@ interface DaemonAPI {
 }
 
 interface UpdaterAPI {
-  getDownloadState: () => Promise<UpdaterDownloadState>;
-  onDownloadState: (callback: (state: UpdaterDownloadState) => void) => () => void;
   getStatus: () => Promise<UpdaterStatus>;
   onStatusChange: (callback: (status: UpdaterStatus) => void) => () => void;
   deferUpdate: () => Promise<void>;
@@ -271,7 +268,7 @@ interface UpdaterAPI {
   installUpdate: () => Promise<void>;
   getPreferences: () => Promise<UpdaterPreferences>;
   setAutomaticUpdates: (enabled: boolean) => Promise<UpdaterPreferences>;
-  checkForUpdates: () => Promise<ManualUpdateCheckResult>;
+  checkForUpdates: () => Promise<ZhTWManualUpdateCheckResult>;
 }
 
 declare global {

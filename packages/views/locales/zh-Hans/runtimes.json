@@ -182,8 +182,8 @@
       "members": "僅你和所選成員可以在此執行環境上建立 Agent。"
     },
     "visibility_hint_readonly": {
-      "private": "僅執行環境所有者可以在此執行環境上建立 Agent，也只有他們能切換為「公開」。",
-      "public": "工作區內任何成員都可以在此執行環境上建立 Agent。只有執行環境所有者能切回「私有」。",
+      "private": "僅執行環境所有者可以在此執行環境上建立 Agent，也只有他們能切換為\"公開\"。",
+      "public": "工作區內任何成員都可以在此執行環境上建立 Agent。只有執行環境所有者能切回\"私有\"。",
       "members": "僅所有者和所選成員可以在此執行環境建立 Agent。"
     },
     "visibility_members_title": "共享給成員",
@@ -196,7 +196,7 @@
     "visibility_toast_failed": "更新可見性失敗",
     "visibility_revoke_dialog": {
       "title": "限制執行環境存取權限？",
-      "description": "限制「{{name}}」的存取權限將解除 {{count}} 個受影響 Agent 的綁定、取消 {{taskCount}} 次進行中的執行，並暫停指派給這些 Agent 的自動化。仍有存取權限的 Agent 和執行不受影響。",
+      "description": "限制\"{{name}}\"的存取權限將解除 {{count}} 個受影響 Agent 的綁定、取消 {{taskCount}} 次進行中的執行，並暫停指派給這些 Agent 的自動化。仍有存取權限的 Agent 和執行不受影響。",
       "warning": "伺服器會立即撤銷存取權限。已連線的常駐程式會透過一般取消檢查停止執行。離線機器重新連線後才會收到停止請求；在此期間，本機程序可能繼續執行。",
       "plan_changed": "開啟此對話框期間，存取方案已變更。請檢查後重新確認。",
       "checkbox": "我已瞭解：列表中的其他成員 Agent 會被解綁，其活動執行會被取消，已啟用的自動化會被暫停。",
@@ -208,7 +208,7 @@
     },
     "delete_dialog": {
       "self_heal_notice": "該執行環境由正在執行的本地守護程序託管。刪除會成功，但守護程序會在數秒內重新註冊一個新的執行環境——若想徹底移除，請先停止守護程序。",
-      "profile_backed_notice": "該執行環境來自自訂執行環境設定。刪除它只會移除目前執行環境執行個體；只要設定仍存在，執行中的守護程序就可以再次註冊它。若要徹底移除，請在“自訂執行環境”中刪除對應設定。",
+      "profile_backed_notice": "該執行環境來自自訂執行環境設定。刪除它只會移除目前執行環境執行個體；只要設定仍存在，執行中的守護程序就可以再次註冊它。若要徹底移除，請在\"自訂執行環境\"中刪除對應設定。",
       "light": {
         "title": "刪除此執行時？",
         "description": "確定要刪除\"{{name}}\"嗎？此操作無法撤銷。",
@@ -604,7 +604,7 @@
       "token_rejected": "{{region}} 不接受此權杖。權杖只能在建立它的網站使用。",
       "retry_cn": "切換到中國站重試",
       "retry_global": "切換到國際站重試",
-      "verifying": "正在驗證令牌…",
+      "verifying": "正在驗證令牌...",
       "verified": "權杖已驗證",
       "environment_waiting": "驗證權杖後會載入環境",
       "repo_count_other": "{{count}} 個儲存庫",
@@ -659,7 +659,7 @@
       "description_agents_other": "下面 {{count}} 個 Agent 會被解綁，保留指令和歷史，之後可以換到其他執行環境。",
       "plan_changed": "Qoder 上的 Agent 有變化，請確認最新列表後再操作。",
       "confirm": "斷開連線",
-      "working": "正在斷開…",
+      "working": "正在斷開...",
       "cancel": "取消",
       "done": "已斷開 Qoder"
     }

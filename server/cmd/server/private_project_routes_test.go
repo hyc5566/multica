@@ -86,6 +86,7 @@ var routeParamsOutsideProjects = map[string]outsideProjectParam{
 	"runtimes/{runtimeId}":           {why: "a workspace runtime; its runs are listed, not fetched through it"},
 	"update/{updateId}":              {why: "a runtime update request"},
 	"models/{requestId}":             {why: "a runtime model-list request"},
+	"provider-usage/{requestId}":     {why: "a quota observation request scoped to its runtime"},
 	"local-skills/{requestId}":       {why: "a runtime local-skill request"},
 	"import/{requestId}":             {why: "a runtime local-skill import request"},
 	"runtime-profiles/{profileId}":   {why: "a workspace runtime profile"},

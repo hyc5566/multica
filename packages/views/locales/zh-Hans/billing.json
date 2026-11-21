@@ -242,7 +242,7 @@
     "confirm": {
       "title": "前往 Stripe 结账？",
       "description": "套餐：{{plan}}。付款週期：{{interval}}。當前成員：{{count}}。Stripe 會重新統計席位，並在付款前顯示最終金額。",
-      "held_invite": "另含 1 個付費席位，留給發給 {{email}} 的邀請。付款完成後，在「帳單與套餐」裡發出這份邀請。"
+      "held_invite": "另含 1 個付費席位，留給發給 {{email}} 的邀請。付款完成後，在\"帳單與套餐\"裡發出這份邀請。"
     },
     "held_invite": {
       "title": "工作區已升級到 {{plan}}",
@@ -254,9 +254,9 @@
     }
   },
   "return_page": {
-    "redirecting": "正在返回工作區帳單頁…",
+    "redirecting": "正在返回工作區帳單頁...",
     "load_failed_title": "無法開啟工作區帳單頁",
-    "load_failed_description": "你已從 Stripe 返回，但我們無法載入工作區列表來開啟對應的帳單頁。請到「工作區設定 → 帳單」確認目前狀態。",
+    "load_failed_description": "你已從 Stripe 返回，但我們無法載入工作區列表來開啟對應的帳單頁。請到\"工作區設定 → 帳單\"確認目前狀態。",
     "workspace_missing_title": "找不到該工作區",
     "workspace_missing_description": "你已從 Stripe 返回，但該工作區對你已不可用——可能已被刪除，或你的存取權限發生了變化。請到你預期的那個工作區的帳單頁確認目前狀態。",
     "retry": "重試",
@@ -363,7 +363,7 @@
     "pay": "前往支付 {{amount}}",
     "pay_fallback": "前往付款",
     "cancel": "取消",
-    "loading": "正在載入加購價格…",
+    "loading": "正在載入加購價格...",
     "unavailable": "該工作區現在無法加購。",
     "conflict": "現在無法加購，或價格已變化。請查看選項後重試。",
     "error": "無法開啟付款頁面。請重試。",

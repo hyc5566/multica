@@ -3,8 +3,7 @@ import { electronAPI } from "@electron-toolkit/preload";
 import type { RuntimeConfigResult } from "../shared/runtime-config";
 import type { FreezeBreadcrumb } from "../shared/freeze-breadcrumb";
 import type {
-  ManualUpdateCheckResult,
-  UpdaterDownloadState,
+  ZhTWManualUpdateCheckResult,
   UpdaterPreferences,
   UpdaterStatus,
 } from "../shared/updater-types";
@@ -516,12 +515,6 @@ const daemonAPI = {
 };
 
 const updaterAPI = {
-  getDownloadState: (): Promise<UpdaterDownloadState> => ipcRenderer.invoke("updater:get-download-state"),
-  onDownloadState: (callback: (state: UpdaterDownloadState) => void) => {
-    const handler = (_: unknown, state: UpdaterDownloadState) => callback(state);
-    ipcRenderer.on("updater:download-state", handler);
-    return () => ipcRenderer.removeListener("updater:download-state", handler);
-  },
   getStatus: (): Promise<UpdaterStatus> => ipcRenderer.invoke("updater:get-status"),
   onStatusChange: (callback: (status: UpdaterStatus) => void) => {
     const handler = (_: unknown, status: UpdaterStatus) => callback(status);
@@ -554,7 +547,7 @@ const updaterAPI = {
     ipcRenderer.invoke("updater:get-preferences"),
   setAutomaticUpdates: (enabled: boolean): Promise<UpdaterPreferences> =>
     ipcRenderer.invoke("updater:set-automatic-updates", enabled),
-  checkForUpdates: (): Promise<ManualUpdateCheckResult> =>
+  checkForUpdates: (): Promise<ZhTWManualUpdateCheckResult> =>
     ipcRenderer.invoke("updater:check"),
 };
 

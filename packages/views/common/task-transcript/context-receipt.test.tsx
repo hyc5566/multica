@@ -223,11 +223,11 @@ describe("ContextReceiptView", () => {
 
   it("renders in Chinese", () => {
     renderWithI18n(<ContextReceiptView receipt={receipt} />, { locale: "zh-Hans" });
-    expect(screen.getByText("已載入上下文")).toBeTruthy();
+    expect(screen.getByText("上下文回執")).toBeTruthy();
     expect(screen.getByText("skill：pr-review")).toBeTruthy();
     expect(screen.getByText("直接輸入：3 KB")).toBeTruthy();
     expect(screen.getByText("磁碟檔案：38 KB")).toBeTruthy();
-    expect(screen.getByText("指令檔案：19 KB")).toBeTruthy();
+    expect(screen.getByText("執行說明檔案：19 KB")).toBeTruthy();
     expect(screen.getByText("skill 套件：19 KB")).toBeTruthy();
     expect(screen.getByText("套件總量")).toBeTruthy();
     expect(screen.getAllByText("僅在 2.13.0 驗證過").length).toBeGreaterThan(0);

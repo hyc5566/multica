@@ -214,7 +214,7 @@ describe("platform conditions in the form", () => {
   it("groups conditions by what they wait for", async () => {
     await renderForm();
     fireEvent.click(screen.getByRole("button", { name: /選擇條件/ }));
-    for (const label of ["欄位變為某個值", "子任務完成", "關聯 PR 狀態變化", "其他任務的狀態變化"]) {
+    for (const label of ["欄位變為某個值", "子任務完成", "關聯 PR 狀態變更", "其他任務的狀態變化"]) {
       expect(await screen.findByRole("menuitem", { name: new RegExp(label) })).toBeVisible();
     }
     for (const group of ["協作", "執行與子任務", "關聯"]) expect(screen.getByText(group)).toBeVisible();
@@ -236,8 +236,8 @@ describe("platform conditions in the form", () => {
 
   it("waits for a linked PR's CI by default and can wait for the merge instead", async () => {
     await renderForm();
-    await chooseCondition("關聯 PR 狀態變化");
-    fireEvent.click(screen.getByRole("button", { name: /關聯 PR 狀態變化: CI 結束/ }));
+    await chooseCondition("關聯 PR 狀態變更");
+    fireEvent.click(screen.getByRole("button", { name: /關聯 PR 狀態變更: CI 結束/ }));
     fireEvent.click(await screen.findByRole("menuitemradio", { name: "合併" }));
     fireEvent.change(screen.getByLabelText("喚醒後要做什麼"), { target: { value: "釋出" } });
     fireEvent.click(screen.getByRole("button", { name: /建立/ }));

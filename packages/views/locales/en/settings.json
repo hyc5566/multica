@@ -1348,9 +1348,7 @@
     "inbound_pending": "Bound — awaiting message verification",
     "inbound_verified": "Message reception verified",
     "inbound_pending_hint": "Send this bot a message in Feishu/Lark to verify reception. If it does not arrive, check long connection mode, the im.message.receive_v1 subscription, and app publication/approval. Existing bindings may have no recorded verification yet.",
-    "inbound_verified_hint": "This binding received a valid message. This does not confirm ongoing connectivity, agent execution, or replies.",
-    "install_scan_hint_feishu": "Feishu → Scan → authorize the new PersonalAgent.",
-    "install_scan_hint_lark": "Lark → Scan → authorize the new PersonalAgent."
+    "inbound_verified_hint": "This binding received a valid message. This does not confirm ongoing connectivity, agent execution, or replies."
   },
   "slack": {
     "section_title": "Slack",
@@ -1669,7 +1667,6 @@
       "check_failed": "Unable to check for updates. Please try again.",
       "download_failed": "Update download failed. You can keep using the current version and retry.",
       "download_ready": "v{{version}} is ready to install.",
-      "retry": "Retry",
       "banner_dismiss": "Dismiss",
       "banner_title": "Update ready",
       "banner_body": "v{{version}} will be applied on next launch.",
@@ -1920,7 +1917,6 @@
     "apps_scope": "These app connections belong to your account. Workspace channel connections are managed above.",
     "github_hint": "Connect GitHub and configure pull request linking.",
     "vcs_hint": "Connect GitLab, Gitea, or Forgejo.",
-    "apps_hint": "Authorize apps for your agents through Composio.",
     "back": "All integrations",
     "channel_hint": "Chat with agents and create issues from {{channel}}."
   },
@@ -2479,8 +2475,5 @@
     "cancel": "Cancel",
     "toast_joined": "You joined {{title}}",
     "toast_failed": "Could not join the project."
-  },
-  "composio": {
-    "section_title": "Composio"
   }
 }

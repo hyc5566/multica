@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/multica-ai/multica/server/internal/testutil"
+	"github.com/multica-ai/multica/server/pkg/protocol"
 )
 
 func sampleCatalog() []ModelEntry {
@@ -576,11 +577,11 @@ func TestHeartbeatDiscoversModelsWithoutPicker(t *testing.T) {
 	h.ModelCatalogCache = NewInMemoryModelCatalogCache()
 	h.ModelListStore = NewInMemoryModelListStore()
 	ctx := context.Background()
-	first, _, err := h.processHeartbeat(ctx, runtimeID, false)
+	first, _, err := h.processHeartbeat(ctx, runtimeID, protocol.DaemonHeartbeatRequestPayload{RuntimeID: runtimeID})
 	if err != nil || first.PendingModelList == nil {
 		t.Fatalf("first heartbeat did not dispatch discovery: %+v %v", first, err)
 	}
-	second, _, err := h.processHeartbeat(ctx, runtimeID, false)
+	second, _, err := h.processHeartbeat(ctx, runtimeID, protocol.DaemonHeartbeatRequestPayload{RuntimeID: runtimeID})
 	if err != nil || second.PendingModelList != nil {
 		t.Fatalf("heartbeat duplicated running discovery: %+v %v", second, err)
 	}

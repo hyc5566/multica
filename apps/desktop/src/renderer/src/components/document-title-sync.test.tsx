@@ -40,7 +40,7 @@ describe("DocumentTitleSync", () => {
   it("writes the localized page title and follows a language switch", async () => {
     const qc = makeClient();
     const { rerender } = render(tree(qc, "zh-Hans", "/acme/projects"));
-    await waitFor(() => expect(document.title).toBe("项目"));
+    await waitFor(() => expect(document.title).toBe("專案"));
 
     rerender(tree(qc, "ja", "/acme/projects"));
     await waitFor(() => expect(document.title).toBe("プロジェクト"));
@@ -49,7 +49,7 @@ describe("DocumentTitleSync", () => {
   it("uses the localized type label while a resource loads, then its name", async () => {
     const qc = makeClient();
     render(tree(qc, "zh-Hans", "/acme/issues/MUL-1"));
-    await waitFor(() => expect(document.title).toBe("任务"));
+    await waitFor(() => expect(document.title).toBe("任務"));
 
     qc.setQueryData(issueDetailOptions("ws1", "MUL-1").queryKey, {
       id: "i1",
@@ -62,6 +62,6 @@ describe("DocumentTitleSync", () => {
 
   it("localizes creation flows", async () => {
     render(tree(makeClient(), "zh-Hans", "/acme/agents/new/manual"));
-    await waitFor(() => expect(document.title).toBe("创建智能体"));
+    await waitFor(() => expect(document.title).toBe("建立 AI 代理"));
   });
 });

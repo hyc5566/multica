@@ -1,7 +1,7 @@
 {
   "issue_statuses": {
     "title": "任務狀態",
-    "loading": "正在載入狀態…",
+    "loading": "正在載入狀態...",
     "add": "新增狀態",
     "show_archived": "顯示已歸檔（{{count}}）",
     "archived_badge": "已歸檔",
@@ -41,13 +41,13 @@
       },
       "cancel": "取消",
       "save": "儲存",
-      "saving": "儲存中…",
+      "saving": "儲存中...",
       "save_failed": "狀態儲存失敗。"
     },
     "archive_dialog": {
       "retry": "重試封存",
       "title": "封存這個狀態？",
-      "description": "封存後，「{{name}}」將從看板與狀態選擇器中移除。你之後仍可檢視已封存的狀態。",
+      "description": "封存後，\"{{name}}\"將從看板與狀態選擇器中移除。你之後仍可檢視已封存的狀態。",
       "in_use_title": "先轉移任務，再封存",
       "in_use": "仍有 {{count}} 個任務使用此狀態。請先將它們移至其他狀態（包括已完成與已取消的任務），然後再重試。",
       "view_issues": "查看任務",
@@ -89,7 +89,7 @@
     "description": "預先設定好執行的 Agent 和提示詞，之後在任意任務側邊欄一鍵觸發。",
     "add": "新建快捷操作",
     "search_placeholder": "搜尋快捷操作",
-    "loading": "正在載入快捷操作…",
+    "loading": "正在載入快捷操作...",
     "no_results": "沒有符合的快捷操作",
     "actions_open": "開啟\"{{name}}\"的操作選單",
     "columns": {
@@ -134,7 +134,7 @@
     "delete_description": "它會從所有任務側邊欄消失，歷史執行記錄仍保留在執行日誌中。如果以後可能還要用，建議改為歸檔。"
   },
   "auto_save": {
-    "saving": "正在儲存…",
+    "saving": "正在儲存...",
     "saved": "已儲存",
     "failed": "儲存失敗",
     "toast_saved": "更改已儲存"
@@ -220,7 +220,7 @@
       "from_zip": "主題檔案（.zip）",
       "from_folder": "主題資料夾",
       "storage_full": "這台裝置的儲存空間不夠儲存這個主題。移除其他主題後再試。",
-      "confirm_title": "安裝「{{name}}」？",
+      "confirm_title": "安裝\"{{name}}\"？",
       "warning": "主題可以改變每個頁面的樣式，包括對話框和警告。只安裝你信任的人做的主題。",
       "author": "作者",
       "version": "版本",
@@ -249,29 +249,29 @@
       "error": "無法載入主題商店，請稍後再試。",
       "retry": "重試",
       "none_installed": "還沒有安裝任何主題。",
-      "no_results": "沒有符合「{{query}}」的主題。",
+      "no_results": "沒有符合\"{{query}}\"的主題。",
       "by": "作者：{{author}}",
       "downloads_other": "{{downloads}} 次下載",
       "source": "在 GitHub 上查看 {{repo}}",
       "no_preview": "暫無預覽",
       "screenshot_alt": "{{name}}（{{mode}}模式）",
       "install": "安裝",
-      "installing": "正在安裝…",
+      "installing": "正在安裝...",
       "use": "使用",
       "in_use": "使用中",
       "update": "更新至 {{version}}",
       "remove": "移除",
       "taken": "已安裝相同 ID 的主題",
-      "installed_toast": "已安裝「{{name}}」。",
-      "updated": "已將「{{name}}」更新至 {{version}}。",
-      "install_failed": "無法安裝「{{name}}」",
+      "installed_toast": "已安裝\"{{name}}\"。",
+      "updated": "已將\"{{name}}\"更新至 {{version}}。",
+      "install_failed": "無法安裝\"{{name}}\"",
       "warning": "主題可以改變每個頁面的樣式，包括對話框與警告。商店主題會經過自動檢查，但皆由社群製作。"
     },
     "updates": {
       "title": "商店主題",
       "description_other": "你從商店安裝了 {{count}} 個主題。",
       "check": "檢查更新",
-      "checking": "正在檢查…",
+      "checking": "正在檢查...",
       "up_to_date": "商店主題都是最新版本。",
       "update_all": "全部更新（{{count}}）"
     },
@@ -280,11 +280,11 @@
       "description": "在對話或任務裡請任意 AI 代理幫你做一個，從 .zip 或資料夾匯入主題，或從目前主題的副本開始。"
     },
     "tools": {
-      "duplicate": "複製「{{name}}」為新主題",
+      "duplicate": "複製\"{{name}}\"為新主題",
       "open_folder": "開啟主題資料夾",
       "guide": "如何製作主題",
       "duplicated_web": "已下載 {{file}}。解壓縮後編輯 theme.css，再匯入這個資料夾。",
-      "duplicated_desktop": "已在主題資料夾中建立「{{name}}」。儲存 theme.css 後變更立即生效。",
+      "duplicated_desktop": "已在主題資料夾中建立\"{{name}}\"。儲存 theme.css 後變更立即生效。",
       "duplicate_failed": "無法建立副本：{{error}}"
     },
     "theme_options": {
@@ -313,8 +313,8 @@
       "kai": "楷體",
       "built_in": "内置",
       "local": "本機字體",
-      "load_local": "顯示本機字體…",
-      "loading": "正在尋找字體…",
+      "load_local": "顯示本機字體...",
+      "loading": "正在尋找字體...",
       "none": "這台裝置上沒有含漢字的字體。",
       "load_failed": "無法讀取本機字體。",
       "sample": "永和九年，歲在癸丑"
@@ -604,7 +604,7 @@
   "chat": {
     "floating_label": "懸浮聊天窗",
     "floating_hint": "在每個頁面右下角顯示懸浮聊天按鈕。預設關閉——開啟後可隨處召喚聊天；關閉時，聊天只在此標籤頁中可用。",
-    "ask_agent_label": "「問 Multica」的 AI 代理",
+    "ask_agent_label": "\"問 Multica\"的 AI 代理",
     "ask_agent_hint": "在此工作區從底部列發起新對話時使用的 AI 代理。",
     "ask_agent_last_used": "上次使用的",
     "floating_title": "懸浮窗"
@@ -868,7 +868,7 @@
     },
     "archive_dialog": {
       "title": "歸檔屬性？",
-      "description": "“{{name}}”將從選擇器和篩選中隱藏，任務上已有的值會保留。之後可以恢復。",
+      "description": "\"{{name}}\"將從選擇器和篩選中隱藏，任務上已有的值會保留。之後可以恢復。",
       "cancel": "取消",
       "confirm": "歸檔屬性",
       "failed": "歸檔屬性失敗"
@@ -938,7 +938,7 @@
   },
   "notifications": {
     "title": "收件箱",
-    "description": "決定哪些動態會進入「工作」側欄的收件箱。關閉後不再產生這類通知，重新開啟也找不回關閉期間的通知。",
+    "description": "決定哪些動態會進入\"工作\"側欄的收件箱。關閉後不再產生這類通知，重新開啟也找不回關閉期間的通知。",
     "categories": {
       "direct": "與你直接相關",
       "issues": "你訂閱的任務",
@@ -947,7 +947,7 @@
     },
     "others_issues": {
       "label": "別人的任務",
-      "description": "指派給他人或其 AI 代理、而你因建立、留言或被 @ 提及而追蹤的任務。關鍵更新包括 @ 提及、你參與討論串的回覆，以及（開啟「狀態變更」時）需要關注的狀態（審核中、已阻塞、已完成）。",
+      "description": "指派給他人或其 AI 代理、而你因建立、留言或被 @ 提及而追蹤的任務。關鍵更新包括 @ 提及、你參與討論串的回覆，以及（開啟\"狀態變更\"時）需要關注的狀態（審核中、已阻塞、已完成）。",
       "key_updates": "僅關鍵更新",
       "all": "全部動態"
     },
@@ -994,7 +994,7 @@
       },
       "status_changes": {
         "label": "狀態變更",
-        "description": "你訂閱的任務狀態變化時（例如 todo、in_progress、done）"
+        "description": "你訂閱的任務狀態變更時（例如待辦、進行中、已完成）"
       },
       "comments": {
         "label": "評論",
@@ -1162,7 +1162,7 @@
     "master_description_off": "GitHub 功能已關閉。PR 側欄、Co-authored-by trailer 與自動關聯都已暫停。後端資料未刪除。",
     "connected_to": "已連線到 {{login}}",
     "connect_github": "連線 GitHub",
-    "connect_opening": "正在開啟…",
+    "connect_opening": "正在開啟...",
     "disconnect": "斷開",
     "disconnecting": "斷開中...",
     "disconnect_confirm_title": "中斷連線 GitHub 帳號？",
@@ -1184,7 +1184,7 @@
     "feature_co_author_description_suffix": "。",
     "feature_auto_link_label": "任務 ↔ PR 自動關聯",
     "toast_failed": "更新 GitHub 設定失敗",
-    "feature_auto_link_description": "當 Pull Request 的分支名稱或標題中出現任務編號，或描述中寫有「Closes {{example}}」時，自動關聯對應任務。",
+    "feature_auto_link_description": "當 Pull Request 的分支名稱或標題中出現任務編號，或描述中寫有\"Closes {{example}}\"時，自動關聯對應任務。",
     "status_paused": "已暫停",
     "pause": "暫停 GitHub 功能",
     "resume": "恢復 GitHub 功能",
@@ -1226,7 +1226,7 @@
     "form_token_placeholder": "存取令牌",
     "form_token_hint": "建立具備儲存庫讀取權限的存取令牌。Forgejo/Gitea：設定 - 應用；GitLab：具備 read_api 權限的個人存取令牌。",
     "connect": "連線",
-    "connecting": "連線中…",
+    "connecting": "連線中...",
     "disconnect": "斷開",
     "disconnecting": "斷開中...",
     "not_configured": "此伺服器尚未設定 Git 程式碼託管整合。請管理員設定",
@@ -1262,7 +1262,7 @@
   },
   "lark": {
     "section_title": "飛書",
-    "page_description": "將每個 Multica Agent 繫結到飛書 PersonalAgent Bot。成員可在飛書私聊 Bot、群聊 @ Bot，或輸入 /issue 直接建立 Multica 任務。",
+    "page_description": "在飛書與 AI 代理對話，或使用 /issue 建立任務。",
     "not_enabled_title": "未啟用飛書整合",
     "not_enabled_description_prefix": "在伺服器上設定",
     "not_enabled_description_suffix": "才能啟用飛書 Bot 繫結。",
@@ -1270,7 +1270,7 @@
     "preview_title": "飛書 Bot 安裝即將上線",
     "preview_description": "伺服器已設定加密金鑰，但本版本尚未接入真實的飛書 HTTP 客戶端。後續版本啟用傳輸層後，安裝入口將在此展示。",
     "connected_bots": "已連線的機器人",
-    "loading": "載入中…",
+    "loading": "載入中...",
     "empty_title": "尚未連線 Bot",
     "empty_description_prefix": "在本工作區開啟一個 Agent，點選",
     "empty_description_cta": "連線飛書 / Lark",
@@ -1313,7 +1313,7 @@
     "install_dialog_description_lark": "用 Lark 掃描下方二維碼，建立一個 Bot。",
     "install_dialog_description_for_agent_feishu": "使用飛書掃描 QR Code，為 {{agent}} 建立機器人。",
     "install_dialog_description_for_agent_lark": "使用 Lark 掃描 QR Code，為 {{agent}} 建立機器人。",
-    "install_starting": "正在準備二維碼…",
+    "install_starting": "正在準備二維碼...",
     "install_scan_hint": "飛書 → 掃一掃 → 授權新 Bot。",
     "install_open_link_fallback": "或點這裡直接在飛書中開啟",
     "install_success": "機器人已綁定。請在飛書/Lark 中傳送訊息以驗證接收。",
@@ -1338,9 +1338,7 @@
     "inbound_pending": "已綁定，等待訊息驗證",
     "inbound_verified": "訊息接收已驗證",
     "inbound_pending_hint": "請在飛書/Lark 中傳送訊息給此機器人以驗證接收。若未收到，請檢查長連線模式、im.message.receive_v1 事件訂閱，以及應用程式發布與核准狀態。既有綁定可能尚無驗證記錄。",
-    "inbound_verified_hint": "此綁定已收到有效訊息；這不代表持續連線、Agent 執行成功或回覆成功。",
-    "install_scan_hint_feishu": "飛書 → 掃一掃 → 授權新 PersonalAgent。",
-    "install_scan_hint_lark": "Lark → 掃一掃 → 授權新 PersonalAgent。"
+    "inbound_verified_hint": "此綁定已收到有效訊息；這不代表持續連線、Agent 執行成功或回覆成功。"
   },
   "slack": {
     "section_title": "Slack",
@@ -1352,7 +1350,7 @@
     "preview_title": "Slack 安裝即將上線",
     "preview_description": "靜態加密金鑰已設定，但本部署尚未設定託管 Slack 應用的 OAuth 憑據。設定後，連線按鈕會出現在這裡。",
     "connected_bots": "已連線的 Bot",
-    "loading": "載入中…",
+    "loading": "載入中...",
     "empty_title": "尚未連線 Bot",
     "empty_description_prefix": "在本工作區開啟一個 Agent，點選",
     "empty_description_cta": "連線 Slack",
@@ -1368,7 +1366,7 @@
     "toast_disconnect_failed": "斷開失敗",
     "bind_button": "連線 Slack",
     "bind_button_title": "把 {{agent}} 連線到 Slack 機器人",
-    "connecting": "正在開啟 Slack…",
+    "connecting": "正在開啟 Slack...",
     "connect_failed_toast": "無法開始 Slack 安裝",
     "agent_bot_connected_label": "已連線到 Slack",
     "agent_bot_disconnect_tooltip": "將此 Slack 機器人從 Agent 解綁。機器人將停止接收 Slack 訊息。",
@@ -1380,7 +1378,7 @@
     "byo_bot_token_label": "Bot token（xoxb-）",
     "byo_app_token_label": "App-level token（xapp-）",
     "byo_submit": "連線",
-    "byo_submitting": "連線中…",
+    "byo_submitting": "連線中...",
     "byo_cancel": "取消",
     "byo_success_toast": "Slack 機器人已連線",
     "byo_failed_toast": "無法連線 Slack 機器人"
@@ -1391,7 +1389,7 @@
     "agent_page_description": "透過專屬釘釘機器人私聊該 Agent、在群內 @ 它，或輸入 /issue 建立 Multica 任務。",
     "groups_title": "近期釘群",
     "groups_description": "工作區成員關聯釘釘帳號並在群內 @ 該機器人後，群會顯示在這裡。預設展示最近 90 天活躍的群。",
-    "groups_loading": "正在載入釘群…",
+    "groups_loading": "正在載入釘群...",
     "groups_empty": "尚無群組動態。",
     "groups_no_recent": "最近 90 天沒有活躍群。",
     "groups_inactive": "長期未活躍（{{count}}）",
@@ -1419,7 +1417,7 @@
     "not_enabled_self_host_hint": "自部署使用者：詳見專案 README。",
     "connections_title": "已連線的機器人",
     "deleted_agent": "已刪除的 Agent",
-    "loading": "載入中…",
+    "loading": "載入中...",
     "empty_title": "尚未連線機器人",
     "empty_description_prefix": "在本工作區開啟一個 Agent，點選",
     "empty_description_cta": "連線釘釘",
@@ -1428,7 +1426,7 @@
     "installed_at_label": "安裝於 {{when}}",
     "identity_label": "已關聯的 Staff ID：{{identity}}",
     "disconnect": "斷開連線",
-    "disconnecting": "正在斷開…",
+    "disconnecting": "正在斷開...",
     "disconnect_confirm_title": "斷開此釘釘機器人？",
     "disconnect_confirm_description": "該機器人將停止接收此工作區的釘釘訊息。安裝記錄會保留以供稽核；你之後可以從同一個 AI 代理重新連線。",
     "disconnect_confirm_cancel": "取消",
@@ -1443,7 +1441,7 @@
     "byo_appkey_label": "AppKey（client id）",
     "byo_appsecret_label": "AppSecret（client secret）",
     "byo_submit": "連線",
-    "byo_submitting": "連線中…",
+    "byo_submitting": "連線中...",
     "byo_cancel": "取消",
     "byo_success_toast": "釘釘機器人已連線",
     "byo_failed_toast": "無法連線釘釘機器人",
@@ -1459,7 +1457,7 @@
     "preview_title": "企業微信安裝即將上線",
     "preview_description": "靜態加密金鑰已設定，但本部署尚未完成企業微信安裝能力的開通。",
     "connected_bots": "已連線的機器人",
-    "loading": "載入中…",
+    "loading": "載入中...",
     "empty_title": "尚未連線機器人",
     "empty_description_prefix": "在本工作區開啟一個 Agent，點選",
     "empty_description_cta": "連線企業微信",
@@ -1467,7 +1465,7 @@
     "revoked_badge": "已撤銷",
     "bot_id_label": "Bot ID：{{botId}}",
     "disconnect": "斷開連線",
-    "disconnecting": "正在斷開…",
+    "disconnecting": "正在斷開...",
     "disconnect_confirm_title": "斷開此企業微信機器人？",
     "disconnect_confirm_description": "該機器人將停止接收此工作區的企業微信訊息。安裝記錄會保留以供稽核；你之後可以從同一個 AI 代理重新連線。",
     "disconnect_confirm_cancel": "取消",
@@ -1487,7 +1485,7 @@
     "byo_bot_name_placeholder": "例如 Multica Bot",
     "byo_bot_name_hint": "名字裡有空格時才需要填，機器人靠它把自己的 @ 和後面的命令分開。之後想改（包括在企業微信後台改名後），要先斷開這個機器人再重新連線。",
     "byo_submit": "連線",
-    "byo_submitting": "連線中…",
+    "byo_submitting": "連線中...",
     "byo_cancel": "取消",
     "byo_success_toast": "企業微信機器人已連線",
     "byo_conflict_same_workspace": "該機器人已連線到本工作區的另一個 Agent。請先在那裡斷開，再連線到這裡。",
@@ -1502,7 +1500,7 @@
     "byo_option_title": "連線已有機器人",
     "byo_option_description": "填寫你已建立的智慧機器人的 Bot ID 和金鑰。",
     "scan_dialog_title": "掃碼建立企業微信機器人",
-    "scan_starting": "正在準備 QR 碼…",
+    "scan_starting": "正在準備 QR 碼...",
     "scan_hint": "使用手機開啟企業微信並掃描此 QR code，即可建立機器人。",
     "scan_expires_in": "{{seconds}} 秒後失效",
     "scan_success_toast": "企業微信機器人已建立並連線",
@@ -1530,7 +1528,7 @@
     "preview_title": "Telegram 安裝即將上線",
     "preview_description": "靜態加密金鑰已設定，但本部署暫未開放安裝。開放後，連線按鈕會出現在這裡。",
     "connected_bots": "已連線的機器人",
-    "loading": "載入中…",
+    "loading": "載入中...",
     "load_failed": "載入 Telegram 安裝失敗",
     "empty_title": "尚未連線機器人",
     "empty_description_prefix": "在本工作區開啟一個 Agent，點選",
@@ -1539,7 +1537,7 @@
     "revoked_badge": "已撤銷",
     "installed_at_label": "安裝於 {{when}}",
     "disconnect": "斷開連線",
-    "disconnecting": "正在斷開…",
+    "disconnecting": "正在斷開...",
     "disconnect_confirm_title": "斷開此 Telegram 機器人？",
     "disconnect_confirm_description": "該機器人將停止接收此工作區的 Telegram 訊息。Multica 中的對話記錄會保留；你之後可以從同一個 AI 代理重新連線。",
     "disconnect_confirm_cancel": "取消",
@@ -1556,7 +1554,7 @@
     "connect_docs_link": "分步指南：將 Multica Agent 連線到 Telegram",
     "bot_token_label": "機器人 token",
     "connect_submit": "連線",
-    "connect_submitting": "正在連線…",
+    "connect_submitting": "正在連線...",
     "connect_cancel": "取消",
     "connect_success_toast": "已連線 Telegram 機器人",
     "connect_failed_toast": "連線 Telegram 機器人失敗"
@@ -1576,7 +1574,7 @@
     "github_picker_description": "選擇要新增到目前工作區的儲存庫，現有手動設定不會被修改。",
     "github_account": "GitHub 帳號",
     "github_search_placeholder": "搜尋已載入的儲存庫",
-    "github_loading": "正在載入倉庫…",
+    "github_loading": "正在載入倉庫...",
     "github_load_failed": "無法從 GitHub 載入儲存庫，請檢查安裝權限後重試。",
     "github_empty": "該安裝下沒有可存取的儲存庫。",
     "github_no_search_results": "已載入的儲存庫中沒有符合項。",
@@ -1657,7 +1655,6 @@
       "check_failed": "檢查更新失敗，請重試。",
       "download_failed": "更新下載失敗，可以繼續使用目前版本並重試。",
       "download_ready": "v{{version}} 已可安裝。",
-      "retry": "重試",
       "banner_dismiss": "關閉",
       "banner_title": "更新已就緒",
       "banner_body": "v{{version}} 將在下次啟動時套用。",
@@ -1772,7 +1769,7 @@
     "purchase_seat_and_invite": "購買 1 個席位並邀請",
     "retry_seat_purchase": "重試購買",
     "seat_purchase_waiting": "正在等待 Stripe 確認新席位。請保持目前頁面開啟，以便確認後自動傳送邀請；如果離開頁面，已購席位仍會保留，之後可重新邀請。",
-    "seat_purchase_timeout": "席位購買已提交，但確認時間超出預期。邀請尚未傳送；請在“帳單”顯示有可用席位後重新邀請。",
+    "seat_purchase_timeout": "席位購買已提交，但確認時間超出預期。邀請尚未傳送；請在\"帳單\"顯示有可用席位後重新邀請。",
     "seat_purchase_capacity_taken": "新購買的席位已不可用，因此沒有傳送邀請。請檢查目前席位後重試。",
     "no_members": "未找到成員。",
     "revoke_invitation_title": "撤銷邀請？",
@@ -1855,11 +1852,11 @@
     "toast_already_member": "{{email}} 已經是這個工作區的成員。",
     "toast_invitation_pending": "已經有一封發給 {{email}} 的待接受邀請。",
     "toast_invite_check_unavailable": "暫時無法核對現有成員和邀請，請稍後再試。",
-    "member_limit_full_description_billing": "工作區的訂閱需要處理。到「帳單與套餐」恢復訂閱後才能加人，也可以先移除一位成員。",
+    "member_limit_full_description_billing": "工作區的訂閱需要處理。到\"帳單與套餐\"恢復訂閱後才能加人，也可以先移除一位成員。",
     "open_billing": "開啟帳單與套餐",
     "guest_free_tag": "免費 · 不佔席位",
     "guest_projects_label": "可以存取的專案",
-    "guest_projects_add": "新增專案…",
+    "guest_projects_add": "新增專案...",
     "guest_projects_remove": "移除 {{project}}",
     "guest_projects_hint": "訪客看不到其他專案、智慧體、自動化和設定。",
     "invite_guest_button": "邀請訪客",
@@ -1874,7 +1871,7 @@
     "make_member_description": "{{name}} 可以存取整個工作區、執行智慧體，會佔用 1 個席位。",
     "make_member_seat_description": "{{name}} 可以存取整個工作區、執行智慧體。已購席位已用完，將補購 1 個席位。",
     "purchase_seat_and_make_member": "補購席位並轉為成員",
-    "making_member": "正在轉為成員…",
+    "making_member": "正在轉為成員...",
     "make_guest_title": "將 {{name}} 設為訪客？",
     "make_guest_description": "{{name}} 之後只能存取下面的專案，並釋放 1 個席位。他的智慧體、自動化和執行環境權限會被收回。",
     "make_guest_button": "轉為訪客",
@@ -1904,7 +1901,6 @@
     "apps_scope": "這些應用程式連線屬於你的帳號。工作區的訊息頻道連線在上方管理。",
     "github_hint": "連線 GitHub，設定 PR 關聯。",
     "vcs_hint": "連線 GitLab、Gitea 或 Forgejo。",
-    "apps_hint": "透過 Composio 授權 Agent 使用應用程式。",
     "back": "所有整合",
     "channel_hint": "在 {{channel}} 中與 Agent 對話、建立任務。"
   },
@@ -1984,8 +1980,8 @@
   "weixin": {
     "section_title": "微信",
     "page_description": "接收掃碼帳號的私訊。",
-    "loading": "正在連線…",
-    "empty": "在 AI 代理的「整合」分頁中連接微信。",
+    "loading": "正在連線...",
+    "empty": "在 AI 代理的\"整合\"分頁中連接微信。",
     "close": "關閉",
     "action_failed": "操作未完成，請重試。",
     "privacy_hint": "訊息將以你的身分在此工作區執行，請勿分享 QR 碼。",
@@ -2006,7 +2002,7 @@
     "authorization_expired": "微信授權已過期，請重新掃碼連接。"
   },
   "connected_apps": {
-    "loading": "正在載入應用…",
+    "loading": "正在載入應用...",
     "load_failed": "無法載入應用。",
     "reconnect": "重新連線",
     "rules": "規則",
@@ -2014,7 +2010,7 @@
     "disconnect": "中斷連線",
     "catalog_title": "可用應用",
     "catalog_label": "成員可新增的應用",
-    "catalog_description": "精選應用附有審核過的預設規則。「全部應用」包含 Multica 能連線的所有應用；Multica 無法辨識的操作一律先徵得同意。「指定名單」只允許你選中的應用。",
+    "catalog_description": "精選應用附有審核過的預設規則。\"全部應用\"包含 Multica 能連線的所有應用；Multica 無法辨識的操作一律先徵得同意。\"指定名單\"只允許你選中的應用。",
     "catalog_all": "全部應用",
     "catalog_curated": "僅精選",
     "catalog_custom": "指定名單",
@@ -2372,7 +2368,7 @@
     },
     "fillers": {
       "title": "移除語助詞",
-      "hint": "去掉「嗯」「呃」等停頓詞。"
+      "hint": "去掉\"嗯\"\"呃\"等停頓詞。"
     },
     "vocabulary": {
       "title": "詞彙表",
@@ -2419,7 +2415,7 @@
       "today": "今天",
       "yesterday": "昨天",
       "status": {
-        "transcribing": "轉寫中…",
+        "transcribing": "轉寫中...",
         "failed": "轉寫失敗",
         "interrupted": "轉寫前被中斷"
       },
@@ -2449,15 +2445,12 @@
     "member": "你已是成員",
     "open": "開啟",
     "join": "加入",
-    "join_title": "加入「{{title}}」？",
+    "join_title": "加入\"{{title}}\"？",
     "join_description": "你會出現在這個專案的成員名單裡，並能看到其中的任務、評論和附件。現有成員會收到通知。",
     "join_description_empty": "這個專案目前沒有成員。加入後你將是唯一的成員，並能看到其中的任務、評論和附件。",
     "join_confirm": "加入專案",
     "cancel": "取消",
     "toast_joined": "已加入 {{title}}",
     "toast_failed": "加入專案失敗。"
-  },
-  "composio": {
-    "section_title": "Composio"
   }
 }

@@ -20,10 +20,10 @@
   },
   "archive_dialog": {
     "title": "歸檔這個小隊？",
-    "description": "“{{name}}” 將被歸檔，該小隊目前承接的任務會轉交給小隊負責人。此操作無法撤銷，如需恢復路由請新建小隊。",
+    "description": "\"{{name}}\" 將被歸檔，該小隊目前承接的任務會轉交給小隊負責人。此操作無法撤銷，如需恢復路由請新建小隊。",
     "cancel": "取消",
     "confirm": "歸檔",
-    "archiving": "歸檔中…",
+    "archiving": "歸檔中...",
     "success": "已歸檔小隊"
   },
   "name_editor": {
@@ -44,7 +44,7 @@
     "add": "新增"
   },
   "role_editor": {
-    "empty": "新增角色…",
+    "empty": "新增角色...",
     "placeholder": "角色（例如：審查者）"
   },
   "description_editor": {

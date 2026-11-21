@@ -252,7 +252,7 @@ export function ChatSessionHeader({
               checkpoints={quotaCheckpoints}
               taskUsage={taskUsage}
             />
-          <ChatWakeupHeaderButton sessionId={session.id} wakeups={wakeups} />
+            <ChatWakeupHeaderButton sessionId={session.id} wakeups={wakeups} />
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -277,31 +277,18 @@ export function ChatSessionHeader({
                   <Settings2 className="h-4 w-4" />
                   {t(($) => $.header.agent_settings)}
                 </DropdownMenuItem>
-                {agent && (
-                  <DropdownMenuItem
-                    onClick={() => push(`${wsPaths.agentDetail(agent.id)}?view=general`)}
-                  >
-                    <Settings2 className="h-4 w-4" />
-                    {t(($) => $.header.agent_settings)}
+              )}
+              <DropdownMenuSeparator />
+              {isArchived ? (
+                <>
+                  <DropdownMenuItem onClick={doUnarchive}>
+                    <ArchiveRestore className="h-4 w-4" />
+                    {t(($) => $.header.unarchive)}
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                {isArchived ? (
-                  <>
-                    <DropdownMenuItem onClick={doUnarchive}>
-                      <ArchiveRestore className="h-4 w-4" />
-                      {t(($) => $.header.unarchive)}
-                    </DropdownMenuItem>
-                    {/* Hard delete is offered only once a chat is archived. */}
-                    <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
-                      <Trash2 className="h-4 w-4" />
-                      {t(($) => $.header.delete)}
-                    </DropdownMenuItem>
-                  </>
-                ) : (
-                  <DropdownMenuItem onClick={doArchive}>
-                    <Archive className="h-4 w-4" />
-                    {t(($) => $.header.archive)}
+                  {/* Hard delete is offered only once a chat is archived. */}
+                  <DropdownMenuItem variant="destructive" onClick={() => setConfirmDelete(true)}>
+                    <Trash2 className="h-4 w-4" />
+                    {t(($) => $.header.delete)}
                   </DropdownMenuItem>
                 </>
               ) : (
