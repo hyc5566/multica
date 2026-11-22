@@ -69,12 +69,22 @@ func workspaceSet(workspaces []healthWorkspace) (map[string][]string, error) {
 	return result, nil
 }
 
-func validateNewHealth(j *Journal, h health, pid int, start string) error {
-	if h.Status != "running" || h.OS != "darwin" || h.LaunchedBy != "desktop" || h.LifecycleManager != "" || h.Profile != j.Profile ||
+func validateNewDaemonIdentity(j *Journal, h health, pid int, start string) error {
+	if h.OS != "darwin" || h.LaunchedBy != "desktop" || h.LifecycleManager != "" || h.Profile != j.Profile ||
 		h.DaemonID != j.DaemonID || h.PID != pid || pid <= 0 || start == "" || h.Attestation.ProcessStartedAt != start ||
 		h.ServerURL == "" || j.ServerURLSHA256 == "" || fmt.Sprintf("%x", sha256.Sum256([]byte(h.ServerURL))) != j.ServerURLSHA256 ||
 		h.Version != j.NewVersion || h.Commit != j.NewCommit || h.Attestation.BinarySHA256 != j.NewBinarySHA256 {
 		return errors.New("new daemon identity mismatch")
+	}
+	return nil
+}
+
+func validateNewHealth(j *Journal, h health, pid int, start string) error {
+	if h.Status != "running" {
+		return errors.New("new daemon identity mismatch")
+	}
+	if err := validateNewDaemonIdentity(j, h, pid, start); err != nil {
+		return err
 	}
 	actual, err := workspaceSet(h.Workspaces)
 	if err != nil {
