@@ -25,7 +25,12 @@ func legacyNativeCommand(name string, args ...string) ([]byte, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	command := exec.CommandContext(ctx, name, args...)
-	command.Env = append(os.Environ(), "LC_ALL=C", "TZ=UTC")
+	locale := "C"
+	if name == "/bin/ps" || name == "/usr/sbin/lsof" {
+		// Keep timestamps in English and preserve UTF-8 paths in both outputs.
+		locale = "en_US.UTF-8"
+	}
+	command.Env = append(os.Environ(), "LC_ALL="+locale, "TZ=UTC")
 	return command.Output()
 }
 

@@ -43,6 +43,61 @@ func TestLegacyProcessNativeMacOS(t *testing.T) {
 	}
 }
 
+func TestLegacyProcessNativeMacOSBundlePaths(t *testing.T) {
+	if runtime.GOOS != "darwin" {
+		t.Skip("native macOS process evidence")
+	}
+	executable, err := os.ReadFile("/bin/sleep")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, bundle := range []string{"Multica Desktop.app", "Multica 繁中版.app"} {
+		t.Run(bundle, func(t *testing.T) {
+			root, err := filepath.EvalSymlinks(t.TempDir())
+			if err != nil {
+				t.Fatal(err)
+			}
+			path := filepath.Join(root, bundle, "Contents", "MacOS", "sleep")
+			if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+				t.Fatal(err)
+			}
+			if err := os.WriteFile(path, executable, 0700); err != nil {
+				t.Fatal(err)
+			}
+			// The copied system executable needs a signature valid outside /bin.
+			if out, err := exec.Command("/usr/bin/codesign", "--force", "--sign", "-", path).CombinedOutput(); err != nil {
+				t.Fatalf("sign test executable: %v: %s", err, out)
+			}
+			signed, err := os.ReadFile(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			command := exec.Command(path, "30")
+			if err := command.Start(); err != nil {
+				t.Fatal(err)
+			}
+			t.Cleanup(func() {
+				_ = command.Process.Signal(syscall.SIGTERM)
+				_ = command.Wait()
+			})
+
+			identity, err := InspectLegacyProcess(command.Process.Pid)
+			if err != nil {
+				t.Fatal(err)
+			}
+			info, err := os.Stat(path)
+			if err != nil {
+				t.Fatal(err)
+			}
+			stat := info.Sys().(*syscall.Stat_t)
+			if identity.ExecutablePath != path || identity.Inode != uint64(stat.Ino) || identity.Device != uint64(stat.Dev) ||
+				identity.SHA256 != fmt.Sprintf("%x", sha256.Sum256(signed)) {
+				t.Fatalf("executable mapping differs from bundle binary: %+v", identity)
+			}
+		})
+	}
+}
+
 func TestLegacyProcessBindsMappedInodeAndRechecksIdentity(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "Multica 繁中版")
 	data := []byte("fixture executable bytes")
@@ -107,6 +162,8 @@ func TestLegacyProcessBindsMappedInodeAndRechecksIdentity(t *testing.T) {
 				if identity.SHA256 != want || identity.ExecutablePath != path || identity.Inode != uint64(stat.Ino) || processReads != 2 {
 					t.Fatalf("incomplete identity: %+v", identity)
 				}
+			} else if fault == "missing map" && (err == nil || err.Error() != "legacy executable mapping not found") {
+				t.Fatalf("missing mapping: got %v", err)
 			} else if err == nil {
 				t.Fatalf("accepted %s: %+v", fault, identity)
 			}
