@@ -27,6 +27,7 @@ func desktopEnvironment() []string {
 }
 
 var errCandidateAttestation = errors.New("candidate attestation mismatch")
+var errCandidateStarting = errors.New("candidate daemon still starting")
 var candidateVerificationTimeout = 10 * time.Minute
 var requireNativeCandidate = func(j *Journal) bool { return j.Legacy != nil || runtime.GOOS == "darwin" }
 
@@ -60,6 +61,13 @@ func (a *localAdapter) candidateHealth(ctx context.Context, j *Journal) (health,
 	}
 	if j.NewDaemonPID != 0 && (j.NewDaemonPID != h.PID || (j.NewDaemonStartedAt != "" && j.NewDaemonStartedAt != h.Attestation.ProcessStartedAt)) {
 		return health{}, errors.New("new daemon process changed")
+	}
+	// A known candidate exposes health while registering its runtimes.
+	if h.Status == "starting" && j.NewDaemonPID == h.PID && j.NewDaemonStartedAt == "" {
+		if err := validateNewDaemonIdentity(j, h, h.PID, h.Attestation.ProcessStartedAt); err != nil {
+			return health{}, fmt.Errorf("%w: %v", errCandidateAttestation, err)
+		}
+		return health{}, errCandidateStarting
 	}
 	if err := validateNewHealth(j, h, h.PID, h.Attestation.ProcessStartedAt); err != nil {
 		if j.NewDaemonPID != 0 && h.PID == j.NewDaemonPID {
