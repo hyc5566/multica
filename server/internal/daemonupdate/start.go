@@ -245,10 +245,16 @@ func (a *localAdapter) StartAndVerify(ctx context.Context, j *Journal) error {
 		return errors.New("invalid App readiness path")
 	}
 	var appDone <-chan error
+	adopted := false
 	if j.NewAppPID == 0 {
 		if j.AppStartRequested {
 			return errors.New("App launch identity was not journalled; manual recovery required")
 		}
+		if adopted, err = a.adoptCandidateApp(ctx, j); err != nil {
+			return err
+		}
+	}
+	if j.NewAppPID == 0 {
 		j.AppStartRequested = true
 		if err := SaveJournal(a.journalPath, *j); err != nil {
 			return err
@@ -270,41 +276,64 @@ func (a *localAdapter) StartAndVerify(ctx context.Context, j *Journal) error {
 			if identityErr != nil {
 				select {
 				case <-done:
+					// LaunchServices may have won the single-instance race
+					// between the process scan and exec.
+					adopted, err = a.adoptCandidateApp(ctx, j)
+					if err != nil {
+						return err
+					}
+					if !adopted {
+						return fmt.Errorf("candidate App native identity unavailable: %w", identityErr)
+					}
+					appDone = nil
 				case <-time.After(time.Second):
+					return fmt.Errorf("candidate App native identity unavailable: %w", identityErr)
 				}
-				return fmt.Errorf("candidate App native identity unavailable: %w", identityErr)
-			}
-			if identity.ExecutablePath != filepath.Join(j.OldBundle, "Contents", "MacOS", j.NewAppExecutable) {
-				return errors.New("candidate App executable mismatch")
-			}
-			j.AcceptanceAppIdentity = &identity
-			if j.Legacy != nil {
-				j.Legacy.CandidateProcesses = append(j.Legacy.CandidateProcesses, identity)
+			} else {
+				if identity.ExecutablePath != filepath.Join(j.OldBundle, "Contents", "MacOS", j.NewAppExecutable) {
+					return errors.New("candidate App executable mismatch")
+				}
+				j.AcceptanceAppIdentity = &identity
+				if j.Legacy != nil {
+					j.Legacy.CandidateProcesses = append(j.Legacy.CandidateProcesses, identity)
+				}
 			}
 		}
-		if err := SaveJournal(a.journalPath, *j); err != nil {
-			_ = command.Process.Kill()
-			<-done
-			return err
+		if !adopted {
+			if err := SaveJournal(a.journalPath, *j); err != nil {
+				_ = command.Process.Kill()
+				<-done
+				return err
+			}
 		}
 	}
 	for {
+		alive, err := processExists(j.NewAppPID)
+		if err != nil {
+			return err
+		}
 		select {
 		case <-appDone:
-			return errors.New("new App exited before readiness")
+			appDone, alive = nil, false
 		default:
+		}
+		if !alive {
+			if adopted {
+				return errors.New("new App exited before readiness")
+			}
+			adopted, err = a.adoptCandidateApp(ctx, j)
+			if err != nil {
+				return err
+			}
+			if !adopted {
+				return errors.New("new App exited before readiness")
+			}
+			appDone = nil
 		}
 		if j.Legacy != nil {
 			if err := a.rememberCandidateApps(ctx, j); err != nil {
 				return err
 			}
-		}
-		alive, err := processExists(j.NewAppPID)
-		if err != nil {
-			return err
-		}
-		if !alive {
-			return errors.New("new App exited before readiness")
 		}
 		data, err := os.ReadFile(j.ReadyFile)
 		if err == nil {
@@ -313,6 +342,12 @@ func (a *localAdapter) StartAndVerify(ctx context.Context, j *Journal) error {
 				PID   int    `json:"pid"`
 			}
 			if json.Unmarshal(data, &ready) == nil && ready.Token == j.Token && ready.PID == j.NewAppPID {
+				if j.AcceptanceAppIdentity != nil {
+					current, err := inspectLegacy(j.NewAppPID)
+					if err != nil || current != *j.AcceptanceAppIdentity {
+						return errors.New("App process changed before readiness")
+					}
+				}
 				return nil
 			}
 			return fmt.Errorf("App readiness identity mismatch")

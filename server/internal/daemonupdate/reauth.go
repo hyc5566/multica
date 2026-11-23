@@ -107,14 +107,28 @@ func currentAcceptanceApp(ctx context.Context, j *Journal) (LegacyProcessIdentit
 	if err != nil || executable == "" || filepath.Base(executable) != executable {
 		return LegacyProcessIdentity{}, errors.New("App executable unavailable")
 	}
-	pids, err := enumerateLegacyApps(j.OldBundle)
+	found, err := findNativeApp(j.OldBundle, executable)
 	if err != nil {
 		return LegacyProcessIdentity{}, err
 	}
-	path := filepath.Join(j.OldBundle, "Contents", "MacOS", executable)
+	if found.PID == 0 {
+		return found, errors.New("current App process unavailable")
+	}
+	return found, nil
+}
+
+func findNativeApp(bundle, executable string) (LegacyProcessIdentity, error) {
+	pids, err := enumerateLegacyApps(bundle)
+	if err != nil {
+		return LegacyProcessIdentity{}, err
+	}
+	path := filepath.Join(bundle, "Contents", "MacOS", executable)
 	var found LegacyProcessIdentity
 	for _, pid := range pids {
 		identity, err := inspectLegacy(pid)
+		if errors.Is(err, ErrLegacyProcessExited) {
+			continue
+		}
 		if err != nil {
 			return found, err
 		}
@@ -128,9 +142,6 @@ func currentAcceptanceApp(ctx context.Context, j *Journal) (LegacyProcessIdentit
 			return found, errors.New("invalid App process identity")
 		}
 		found = identity
-	}
-	if found.PID == 0 {
-		return found, errors.New("current App process unavailable")
 	}
 	return found, nil
 }
