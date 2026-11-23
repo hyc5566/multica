@@ -202,4 +202,40 @@ describe("update download and readiness", () => {
     await acknowledgeUpdateReady(dir, version, bundle, argv);
     expect(existsSync(ready)).toBe(false);
   });
+  it("acknowledges a renderer that started before the coordinator adopted its PID", async () => {
+    fixture();
+    const version = "0.11.1-zh-tw.4+up.5fbd8da";
+    const bundle = "/Applications/Multica 繁中版.app";
+    const token = "f6f5f574-5dea-42c2-91c1-7bc09ca9da51";
+    const readyFile = join(dir, `ready-${token}`);
+    const journalPath = join(dir, "journal.json");
+    const original = { token, phase: "swapping", new_version: version, old_bundle: bundle, new_app_pid: 0, ready_file: readyFile };
+    writeFileSync(journalPath, JSON.stringify(original));
+    const waiting = acknowledgeUpdateReady(dir, version, bundle, []);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(existsSync(readyFile)).toBe(false);
+    const executable = "Multica 繁中版";
+    writeFileSync(journalPath, JSON.stringify({
+      ...original, phase: "verifying_new", new_app_pid: process.pid, app_start_requested: true, new_app_executable: executable,
+      acceptance_app_identity: { pid: process.pid, uid: process.getuid?.(), executable_path: join(bundle, "Contents", "MacOS", executable), inode: 7, started_at: "start time", sha256: sha },
+    }));
+    await waiting;
+    expect(JSON.parse(readFileSync(readyFile, "utf8"))).toEqual({ token, pid: process.pid });
+  });
+  it("does not acknowledge an unselected renderer during a coordinated update", async () => {
+    fixture();
+    const version = "0.11.1-zh-tw.4+up.5fbd8da";
+    const bundle = "/Applications/Multica 繁中版.app";
+    const token = "f6f5f574-5dea-42c2-91c1-7bc09ca9da51";
+    const readyFile = join(dir, `ready-${token}`);
+    const journalPath = join(dir, "journal.json");
+    const journal = { token, phase: "verifying_new", new_version: version, old_bundle: bundle, new_app_pid: process.pid, ready_file: readyFile };
+    writeFileSync(journalPath, JSON.stringify(journal));
+    const waiting = acknowledgeUpdateReady(dir, version, bundle, []);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(existsSync(readyFile)).toBe(false);
+    writeFileSync(journalPath, JSON.stringify({ ...journal, phase: "rolling_back" }));
+    await waiting;
+    expect(existsSync(readyFile)).toBe(false);
+  });
 });

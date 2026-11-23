@@ -19,7 +19,9 @@ func legacyAppPIDs(bundle string) ([]int, error) {
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	output, err := exec.CommandContext(ctx, "/bin/ps", "-axo", "uid=", "-o", "pid=", "-o", "comm=").Output()
+	command := exec.CommandContext(ctx, "/bin/ps", "-axo", "uid=", "-o", "pid=", "-o", "comm=")
+	command.Env = append(os.Environ(), "LC_ALL=en_US.UTF-8", "TZ=UTC")
+	output, err := command.Output()
 	if err != nil {
 		return nil, errors.New("legacy App process enumeration failed")
 	}

@@ -267,30 +267,44 @@ export type ZhTWAppUpdateDeps = {
 };
 
 const coordinatedReadySchema = z.object({
-  token: z.string().uuid(), phase: z.literal("verifying_new"), new_version: z.string(),
-  old_bundle: z.string(), new_app_pid: z.number().int().positive(), ready_file: z.string(),
+  token: z.string().uuid(), phase: z.enum(["swapping", "verifying_new"]), new_version: z.string(),
+  old_bundle: z.string(), new_app_pid: z.number().int().nonnegative().default(0), ready_file: z.string(),
+  app_start_requested: z.boolean().optional(), new_app_executable: z.string().optional(),
+  acceptance_app_identity: z.object({
+    pid: z.number().int().positive(), uid: z.number().int().nonnegative(), executable_path: z.string(),
+    inode: z.number().positive(), started_at: z.string().min(1), sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  }).optional(),
 });
 
-/** A legacy renderer-only token cannot attest a coordinated update. */
+/** Readiness is only sent after the coordinator selects this process. */
 export async function acknowledgeUpdateReady(
   workDir: string, version: string, bundle: string | null, argv: string[],
 ): Promise<void> {
   const token = argv.find((arg) => arg.startsWith("--zh-tw-coordinated-token="))?.slice("--zh-tw-coordinated-token=".length);
-  if (!token || !z.string().uuid().safeParse(token).success) return;
-  for (let attempt = 0; attempt < 50; attempt += 1) {
+  if (token !== undefined && !z.string().uuid().safeParse(token).success) return;
+  if (argv.some((arg) => arg.startsWith("--zh-tw-update-token="))) return;
+  let transactionToken = token;
+  const deadline = Date.now() + 10 * 60_000; // Same bound as candidate verification.
+  do {
     const data = await readFile(join(workDir, "journal.json"), "utf8").catch(() => "");
     const parsed = coordinatedReadySchema.safeParse(data ? JSON.parse(data) : null);
-    if (parsed.success) {
-      const pending = parsed.data;
-      if (pending.token !== token || pending.new_version !== version || pending.old_bundle !== bundle ||
-          pending.ready_file !== join(workDir, `ready-${token}`)) return;
-      if (pending.new_app_pid === process.pid) {
-        await writeDurableJSON(pending.ready_file, { token, pid: process.pid });
-        return;
-      }
+    if (!parsed.success) return;
+    const pending = parsed.data;
+    if ((transactionToken !== undefined && pending.token !== transactionToken) ||
+        pending.new_version !== version || pending.old_bundle !== bundle ||
+        pending.ready_file !== join(workDir, `ready-${pending.token}`)) return;
+    transactionToken = pending.token;
+    const identity = pending.acceptance_app_identity;
+    const executable = pending.new_app_executable;
+    const selected = pending.app_start_requested && identity?.pid === process.pid && identity.uid === process.getuid?.() &&
+      executable && basename(executable) === executable &&
+      identity.executable_path === join(pending.old_bundle, "Contents", "MacOS", executable);
+    if (pending.phase === "verifying_new" && pending.new_app_pid === process.pid && (token || selected)) {
+      await writeDurableJSON(pending.ready_file, { token: pending.token, pid: process.pid });
+      return;
     }
-    await new Promise((resolve) => setTimeout(resolve, 100));
-  }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  } while (Date.now() < deadline);
 }
 
 const ledgerSchema = z.object({
@@ -524,10 +538,13 @@ export function setupZhTWAppUpdate(deps: ZhTWAppUpdateDeps): void {
   ipcMain.handle("updater:install", () => controller.install());
   ipcMain.handle("updater:get-status", async () => { await controller.ready; return controller.getStatus(); });
   ipcMain.handle("updater:defer", () => controller.defer());
+  let acknowledgingReadiness = false;
   ipcMain.on("updater:renderer-ready", (event) => {
     const window = deps.getMainWindow();
-    if (!supported || !window || event.sender !== window.webContents) return;
-    void acknowledgeUpdateReady(workDir, currentVersion, currentBundle, process.argv).catch(console.error);
+    if (!supported || !window || event.sender !== window.webContents || acknowledgingReadiness) return;
+    acknowledgingReadiness = true;
+    void acknowledgeUpdateReady(workDir, currentVersion, currentBundle, process.argv).catch(console.error)
+      .finally(() => { acknowledgingReadiness = false; });
   });
 
   // Only user-initiated quit / closing every window is a safe automatic restart.
