@@ -104,7 +104,7 @@ const EXPECTED = [
   {
     what: "the page",
     find: (els) => anchors(els, "page"),
-    classes: ["rounded-page", "bg-page-canvas", "ring-page-border"],
+    classes: ["workspace-canvas", "md:workspace-canvas-frame"],
     source: "packages/views/layout/dashboard-layout.tsx",
   },
   {
@@ -290,6 +290,13 @@ test("every component alias is drawn or listed as not drawn", () => {
   const used = new Set(
     elements.flatMap((el) => [...el.classes].map((cls) => cls.replace(/^.*:/, ""))),
   );
+  const base = read("packages/ui/styles/base.css");
+  for (const name of ["workspace-canvas", "workspace-canvas-frame"]) {
+    if (!used.has(name)) continue;
+    const applies = base.match(new RegExp(`@utility \\b${name}\\s*\\{\\s*@apply ([^;]+);`));
+    assert.ok(applies, `${name} does not define its theme utilities`);
+    for (const utility of applies[1].split(/\s+/)) used.add(utility);
+  }
   const drawn = {
     radius: (name) => used.has(`rounded-${name}`),
     color: (name) => ["bg", "text", "border", "ring"].some((p) => used.has(`${p}-${name}`)),

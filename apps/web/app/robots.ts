@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { SITE_ORIGIN } from "@/features/landing/structured-data";
 
 /** Signed-in app routes; crawlers have nothing public to read there. */
 const PRIVATE_ROUTES = [
@@ -32,8 +33,6 @@ const AI_CRAWLERS = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://10.1.24.90:45671";
-
   return {
     rules: [
       {
@@ -47,6 +46,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: PRIVATE_ROUTES,
       },
     ],
-    sitemap: [`${baseUrl}/sitemap.xml`, `${baseUrl}/docs/sitemap.xml`],
+    sitemap: [`${SITE_ORIGIN}/sitemap.xml`, `${SITE_ORIGIN}/docs/sitemap.xml`],
   };
 }

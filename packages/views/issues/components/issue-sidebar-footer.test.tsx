@@ -26,7 +26,7 @@ const issue = (patch: Partial<Issue> = {}) =>
 describe("IssueSidebarFooter", () => {
   it("says who created the issue for whom, in the reader's own word order", () => {
     renderWithI18n(<IssueSidebarFooter issue={issue()} />, { locale: "zh-Hans" });
-    expect(screen.getByTestId("issue-sidebar-footer")).toHaveTextContent("Xeon 代表 Jiayuan 创建于 11月24日");
+    expect(screen.getByTestId("issue-sidebar-footer")).toHaveTextContent("Xeon 代表 Jiayuan 建立於 11月24日");
   });
 
   it("leaves the requester out when a member created the issue", () => {

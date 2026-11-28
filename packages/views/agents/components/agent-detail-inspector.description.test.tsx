@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-// The description counter, the autosave gate and the
+// The description counter, the save button and the
 // server all count Unicode code points. 128 emoji are 256 UTF-16 units, which
 // the old `description.length` gate refused to save while the counter read
 // 128 / 255.
@@ -67,7 +67,7 @@ describe("AgentDetailInspector description limit", () => {
     cleanup();
   });
 
-  it("saves 128 emoji: counter and autosave both count code points", async () => {
+  it("saves 128 emoji: counter and save validation both count code points", async () => {
     const onUpdate = renderInspector();
     const value = "😀".repeat(128);
 
@@ -76,6 +76,7 @@ describe("AgentDetailInspector description limit", () => {
     });
 
     expect(screen.getByText("128 / 255")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await waitFor(
       () =>
         expect(onUpdate).toHaveBeenCalledWith("agent-1", {
@@ -93,7 +94,7 @@ describe("AgentDetailInspector description limit", () => {
     });
 
     expect(screen.getByText(/256 \/ 255/)).toHaveClass("text-destructive");
-    await new Promise((resolve) => setTimeout(resolve, 1200));
+    expect(screen.getByRole("button", { name: "Save changes" })).toBeDisabled();
     expect(onUpdate).not.toHaveBeenCalled();
   });
 

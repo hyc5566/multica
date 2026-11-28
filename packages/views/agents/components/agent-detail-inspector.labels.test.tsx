@@ -103,7 +103,6 @@ describe("AgentDetailInspector labels", () => {
     await user.type(description, "Saved profile");
     await user.click(screen.getByRole("button", { name: "Save changes" }));
     expect(onUpdate).toHaveBeenCalledWith(agent.id, {
-      name: agent.name,
       description: "Saved profile",
     });
   });

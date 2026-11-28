@@ -43,7 +43,7 @@ Linear 和 Jira 都可以把任务分配给 AI 智能体，所以已经在用其
 - **你已经在为编程命令行工具付费。** Multica 驱动开发者已有的 Claude Code、Codex、Cursor Agent、Copilot CLI、Kimi 等订阅，而不是每个供应商再单独买一套智能体服务。
 - **代码和凭据应该留在自己的机器上。** 智能体运行在你连接的运行时上；自托管 Multica 时，工作区数据也留在你的服务器上。见[安全模型](/security-model)。
 - **多名开发者共用同一组智能体。** 智能体、运行时和 Skills 属于工作区，Access 决定谁能运行每个智能体，看板上能看到哪个智能体在做什么。见[团队共享智能体池](/team-agent-pool)。
-- **你想确切看到智能体做了什么。** 每次运行的工具调用和命令都留在任务上，运行过程中还可以[插话](/mentioning-agents#给正在运行的智能体插话)调整方向。
+- **你想确切看到智能体做了什么。** 每次运行的工具调用和命令都留在任务上，运行过程中还可以[插话](/mentioning-agents#給正在執行的agent插話)调整方向。
 - **审查是固定环节，而不是事后补救。** 智能体交付到 `in_review`；[工作流](/workflows)可以把结果交给审查智能体或同事，被打回时退回修改。
 
 ## 和 Linear 或 Jira 一起使用
@@ -52,7 +52,7 @@ Linear 和 Jira 都可以把任务分配给 AI 智能体，所以已经在用其
 
 1. 路线图和跨团队规划继续放在 Linear 或 Jira。
 2. 在 Multica 项目里创建要交给智能体的工程任务，并把仓库和文档添加为[项目资源](/project-resources)。
-3. 想让智能体在工作时读取或更新 Linear，由工作区 `owner` 或 `admin` 在**设置 → MCP 服务器**里添加 Linear 的 MCP Server，并分配给这些智能体。见[工作区共享的 MCP Server](/agents-create#工作区共享的-mcp-server)。
+3. 想让智能体在工作时读取或更新 Linear，由工作区 `owner` 或 `admin` 在**设置 → MCP 服务器**里添加 Linear 的 MCP Server，并分配给这些智能体。见[工作区共享的 MCP Server](/agents-create#工作區共享的-mcp-server)。
 
 Multica 不会从 Linear 或 Jira 导入，也不会与它们同步，所以要明确每个任务由哪个系统负责。
 

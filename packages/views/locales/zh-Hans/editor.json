@@ -125,7 +125,7 @@
     "html_preview": "HTML 預覽",
     "close_preview": "關閉",
     "copy_code": "複製程式碼",
-    "fullscreen": "全屏"
+    "fullscreen": "放大"
   },
   "dynamic_block": {
     "preview": "預覽",
@@ -139,9 +139,9 @@
     "error_at_line": "{{message}}（第 {{line}} 行）",
     "view_source": "查看原始碼",
     "copy_error": "複製錯誤",
-    "title": "标题",
-    "rename": "重命名",
-    "add_title": "添加标题"
+    "title": "標題",
+    "rename": "重新命名",
+    "add_title": "新增標題"
   },
   "file_card": {
     "uploading": "正在上傳 {{filename}}"
@@ -257,7 +257,7 @@
     "delete": "刪除"
   },
   "plain_text": {
-    "notice": "内容过长，以纯文本显示。",
-    "download": "下载为 .txt"
+    "notice": "內容過長，以純文字顯示。",
+    "download": "下載為 .txt"
   }
 }

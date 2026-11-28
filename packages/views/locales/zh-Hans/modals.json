@@ -56,7 +56,7 @@
     "no_results": "未找到任務。",
     "prompt_to_search": "輸入關鍵詞搜尋任務",
     "suggested_similar": "標題相似",
-    "suggested_recent": "最近查看"
+    "suggested_recent": "最近檢視"
   },
   "set_parent": {
     "title": "設定父任務",
@@ -214,7 +214,7 @@
     "remove_subissue_aria": "移除子任務 {{identifier}}",
     "subissue_of": "{{identifier}} 的子任務",
     "subissue_chip": "子任務：{{identifier}}",
-    "parent_with_id": "父任务：{{identifier}}",
+    "parent_with_id": "父：{{identifier}}",
     "set_due_date": "設定截止日期...",
     "set_start_date": "設定開始日期...",
     "set_parent": "設定父任務...",
@@ -239,7 +239,7 @@
       "created_by": "建立者",
       "select_agent_aria": "選擇 Agent",
       "pick_an_agent": "選一個 AI 代理...",
-      "all_actors": "全部智能体和小队",
+      "all_actors": "全部 Agent和小隊",
       "frequent_actors_aria": "常用",
       "no_agents": "目前沒有可用 Agent 或小隊。",
       "search_placeholder": "搜尋 AI 代理或小隊...",

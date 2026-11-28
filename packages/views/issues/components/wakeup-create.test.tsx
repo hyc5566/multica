@@ -68,7 +68,7 @@ describe("WakeupCreate", () => {
       <WakeupCreate workspaceId="ws" issueId="issue" defaultAgentId="emacs" defaultOpen onOpenChange={onOpenChange} />,
       { locale: "zh-Hans" },
     );
-    const form = await screen.findByRole("form", { name: "新建唤醒" });
+    const form = await screen.findByRole("form", { name: "新增喚醒" });
     fireEvent.keyDown(form, { key: "Escape" });
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
   });
@@ -78,11 +78,11 @@ describe("WakeupCreate", () => {
       <WakeupCreate workspaceId="ws" issueId="issue" defaultAgentId="emacs" defaultOpen={defaultOpen} />
     );
     const { rerender } = renderWithI18n(view(true), { locale: "zh-Hans" });
-    fireEvent.keyDown(await screen.findByRole("form", { name: "新建唤醒" }), { key: "Escape" });
-    await waitFor(() => expect(screen.queryByRole("form", { name: "新建唤醒" })).not.toBeInTheDocument());
+    fireEvent.keyDown(await screen.findByRole("form", { name: "新增喚醒" }), { key: "Escape" });
+    await waitFor(() => expect(screen.queryByRole("form", { name: "新增喚醒" })).not.toBeInTheDocument());
     rerender(view(false));
     rerender(view(true));
-    expect(await screen.findByRole("form", { name: "新建唤醒" })).toBeInTheDocument();
+    expect(await screen.findByRole("form", { name: "新增喚醒" })).toBeInTheDocument();
   });
 });
 
@@ -143,15 +143,15 @@ describe("WakeupCreateForm", () => {
 
   it("asks for an agent instead of preselecting an assignee this member cannot run", async () => {
     await renderForm("secret");
-    expect(screen.getByRole("button", { name: /选择智能体/ })).toBeVisible();
-    fireEvent.click(screen.getByRole("button", { name: /选择智能体/ }));
+    expect(screen.getByRole("button", { name: /選擇 Agent/ })).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: /選擇 Agent/ }));
     expect(await screen.findByText("Emacs")).toBeVisible();
     expect(screen.queryByText("Secret")).toBeNull();
     fireEvent.keyDown(document.activeElement ?? document.body, { key: "Escape" });
-    await chooseCondition("在某个时间");
-    fireEvent.change(screen.getByLabelText("唤醒后要做什么"), { target: { value: "看一下 CI" } });
-    fireEvent.click(screen.getByRole("button", { name: /创建/ }));
-    expect(screen.getByRole("alert")).toHaveTextContent("请选择要唤醒的智能体");
+    await chooseCondition("在某個時間");
+    fireEvent.change(screen.getByLabelText("喚醒後要做什麼"), { target: { value: "看一下 CI" } });
+    fireEvent.click(screen.getByRole("button", { name: /建立/ }));
+    expect(screen.getByRole("alert")).toHaveTextContent("請選擇要喚醒的 Agent");
     expect(create).not.toHaveBeenCalled();
   });
 
@@ -160,21 +160,21 @@ describe("WakeupCreateForm", () => {
       new ApiError("wakeup permission denied: the agent cannot be run", 403, "Forbidden", { code: "wakeup_agent_not_invocable" }),
     );
     await renderForm();
-    await chooseCondition("在某个时间");
-    fireEvent.change(screen.getByLabelText("唤醒后要做什么"), { target: { value: "看一下 CI" } });
-    fireEvent.click(screen.getByRole("button", { name: /创建/ }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("你无权运行这个智能体");
-    expect(screen.getByLabelText("唤醒后要做什么")).toHaveValue("看一下 CI");
-    expect(screen.getByRole("form", { name: "新建唤醒" })).toBeVisible();
+    await chooseCondition("在某個時間");
+    fireEvent.change(screen.getByLabelText("喚醒後要做什麼"), { target: { value: "看一下 CI" } });
+    fireEvent.click(screen.getByRole("button", { name: /建立/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("你無權執行這個 Agent");
+    expect(screen.getByLabelText("喚醒後要做什麼")).toHaveValue("看一下 CI");
+    expect(screen.getByRole("form", { name: "新增喚醒" })).toBeVisible();
   });
 
   it("does not blame rule management for another refusal on create", async () => {
     create.mockRejectedValue(new ApiError("wakeup permission denied", 403, "Forbidden"));
     await renderForm();
-    await chooseCondition("在某个时间");
-    fireEvent.change(screen.getByLabelText("唤醒后要做什么"), { target: { value: "看一下 CI" } });
-    fireEvent.click(screen.getByRole("button", { name: /创建/ }));
-    expect(await screen.findByRole("alert")).toHaveTextContent("无法创建唤醒，请检查设置后重试。");
+    await chooseCondition("在某個時間");
+    fireEvent.change(screen.getByLabelText("喚醒後要做什麼"), { target: { value: "看一下 CI" } });
+    fireEvent.click(screen.getByRole("button", { name: /建立/ }));
+    expect(await screen.findByRole("alert")).toHaveTextContent("無法建立喚醒，請檢查設定後重試。");
   });
 
   it("gives a recurring check an end date and no timeout choice", async () => {

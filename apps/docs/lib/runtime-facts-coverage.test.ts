@@ -30,7 +30,7 @@ type CountMention = { file: string; pattern: RegExp; min: number };
 
 const providersCountPatterns: Record<Lang, RegExp> = {
   en: /(\d+) AI coding tools/g,
-  zh: /(\d+) 款 AI 编程工具/g,
+  zh: /(\d+) 款 AI 程式設計工具/g,
   "zh-Hant": /(\d+) 款 AI 程式設計工具/g,
   ko: /(\d+)(?:가지|개) AI 코딩 도구/g,
   ja: /(\d+) 種類の AI コーディングツール/g,
@@ -50,7 +50,7 @@ const countMentions: CountMention[] = [
   { file: "README.md", pattern: /## Supported agent CLIs \((\d+)\)/g, min: 1 },
   { file: "README.md", pattern: /#supported-agent-clis-(\d+)\)/g, min: 1 },
   { file: "README.md", pattern: /authenticated — (\d+) of them/g, min: 1 },
-  { file: "README.zh.md", pattern: /一共支持 (\d+) 种/g, min: 1 },
+  { file: "README.zh.md", pattern: /一共支援 (\d+) 種/g, min: 1 },
   { file: "README.ja.md", pattern: /(\d+) 種類に対応/g, min: 1 },
   ...i18n.languages.map((lang) => ({
     file: providersFile(lang),
@@ -69,11 +69,11 @@ const countMentions: CountMention[] = [
   { file: docsFile("compare/openhands-devin-factory", "ja"), pattern: /その (\d+) 種類/g, min: 1 },
   { file: "apps/web/features/landing/site/cloud-page.tsx", pattern: /"(\d+) coding agents/g, min: 1 },
   { file: "apps/web/features/landing/i18n/en.ts", pattern: /supports (\d+) coding tools/g, min: 1 },
-  { file: "apps/web/features/landing/i18n/zh.ts", pattern: /支持 (\d+) 款 AI 编程工具/g, min: 1 },
+  { file: "apps/web/features/landing/i18n/zh.ts", pattern: /支援 (\d+) 款 AI 程式開發工具/g, min: 1 },
   { file: "apps/web/features/landing/i18n/ja.ts", pattern: /(\d+) 種類のコーディングツール/g, min: 1 },
   { file: "apps/web/features/landing/i18n/ko.ts", pattern: /(\d+)개 코딩 도구/g, min: 1 },
   { file: "apps/web/features/landing/i18n/site-en.ts", pattern: /All (\d+) agents/g, min: 1 },
-  { file: "apps/web/features/landing/i18n/site-zh.ts", pattern: /全部 (\d+) 款智能体/g, min: 1 },
+  { file: "apps/web/features/landing/i18n/site-zh.ts", pattern: /全部 (\d+) 款 Agent/g, min: 1 },
   { file: "apps/web/features/landing/i18n/site-ja.ts", pattern: /全 (\d+) 種のエージェント/g, min: 1 },
   { file: "apps/web/features/landing/i18n/site-ko.ts", pattern: /에이전트 (\d+)종 전체/g, min: 1 },
 ];

@@ -160,7 +160,7 @@ export const zhSiteCopy: Pick<LandingDict, "site" | "home" | "demo" | "meta"> = 
     agents: {
       lead: "不用學新的AI 代理。",
       title: "直接用你已經在用的。",
-      all: "全部 31 款AI 代理",
+      all: "全部 31 款 Agent",
     },
     updates: {
       eyebrow: "更新日誌",

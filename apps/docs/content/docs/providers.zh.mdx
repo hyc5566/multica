@@ -83,11 +83,11 @@ Amp 還需要在 daemon 或 Agent 環境中設定 `AMP_API_KEY`，僅有互動�
 3. 在 **執行時** 頁面這臺電腦下確認工具已經出現，也可以執行 `multica runtime list`。之後再裝新工具，執行 `multica daemon restart` 或重新開啟桌面端。
 4. 在這個執行時上[建立Agent](/agents-create)，再給它分配任務。
 
-工具裝在daemon `PATH` 找不到的位置時，用 `MULTICA_<PREFIX>_PATH` 指向它，見[環境變數](/environment-variables#daemon配置)。一臺電腦可以掛多款工具，一個工作區也可以接入多臺電腦，所以團隊可以在同一個看板上讓一臺機器跑 Claude Code，另一臺跑 Codex 或 Kimi。
+工具裝在daemon `PATH` 找不到的位置時，用 `MULTICA_<PREFIX>_PATH` 指向它，見[環境變數](/environment-variables#常駐程式設定)。一臺電腦可以掛多款工具，一個工作區也可以接入多臺電腦，所以團隊可以在同一個看板上讓一臺機器跑 Claude Code，另一臺跑 Codex 或 Kimi。
 
 ## 插話支援
 
-你可以[給仍在工作的執行插話](/mentioning-agents#給正在執行的Agent插話)，不必等下一輪。這需要 AI 程式設計工具支援，且版本不低於下表：
+你可以[給仍在工作的執行插話](/mentioning-agents#給正在執行的agent插話)，不必等下一輪。這需要 AI 程式設計工具支援，且版本不低於下表：
 
 | 工具 | 最低版本 |
 |---|---|

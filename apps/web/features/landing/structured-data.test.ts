@@ -4,14 +4,13 @@ import { createLandingDict } from "./i18n/dictionary";
 import { faqPageJsonLd, jsonLdScript, plainInlineText, siteJsonLd } from "./structured-data";
 
 describe("siteJsonLd", () => {
-  it("lists every platform and official profile", () => {
+  it("lists app platforms and the Taiwan edition repository", () => {
     const [organization, app] = siteJsonLd["@graph"];
     expect(app).toMatchObject({ operatingSystem: "Web, macOS, Windows, Linux, iOS" });
-    expect(organization?.sameAs).toEqual([
-      "https://github.com/multica-ai/multica",
-      "https://x.com/MulticaAI",
-      "https://discord.gg/W8gYBn226t",
-    ]);
+    expect(organization).toMatchObject({
+      url: "https://10.1.24.90:45671",
+      sameAs: ["https://github.com/hyc5566/multica"],
+    });
   });
 });
 

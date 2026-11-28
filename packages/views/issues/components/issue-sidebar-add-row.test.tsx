@@ -134,8 +134,8 @@ describe("IssueSidebarAddRow", () => {
   it("lets the reader pick among several", async () => {
     const onPick = vi.fn();
     renderWithI18n(<IssueSidebarAddRow items={["wakeups", "environments"]} onPick={onPick} />, { locale: "zh-Hans" });
-    fireEvent.click(screen.getByRole("button", { name: "添加唤醒或环境" }));
-    fireEvent.click(await screen.findByRole("menuitem", { name: "环境" }));
+    fireEvent.click(screen.getByRole("button", { name: "新增喚醒或環境" }));
+    fireEvent.click(await screen.findByRole("menuitem", { name: "環境" }));
     expect(onPick).toHaveBeenCalledWith("environments");
   });
 

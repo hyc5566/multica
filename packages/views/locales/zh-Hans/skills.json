@@ -112,7 +112,7 @@
       "body": "你的修改已保留。Discard 來拉取他們的版本，或 Save 覆蓋。"
     },
     "save_bar": {
-      "changed_summary": "已修改：{{parts}}",
+      "changed_summary": "已修改:{{parts}}",
       "changed_files_other": "{{count}} 個檔案",
       "discard": "丟棄",
       "save": "儲存修改",

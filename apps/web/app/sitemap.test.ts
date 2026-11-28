@@ -9,22 +9,22 @@ describe("sitemap.xml", () => {
 
   it("lists every released marketing route, including /download", () => {
     const live = siteRoutes().filter(isLiveRoute);
-    expect(urls).toEqual(live.map((route) => (route === "/" ? "https://www.multica.ai" : `https://www.multica.ai${route}`)));
-    expect(urls).toContain("https://www.multica.ai/download");
-    expect(urls).not.toContain("https://www.multica.ai/usecases");
+    expect(urls).toEqual(live.map((route) => (route === "/" ? "https://10.1.24.90:45671" : `https://10.1.24.90:45671${route}`)));
+    expect(urls).toContain("https://10.1.24.90:45671/download");
+    expect(urls).not.toContain("https://10.1.24.90:45671/usecases");
   });
 
   it("dates only the pages that change with each release", () => {
     const dated = entries.filter((entry) => entry.lastModified).map((entry) => entry.url);
-    expect(dated).toEqual(["https://www.multica.ai", "https://www.multica.ai/changelog"]);
+    expect(dated).toEqual(["https://10.1.24.90:45671", "https://10.1.24.90:45671/changelog"]);
   });
 
   it("declares every language version", () => {
     const download = entries.find((entry) => entry.url.endsWith("/download"));
     expect(download?.alternates?.languages).toMatchObject({
-      en: "https://www.multica.ai/download",
-      "zh-Hans": "https://www.multica.ai/zh/download",
-      "x-default": "https://www.multica.ai/download",
+      en: "https://10.1.24.90:45671/download",
+      "zh-TW": "https://10.1.24.90:45671/zh/download",
+      "x-default": "https://10.1.24.90:45671/download",
     });
   });
 });

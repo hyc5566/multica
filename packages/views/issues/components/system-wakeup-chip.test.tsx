@@ -52,10 +52,10 @@ describe("SystemWakeupChips", () => {
   it("names who is woken and keeps the rule's detail in its popover", async () => {
     rules = [childDone({ staged: true, stage: 1 })];
     renderWithI18n(<SystemWakeupChips workspaceId="ws" issueId="issue" />, { locale: "zh-Hans" });
-    fireEvent.click(screen.getByRole("button", { name: "结束后唤醒 Emacs" }));
-    expect(await screen.findByText("当第 1 阶段的子任务全部结束时")).toBeVisible();
-    expect(screen.getByText("系统")).toBeVisible();
-    expect(screen.getByText(/2\/3 已结束/)).toHaveTextContent("还差 MUL-7704");
+    fireEvent.click(screen.getByRole("button", { name: "結束後喚醒 Emacs" }));
+    expect(await screen.findByText("當第 1 階段的子任務全部結束時")).toBeVisible();
+    expect(screen.getByText("系統")).toBeVisible();
+    expect(screen.getByText(/2\/3 已結束/)).toHaveTextContent("還差 MUL-7704");
   });
 
   it("turns the rule off for this issue from the popover", async () => {

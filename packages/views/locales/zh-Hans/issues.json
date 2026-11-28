@@ -25,7 +25,7 @@
     "message": "Agent 訊息",
     "error": "錯誤",
     "waiting_result": "等待工具傳回結果...",
-    "reply_pending_call": "仍在运行：等待 {{step}} 结束",
+    "reply_pending_call": "仍在執行：等待 {{step}} 結束",
     "supplement_failure_turn_ended": "送達前執行已結束",
     "supplement_failure_turn_not_started": "Agent 尚未就緒",
     "supplement_failure_provider_rejected": "Agent 拒絕了該訊息",
@@ -190,7 +190,7 @@
     "section_project": "專案",
     "section_project_status": "專案狀態",
     "section_label": "標籤",
-    "section_relation": "任务关系",
+    "section_relation": "任務關係",
     "relation_assigned": "指派給我的",
     "relation_created": "我建立的",
     "relation_my_agents": "我的 AI 代理在做",
@@ -283,7 +283,7 @@
     "grouping_section": "分組",
     "ordering_section": "排序",
     "card_properties_section": "卡片屬性",
-    "columns_section": "列",
+    "columns_section": "欄",
     "columns_locked_by_filter": "清除狀態篩選後才能顯示或隱藏列。",
     "columns_shown": "顯示 {{count}} 列",
     "ascending_title": "升序",
@@ -454,7 +454,7 @@
     "empty_column": "無任務",
     "empty_grouping": "沒有符合的任務",
     "no_value": "未設定",
-    "ordered_by": "按 {{field}} 排序",
+    "ordered_by": "按{{field}}排序",
     "manual_reorder_hint": "切換到\"手動\"排序後，才能調整同一欄內的順序。"
   },
   "peek": {
@@ -517,8 +517,8 @@
     "quick_action_blocked_body": "\"{{name}}\"由一個你無權觸發的 Agent 執行。可以請工作區管理員把該 Agent 開放給團隊，或把這條操作改綁一個共享的 Agent。",
     "quick_action_blocked_ok": "知道了",
     "pull_requests_loading": "載入中...",
-    "pull_request_state_open": "开放",
-    "pull_request_state_draft": "草稿",
+    "pull_request_state_open": "Open",
+    "pull_request_state_draft": "Draft",
     "pull_request_state_merged": "已合併",
     "pull_request_state_closed": "已關閉",
     "pull_request_checks_none": "目前沒有檢查",
@@ -598,32 +598,32 @@
     "subscription_update_failed": "無法更新訂閱狀態，請重試。",
     "pull_requests_empty_title": "尚無關聯的 PR。",
     "guest_readonly_note": "訪客可以查看和評論，不能修改任務屬性。",
-    "open_issue_page": "在任务页打开",
+    "open_issue_page": "在任務頁開啟",
     "add_row": {
-      "wakeups": "添加唤醒",
-      "pull_requests": "添加 Pull Request",
-      "environments": "添加环境",
-      "relations": "添加关系",
-      "pair": "添加{{first}}或{{second}}",
-      "many": "添加...",
+      "wakeups": "新增喚醒",
+      "pull_requests": "新增 Pull Request",
+      "environments": "新增環境",
+      "relations": "新增關係",
+      "pair": "新增{{first}}或{{second}}",
+      "many": "新增...",
       "noun": {
-        "wakeups": "唤醒",
+        "wakeups": "喚醒",
         "pull_requests": "Pull Request",
-        "environments": "环境",
-        "relations": "关系"
+        "environments": "環境",
+        "relations": "關係"
       },
       "menu": {
-        "wakeups": "唤醒",
+        "wakeups": "喚醒",
         "pull_requests": "Pull Request",
-        "environments": "环境",
-        "relations": "关系"
+        "environments": "環境",
+        "relations": "關係"
       }
     },
     "footer": {
-      "created": "{{creator}} 创建于 {{date}}",
-      "created_for": "{{creator}} 代表 {{requester}} 创建于 {{date}}",
-      "created_at": "创建于 {{time}}",
-      "updated_at": "更新于 {{time}}"
+      "created": "{{creator}} 建立於 {{date}}",
+      "created_for": "{{creator}} 代表 {{requester}} 建立於 {{date}}",
+      "created_at": "建立於 {{time}}",
+      "updated_at": "更新於 {{time}}"
     },
     "discard_changes": "放棄變更",
     "save_changes": "保留變更"
@@ -657,13 +657,13 @@
     "squad_leader_no_action_reason": "已評估：無需操作（{{reason}}）",
     "squad_leader_failed": "評估失敗",
     "squad_leader_failed_reason": "評估失敗：{{reason}}",
-    "squad_handoff_to": "交给了 {{name}}",
-    "squad_handoff_human": "请 {{name}} 决定",
+    "squad_handoff_to": "交給了 {{name}}",
+    "squad_handoff_human": "請 {{name}} 決定",
     "squad_handoff_leader": "交回 {{name}}",
-    "squad_handoff_round": "第 {{round}} 轮",
-    "squad_handoff_reason_round_limit": "已来回 {{limit}} 轮",
-    "squad_handoff_reason_daily_limit": "今日交接已达上限",
-    "squad_handoff_reason_run_failed": "运行失败",
+    "squad_handoff_round": "第 {{round}} 輪",
+    "squad_handoff_reason_round_limit": "已來回 {{limit}} 輪",
+    "squad_handoff_reason_daily_limit": "今日交接已達上限",
+    "squad_handoff_reason_run_failed": "執行失敗",
     "coalesced_badge": "×{{count}}",
     "activity_count_other": "{{count}} 條動態",
     "show_more_activities_other": "展開更早 {{count}} 條動態",
@@ -837,7 +837,7 @@
     "hover_header_other": "{{count}} 個 Agent 工作中",
     "hover_header_tasks_other": "{{count}} 次執行進行中",
     "hover_header_queued_other": "{{count}} 個 Agent 排隊中",
-    "status_running": "运行中",
+    "status_running": "正在工作",
     "status_queued": "排隊中",
     "unread_completed": "{{agent}} 已完成執行 · {{time}}",
     "unread_failed": "{{agent}} 執行失敗 · {{time}}",
@@ -857,16 +857,16 @@
   },
   "presence": {
     "viewing_other": "{{count}} 人在看",
-    "editing": "正在编辑",
+    "editing": "正在編輯",
     "watching": "在看",
     "where": "在改\"{{section}}\"",
-    "more_other": "还有 {{count}} 人：{{names}}",
+    "more_other": "還有 {{count}} 人：{{names}}",
     "name_separator": "、",
-    "jump_hint": "点名字跳到对方的光标"
+    "jump_hint": "點名字跳到對方的游標"
   },
   "agent_live": {
     "is_working": "{{name}} 在工作",
-    "is_working_round": "{{label}} · 第 {{round}} 轮",
+    "is_working_round": "{{label}} · 第 {{round}} 輪",
     "is_queued": "{{name}} 排隊中",
     "is_waiting_local_directory": "{{name}} 正在等待本地目錄",
     "queued_elapsed_prefix": "已排隊 {{elapsed}}",
@@ -904,7 +904,7 @@
     "status_queued": "排隊中",
     "status_dispatched": "啟動中",
     "status_waiting_local_directory": "等待本機目錄釋放",
-    "status_running": "运行中",
+    "status_running": "正在工作",
     "status_completed": "已完成",
     "status_failed": "失敗",
     "status_cancelled": "已取消",
@@ -1108,8 +1108,8 @@
     "remove_parent_issue": "移除父任務",
     "remove_parent_issue_success": "已移除父任務",
     "add_sub_issue": "新增子任務...",
-    "add_blocker": "等待其他任务...",
-    "add_blocking": "阻塞其他任务...",
+    "add_blocker": "等待其他任務...",
+    "add_blocking": "阻塞其他任務...",
     "delete_issue": "刪除任務",
     "mark_duplicate": "標記為重複...",
     "open_in_new_window": "在新視窗中開啟"
@@ -1193,9 +1193,9 @@
   "backlog_hint": {
     "title": "Agent 在待規劃狀態下暫停",
     "description": "這個任務處於待規劃狀態，已指派的 Agent 會等待。準備啟動時，請將任務移到待辦。",
-    "row_backlog_label": "待规划",
+    "row_backlog_label": "待規劃",
     "row_backlog_hint": "Agent 保持暫停",
-    "row_todo_label": "待办",
+    "row_todo_label": "待辦",
     "row_todo_hint": "啟動 Agent"
   },
   "save_view": {
@@ -1210,7 +1210,7 @@
     "variant_my_involved": "我的 AI 代理在做"
   },
   "plugins": {
-    "panels": "插件",
+    "panels": "Plugins",
     "surface_failed": "{{name}} 的介面載入失敗。",
     "hook_succeeded": "{{name}} 已完成。",
     "hook_failed": "{{name}} 執行失敗。",
@@ -1415,7 +1415,7 @@
       "cancel": "取消",
       "error": "無法建立喚醒，請檢查設定後重試。",
       "capacity_error": "此任務或工作區開啟的喚醒已達上限。",
-      "agent_error": "你无权运行这个智能体。请联系它的所有者开通权限，或选择其他智能体。",
+      "agent_error": "你無權執行這個 Agent。請聯絡它的擁有者開通權限，或選擇其他 Agent。",
       "missing_condition": "請選擇條件。",
       "missing_agent": "請選擇要喚醒的 Agent。",
       "missing_events": "請至少選擇一個事件。",
@@ -1487,10 +1487,10 @@
       "instruction_invalid": "指令長度不得超過 4,000 位元組。",
       "paused": "已暫停：{{reason}}",
       "default_change": "修改預設值",
-      "chip_wake": "结束后唤醒 {{name}}",
-      "chip_notify": "结束后通知 {{name}}",
-      "chip_assignee": "结束后唤醒负责人",
-      "chip_off": "结束后唤醒已关闭",
+      "chip_wake": "結束後喚醒 {{name}}",
+      "chip_notify": "結束後通知 {{name}}",
+      "chip_assignee": "結束後喚醒負責人",
+      "chip_off": "結束後喚醒已關閉",
       "blocked_backlog": "任務在待規劃中，暫不喚醒",
       "blocked_none": "沒有 Agent 負責人，不會喚醒"
     },
@@ -1568,9 +1568,9 @@
     "upcoming_other": "已開啟 {{count}} 條喚醒規則",
     "short": {
       "at_time": "{{time}}",
-      "scheduled_time": "指定时间",
-      "hourly": "每小时",
-      "every_hours": "每 {{hours}} 小时",
+      "scheduled_time": "指定時間",
+      "hourly": "每小時",
+      "every_hours": "每 {{hours}} 小時",
       "every_seconds": "每 {{seconds}} 秒"
     }
   },
@@ -1608,7 +1608,7 @@
     "all_merged_to": "PR 均已合併。之後有新 PR 合併時會改為 {{status}}。",
     "issue_disabled": "此任務合併後不改狀態",
     "issue_disabled_action": "恢復",
-    "on_merge_to": "合并后 → {{status}}"
+    "on_merge_to": "合併後 → {{status}}"
   },
   "deliverables": {
     "section_title": "artifacts",
@@ -1645,7 +1645,7 @@
     "group_comment_by": "{{name}} 的留言"
   },
   "workflows": {
-    "default_name": "默认",
+    "default_name": "Default",
     "default_summary": "全部狀態，不自動交接",
     "hands_off_to": "交給 {{name}}",
     "not_in_workflow": "不在 {{name}} 工作流程程中",
@@ -1915,7 +1915,7 @@
     "workspace_members": "工作區成員",
     "add_to_sidebar": "新增到側欄",
     "remove_from_sidebar": "從側欄移除",
-    "back_to": "返回 {{name}}",
+    "back_to": "返回{{name}}",
     "delete": "刪除檢視",
     "delete_title": "刪除檢視？",
     "delete_description": "\"{{name}}\"將被刪除，此操作無法撤銷。",
@@ -1925,7 +1925,7 @@
     "toast_delete_failed": "刪除檢視失敗",
     "filter": "篩選",
     "filter_count_other": "{{count}} 個篩選",
-    "reset": "重置",
+    "reset": "重設",
     "save": "儲存",
     "save_options": "更多儲存選項",
     "save_to": "儲存到\"{{name}}\"",
@@ -1954,7 +1954,7 @@
       "col_location": "位置",
       "col_filters": "篩選",
       "col_visibility": "可見範圍",
-      "col_owner": "所有者",
+      "col_owner": "擁有者",
       "owner_builtin": "內建",
       "location_project": "專案",
       "star": "將 {{name}} 新增到側邊欄",
@@ -1981,7 +1981,7 @@
       "approved": "已核准",
       "rejected": "已拒絕",
       "rate_limited": "已限流",
-      "quota_exceeded": "已达月度上限"
+      "quota_exceeded": "已達每月上限"
     }
   },
   "environments": {
@@ -2027,7 +2027,7 @@
     "started_by_agent_in_run": "由 {{name}} 在\"{{run}}\"中啟動",
     "stopped_by": "由 {{name}} 停止",
     "stopped_on_expiry": "到期自動停止",
-    "exited_ago": "{{time}} 退出",
+    "exited_ago": "{{time}}退出",
     "exit_code": "退出碼 {{code}}",
     "detected_label": "自動識別的服務 · {{name}}",
     "detected_no_logs": "這個服務不是按環境設定啟動的，所以看不到日誌，也不能重新啟動。",
@@ -2093,36 +2093,36 @@
     "dismiss": "忽略"
   },
   "relations": {
-    "title": "关系",
-    "add": "添加关系",
-    "wait_title": "等待其他任务",
-    "block_title": "阻塞其他任务",
+    "title": "關係",
+    "add": "新增關係",
+    "wait_title": "等待其他任務",
+    "block_title": "阻塞其他任務",
     "blocked_by": "被阻塞",
     "blocking": "正在阻塞",
-    "stage_tag": "阶段",
-    "stage_tag_hint": "由父任务的阶段决定",
-    "add_blocker_hint": "它们结束后，本任务才开工",
-    "add_blocking_hint": "本任务结束后，它们才开工",
-    "mark_duplicate_hint": "本任务会被取消",
-    "blocking_picker_hint": "选择一个要等本任务结束才能开工的任务。"
+    "stage_tag": "階段",
+    "stage_tag_hint": "由父任務的階段決定",
+    "add_blocker_hint": "它們結束後，本任務才開工",
+    "add_blocking_hint": "本任務結束後，它們才開工",
+    "mark_duplicate_hint": "本任務會被取消",
+    "blocking_picker_hint": "選擇一個要等本任務結束才能開工的任務。"
   },
   "waiting": {
     "remove": "移除 {{identifier}}",
-    "count": "等待 {{count}} 个任务",
-    "count_other": "等待 {{count}} 个任务",
-    "hint": "全部结束后，负责人将自动开工或收到通知。",
-    "hint_backlog": "在待规划中，不会自动开始。",
-    "picker_hint": "选择一个必须先结束的任务。",
-    "restricted": "{{count}} 个无权查看的前置任务",
-    "ended": "等待的任务已结束",
-    "marker_title": "被 {{count}} 个任务阻塞",
-    "marker_title_other": "被 {{count}} 个任务阻塞",
-    "marker_ended": "已结束 {{finished}}/{{total}}",
-    "marker_more": "还有 {{count}} 个",
-    "marker_more_other": "还有 {{count}} 个",
-    "marker_auto_start": "阻塞结束后 {{name}} 自动开始。",
-    "marker_notify": "阻塞结束后通知 {{name}}。",
-    "marker_unavailable": "{{name}} 当前无法运行，阻塞结束后不会自动开始。",
-    "marker_unassigned": "未指派负责人，阻塞结束后不会自动开始。"
+    "count": "等待 {{count}} 個任務",
+    "count_other": "等待 {{count}} 個任務",
+    "hint": "全部結束後，負責人將自動開始或收到通知。",
+    "hint_backlog": "在待規劃中，不會自動開始。",
+    "picker_hint": "選擇一個必須先結束的任務。",
+    "restricted": "{{count}} 個無權查看的前置任務",
+    "ended": "等待的任務已結束",
+    "marker_title": "被 {{count}} 個任務阻塞",
+    "marker_title_other": "被 {{count}} 個任務阻塞",
+    "marker_ended": "已結束 {{finished}}/{{total}}",
+    "marker_more": "還有 {{count}} 個",
+    "marker_more_other": "還有 {{count}} 個",
+    "marker_auto_start": "阻塞結束後 {{name}} 自動開始。",
+    "marker_notify": "阻塞結束後通知 {{name}}。",
+    "marker_unavailable": "{{name}} 目前無法執行，阻塞結束後不會自動開始。",
+    "marker_unassigned": "未指派負責人，阻塞結束後不會自動開始。"
   }
 }

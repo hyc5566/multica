@@ -53,7 +53,7 @@
       "days": "{{count}} 天"
     },
     "archived_title": "已歸檔",
-    "snoozed_title": "已延后",
+    "snoozed_title": "已延後",
     "archived_empty": "目前沒有已歸檔通知",
     "unarchive_tooltip": "取消歸檔",
     "actions_aria": "通知操作",
@@ -63,17 +63,17 @@
   },
   "detail": {
     "select_prompt": "選擇一條通知檢視詳細資訊",
-    "restore": "移回收件箱",
+    "restore": "移回收件匣",
     "more_actions": "更多通知操作",
     "original_input": "原始輸入",
     "retry_with_context": "保留上下文重試",
     "edit_advanced": "開啟完整表單",
     "autopilot_quota_exceeded_body": "目前週期的 {{limit}} 次自動化執行額度已用完。在 {{resetAt}} 重置、升級方案或加購之前，後續自動化執行將不會啟動。",
-    "app_tool_calls_quota_exceeded_body": "本工作区本月的 {{limit}} 次应用调用已用完。在 {{resetAt}} 重置、升级套餐或增加席位之前，智能体无法调用应用工具。",
-    "app_tool_calls_quota_action": "管理账单",
+    "app_tool_calls_quota_exceeded_body": "本工作區本月的 {{limit}} 次應用呼叫已用完。在 {{resetAt}} 重置、升級方案或增加席位之前，Agent無法呼叫應用工具。",
+    "app_tool_calls_quota_action": "管理帳單",
     "project_owner_joined_body": "{{name}} 是工作區所有者，已把自己加入這個私有專案，現在可以看到其中的任務、評論和附件。",
     "open_project": "開啟專案",
-    "open_app": "打开应用",
+    "open_app": "開啟應用程式",
     "autopilot_quota_upgrade": "查看選項",
     "archive": "歸檔",
     "unarchive": "取消歸檔",
@@ -90,7 +90,7 @@
     "issue_subscribed": "已訂閱",
     "issue_created": "新任務",
     "unassigned": "已取消分配",
-    "assignee_changed": "负责人已更改",
+    "assignee_changed": "分配人已更改",
     "status_changed": "狀態已更改",
     "priority_changed": "優先順序已更改",
     "start_date_changed": "開始日期已更改",
@@ -110,30 +110,30 @@
     "children_done": "子任務已全部結束",
     "project_owner_joined": "所有者加入了專案",
     "autopilot_quota_exceeded": "自動化執行次數已用完",
-    "app_tool_calls_quota_exceeded": "应用调用次数已用完",
+    "app_tool_calls_quota_exceeded": "應用呼叫次數已用完",
     "app_action_requested": "等待你確認",
     "app_action_reminder": "確認即將過期",
     "app_connect_requested": "請連線應用",
     "app_action_result": "應用操作結果",
     "doc_comment": "文件有新評論",
     "doc_mentioned": "在文件中提到了你",
-    "blockers_done": "等待的任务已结束"
+    "blockers_done": "等待的任務已結束"
   },
   "labels": {
     "set_status_to": "狀態設為",
     "set_priority_to": "優先順序設為",
     "assigned_to": "分配給 {{name}}",
-    "removed_assignee": "移除了负责人",
+    "removed_assignee": "移除了分配人",
     "set_start_date_to": "開始日期設為 {{date}}",
     "removed_start_date": "移除了開始日期",
     "set_due_date_to": "截止日期設為 {{date}}",
     "removed_due_date": "移除了截止日期",
     "reacted_to_comment": "用 {{emoji}} 回應了你的評論",
-    "commented": "评论了",
+    "commented": "留言了",
     "created_with_agent": "透過 Agent 建立：{{identifier}}",
     "failed_with_detail": "失敗：{{detail}}",
     "autopilot_quota_blocked": "執行已被阻止：額度已用完",
-    "app_tool_calls_quota_blocked": "本月智能体无法再调用应用工具",
+    "app_tool_calls_quota_blocked": "本月 Agent無法再呼叫應用工具",
     "children_done_stage": "第 {{stage}} 階段的子任務已全部結束"
   },
   "toasts": {
@@ -149,16 +149,16 @@
   },
   "kept": {
     "archived": "已歸檔",
-    "undo_archive": "撤销归档",
-    "unsubscribed": "已取消订阅",
+    "undo_archive": "復原歸檔",
+    "unsubscribed": "已取消訂閱",
     "leaves": "離開後移出收件箱",
     "filtered": "不再符合篩選",
-    "changed_status": "已改为{{status}}",
-    "reassigned": "已改派给 {{name}}",
+    "changed_status": "已改為{{status}}",
+    "reassigned": "已改派給 {{name}}",
     "unassigned": "已取消分配",
-    "ran_quick_action": "已运行 {{name}}",
-    "agent_triggered": "已触发智能体",
-    "returns_on_activity": "有新动态时会回到收件箱",
+    "ran_quick_action": "已執行 {{name}}",
+    "agent_triggered": "已觸發 Agent",
+    "returns_on_activity": "有新動態時會回到收件匣",
     "next": "下一條",
     "next_tooltip": "開啟下一條：{{title}}"
   },
@@ -189,11 +189,11 @@
     "active_issue_description": "這將永久刪除此任務在收件匣中的待處理通知。先前歸檔的通知、任務本身及其執行記錄都會保留。"
   },
   "archive_all_dialog": {
-    "title": "归档全部通知？",
-    "description": "收件箱中的所有活跃通知都会移至已归档。已延后的任务会保持延后，你随时可以恢复通知。",
-    "description_count_other": "收件箱中的全部 {{count}} 条活跃通知都会移至已归档。已延后的任务会保持延后，你随时可以恢复它们。",
+    "title": "歸檔全部通知？",
+    "description": "收件匣中的所有活躍通知都會移至已歸檔。已延後的任務會保持延後，你隨時可以恢復通知。",
+    "description_count_other": "收件匣中的全部 {{count}} 則活躍通知都會移至已歸檔。已延後的任務會保持延後，你隨時可以恢復它們。",
     "cancel": "取消",
-    "confirm": "归档全部"
+    "confirm": "歸檔全部"
   },
   "unsubscribe": {
     "title": "取消訂閱並歸檔：不再收到它的訂閱通知，@你時仍會通知",
@@ -224,7 +224,7 @@
     "returned": "延後到期",
     "updates_other": "期間 {{count}} 則動態",
     "toast_snoozed": "已延後到 {{time}}",
-    "toast_unsnoozed": "已回到收件箱",
+    "toast_unsnoozed": "已回到收件匣",
     "undo": "復原",
     "failed": "延後失敗",
     "unsnooze_failed": "恢復失敗",
@@ -232,26 +232,26 @@
     "view_empty_description": "在收件箱裡延後一個任務，它會在這裡等到時間再回來。"
   },
   "auto_archive_prompt": {
-    "title": "处理完的通知，可以自动归档",
-    "description": "收件箱新增了自动归档：你处理完一个任务，它的通知就会移出收件箱。只算你自己的操作，有新动态会重新进收件箱。",
+    "title": "處理完的通知，可以自動歸檔",
+    "description": "收件匣新增了自動歸檔：你處理完一個任務，它的通知就會移出收件匣。只算你自己的操作，有新動態會重新進收件匣。",
     "options": {
-      "handled": "完成任务或触发智能体运行时自动归档；只整理字段或不触发智能体的评论留在原地",
-      "completed": "只有完成或取消任务才归档",
-      "never": "自己手动归档"
+      "handled": "完成任務或觸發 Agent執行時自動歸檔；只整理欄位或不觸發 Agent的留言留在原地",
+      "completed": "只有完成或取消任務才歸檔",
+      "never": "自己手動歸檔"
     },
-    "hint": "之后可以在 设置 › 通知 里修改",
-    "confirm": "确定"
+    "hint": "之後可以在 設定 › 通知 裡修改",
+    "confirm": "確定"
   },
   "zero": {
-    "cleared_title": "收件箱已清空",
-    "just_archived": "刚归档了 {{label}}",
-    "just_snoozed": "已将 {{label}} 延后至 {{time}}",
-    "just_unsubscribed": "已取消订阅并归档 {{label}}",
-    "just_archived_many_other": "已归档 {{count}} 条通知",
-    "snoozed_summary_other": "{{count}} 条延后通知 · 最早 {{time}} 回来",
-    "filtered_title": "当前筛选下的通知已处理完",
-    "filtered_remaining_other": "收件箱里还有 {{count}} 条其他通知待处理",
-    "clear_and_continue": "清除筛选，继续处理",
-    "undo_item": "撤销 {{label}}"
+    "cleared_title": "收件匣已清空",
+    "just_archived": "剛歸檔了 {{label}}",
+    "just_snoozed": "已將 {{label}} 延後至 {{time}}",
+    "just_unsubscribed": "已取消訂閱並歸檔 {{label}}",
+    "just_archived_many_other": "已歸檔 {{count}} 則通知",
+    "snoozed_summary_other": "{{count}} 則延後通知 · 最早 {{time}} 回來",
+    "filtered_title": "目前篩選下的通知已處理完",
+    "filtered_remaining_other": "收件匣裡還有 {{count}} 則其他通知待處理",
+    "clear_and_continue": "清除篩選，繼續處理",
+    "undo_item": "復原 {{label}}"
   }
 }

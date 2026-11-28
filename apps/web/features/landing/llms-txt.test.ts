@@ -23,9 +23,9 @@ describe("buildLlmsTxt", () => {
   });
 
   it("links the docs Markdown and the agent install guide", () => {
-    expect(text).toContain("(https://www.multica.ai/docs/llms.txt)");
-    expect(text).toContain("(https://www.multica.ai/docs/llms-full.txt)");
-    expect(text).toContain("(https://www.multica.ai/docs/self-hosting-ai.md)");
+    expect(text).toContain("(https://10.1.24.90:45671/docs/llms.txt)");
+    expect(text).toContain("(https://10.1.24.90:45671/docs/llms-full.txt)");
+    expect(text).toContain("(https://10.1.24.90:45671/docs/self-hosting-ai.md)");
   });
 
   it("makes every link absolute and carries no markup", () => {
@@ -36,9 +36,9 @@ describe("buildLlmsTxt", () => {
   });
 
   it("lists only released pages", () => {
-    expect(text).toContain(`- [${dict.meta.download.title}](https://www.multica.ai/download)`);
+    expect(text).toContain(`- [${dict.meta.download.title}](https://10.1.24.90:45671/download)`);
     const unreleased = buildLlmsTxt(dict, (href) => href !== "/download");
-    expect(unreleased).toContain(`- [${dict.meta.about.title}](https://www.multica.ai/about)`);
+    expect(unreleased).toContain(`- [${dict.meta.about.title}](https://10.1.24.90:45671/about)`);
     expect(unreleased).not.toContain(`- [${dict.meta.download.title}]`);
   });
 });

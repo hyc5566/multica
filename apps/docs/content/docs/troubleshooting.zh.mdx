@@ -170,7 +170,7 @@ multica issue runs <issue-id>
 
 如果 Grok 等 AI 程式設計工具在終端中執行正常，在 Multica 桌面端卻超時，請檢查終端是否匯出了代理環境變數。在 macOS 上，本地daemon和它啟動的工具會繼承啟動它們的程序的環境變數。從程式塢啟動桌面端時，應用不會讀取 shell 匯出的變數，也不會將 macOS「網路」中的代理設定轉換成環境變數。
 
-如果只有一個Agent需要代理，請在該Agent的[環境變數](/agents-create#環境變數與憑據)中新增它的工具所需的代理變數。例如，本地 HTTP 代理可設定為 `HTTPS_PROXY=http://127.0.0.1:7897`，請換成實際的代理地址。如果 Multica 部署在本機，可將需要直連的主機加入 `NO_PROXY`，例如 `localhost,127.0.0.1,::1`。開始一次新的執行，使修改生效。
+如果只有一個Agent需要代理，請在該Agent的[環境變數](/agents-create#環境變數與憑證)中新增它的工具所需的代理變數。例如，本地 HTTP 代理可設定為 `HTTPS_PROXY=http://127.0.0.1:7897`，請換成實際的代理地址。如果 Multica 部署在本機，可將需要直連的主機加入 `NO_PROXY`，例如 `localhost,127.0.0.1,::1`。開始一次新的執行，使修改生效。
 
 這些設定只作用於該Agent的工具程序，不作用於daemon。如果daemon需要透過代理連線 Multica 伺服器，或需要獲取最新的模型列表（daemon用自己的環境獲取模型列表），請單獨配置它的啟動環境。開機自啟的daemon見[開機自啟](/daemon-runtimes#autostart)。
 

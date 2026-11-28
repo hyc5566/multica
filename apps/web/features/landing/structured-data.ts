@@ -1,5 +1,4 @@
 import { parseInlineLinks } from "./components/inline-links";
-import { discordUrl, githubUrl, twitterUrl } from "./components/shared";
 import type { LandingDict } from "./i18n/types";
 
 export const SITE_ORIGIN = "https://10.1.24.90:45671";

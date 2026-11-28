@@ -1,104 +1,104 @@
 {
   "untitled": "未命名",
   "version_number": "v{{number}}",
-  "kb": "知识库",
+  "kb": "知識庫",
   "actions": {
-    "new": "新建",
-    "new_doc": "新建文档",
-    "new_folder": "新建文件夹",
-    "rename": "重命名",
-    "move": "移动到...",
-    "delete": "删除",
+    "new": "新增",
+    "new_doc": "新增文件",
+    "new_folder": "新增資料夾",
+    "rename": "重新命名",
+    "move": "移動到...",
+    "delete": "刪除",
     "cancel": "取消",
-    "history": "历史",
+    "history": "歷史",
     "more": "更多",
-    "copy_link": "复制链接"
+    "copy_link": "複製連結"
   },
   "errors": {
-    "move": "移动失败",
-    "delete": "删除失败",
-    "save": "保存失败"
+    "move": "無法移動項目",
+    "delete": "無法刪除項目",
+    "save": "無法儲存變更"
   },
   "move": {
-    "title": "移动\"{{title}}\"",
-    "destination": "目标位置",
-    "root": "知识库（顶层）",
-    "current": "当前",
-    "confirm": "移动"
+    "title": "移動\"{{title}}\"",
+    "destination": "目標位置",
+    "root": "知識庫（最上層）",
+    "current": "目前",
+    "confirm": "移動"
   },
   "delete": {
-    "title": "删除这篇文档？",
-    "description": "\"{{title}}\"及其全部历史都会被删除，无法撤销。",
-    "confirm": "删除",
-    "folder_title": "删除文件夹？",
-    "folder_description": "确定删除\"{{title}}\"？仅支持删除空文件夹，此操作无法撤销。"
+    "title": "刪除這份文件？",
+    "description": "\"{{title}}\"及其全部歷史都會被刪除，無法復原。",
+    "confirm": "刪除",
+    "folder_title": "刪除資料夾？",
+    "folder_description": "要刪除\"{{title}}\"嗎？僅能刪除空資料夾，此操作無法復原。"
   },
   "tree": {
     "more": "{{title}} 的更多操作",
-    "empty": "还没有文档",
-    "new_doc_in": "在\"{{title}}\"中新建文档"
+    "empty": "還沒有文件",
+    "new_doc_in": "在\"{{title}}\"中新增文件"
   },
   "editor": {
-    "placeholder": "开始写，或输入 / 调出命令...",
-    "title_label": "标题",
-    "saving": "保存中...",
-    "saved": "已保存",
-    "save_failed": "保存失败 · 重试",
-    "retry": "重试",
-    "conflict": "{{name}} 已更新文档。草稿已保留，刷新后继续编辑。",
-    "reload": "刷新最新版本",
+    "placeholder": "開始寫，或輸入 / 叫出命令...",
+    "title_label": "標題",
+    "saving": "儲存中...",
+    "saved": "已儲存",
+    "save_failed": "儲存失敗 · 重試",
+    "retry": "重試",
+    "conflict": "{{name}} 已更新文件。草稿已保留，重新載入後繼續編輯。",
+    "reload": "載入最新版本",
     "draft": "保留的草稿",
-    "unsaved_changes": "未保存的修改",
-    "live": "实时协作",
-    "reconnecting": "正在重新连接...",
-    "connecting": "正在连接...",
-    "title_save_failed": "标题未保存",
-    "editing_now": "正在编辑"
+    "unsaved_changes": "未儲存的修改",
+    "live": "即時協作",
+    "reconnecting": "正在重新連線...",
+    "connecting": "正在連線...",
+    "title_save_failed": "標題未儲存",
+    "editing_now": "正在編輯"
   },
   "history": {
-    "title": "历史",
-    "current": "当前",
-    "restore": "恢复此版本",
-    "loading": "加载中...",
-    "from_discussion": "来自评论：{{quote}}"
+    "title": "歷史",
+    "current": "目前",
+    "restore": "還原此版本",
+    "loading": "載入中...",
+    "from_discussion": "來自留言：{{quote}}"
   },
   "not_found": {
-    "title": "未找到该文档",
-    "description": "它可能已被删除。"
+    "title": "未找到該文件",
+    "description": "它可能已被刪除。"
   },
-  "edited": "编辑于 {{time}}",
-  "view_history": "查看历史",
-  "outline": "大纲",
-  "link_copied": "链接已复制",
+  "edited": "{{time}}編輯",
+  "view_history": "查看歷史",
+  "outline": "大綱",
+  "link_copied": "連結已複製",
   "unavailable": {
-    "title": "知识库暂未开放",
-    "description": "当前工作区尚未开启知识库。"
+    "title": "此工作區尚未啟用知識庫",
+    "description": "目前工作區尚未開啟知識庫。"
   },
   "comments": {
-    "title": "评论",
-    "add": "评论",
-    "open": "未解决 {{count}}",
-    "resolved": "已解决 {{count}}",
-    "close": "关闭评论",
-    "quote_missing": "原文已修改，找不到划线位置",
+    "title": "留言",
+    "add": "留言",
+    "open": "未解決 {{count}}",
+    "resolved": "已解決 {{count}}",
+    "close": "關閉留言",
+    "quote_missing": "原文已修改，找不到劃線位置",
     "quote_changed": "原文已修改",
-    "reply_placeholder": "回复，或 @ 某人...",
-    "new_placeholder": "写下评论，@ 提及某人...",
-    "submit": "评论",
-    "reply": "回复",
+    "reply_placeholder": "回覆，或 @ 某人...",
+    "new_placeholder": "新增留言，或 @ 提及某人...",
+    "submit": "留言",
+    "reply": "回覆",
     "cancel": "取消",
-    "resolve": "解决",
-    "reopen": "重新打开",
-    "delete": "删除评论",
-    "resolved_by": "{{name}} 已解决",
-    "replies_other": "{{count}} 条回复",
-    "empty_open": "没有未解决的评论。选中文字后点\"评论\"即可发起。",
-    "empty_resolved": "没有已解决的评论。",
+    "resolve": "解決",
+    "reopen": "重新開啟",
+    "delete": "刪除留言",
+    "resolved_by": "{{name}} 已解決",
+    "replies_other": "{{count}} 則回覆",
+    "empty_open": "沒有未解決的留言。選取文字後點\"留言\"即可發起。",
+    "empty_resolved": "沒有已解決的留言。",
     "errors": {
-      "save": "评论发送失败",
-      "delete": "评论删除失败",
-      "resolve": "无法更新评论状态"
+      "save": "留言送出失敗",
+      "delete": "留言刪除失敗",
+      "resolve": "無法更新留言"
     },
-    "run_waiting_retry": "等待重试"
+    "run_waiting_retry": "等待重試"
   }
 }

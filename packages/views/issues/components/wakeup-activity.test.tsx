@@ -46,7 +46,7 @@ describe("wakeup timeline entries", () => {
       "Jiayuan 立即喚醒了 Emacs",
     );
     expect(read(entry("wakeup_triggered", { rule: "blockers_done", target_type: "agent", target_id: "a", outcome: "woke" }))).toBe(
-      "等待的任务已结束，唤醒了 Emacs",
+      "等待的任務已結束，喚醒了 Emacs",
     );
     expect(read(entry("wakeup_triggered", { rule: "child_done", stage: 1, total: 2, target_type: "agent", target_id: "a", outcome: "woke" }))).toBe(
       "第 1 階段的 2 個子任務已全部結束，喚醒了 Emacs",

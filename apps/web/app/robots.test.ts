@@ -18,6 +18,6 @@ describe("robots.txt", () => {
     for (const group of groups) {
       expect(group.disallow).toEqual(expect.arrayContaining(["/api/", "/auth/", "/issues", "/settings"]));
     }
-    expect(sitemaps).toEqual(["https://www.multica.ai/sitemap.xml", "https://www.multica.ai/docs/sitemap.xml"]);
+    expect(sitemaps).toEqual(["https://10.1.24.90:45671/sitemap.xml", "https://10.1.24.90:45671/docs/sitemap.xml"]);
   });
 });

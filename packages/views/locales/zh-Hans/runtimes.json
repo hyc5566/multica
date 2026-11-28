@@ -303,10 +303,10 @@
     "fields": {
       "name": "名稱",
       "instance_type": "執行個體規格",
-      "region": "区域",
+      "region": "Region",
       "disk_size": "磁碟大小（GiB）",
       "image_id": "映像 ID（AMI）",
-      "subnet_id": "子网 ID",
+      "subnet_id": "Subnet ID",
       "key_name": "SSH 金鑰對",
       "bootstrap_pat": "初始化 Token（PAT）"
     },

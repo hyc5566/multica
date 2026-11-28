@@ -75,9 +75,10 @@ describe("AgentDetailInspector profile", () => {
     const onUpdate = vi.fn(async () => {});
     renderInspector(onUpdate);
 
+    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Mu" } });
     setAgent({ description: "New description" });
     expect(screen.getByLabelText("Description")).toHaveValue("New description");
-    fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Mu" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await advance(1000);
 
     expect(onUpdate).toHaveBeenCalledExactlyOnceWith("agent-1", { name: "Mu" });
@@ -88,9 +89,11 @@ describe("AgentDetailInspector profile", () => {
       setAgent(data);
       await new Promise((resolve) => setTimeout(resolve, 100));
       setAgent({ name: "Lambda" });
+      throw new Error("save rolled back");
     });
 
     fireEvent.change(screen.getByLabelText("Name"), { target: { value: "Mu" } });
+    fireEvent.click(screen.getByRole("button", { name: "Save changes" }));
     await advance(1000);
 
     expect(screen.getByLabelText("Name")).toHaveValue("Mu");

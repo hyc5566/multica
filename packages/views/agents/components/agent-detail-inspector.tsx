@@ -98,6 +98,7 @@ export function AgentDetailInspector({
     name: agent.name,
     description: agent.description ?? "",
   });
+  const observedProfileRef = useRef({ ...savedProfileRef.current });
   const profileDraftRef = useRef({
     name: agent.name,
     description: agent.description ?? "",
@@ -111,16 +112,26 @@ export function AgentDetailInspector({
       description: agent.description ?? "",
     };
     const saved = savedProfileRef.current;
-    const switchingAgents = saved.agentId !== agent.id;
-    const localDirty =
-      profileDraftRef.current.name !== saved.name ||
-      profileDraftRef.current.description !== saved.description;
-    const serverChanged =
-      incoming.name !== saved.name || incoming.description !== saved.description;
-    if (switchingAgents || (!savingProfile && !localDirty && serverChanged)) {
+    if (saved.agentId !== agent.id) {
       savedProfileRef.current = incoming;
+      observedProfileRef.current = { ...incoming };
       setName(incoming.name);
       setDescription(incoming.description);
+      setSavingProfile(false);
+      return;
+    }
+    if (!savingProfile) {
+      const draft = profileDraftRef.current;
+      const observed = observedProfileRef.current;
+      observedProfileRef.current = incoming;
+      if (draft.name.trim() === saved.name && incoming.name !== observed.name && incoming.name !== saved.name) {
+        saved.name = incoming.name;
+        setName(incoming.name);
+      }
+      if (draft.description === saved.description && incoming.description !== observed.description && incoming.description !== saved.description) {
+        saved.description = incoming.description;
+        setDescription(incoming.description);
+      }
     }
   }, [agent.description, agent.id, agent.name, savingProfile]);
 
@@ -138,15 +149,18 @@ export function AgentDetailInspector({
       if (next.name !== savedProfile.name) changes.name = next.name;
       if (next.description !== savedProfile.description) changes.description = next.description;
       await update(changes);
-      savedProfileRef.current = { agentId: agent.id, ...next };
-      setName(next.name);
+      if (savedProfileRef.current.agentId === agent.id) {
+        savedProfileRef.current = { ...savedProfileRef.current, ...changes };
+        setName(next.name);
+      }
     } catch {
       // The parent owns the error toast; keep the draft available for retry.
     } finally {
-      setSavingProfile(false);
+      if (savedProfileRef.current.agentId === agent.id) setSavingProfile(false);
     }
   };
   const discardProfile = () => {
+    savedProfileRef.current = { agentId: agent.id, name: agent.name, description: agent.description ?? "" };
     setName(savedProfileRef.current.name);
     setDescription(savedProfileRef.current.description);
   };

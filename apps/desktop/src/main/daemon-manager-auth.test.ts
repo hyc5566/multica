@@ -4,11 +4,12 @@ import { createHash } from "crypto";
 import { app } from "electron";
 import { readFile } from "fs/promises";
 
-const { files, handlers, cliState, machine } = vi.hoisted(() => ({
+const { files, handlers, cliState, machine, fetchMock } = vi.hoisted(() => ({
   machine: { home: "/test-home", host: "test-host" },
   cliState: { running: true, pid: 100, failStart: false, commands: [] as string[][] },
   files: new Map<string, string>(),
   handlers: new Map<string, (...args: unknown[]) => Promise<unknown>>(),
+  fetchMock: vi.fn(),
 }));
 
 vi.mock("electron", () => ({
@@ -20,6 +21,7 @@ vi.mock("electron", () => ({
   },
   BrowserWindow: {},
   shell: {},
+  net: { fetch: fetchMock },
 }));
 vi.mock("fs", () => ({ existsSync: (path: string) => path === "/test-app/resources/bin/multica", watchFile: vi.fn(), unwatchFile: vi.fn() }));
 vi.mock("child_process", () => ({ execFile: (_bin: string, args: string[], _opts: unknown, callback: (error: Error | null, out: string) => void) => {
@@ -71,7 +73,6 @@ let DaemonOperationGate: typeof import("./daemon-recovery").DaemonOperationGate;
 const server = "https://multica.example.test";
 const profile = "desktop-multica.example.test";
 const configPath = () => profileConfigPath(profile);
-const fetchMock = vi.fn();
 
 function invoke(name: string, ...args: unknown[]) {
   return handlers.get(name)!(null, ...args);
