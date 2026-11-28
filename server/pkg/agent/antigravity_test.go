@@ -962,7 +962,7 @@ func TestAntigravityBackendStreamJSONCapturesUsage(t *testing.T) {
 	var streamed strings.Builder
 	runningUpdates := 0
 	for msg := range session.Messages {
-		if msg.Type == MessageStatus && msg.Status == "running" {
+		if msg.Type == MessageStatus && msg.Status == "running" && msg.SessionID == "" {
 			runningUpdates++
 		}
 		if msg.Type == MessageText {
@@ -970,6 +970,7 @@ func TestAntigravityBackendStreamJSONCapturesUsage(t *testing.T) {
 		}
 	}
 	// Initial activity plus all three steps, including the textless checkpoint.
+	// The upstream session-ID announcement is a separate status message.
 	if runningUpdates != 4 {
 		t.Fatalf("running activity updates = %d, want 4", runningUpdates)
 	}
