@@ -18,8 +18,16 @@ type claimContinuityGapProbe struct {
 	} `json:"task"`
 }
 
+func refreshClaimTestRuntime(t *testing.T, runtimeID string) {
+	t.Helper()
+	// Daemons refresh their heartbeat while polling. The shared test runtime
+	// is created once, so its initial heartbeat can expire during the suite.
+	dbfx.Exec(t, "UPDATE agent_runtime SET last_seen_at = now() WHERE id = $1", runtimeID)
+}
+
 func claimOneTaskForRuntime(t *testing.T, runtimeID, daemonID string) claimContinuityGapProbe {
 	t.Helper()
+	refreshClaimTestRuntime(t, runtimeID)
 	w := httptest.NewRecorder()
 	req := newOwnerDaemonRequest(http.MethodPost, "/api/daemon/runtimes/"+runtimeID+"/claim", nil)
 	req = withURLParam(req, "runtimeId", runtimeID)

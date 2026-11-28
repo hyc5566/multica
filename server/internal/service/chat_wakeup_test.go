@@ -135,7 +135,7 @@ func (f *chatWakeupFixture) turn(t *testing.T, w db.ChatWakeup) (db.AgentTaskQue
 
 func (f *chatWakeupFixture) dueNow(t *testing.T, id pgtype.UUID) {
 	t.Helper()
-	f.fx.Exec(t, "UPDATE chat_wakeup SET next_eval_at = now() - interval '1 second' WHERE id = $1", util.UUIDToString(id))
+	f.fx.Exec(t, "UPDATE chat_wakeup SET next_eval_at = $2 WHERE id = $1", util.UUIDToString(id), f.clock.Add(-time.Second))
 }
 
 func TestChatWakeupReminderStartsTurnInConversation(t *testing.T) {
